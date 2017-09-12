@@ -31,28 +31,25 @@ import handling.world.World;
 import handling.world.guild.MapleGuild;
 import java.awt.Point;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import server.MapleDueyActions;
 import server.MapleShop;
 import server.MapleTrade;
 import server.Randomizer;
-import server.ServerProperties;
 import server.events.MapleSnowball.MapleSnowballs;
 import server.life.MapleNPC;
 import server.maps.*;
 import server.maps.MapleNodes.MaplePlatform;
-import server.movement.LifeMovementFragment;
+import server.movement.ILifeMovementFragment;
 import server.quest.MapleQuest;
 import tools.AttackPair;
 import tools.HexTool;
-import tools.Pair;
-import tools.Triple;
+import tools.types.Pair;
+import tools.types.Triple;
 import tools.data.MaplePacketLittleEndianWriter;
 
 /**
@@ -786,7 +783,7 @@ public class CField {
             return mplew.getPacket();
         }
 
-        public static byte[] moveSummon(int cid, int oid, Point startPos, List<LifeMovementFragment> moves) {
+        public static byte[] moveSummon(int cid, int oid, Point startPos, List<ILifeMovementFragment> moves) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
             mplew.writeShort(SendPacketOpcode.MOVE_SUMMON.getValue());
@@ -830,7 +827,7 @@ public class CField {
             mplew.writeInt(0); //<-- delay
             mplew.write(attack.size());
             for (AttackPair p : attack) {
-                mplew.writeInt(p.objectid);
+                mplew.writeInt(p.objectId);
                 mplew.writePos(p.point);
                 mplew.write(p.attack.size());
                 mplew.write(0); // who knows
@@ -2486,7 +2483,7 @@ public class CField {
         mplew.write(0); //idk: probably does something like immobilize target	
        
         for (AttackPair p : attack) {
-            mplew.writeInt(p.objectid);
+            mplew.writeInt(p.objectId);
             mplew.writeInt(0);
             mplew.writePos(p.point);
             mplew.write(0);
@@ -2658,7 +2655,7 @@ public class CField {
         return mplew.getPacket();
     }
 
-    public static byte[] moveDragon(MapleDragon d, Point startPos, List<LifeMovementFragment> moves) {
+    public static byte[] moveDragon(MapleDragon d, Point startPos, List<ILifeMovementFragment> moves) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.DRAGON_MOVE.getValue());
@@ -2691,7 +2688,7 @@ public class CField {
         return mplew.getPacket();
     }
 
-    public static byte[] moveAndroid(int cid, Point pos, List<LifeMovementFragment> res) {
+    public static byte[] moveAndroid(int cid, Point pos, List<ILifeMovementFragment> res) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.ANDROID_MOVE.getValue());
@@ -2775,7 +2772,7 @@ public class CField {
         return mplew.getPacket();
     }
 
-    public static byte[] moveFamiliar(int cid, Point startPos, List<LifeMovementFragment> moves) {
+    public static byte[] moveFamiliar(int cid, Point startPos, List<ILifeMovementFragment> moves) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.MOVE_FAMILIAR.getValue());
@@ -2847,7 +2844,7 @@ public class CField {
         return mplew.getPacket();
     }
 
-    public static byte[] movePlayer(int cid, List<LifeMovementFragment> moves, Point startPos) {
+    public static byte[] movePlayer(int cid, List<ILifeMovementFragment> moves, Point startPos) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.MOVE_PLAYER.getValue());
@@ -2907,7 +2904,7 @@ public class CField {
         }
         for (AttackPair oned : damage) {
             if (oned.attack != null) {
-                packet.writeInt(oned.objectid);
+                packet.writeInt(oned.objectId);
                 packet.write(0x07);
                 packet.write(0);
                 packet.write(0);
@@ -2964,7 +2961,7 @@ public class CField {
         mplew.writeInt(charge); // only range shows item id,rest 0		
         for (AttackPair oned : damage) {
             if (oned.attack != null) {
-                mplew.writeInt(oned.objectid);
+                mplew.writeInt(oned.objectId);
                 mplew.write(7);
                 if (skill == 4211006) {
                     mplew.write(oned.attack.size());
@@ -3331,7 +3328,7 @@ mplew.writeZeroBytes(30);
         return mplew.getPacket();
     }
 
-    public static byte[] moveFollow(Point otherStart, Point myStart, Point otherEnd, List<LifeMovementFragment> moves) {
+    public static byte[] moveFollow(Point otherStart, Point myStart, Point otherEnd, List<ILifeMovementFragment> moves) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.FOLLOW_MOVE.getValue());

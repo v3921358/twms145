@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import server.maps.MapleMap;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
-import tools.Pair;
+import tools.types.Pair;
 import tools.packet.PlayerShopPacket;
 
 public abstract class AbstractPlayerStore extends MapleMapObject implements IMaplePlayerShop {

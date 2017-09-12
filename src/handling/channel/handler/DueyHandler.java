@@ -36,7 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import server.MapleDueyActions;
-import tools.Pair;
+import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 
 public class DueyHandler {
@@ -101,8 +101,8 @@ public class DueyHandler {
         c.getSession().write(CField.sendDuey((byte) 17, null)); // Unsuccessfull
         return;
         }
-        final byte flag = item.getFlag();
-        if (ItemFlag.UNTRADEABLE.check(flag) || ItemFlag.LOCK.check(flag)) {
+        final byte WORLD_FLAGS = item.getFlag();
+        if (ItemFlag.UNTRADEABLE.check(WORLD_FLAGS) || ItemFlag.LOCK.check(WORLD_FLAGS)) {
         c.getSession().write(CWvsContext.enableActions());
         return;
         }
@@ -155,7 +155,7 @@ public class DueyHandler {
         }
         final int packageid = slea.readInt();
         //System.out.println("Item attempted : " + packageid);
-        final MapleDueyActions dp = loadSingleItem(packageid, c.getPlayer().getId());
+        final MapleDueyActions dp = loadSingleItem(packageid, c.getPlayer().getWorldId());
         if (dp == null) {
         return;
         }
@@ -166,7 +166,7 @@ public class DueyHandler {
         c.getSession().write(CField.sendDuey((byte) 17, null)); // Unsuccessfull
         return;
         }
-        removeItemFromDB(packageid, c.getPlayer().getId()); // Remove first
+        removeItemFromDB(packageid, c.getPlayer().getWorldId()); // Remove first
         //System.out.println("Item removed : " + packageid);
         if (dp.getItem() != null) {
         MapleInventoryManipulator.addFromDrop(c, dp.getItem(), false);
@@ -182,7 +182,7 @@ public class DueyHandler {
         return;
         }
         final int packageid = slea.readInt();
-        removeItemFromDB(packageid, c.getPlayer().getId());
+        removeItemFromDB(packageid, c.getPlayer().getWorldId());
         c.getSession().write(CField.removeItemFromDuey(true, packageid));
         break;
         }

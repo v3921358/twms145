@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import server.CharacterCardFactory;
-import tools.Pair;
-import tools.Triple;
+import tools.types.Pair;
+import tools.types.Triple;
 import tools.data.MaplePacketLittleEndianWriter;
 
 /**

@@ -22,7 +22,7 @@ import server.Timer.EtcTimer;
 import server.maps.MapleMap; 
 import tools.HexTool; 
 import tools.packet.CWvsContext; 
-import tools.Pair; 
+import tools.types.Pair;
 
 /** 
  * 

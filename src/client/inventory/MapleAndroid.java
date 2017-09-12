@@ -31,9 +31,9 @@ import java.util.List;
 import server.MapleItemInformationProvider;
 import server.Randomizer;
 import server.movement.AbsoluteLifeMovement;
-import server.movement.LifeMovement;
-import server.movement.LifeMovementFragment;
-import tools.Pair;
+import server.movement.ILifeMovement;
+import server.movement.ILifeMovementFragment;
+import tools.types.Pair;
 
 public class MapleAndroid implements Serializable {
 
@@ -177,13 +177,13 @@ public class MapleAndroid implements Serializable {
         return itemid;
     }
 
-    public final void updatePosition(final List<LifeMovementFragment> movement) {
-        for (final LifeMovementFragment move : movement) {
-            if (move instanceof LifeMovement) {
+    public final void updatePosition(final List<ILifeMovementFragment> movement) {
+        for (final ILifeMovementFragment move : movement) {
+            if (move instanceof ILifeMovement) {
                 if (move instanceof AbsoluteLifeMovement) {
-                    setPos(((LifeMovement) move).getPosition());
+                    setPos(((ILifeMovement) move).getPosition());
                 }
-                setStance(((LifeMovement) move).getNewstate());
+                setStance(((ILifeMovement) move).getNewState());
             }
         }
     }

@@ -20,13 +20,19 @@ package server.movement;
 import java.awt.Point;
 import tools.data.MaplePacketLittleEndianWriter;
 
-public class ChangeEquipSpecialAwesome implements LifeMovementFragment {
+public class ChangeEquipSpecialAwesome extends AbstractLifeMovement {
 
     private int type, wui;
 
-    public ChangeEquipSpecialAwesome(int type, int wui) {
+    public ChangeEquipSpecialAwesome(int type, Point pos, int wui, MovementKind kind) {
+        super(type, pos, 0, 0, kind);
         this.type = type;
         this.wui = wui;
+    }
+
+    @Override
+    public MovementKind getKind() {
+        return null;
     }
 
     @Override

@@ -41,7 +41,7 @@ import server.MapleShop;
 import server.MapleStorage;
 import server.life.MapleNPC;
 import server.quest.MapleQuest;
-import tools.Pair;
+import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.data.MaplePacketLittleEndianWriter;
 import tools.packet.CField;
@@ -60,13 +60,13 @@ public class NPCHandler {
             mplew.writeInt(slea.readInt());
             mplew.writeShort(slea.readShort());
             mplew.writeInt(slea.readInt());
-            c.announce(mplew.getPacket());
+            c.sendPacket(mplew.getPacket());
         } else if (length > 10) { // NPC Move
             //System.out.println("NPCMOVE: " + slea.toString());
             byte[] bytes = slea.read(length - 9);
             mplew.writeShort(SendPacketOpcode.NPC_ACTION.getValue());
             mplew.write(bytes);
-            c.announce(mplew.getPacket());
+            c.sendPacket(mplew.getPacket());
         } else {
             //System.out.println("ehh " + slea.toString());
         }
@@ -285,14 +285,14 @@ public class NPCHandler {
                      */
                     if (item.getItemId() == itemId && (item.getQuantity() >= quantity || GameConstants.isThrowingStar(itemId) || GameConstants.isBullet(itemId))) {
                         /*if (ii.isDropRestricted(item.getItemId())) {
-                         if (ItemFlag.KARMA_EQ.check(flag)) {
-                         item.setFlag((short) (flag - ItemFlag.KARMA_EQ.getValue()));
-                         } else if (ItemFlag.KARMA_USE.check(flag)) {
-                         item.setFlag((short) (flag - ItemFlag.KARMA_USE.getValue()));
-                         } else if (ItemFlag.KARMA_ACC.check(flag)) {
-                         item.setFlag((short) (flag - ItemFlag.KARMA_ACC.getValue()));
-                         } else if (ItemFlag.KARMA_ACC_USE.check(flag)) {
-                         item.setFlag((short) (flag - ItemFlag.KARMA_ACC_USE.getValue()));
+                         if (ItemFlag.KARMA_EQ.check(WORLD_FLAGS)) {
+                         item.setFlag((short) (WORLD_FLAGS - ItemFlag.KARMA_EQ.getValue()));
+                         } else if (ItemFlag.KARMA_USE.check(WORLD_FLAGS)) {
+                         item.setFlag((short) (WORLD_FLAGS - ItemFlag.KARMA_USE.getValue()));
+                         } else if (ItemFlag.KARMA_ACC.check(WORLD_FLAGS)) {
+                         item.setFlag((short) (WORLD_FLAGS - ItemFlag.KARMA_ACC.getValue()));
+                         } else if (ItemFlag.KARMA_ACC_USE.check(WORLD_FLAGS)) {
+                         item.setFlag((short) (WORLD_FLAGS - ItemFlag.KARMA_ACC_USE.getValue()));
                          } else {
                          c.getSession().write(CWvsContext.enableActions());
                          return;

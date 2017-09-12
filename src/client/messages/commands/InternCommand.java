@@ -1,30 +1,18 @@
 package client.messages.commands;
 
-import client.MapleBuffStat;
 import client.MapleCharacter;
-import client.MapleCharacterUtil;
 import client.MapleClient;
-import client.MapleStat;
 import client.Skill;
 import client.SkillFactory;
-import client.inventory.Item;
-import client.inventory.MapleInventoryType;
 import client.messages.CommandProcessorUtil;
-import constants.GameConstants;
-import constants.ServerConstants;
 import constants.ServerConstants.PlayerGMRank;
 import handling.channel.ChannelServer;
 import handling.login.LoginServer;
-import handling.world.CheaterData;
 import handling.world.World;
 import java.awt.Point;
-import java.io.File;
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,11 +25,9 @@ import provider.MapleDataTool;
 import scripting.EventInstanceManager;
 import scripting.EventManager;
 import server.ItemInformation;
-import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MaplePortal;
 import server.MapleSquad;
-import server.MapleSquad.MapleSquadType;
 import server.Randomizer;
 import server.Timer.EventTimer;
 import server.life.MapleMonster;
@@ -52,7 +38,7 @@ import server.maps.MapleMapObjectType;
 import server.maps.MapleReactor;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
-import tools.Pair;
+import tools.types.Pair;
 import tools.StringUtil;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
@@ -306,7 +292,7 @@ public class InternCommand {
                     }
                     return true;
                 case "uptime":
-                    c.getPlayer().dropMessage(6, "Server has been up for " + StringUtil.getReadableMillis(ChannelServer.serverStartTime, System.currentTimeMillis()));
+                    c.getPlayer().dropMessage(6, "WorldConfig has been up for " + StringUtil.getReadableMillis(ChannelServer.serverStartTime, System.currentTimeMillis()));
                     return true;
                 case "eventinstance":
                 if (c.getPlayer().getEventInstance() == null) {

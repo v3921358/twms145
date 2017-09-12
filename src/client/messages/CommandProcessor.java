@@ -38,7 +38,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import tools.FileoutputUtil;
-import constants.ServerConstants;
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,8 +46,7 @@ import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
-import server.life.MapleLifeFactory;
-import tools.Pair;
+import tools.types.Pair;
 
 
 public class CommandProcessor {

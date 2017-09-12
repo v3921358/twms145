@@ -28,7 +28,7 @@ import java.util.concurrent.ScheduledFuture;
 import server.Timer.EventTimer;
 import server.events.MapleOxQuizFactory.MapleOxQuizEntry;
 import server.maps.MapleMap;
-import tools.Pair;
+import tools.types.Pair;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
 

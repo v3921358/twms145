@@ -29,7 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.regex.Pattern;
-import tools.Triple;
+import tools.types.Triple;
 
 public class MapleCharacterUtil {
 

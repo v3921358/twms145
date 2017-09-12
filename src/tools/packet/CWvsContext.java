@@ -50,8 +50,7 @@ import server.StructFamiliar;
 import server.life.PlayerNPC;
 import server.shops.HiredMerchant;
 import server.shops.MaplePlayerShopItem;
-import tools.HexTool;
-import tools.Pair;
+import tools.types.Pair;
 import tools.StringUtil;
 import tools.data.MaplePacketLittleEndianWriter;
 
@@ -3339,7 +3338,6 @@ mplew.writeZeroBytes(100);
     }
 
     public static byte[] Mulung_Pts(int recv, int total) {
-        // You have received 2 training points. Your total training score is now 10868.
         return showQuestMsg("You have received " + recv + " training points. Your total training score is now " + total + ".");
     }
 
@@ -3359,6 +3357,10 @@ mplew.writeZeroBytes(100);
         return serverMessage(type, channel, message, smegaEar);
     }
 
+    public static byte[] getPopupMsg(String message) {
+        return serverMessage(1, 0, message, false);
+    }
+
     private static byte[] serverMessage(int type, int channel, String message, boolean megaEar) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
@@ -3366,7 +3368,7 @@ mplew.writeZeroBytes(100);
         // 1: Popup <Msg>
         // 2: Megaphone
         // 3: Super Megaphone 
-        // 4: Server Message
+        // 4: WorldConfig Message
         // 5: Pink Text
         // 6: LightBlue Text ({} as Item)
         // 7: [int] -> Keep Wz Error

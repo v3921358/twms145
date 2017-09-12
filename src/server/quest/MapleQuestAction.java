@@ -38,8 +38,8 @@ import server.MapleItemInformationProvider;
 import server.RandomRewards;
 import server.Randomizer;
 import tools.FileoutputUtil;
-import tools.Pair;
-import tools.Triple;
+import tools.types.Pair;
+import tools.types.Triple;
 import tools.packet.CField;
 import tools.packet.CWvsContext.InfoPacket;
 

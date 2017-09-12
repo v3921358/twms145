@@ -5,6 +5,7 @@ import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
 import client.inventory.MapleInventoryType;
 import client.status.MonsterStatusEffect;
+import constants.WorldConfig;
 import constants.WorldConstants;
 import database.DatabaseConnection;
 import handling.cashshop.CashShopServer;
@@ -21,13 +22,6 @@ import handling.world.guild.MapleBBSThread;
 import handling.world.guild.MapleGuild;
 import handling.world.guild.MapleGuildAlliance;
 import handling.world.guild.MapleGuildCharacter;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import scripting.EventScriptManager;
-import server.ServerProperties;
 import server.Timer.EventTimer;
 import server.Timer.WorldTimer;
 import server.life.MapleMonster;
@@ -35,20 +29,21 @@ import server.maps.MapleMap;
 import server.maps.MapleMapItem;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
-import tools.packet.CWvsContext.AlliancePacket;
-import tools.packet.CWvsContext.BuddylistPacket;
-import tools.packet.CWvsContext.ExpeditionPacket;
-import tools.packet.CWvsContext.GuildPacket;
-import tools.packet.CWvsContext.PartyPacket;
-import tools.packet.LoginPacket.Server;
+import tools.packet.CWvsContext.*;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class World {
-    private int id, flag, expRate, mesoRate, dropRate, cashRate = 3, traitRate = 3, flags = 0, userLimit;
-    private String eventMessage;
+    private WorldConfig worldConfig;
+    private int cashRate = 3, traitRate = 3, flags = 0;
     private List<ChannelServer> channels = new ArrayList<>();
+
     private static PlayerStorage players = new PlayerStorage();
-    
-    private static final Map<Integer, Integer> magicWheelCache = new HashMap();
+    private static final HashMap magicWheelCache = new HashMap();
     // AutoJQ and Event Maps
     public static int eventMap = 0;
     public static boolean eventOn = false;
@@ -63,16 +58,22 @@ public class World {
     private static long lastPresident;
     // PvP System -- TODO: Map based not world O_o
     private static int pvpState = 0;
-    
-    public World(int world, int flag, String eventMessage, int exprate, int mesorate, int droprate) {
-        this.id = world;
-        this.flag = flag;
-        this.eventMessage = eventMessage;
-        this.expRate = exprate;
-        this.mesoRate = mesorate;
-        this.dropRate = droprate;
+
+    public World(WorldConfig worldConfig) {
+        this.worldConfig = worldConfig;
     }
-    
+
+    public void initWorld()
+    {
+        for (int i = 0; i < worldConfig.getChnnaelCount(); i++) {
+            int channelId = i + 1;
+            ChannelServer channel = ChannelServer.newInstance(worldConfig.getWorldId(), channelId);
+            this.addChannel(channel);
+            channel.init(); // initialize
+        }
+        this.registerRespawn();
+    }
+
     public List<ChannelServer> getChannels() {
         return channels;
     }
@@ -88,7 +89,7 @@ public class World {
     public void removeChannel(int channel) {
         channels.remove(channel);
     }
-    
+
     public PlayerStorage getPlayerStorage() {
         return players;
     }
@@ -97,90 +98,92 @@ public class World {
         channels.get(chr.getClient().getChannel() - 1).removePlayer(chr);
         players.deregisterPlayer(chr);
     }
-    
-    public void setFlag(byte b) {
-        this.flag = b;
-    }
 
-    public int getFlag() {
-        return flag;
-    }
-
-    public String getEventMessage() {
-        return eventMessage;
-    }
-    
-    public void setEventMessage(String message) {
-        this.eventMessage = message;
-    }
-
-    public int getExpRate() {
-        return expRate;
-    }
-
-    public void setExpRate(int exp) {
-        this.expRate = exp;
-    }
-
-    public int getDropRate() {
-        return dropRate;
-    }
-
-    public void setDropRate(int drop) {
-        this.dropRate = drop;
-    }
-
-    public int getMesoRate() {
-        return mesoRate;
-    }
-
-    public void setMesoRate(int meso) {
-        this.mesoRate = meso;
-    }
-    
     public int getCashRate() {
         return cashRate;
     }
-    
+
     public void setCashRate(int cash) {
         this.cashRate = cash;
     }
-    
+
     public int getTraitRate() {
         return traitRate;
     }
-    
+
     public void setTraitRate(int trait) {
         this.traitRate = trait;
     }
-    
+
     public int getTempFlag() {
         return flags;
     }
-    
+
     // This will be disabled as according to original
     // source info it's for enabling/disabling of PQs. 
     // We will instead be using all PQs, even old ones.
     public void setTempFlag(int flag) {
         this.flags = flag;
     }
-    
+
     public int getWorldId() {
-        return id;
+        return worldConfig.getWorldId();
     }
-    
+
     public String getWorldName() {
-        return Server.getById(id).toString();
+        return worldConfig.name();
     }
-    
+
     public int getUserLimit() {
-        return userLimit;
+        return worldConfig.getUserLimit();
     }
 
     public void setUserLimit(final int newLimit) {
-        userLimit = newLimit;
+        worldConfig.setUserLimit(getUserLimit());
     }
-    
+
+    public void setMonsterRushOn(boolean onoff) {
+        MonsterRush = onoff;
+    }
+
+    public int getFlag() {
+        return worldConfig.getFlag().getId();
+    }
+
+    public String getEventMessage() {
+        return worldConfig.getEventMessage();
+    }
+
+    public int getExpRate() {
+        return worldConfig.getExpRate();
+    }
+
+    public int getDropRate() {
+        return worldConfig.getDropRate();
+    }
+
+    public int getMesoRate() {
+        return worldConfig.getMesoRate();
+    }
+
+    public int getMaxCharacter() {
+        return  worldConfig.getMaxCharacters();
+    }
+
+    public void setMesoRate(int rate) {
+        worldConfig.setMesoRate(rate);
+    }
+
+    public void setDropRate(int rate) {
+        worldConfig.setDropRate(rate);
+    }
+
+    public void setExpRate(int rate) {
+        worldConfig.setExpRate(rate);
+    }
+
+    //---------------------------------------------------------------------------------------------------------
+
     //Touch everything...
     public static void init() {
         World.Find.findChannel(0);
@@ -189,19 +192,19 @@ public class World {
         World.Messenger.getMessenger(0);
         World.Party.getParty(0);
     }
-    
+
     public static boolean getShutdown() {
         return Shutdown;
     }
-    
+
     public static void Shutdown(boolean isgoing) {
         Shutdown = isgoing;
     }
-    
+
     public static boolean getMonsterRushStatus() {
         return Monster_Rush_Enabled;
     }
-    
+
     public static void setMonsterRushStatus(boolean status) {
         Monster_Rush_Enabled = status;
     }
@@ -242,7 +245,7 @@ public class World {
         ret.put(0, total);
         return ret;
     }
-    
+
     public static void saveAllChars() {
         MapleCharacter.saveAllChars();
     }
@@ -315,47 +318,58 @@ public class World {
         return ChannelServer.getInstance(wl, ch).getPlayerStorage().getConnectedClients() < (ch == 1 ? 600 : 400);
     }
 
-/*      */   public static void addToWheelCache(int cid, int itemId)
-/*      */   {
-/* 1762 */     magicWheelCache.put(Integer.valueOf(cid), Integer.valueOf(itemId));
-/*      */   }
-/*      */ 
-/*      */   public static int removeFromWheelCache(int cid) {
-/* 1766 */     return ((Integer)magicWheelCache.remove(Integer.valueOf(cid))).intValue();
-/*      */   }
-/*      */ 
-/*      */   public static boolean hasWheelCache(int cid) {
-/* 1770 */     return magicWheelCache.containsKey(Integer.valueOf(cid));
-/*      */   }
+    /*      */
+    public static void addToWheelCache(int cid, int itemId)
+/*      */ {
+/* 1762 */
+        magicWheelCache.put(Integer.valueOf(cid), Integer.valueOf(itemId));
+/*      */
+    }
 
-        public static boolean isCSConnected(List<Integer> charIds) {
-            for (int c : charIds) {
-                if (CashShopServer.getPlayerStorage().getPendingCharacter(c) != null) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        
-        public static boolean isCSConnected(Integer charId) {
-            if (CashShopServer.getPlayerStorage().getPendingCharacter(charId) != null) {
+    /*      */
+/*      */
+    public static int removeFromWheelCache(int cid) {
+/* 1766 */
+        return ((Integer) magicWheelCache.remove(Integer.valueOf(cid))).intValue();
+/*      */
+    }
+
+    /*      */
+/*      */
+    public static boolean hasWheelCache(int cid) {
+/* 1770 */
+        return magicWheelCache.containsKey(Integer.valueOf(cid));
+/*      */
+    }
+
+    public static boolean isCSConnected(List<Integer> charIds) {
+        for (int c : charIds) {
+            if (CashShopServer.getPlayerStorage().getPendingCharacter(c) != null) {
                 return true;
             }
-            return false;
         }
-        
-        public static void setEventMap(int map) {
+        return false;
+    }
+
+    public static boolean isCSConnected(Integer charId) {
+        if (CashShopServer.getPlayerStorage().getPendingCharacter(charId) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void setEventMap(int map) {
         eventMap = map;
     }
-    
+
     public static int getEventMap() {
         return eventMap;
     }
-    
+
     public static void setEventOn(boolean onoff) {
         eventOn = onoff;
     }
-    
+
     public static boolean getEventOn() {
         return eventOn;
     }
@@ -367,7 +381,7 @@ public class World {
     public static int getPvpState() {
         return pvpState;
     }
-    
+
     public static void setPvpState(int state) {
         pvpState = state;
     }
@@ -375,7 +389,7 @@ public class World {
     public static void setJQChannel(int channel) {
         AutoJQ_Channel = channel;
     }
-    
+
     public static int getJQChannel() {
         return AutoJQ_Channel;
     }
@@ -387,73 +401,69 @@ public class World {
     public static long setLastPresident() {
         return lastPresident = System.currentTimeMillis() / 60000;
     }
-    
-    public void setMonsterRushOn(boolean onoff) {
-        MonsterRush = onoff;
-    }
-    
+
+
+
     public static class AutoJQ {
-    private static AutoJQ instance = null;
-    private boolean autojq = false;
-    private static boolean autojqOn = false;
-    private static int autojqWaitingMap = 109060001;
-    
-     public boolean getAutoJQ() {
-        return autojq;
-     }
-     
-     public static int getWaitingMap() {
-        return autojqWaitingMap;
-    }
-    
-     public synchronized static AutoJQ getInstance() {
-        if (instance == null) {
-            instance = new AutoJQ();
+        private static AutoJQ instance = null;
+        private boolean autojq = false;
+        private static boolean autojqOn = false;
+        private static int autojqWaitingMap = 109060001;
+
+        public boolean getAutoJQ() {
+            return autojq;
         }
-        return instance;
-     }
-     
-     public static boolean getAutoJQStatus() {
-         return autojqOn;
-     }
-    
-    public void openAutoJQ() {
-        autojq = true;
-        
-        EventTimer.getInstance().schedule(new Runnable(){
-            @Override
-            public void run() {
-                for (MapleCharacter chr : getAllCharacters()) {
-                  if (chr.getMapId() == 109060001) {
-                   if (getEventMap() == 0) {
-                    chr.getClient().getSession().write(CWvsContext.clearMidMsg());
-                    chr.changeMap(100000000); 
-                    setEventOn(false);
-                    autojqOn = true;
-                 } else {
-                    chr.getClient().getSession().write(CWvsContext.clearMidMsg());
-                    chr.changeMap(getEventMap()); 
-                    chr.dropMessage(-1, "The Automatic Jump Quest has started!");
-                    setEventOn(false);
-                    autojqOn = true;
-                    }
-                }
+
+        public static int getWaitingMap() {
+            return autojqWaitingMap;
+        }
+
+        public synchronized static AutoJQ getInstance() {
+            if (instance == null) {
+                instance = new AutoJQ();
             }
-            autojq = false;
+            return instance;
+        }
+
+        public static boolean getAutoJQStatus() {
+            return autojqOn;
+        }
+
+        public void openAutoJQ() {
+            autojq = true;
+
             EventTimer.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-                for (MapleCharacter chr : getAllCharacters()) {
-                if (chr.getMapId() == getEventMap()) { 
-                    chr.changeMap(910000000);
-                    autojqOn = false;
+                @Override
+                public void run() {
+                    getAllCharacters().stream().filter(chr -> chr.getMapId() == 109060001).forEach(chr -> {
+                        if (getEventMap() == 0) {
+                            chr.getClient().getSession().write(CWvsContext.clearMidMsg());
+                            chr.changeMap(100000000);
+                            setEventOn(false);
+                            autojqOn = true;
+                        } else {
+                            chr.getClient().getSession().write(CWvsContext.clearMidMsg());
+                            chr.changeMap(getEventMap());
+                            chr.dropMessage(-1, "The Automatic Jump Quest has started!");
+                            setEventOn(false);
+                            autojqOn = true;
+                        }
+                    });
+                    autojq = false;
+                    EventTimer.getInstance().schedule(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (MapleCharacter chr : getAllCharacters()) {
+                                if (chr.getMapId() == getEventMap()) {
+                                    chr.changeMap(910000000);
+                                    autojqOn = false;
+                                }
+                            }
+                        }
+                    }, Long.MAX_VALUE);
                 }
-              } 
-            } 
-            }, Long.MAX_VALUE); 
-            }
-        }, 60000); 
-    }
+            }, 60000);
+        }
     }
 
     public static class Party {
@@ -958,7 +968,7 @@ public class World {
         public static void silentLeaveMessenger(int messengerid, MapleMessengerCharacter target) {
             MapleMessenger messenger = getMessenger(messengerid);
             if (messenger == null) {
-                throw new IllegalArgumentException("No messenger with the specified messengerid exists");
+                throw new IllegalArgumentException("No messenger with the specified messengerId exists");
             }
             messenger.silentRemoveMember(target);
         }
@@ -966,7 +976,7 @@ public class World {
         public static void silentJoinMessenger(int messengerid, MapleMessengerCharacter target) {
             MapleMessenger messenger = getMessenger(messengerid);
             if (messenger == null) {
-                throw new IllegalArgumentException("No messenger with the specified messengerid exists");
+                throw new IllegalArgumentException("No messenger with the specified messengerId exists");
             }
             messenger.silentAddMember(target);
         }
@@ -975,49 +985,45 @@ public class World {
             MapleMessenger messenger = getMessenger(messengerid);
             int position = messenger.getPositionByName(namefrom);
 
-            for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
-                if (messengerchar != null && !messengerchar.getName().equals(namefrom)) {
-                    int ch = Find.findChannel(messengerchar.getName());
-                    int wl = Find.findWorld(messengerchar.getName());
-                    if (ch > 0) {
-                        MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(messengerchar.getName());
-                        if (chr != null) {
-                            MapleCharacter from = ChannelServer.getInstance(fromworld, fromchannel).getPlayerStorage().getCharacterByName(namefrom);
-                            chr.getClient().getSession().write(CField.updateMessengerPlayer(namefrom, from, position, fromchannel - 1));
-                        }
+            messenger.getMembers().stream().filter(messengerchar -> messengerchar != null && !messengerchar.getName().equals(namefrom)).forEach(messengerchar -> {
+                int ch = Find.findChannel(messengerchar.getName());
+                int wl = Find.findWorld(messengerchar.getName());
+                if (ch > 0) {
+                    MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(messengerchar.getName());
+                    if (chr != null) {
+                        MapleCharacter from = ChannelServer.getInstance(fromworld, fromchannel).getPlayerStorage().getCharacterByName(namefrom);
+                        chr.getClient().getSession().write(CField.updateMessengerPlayer(namefrom, from, position, fromchannel - 1));
                     }
                 }
-            }
+            });
         }
 
         public static void joinMessenger(int messengerid, MapleMessengerCharacter target, String from, int fromworld, int fromchannel) {
             MapleMessenger messenger = getMessenger(messengerid);
             if (messenger == null) {
-                throw new IllegalArgumentException("No messenger with the specified messengerid exists");
+                throw new IllegalArgumentException("No messenger with the specified messengerId exists");
             }
             messenger.addMember(target);
             int position = messenger.getPositionByName(target.getName());
-            for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
-                if (messengerchar != null) {
-                    int mposition = messenger.getPositionByName(messengerchar.getName());
-                    int ch = Find.findChannel(messengerchar.getName());
-                    int wl = Find.findWorld(messengerchar.getName());
-                    if (ch > 0) {
-                        MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(messengerchar.getName());
-                        if (chr != null) {
-                            if (!messengerchar.getName().equals(from)) {
-                                MapleCharacter fromCh = ChannelServer.getInstance(fromworld, fromchannel).getPlayerStorage().getCharacterByName(from);
-                                if (fromCh != null) {
-                                    chr.getClient().getSession().write(CField.addMessengerPlayer(from, fromCh, position, fromchannel - 1));
-                                    fromCh.getClient().getSession().write(CField.addMessengerPlayer(chr.getName(), chr, mposition, messengerchar.getChannel() - 1));
-                                }
-                            } else {
-                                chr.getClient().getSession().write(CField.joinMessenger(mposition));
+            messenger.getMembers().stream().filter(messengerchar -> messengerchar != null).forEach(messengerchar -> {
+                int mposition = messenger.getPositionByName(messengerchar.getName());
+                int ch = Find.findChannel(messengerchar.getName());
+                int wl = Find.findWorld(messengerchar.getName());
+                if (ch > 0) {
+                    MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(messengerchar.getName());
+                    if (chr != null) {
+                        if (!messengerchar.getName().equals(from)) {
+                            MapleCharacter fromCh = ChannelServer.getInstance(fromworld, fromchannel).getPlayerStorage().getCharacterByName(from);
+                            if (fromCh != null) {
+                                chr.getClient().getSession().write(CField.addMessengerPlayer(from, fromCh, position, fromchannel - 1));
+                                fromCh.getClient().getSession().write(CField.addMessengerPlayer(chr.getName(), chr, mposition, messengerchar.getChannel() - 1));
                             }
+                        } else {
+                            chr.getClient().getSession().write(CField.joinMessenger(mposition));
                         }
                     }
                 }
-            }
+            });
         }
 
         public static void messengerChat(int messengerid, String charname, String text, String namefrom) {
@@ -1026,32 +1032,30 @@ public class World {
                 throw new IllegalArgumentException("No messenger with the specified messengerid exists");
             }
 
-            for (MapleMessengerCharacter messengerchar : messenger.getMembers()) {
-                if (messengerchar != null && !messengerchar.getName().equals(namefrom)) {
-                    int ch = Find.findChannel(messengerchar.getName());
-                    int wl = Find.findWorld(messengerchar.getName());
-                    if (ch > 0) {
-                        MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(messengerchar.getName());
-                        if (chr != null) {
-                            chr.getClient().getSession().write(CField.messengerChat(charname, text));
-                        }
+            messenger.getMembers().stream().filter(messengerchar -> messengerchar != null && !messengerchar.getName().equals(namefrom)).forEach(messengerchar -> {
+                int ch = Find.findChannel(messengerchar.getName());
+                int wl = Find.findWorld(messengerchar.getName());
+                if (ch > 0) {
+                    MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(messengerchar.getName());
+                    if (chr != null) {
+                        chr.getClient().getSession().write(CField.messengerChat(charname, text));
                     }
                 }
-            }
+            });
         }
 
-        public static void messengerInvite(String sender, int messengerid, String target, int fromworld, int fromchannel, boolean gm) {
+        public static void messengerInvite(String sender, int messengerId, String target, int fromWorld, int fromChannel, boolean gm) {
 
             if (isConnected(target)) {
 
                 int ch = Find.findChannel(target);
                 int wl = Find.findWorld(target);
                 if (ch > 0) {
-                    MapleCharacter from = ChannelServer.getInstance(fromworld, fromchannel).getPlayerStorage().getCharacterByName(sender);
+                    MapleCharacter from = ChannelServer.getInstance(fromWorld, fromChannel).getPlayerStorage().getCharacterByName(sender);
                     MapleCharacter targeter = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(target);
                     if (targeter != null && targeter.getMessenger() == null) {
                         if (!targeter.isIntern() || gm) {
-                            targeter.getClient().getSession().write(CField.messengerInvite(sender, messengerid));
+                            targeter.getClient().getSession().write(CField.messengerInvite(sender, messengerId));
                             from.getClient().getSession().write(CField.messengerNote(target, 4, 1));
                         } else {
                             from.getClient().getSession().write(CField.messengerNote(target, 4, 0));
@@ -1092,7 +1096,7 @@ public class World {
                 lock.writeLock().lock();
                 try {
                     ret = new MapleGuild(id);
-                    if (ret == null || ret.getId() <= 0 || !ret.isProper()) { //failed to load
+                    if (ret.getId() <= 0 || !ret.isProper()) { //failed to load
                         return null;
                     }
                     guilds.put(id, ret);
@@ -1380,7 +1384,7 @@ public class World {
 
         public static void changeEmblem(int gid, int affectedPlayers, MapleGuild mgs) {
             Broadcast.sendGuildPacket(affectedPlayers, GuildPacket.guildEmblemChange(gid, (short) mgs.getLogoBG(), (byte) mgs.getLogoBGColor(), (short) mgs.getLogo(), (byte) mgs.getLogoColor()), -1, gid);
-            setGuildAndRank(affectedPlayers, -1, -1, -1, -1);	//respawn player
+            setGuildAndRank(affectedPlayers, -1, -1, -1, -1);    //respawn player
         }
 
         public static void setGuildAndRank(int cid, int guildid, int rank, int contribution, int alliancerank) {
@@ -1407,7 +1411,7 @@ public class World {
             }
             if (bDifferentGuild && ch > 0) {
                 mc.getMap().broadcastMessage(mc, CField.loadGuildName(mc), false);
-				mc.getMap().broadcastMessage(mc, CField.loadGuildIcon(mc), false);
+                mc.getMap().broadcastMessage(mc, CField.loadGuildIcon(mc), false);
             }
         }
     }
@@ -1431,11 +1435,9 @@ public class World {
         }
 
         public static void broadcastMessage(int world, byte[] message) {
-            for (MapleCharacter chr : players.getAllCharacters()) {
-                if ((world == -1) || (chr.getWorld() == world)) {
-                    chr.announce(message);
-                }
-            }
+            players.getAllCharacters().stream().filter(chr -> (world == -1) || (chr.getWorld() == world)).forEach(chr -> {
+                chr.announce(message);
+            });
         }
 
         public static void sendPacket(List<Integer> targetIds, byte[] packet, int exception) {
@@ -1514,7 +1516,7 @@ public class World {
             try {
                 idToChannel.put(id, channel);
                 nameToChannel.put(name.toLowerCase(), channel);
-                
+
                 idToWorld.put(id, world);
                 nameToWorld.put(name.toLowerCase(), world);
             } finally {
@@ -1577,7 +1579,7 @@ public class World {
             }
             return -1;
         }
-        
+
         public static int findWorld(int id) {
             Integer ret;
             Integer ret_;
@@ -1617,7 +1619,7 @@ public class World {
             }
             return -1;
         }
-        
+
         public static int findWorld(String st) {
             Integer ret;
             Integer ret_;
@@ -2019,63 +2021,34 @@ public class World {
             }
         }
     }
-    private final static int CHANNELS_PER_THREAD = 3;
 
-    public static void registerRespawn() {
-        Integer[] chs = ChannelServer.getAllInstance().toArray(new Integer[0]);
-        for (int i = 0; i < chs.length; i += CHANNELS_PER_THREAD) {
-            WorldTimer.getInstance().register(new Respawn(chs, i), 4500); //divisible by 9000 if possible.
-        }
-        //3000 good or bad? ive no idea >_>
-        //buffs can also be done, but eh
+
+    public void registerRespawn() {
+        WorldTimer.getInstance().register(new Respawn(this), 4500); //divisible by 9000 if possible.
     }
 
-    public static class Respawn implements Runnable { //is putting it here a good idea?
+    private static class Respawn implements Runnable { //is putting it here a good idea?
 
         private int numTimes = 0;
-        private final List<ChannelServer> cservs = new ArrayList<>(CHANNELS_PER_THREAD);
+        private World world;
 
-        public Respawn(Integer[] chs, int c) {
-            StringBuilder s = new StringBuilder("[Respawn Worker] Registered for channels ");
-            for (int i = 1; i <= CHANNELS_PER_THREAD && chs.length >= (c + i); i++) {
-                for (int z = 0; z < (WorldConstants.Worlds * WorldConstants.Channels) + 2; z++) {
-                    switch(z) {
-                        case 1:// do channels start from 0?
-                        case 2:
-                        case 3:
-                        case 4:
-                        case 5:
-                            cservs.add(ChannelServer.getInstance(0, c + i));
-                            break;
-                        case 6:
-                        case 7:
-                        case 8:
-                        case 9:
-                        case 10:
-                            cservs.add(ChannelServer.getInstance(1, c + i));
-                            break;
-                    }
-                }
-                s.append(c + i).append(" ");
-            }
-            System.out.println(s.toString());
+        Respawn(World world) {
+            this.world = world;
         }
 
         @Override
         public void run() {
             numTimes++;
             long now = System.currentTimeMillis();
-            for (ChannelServer cserv : cservs) {
-                if (!cserv.hasFinishedShutdown()) {
-                    for (MapleMap map : cserv.getMapFactory().getAllLoadedMaps()) { //iterating through each map o_x
-                        handleMap(map, numTimes, map.getCharactersSize(), now);
-                    }
+            world.getChannels().stream().filter(channelServ -> !channelServ.hasFinishedShutdown()).forEach(channelServer -> {
+                for (MapleMap map : channelServer.getMapFactory().getAllLoadedMaps()) { //iterating through each map o_x
+                    handleMap(map, numTimes, map.getCharactersSize(), now);
                 }
-            }
+            });
         }
     }
 
-    public static void handleMap(final MapleMap map, final int numTimes, final int size, final long now) {
+    private static void handleMap(final MapleMap map, final int numTimes, final int size, final long now) {
         if (map.getItemsSize() > 0) {
             for (MapleMapItem item : map.getAllItemsThreadsafe()) {
                 if (item.shouldExpire(now)) {
@@ -2100,11 +2073,7 @@ public class World {
                     } else if (mons.isAlive() && mons.shouldDrop(now)) {
                         mons.doDropItem(now);
                     } else if (mons.isAlive() && mons.getStatiSize() > 0) {
-                        for (MonsterStatusEffect mse : mons.getAllBuffs()) {
-                            if (mse.shouldCancel(now)) {
-                                mons.cancelSingleStatus(mse);
-                            }
-                        }
+                        mons.getAllBuffs().stream().filter(mse -> mse.shouldCancel(now)).forEach(mons::cancelSingleStatus);
                     }
                 }
             }
@@ -2113,13 +2082,11 @@ public class World {
 
     public static void handleCooldowns(final MapleCharacter chr, final int numTimes, final boolean hurt, final long now) { //is putting it here a good idea? expensive?
         if (chr.getCooldownSize() > 0) {
-            for (MapleCoolDownValueHolder m : chr.getCooldowns()) {
-                if (m.startTime + m.length < now) {
-                    final int skil = m.skillId;
-                    chr.removeCooldown(skil);
-                    chr.getClient().getSession().write(CField.skillCooldown(skil, 0));
-                }
-            }
+            chr.getCooldowns().stream().filter(m -> m.startTime + m.length < now).forEach(m -> {
+                final int skillId = m.skillId;
+                chr.removeCooldown(skillId);
+                chr.getClient().getSession().write(CField.skillCooldown(skillId, 0));
+            });
         }
         if (chr.isAlive()) {
             if (chr.getJob() == 131 || chr.getJob() == 132) {
@@ -2143,16 +2110,14 @@ public class World {
                 chr.doFish(now);
             }
             if (chr.canDOT(now)) {
-            	chr.doDOT();
+                chr.doDOT();
             }
         }
 
         if (chr.getDiseaseSize() > 0) {
-            for (MapleDiseaseValueHolder m : chr.getAllDiseases()) {
-                if (m != null && m.startTime + m.length < now) {
-                    chr.dispelDebuff(m.disease);
-                }
-            }
+            chr.getAllDiseases().stream().filter(m -> m != null && m.startTime + m.length < now).forEach(m -> {
+                chr.dispelDebuff(m.disease);
+            });
         }
         if (numTimes % 7 == 0 && chr.getMount() != null && chr.getMount().canTire(now)) {
             chr.getMount().increaseFatigue();
@@ -2187,25 +2152,21 @@ public class World {
             }
         }
     }
-    
+
     public static List<MapleCharacter> getAllCharacters() {
         List<MapleCharacter> chrlist = new ArrayList<>();
         for (World worlds : LoginServer.getWorlds()) {
             for (ChannelServer cs : worlds.getChannels()) {
-                for (MapleCharacter chra : cs.getPlayerStorage().getAllCharacters()) {
-                    chrlist.add(chra);
-                }
+                chrlist.addAll(cs.getPlayerStorage().getAllCharacters());
             }
         }
         return chrlist;
     }
-    
+
     public static List<MapleCharacter> getAllCharacters(int world) {
         List<MapleCharacter> chrlist = new ArrayList<>();
         for (ChannelServer cs : LoginServer.getInstance().getWorld(world).getChannels()) {
-            for (MapleCharacter chra : cs.getPlayerStorage().getAllCharacters()) {
-                chrlist.add(chra);
-            }
+            chrlist.addAll(cs.getPlayerStorage().getAllCharacters());
         }
         return chrlist;
     }

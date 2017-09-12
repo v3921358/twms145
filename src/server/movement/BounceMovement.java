@@ -18,14 +18,16 @@
 package server.movement;
 
 import java.awt.Point;
+
+import tools.data.LittleEndianAccessor;
 import tools.data.MaplePacketLittleEndianWriter;
 
 public class BounceMovement extends AbstractLifeMovement {
 
     private Point offset;
 
-    public BounceMovement(int type, Point position, int duration, int newstate) {
-        super(type, position, duration, newstate);
+    public BounceMovement(int type, Point position, int duration, int newState, MovementKind kind) {
+        super(type, position, duration, newState, kind);
     }
 
     public void setOffset(Point offset) {
@@ -34,10 +36,10 @@ public class BounceMovement extends AbstractLifeMovement {
 
     @Override
     public void serialize(MaplePacketLittleEndianWriter lew) {
-        lew.write(getType());
+        lew.write(getValue());
         lew.writePos(getPosition());
         lew.writePos(offset);
-        lew.write(getNewstate());
+        lew.write(getNewState());
         lew.writeShort(getDuration());
     }
 }

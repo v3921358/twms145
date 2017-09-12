@@ -7,7 +7,6 @@ import constants.ServerConstants.PlayerGMRank;
 import server.Timer.EventTimer;
 import tools.FileoutputUtil;
 import tools.packet.CWvsContext;
-import tools.packet.MobPacket;
 
 /**
  *
@@ -40,7 +39,7 @@ public class SuperDonatorCommand {
             switch (splitted[0].substring(1).toLowerCase()) {
                 case "null":
                 case "fixme":
-                    c.announce(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                     return true;
                 case "gunslinger":
                     player.changeJob(532);

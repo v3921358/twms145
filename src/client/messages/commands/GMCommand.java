@@ -174,9 +174,9 @@ public class GMCommand {
                     }
                     return true;
                 case "msg":
-                    player.getClient().announce(CField.sendHint(InternCommand.joinStringFrom(splitted, 1), 350, 5));
+                    player.getClient().sendPacket(CField.sendHint(InternCommand.joinStringFrom(splitted, 1), 350, 5));
                     for (MapleCharacter nsg : player.getMap().getCharacters()) {
-                        nsg.getClient().announce(CField.sendHint(InternCommand.joinStringFrom(splitted, 1), 350, 5));
+                        nsg.getClient().sendPacket(CField.sendHint(InternCommand.joinStringFrom(splitted, 1), 350, 5));
                     }
                     return true;
                 case "charview":
@@ -437,7 +437,7 @@ public class GMCommand {
                             watk = (short) (watk + eq.getWatk());
                         }
                         sendText = new StringBuilder().append(sendText).append("WATK: ").append(watk).append("\r\n").toString();
-                        player.getClient().announce(CField.getNPCTalk(9010000, (byte) 0, sendText, "00 00"));
+                        player.getClient().sendPacket(CField.getNPCTalk(9010000, (byte) 0, sendText, "00 00"));
                     } else {
                         player.dropMessage(6, " The username you entered doesn't exist or is not on your channel.");
                     }
@@ -1046,7 +1046,7 @@ public class GMCommand {
                         invType = MapleInventoryType.EQUIPPED;
                         for (Item item : chr.getInventory(invType).listById(itemid)) {
                             item.setFlag((byte) (item.getFlag() | ItemFlag.LOCK.getValue()));
-                            //chr.getClient().getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getType()));
+                            //chr.getClient().getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
                         }
                     }
                     c.getPlayer().dropMessage(6, "All items with the ID " + splitted[2] + " has been locked from the inventory of " + splitted[1] + ".");

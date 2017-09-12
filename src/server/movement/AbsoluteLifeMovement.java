@@ -18,6 +18,8 @@
 package server.movement;
 
 import java.awt.Point;
+
+import tools.data.LittleEndianAccessor;
 import tools.data.MaplePacketLittleEndianWriter;
 
 public class AbsoluteLifeMovement extends AbstractLifeMovement {
@@ -25,8 +27,8 @@ public class AbsoluteLifeMovement extends AbstractLifeMovement {
     private Point pixelsPerSecond, offset;
     private short unk, fh;
 
-    public AbsoluteLifeMovement(int type, Point position, int duration, int newstate) {
-        super(type, position, duration, newstate);
+    public AbsoluteLifeMovement(int type, Point position, int duration, int newState, MovementKind kind) {
+        super(type, position, duration, newState, kind);
     }
 
     public void setPixelsPerSecond(Point wobble) {
@@ -49,26 +51,17 @@ public class AbsoluteLifeMovement extends AbstractLifeMovement {
         return unk;
     }
 
-    public void defaulted() {
-        unk = 0;
-        fh = 0;
-        pixelsPerSecond = new Point(0, 0);
-        offset = new Point(0, 0);
-    }
-
     @Override
     public void serialize(MaplePacketLittleEndianWriter lew) {
-        lew.write(getType());
+        lew.write(getValue());
         lew.writePos(getPosition());
         lew.writePos(pixelsPerSecond);
         lew.writeShort(unk);
-        if (getType() == 14) {
+        if (getValue() == 14) {
             lew.writeShort(fh);
         }
-        if (getType() != 44) {
-            lew.writePos(offset);
-        }
-        lew.write(getNewstate());
+        lew.write(getNewState());
         lew.writeShort(getDuration());
     }
+
 }

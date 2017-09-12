@@ -13,7 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import tools.Pair;
+import tools.types.Pair;
 import tools.packet.CField.NPCPacket;
 
 public class MapleStorage implements Serializable {

@@ -5,7 +5,7 @@ import client.inventory.EquipAdditions;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import tools.Pair;
+import tools.types.Pair;
 
 public class ItemInformation {
     public List<Integer> scrollReqs = null, questItems = null, incSkill = null;

@@ -31,14 +31,14 @@ import java.util.*;
 import server.MapleItemInformationProvider;
 import server.MapleShop;
 import server.MapleShopItem;
-import server.movement.LifeMovementFragment;
+import server.movement.ILifeMovementFragment;
 import server.quest.MapleQuest;
 import server.shops.AbstractPlayerStore;
 import server.shops.IMaplePlayerShop;
 import tools.BitTools;
-import tools.Pair;
+import tools.types.Pair;
 import tools.StringUtil;
-import tools.Triple;
+import tools.types.Triple;
 import tools.data.MaplePacketLittleEndianWriter;
 
 public class PacketHelper {
@@ -584,9 +584,9 @@ public class PacketHelper {
 /*      */     }
 /*      */   }
 
-    public static void serializeMovementList(final MaplePacketLittleEndianWriter lew, final List<LifeMovementFragment> moves) {
+    public static void serializeMovementList(final MaplePacketLittleEndianWriter lew, final List<ILifeMovementFragment> moves) {
         lew.write(moves.size());
-        for (LifeMovementFragment move : moves) {
+        for (ILifeMovementFragment move : moves) {
             move.serialize(lew);
         }
     }

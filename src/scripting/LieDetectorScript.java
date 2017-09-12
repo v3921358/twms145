@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.net.URL; 
 import server.Randomizer; 
 import tools.HexTool; 
-import tools.Pair; 
+import tools.types.Pair;
 
 /** 
  * 

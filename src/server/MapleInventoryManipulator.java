@@ -832,8 +832,8 @@ public class MapleInventoryManipulator {
                 final int uid = MapleInventoryIdentifier.getInstance();
                 source.setUniqueId(uid);
                 source.setAndroid(MapleAndroid.create(source.getItemId(), uid));
-                // flag |= ItemFlag.LOCK.getValue();
-                //flag |= ItemFlag.UNTRADEABLE.getValue();
+                // WORLD_FLAGS |= ItemFlag.LOCK.getValue();
+                //WORLD_FLAGS |= ItemFlag.UNTRADEABLE.getValue();
                 flag |= ItemFlag.ANDROID_ACTIVATED.getValue();
                 source.setFlag(flag);
                 c.getSession().write(InventoryPacket.updateSpecialItemUse_(source, MapleInventoryType.EQUIP.getType(), c.getPlayer()));
@@ -992,7 +992,7 @@ public class MapleInventoryManipulator {
         
         if (GameConstants.isIllegal(source.getItemId())) {
                 c.getPlayer().dropMessage(1, "This item is a special item and is undroppable.");
-                c.announce(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 return false;
         }
         
@@ -1050,7 +1050,7 @@ public class MapleInventoryManipulator {
             }
             if (GameConstants.isIllegal(source.getItemId())) {
                 c.getPlayer().dropMessage(1, "This item is a special item and is undroppable.");
-                c.announce(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 // c.getPlayer().getMap().disappearingItemDrop(c.getPlayer(), c.getPlayer(), source, dropPos);
             } else if (!c.getChannelServer().allowUndroppablesDrop() && (ii.isDropRestricted(source.getItemId()) || ii.isAccountShared(source.getItemId()))) {
                 if (ItemFlag.KARMA_EQ.check(flag)) {

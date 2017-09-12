@@ -15,7 +15,7 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
-import tools.Pair;
+import tools.types.Pair;
 
 public class MapleQuestRequirement implements Serializable {
 

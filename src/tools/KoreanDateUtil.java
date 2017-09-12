@@ -74,4 +74,9 @@ public class KoreanDateUtil {
         }
         return time + PacketHelper.FT_UT_OFFSET;
     }
+
+    public static int getCurrentDate() {
+        final String time = FileoutputUtil.CurrentReadable_Time();
+        return Integer.parseInt(new StringBuilder(time.substring(0, 4)).append(time.substring(5, 7)).append(time.substring(8, 10)).append(time.substring(11, 13)).toString());
+    }
 }

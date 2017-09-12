@@ -25,6 +25,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Properties;
 
 /**
  * All OdinMS servers maintain a Database Connection. This class therefore "singletonices" the connection per process.
@@ -98,12 +99,20 @@ public class DatabaseConnection {
         @Override
         protected final Connection initialValue() {
             try {
-                Class.forName("com.mysql.jdbc.Driver"); // touch the mysql driver
-            } catch (final ClassNotFoundException e) {
-                System.err.println("ERROR" + e);
-            }
-            try {
-                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/twms145?autoReconnect=true", "root", "");
+                Properties props = new Properties();
+                String database = "twms145";
+                String host = "localhost";
+                String dbUser = "root";
+                String dbPass = "";
+                String dbUrl = "jdbc:mysql://" + host + ":3306/" + database;//+ "?autoReconnect=true&characterEncoding=UTF8&connectTimeout=120000000";
+                props.put("user", dbUser);
+                props.put("password", dbPass);
+                props.put("autoReconnect", "true");
+                props.put("characterEncoding", "UTF8");
+                props.put("connectTimeout", "2000000");
+                props.put("serverTimezone", "Asia/Taipei");
+                props.put("zeroDateTimeBehavior", "convertToNull");
+                Connection con = DriverManager.getConnection(dbUrl, props);
                 allConnections.add(con);
                 return con;
             } catch (SQLException e) {

@@ -32,8 +32,8 @@ import server.life.MapleMonster;
 import server.life.MobSkill;
 import server.maps.MapleMap;
 import server.maps.MapleNodes.MapleNodeInfo;
-import server.movement.LifeMovementFragment;
-import tools.Pair;
+import server.movement.ILifeMovementFragment;
+import tools.types.Pair;
 import tools.data.MaplePacketLittleEndianWriter;
 
 public class MobPacket {
@@ -237,11 +237,11 @@ mplew.writeZeroBytes(30);
         return mplew.getPacket();
     }
 
-    public static byte[] moveMonster(boolean useskill, int skill, int unk, int oid, Point startPos, List<LifeMovementFragment> moves) {
+    public static byte[] moveMonster(boolean useskill, int skill, int unk, int oid, Point startPos, List<ILifeMovementFragment> moves) {
         return moveMonster(useskill, skill, unk, oid, startPos, moves, null, null);
     }
 
-    public static byte[] moveMonster(boolean useskill, int skill, int unk, int oid, Point startPos, List<LifeMovementFragment> moves, final List<Integer> unk2, final List<Pair<Integer, Integer>> unk3) {
+    public static byte[] moveMonster(boolean useskill, int skill, int unk, int oid, Point startPos, List<ILifeMovementFragment> moves, final List<Integer> unk2, final List<Pair<Integer, Integer>> unk3) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.MOVE_MONSTER.getValue());
@@ -271,7 +271,7 @@ mplew.writeZeroBytes(30);
     }
     
     
-        public static byte[] movePokemon(int oid, Point startPos, List<LifeMovementFragment> moves) {
+        public static byte[] movePokemon(int oid, Point startPos, List<ILifeMovementFragment> moves) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.MOVE_MONSTER.getValue());
@@ -507,7 +507,7 @@ public static byte[] spawnAswanMonster(MapleMonster life, int spawnType, int lin
         return mplew.getPacket();
     }
     
-    public static Object movePokemon(int objectid, short moveid, int currentMp, boolean useSkills, int skillId, int skillLevel, Point startPos, List<LifeMovementFragment> moves) {
+    public static Object movePokemon(int objectid, short moveid, int currentMp, boolean useSkills, int skillId, int skillLevel, Point startPos, List<ILifeMovementFragment> moves) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
          // mplew.writeShort(SendPacketOpcode.MOVE_MONSTER.getValue());
         mplew.writeShort(SendPacketOpcode.MOVE_MONSTER_RESPONSE.getValue());

@@ -180,7 +180,7 @@ public class EventManager {
     }
 
     public EventInstanceManager newInstance(String name) {
-        EventInstanceManager ret = new EventInstanceManager(this, name, channel);
+        EventInstanceManager ret = new EventInstanceManager(this, name, world, channel);
         instances.put(name, ret);
         return ret;
     }

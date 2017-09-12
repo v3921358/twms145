@@ -21,9 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.login;
 
 import client.MapleClient;
+import constants.WorldConfig;
 import handling.channel.ChannelServer;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import handling.world.World;
 import server.Timer.PingTimer;
 import tools.packet.CWvsContext;
 import tools.packet.LoginPacket;
@@ -32,25 +35,35 @@ public class LoginWorker {
 
     private static long lastUpdate = 0;
 
-    public static void registerClient(final MapleClient c) {
-        if (LoginServer.isAdminOnly() && !c.isGm() && !c.isLocalhost()) {
-            c.getSession().write(CWvsContext.serverNotice(1, "The server is currently set to Admin login only.\r\nWe are currently testing some issues.\r\nPlease try again later."));
-            c.getSession().write(LoginPacket.getLoginFailed(7));
+    public static void registerClient(final MapleClient client) {
+        if (LoginServer.isAdminOnly() && !client.isGm() && !client.isLocalhost()) {
+            client.getSession().write(CWvsContext.getPopupMsg("當前伺服器只能管理員登入.\\r\\n我們目前正在測試一些問題\\r\\n請稍後在嘗試。"));
+            client.getSession().write(LoginPacket.getLoginFailed(7));
             return;
         }
-
-        if (c.finishLogin() == 0) {
-            c.getSession().write(LoginPacket.getAuthSuccessRequest(c));
-            //CharLoginHandler.ServerStatusRequest(c);
-            //c.getSession().write(LoginPacket.getCharList(c.getSecondPassword() != null, c.loadCharacters(0), c.getCharacterSlots()));
-            c.setIdleTask(PingTimer.getInstance().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    c.getSession().close();
-                }
-            }, 10 * 60 * 10000));
+        if (!client.isGm() && (client.hasBannedMac() || client.hasBannedIP())) {
+            client.sendPacket(LoginPacket.getLoginFailed(3)); //
+            return;
+        }
+        if (client.finishLogin() == 0) {
+            client.sendPacket(LoginPacket.getAuthSuccessRequest(client));
+            for (World iWorld : LoginServer.getWorlds()) {
+                client.sendPacket(LoginPacket.getServerList(iWorld.getWorldId(),
+                        iWorld.getWorldName(),
+                        iWorld.getFlag(),
+                        iWorld.getEventMessage(),
+                        iWorld.getChannels()));
+            }
+            client.sendPacket(LoginPacket.getEndOfServerList());
+            client.sendPacket(LoginPacket.selectWorld(1));
+            String eventMessage = LoginServer.getWorld(0).getEventMessage();
+            eventMessage = eventMessage.replaceAll("#b", "");
+            eventMessage = eventMessage.replaceAll("#r", "");
+            eventMessage = eventMessage.replaceAll("#k", "");
+            //client.sendPacket(LoginPacket.sendRecommended(WorldConfig.雪吉拉.getWorldId(), eventMessage));
+            client.setIdleTask(PingTimer.getInstance().schedule(() -> client.getSession().close(), 10 * 60 * 10000));
         } else {
-            c.getSession().write(LoginPacket.getLoginFailed(7));
+            client.sendPacket(LoginPacket.getLoginFailed(7));
         }
     }
 }

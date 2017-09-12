@@ -24,7 +24,7 @@ import constants.GameConstants;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.*;
-import tools.Pair;
+import tools.types.Pair;
 
 public class MapleNodes {
 

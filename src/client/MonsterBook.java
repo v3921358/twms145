@@ -34,8 +34,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import server.MapleItemInformationProvider;
 import server.quest.MapleQuest;
-import tools.Pair;
-import tools.Triple;
+import tools.types.Pair;
+import tools.types.Triple;
 import tools.data.MaplePacketLittleEndianWriter;
 import tools.packet.CField.EffectPacket;
 

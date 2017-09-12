@@ -27,16 +27,10 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.channel.ChannelServer;
-import handling.login.LoginServer;
+
 import java.awt.Point;
-import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import server.*;
-import server.Timer.PokeTimer;
-import server.Timer.WorldTimer;
 import server.events.MapleEvent;
 import server.events.MapleEventType;
 import server.events.MapleSnowball.MapleSnowballs;
@@ -47,18 +41,16 @@ import server.life.MobSkill;
 import server.life.MobSkillFactory;
 import server.maps.FieldLimitType;
 import server.maps.MapleMap;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
-import server.movement.LifeMovementFragment;
+import server.movement.ILifeMovementFragment;
+import server.movement.MovementKind;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
-import tools.Pair;
+import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
 import tools.packet.CField.UIPacket;
 import tools.packet.CWvsContext;
-import tools.packet.CWvsContext.BuffPacket;
 import tools.packet.CWvsContext.InventoryPacket;
 import tools.packet.MTSCSPacket;
 import tools.packet.MobPacket;
@@ -250,7 +242,7 @@ public class PlayerHandler {
                     c.getSession().writeAndFlush(CWvsContext.enableActions());
                 }
 /*  233 */     //if ((player != null) && ((!player.isGM()) || (c.getPlayer().isGM())))
-/*  235 */       //c.getSession().writeAndFlush(CWvsContext.charInfo(player, c.getPlayer().getId() == objectid));
+/*  235 */       //c.getSession().writeAndFlush(CWvsContext.charInfo(player, c.getPlayer().getWorldId() == objectid));
 /*      */   }
 
     public static byte player_direction;
@@ -1142,7 +1134,11 @@ return;
 
     public static void MoveAndroid(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         slea.skip(8);
-        final List<LifeMovementFragment> res = MovementParse.parseMovement(slea, 3);
+
+        if(chr.getAndroid() == null) {
+            return;
+        }
+        final List<ILifeMovementFragment> res = MovementParse.parseMovement(slea, chr.getAndroid().getPos(), MovementKind.PET_MOVEMENT);
 
         if (res != null && chr != null && !res.isEmpty() && chr.getMap() != null && chr.getAndroid() != null) { // map crash hack
             final Point pos = new Point(chr.getAndroid().getPos());
@@ -1211,9 +1207,9 @@ return;
             return;
         }
         final Point Original_Pos = chr.getPosition(); // 4 bytes Added on v.80 MSEA
-        final List<LifeMovementFragment> res;
+        final List<ILifeMovementFragment> res;
         try {
-            res = MovementParse.parseMovement(slea, 1);
+            res = MovementParse.parseMovement(slea, chr.getTruePosition(), MovementKind.PLAYER_MOVEMENT);
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("AIOBE Type1:\n" + slea.toString(true));
             return;

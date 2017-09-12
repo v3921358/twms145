@@ -24,8 +24,8 @@ public class TeleportMovement extends AbstractLifeMovement {
 
     private short fh;
 
-    public TeleportMovement(int type, Point position, int duration, int newstate) {
-        super(type, position, duration, newstate);
+    public TeleportMovement(int type, Point position, int duration, int newState, MovementKind kind) {
+        super(type, position, duration, newState, kind);
     }
 
     public void setFh(short fh) {
@@ -34,10 +34,10 @@ public class TeleportMovement extends AbstractLifeMovement {
 
     @Override
     public void serialize(MaplePacketLittleEndianWriter lew) {
-        lew.write(getType());
+        lew.write(getValue());
         lew.writePos(getPosition());
         lew.writeShort(fh);
-        lew.write(getNewstate());
+        lew.write(getNewState());
         lew.writeShort(getDuration());
     }
 }

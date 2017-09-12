@@ -29,7 +29,7 @@ import server.MTSStorage;
 public class CashShopServer {
 
     private static String ip;
-    private final static int PORT = 7606;
+    private final static int PORT = 8585;
     private static ServerConnection acceptor;
     private static PlayerStorage players, playersMTS;
     private static boolean finishedShutdown = false;

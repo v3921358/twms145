@@ -28,8 +28,8 @@ import server.life.MapleMonster;
 import server.maps.*;
 import tools.CaltechEval;
 import tools.FileoutputUtil;
-import tools.Pair;
-import tools.Triple;
+import tools.types.Pair;
+import tools.types.Triple;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
 import tools.packet.CWvsContext;
@@ -1619,29 +1619,29 @@ case 12111007:
                     }
                 }
             } else {
-                if (sourceid == 2910000 || sourceid == 2910001) { //red flag
+                if (sourceid == 2910000 || sourceid == 2910001) { //red WORLD_FLAGS
                     applyto.getClient().getSession().writeAndFlush(EffectPacket.showOwnBuffEffect(sourceid, 13, applyto.getLevel(), level));
                     applyto.getMap().broadcastMessage(applyto, EffectPacket.showBuffeffect(applyto.getId(), sourceid, 13, applyto.getLevel(), level), false);
 
                     applyto.getClient().getSession().writeAndFlush(EffectPacket.showOwnCraftingEffect("UI/UIWindow2.img/CTF/Effect", 0, 0));
                     applyto.getMap().broadcastMessage(applyto, EffectPacket.showCraftingEffect(applyto.getId(), "UI/UIWindow2.img/CTF/Effect", 0, 0), false);
-                    if (applyto.getTeam() == (sourceid - 2910000)) { //restore duh flag
+                    if (applyto.getTeam() == (sourceid - 2910000)) { //restore duh WORLD_FLAGS
                         if (sourceid == 2910000) {
-                            applyto.getEventInstance().broadcastPlayerMsg(-7, "The Red Team's flag has been restored.");
+                            applyto.getEventInstance().broadcastPlayerMsg(-7, "The Red Team's WORLD_FLAGS has been restored.");
                         } else {
-                            applyto.getEventInstance().broadcastPlayerMsg(-7, "The Blue Team's flag has been restored.");
+                            applyto.getEventInstance().broadcastPlayerMsg(-7, "The Blue Team's WORLD_FLAGS has been restored.");
                         }
                         applyto.getMap().spawnAutoDrop(sourceid, applyto.getMap().getGuardians().get(sourceid - 2910000).left);
                     } else {
                         applyto.disease(mobSkill, mobSkillLevel);
                         if (sourceid == 2910000) {
                             applyto.getEventInstance().setProperty("redflag", String.valueOf(applyto.getId()));
-                            // applyto.getEventInstance().broadcastPlayerMsg(-7, "The Red Team's flag has been captured!");
+                            // applyto.getEventInstance().broadcastPlayerMsg(-7, "The Red Team's WORLD_FLAGS has been captured!");
                             applyto.getClient().getSession().writeAndFlush(EffectPacket.showOwnCraftingEffect("UI/UIWindow2.img/CTF/Tail/Red", 600000, 0));
                             applyto.getMap().broadcastMessage(applyto, EffectPacket.showCraftingEffect(applyto.getId(), "UI/UIWindow2.img/CTF/Tail/Red", 600000, 0), false);
                         } else {
                             applyto.getEventInstance().setProperty("blueflag", String.valueOf(applyto.getId()));
-                            // applyto.getEventInstance().broadcastPlayerMsg(-7, "The Blue Team's flag has been captured!");
+                            // applyto.getEventInstance().broadcastPlayerMsg(-7, "The Blue Team's WORLD_FLAGS has been captured!");
                             applyto.getClient().getSession().writeAndFlush(EffectPacket.showOwnCraftingEffect("UI/UIWindow2.img/CTF/Tail/Blue", 600000, 0));
                             applyto.getMap().broadcastMessage(applyto, EffectPacket.showCraftingEffect(applyto.getId(), "UI/UIWindow2.img/CTF/Tail/Blue", 600000, 0), false);
                         }
@@ -2290,7 +2290,7 @@ case 12111007:
             }
             //case 22131001: {//magic shield
             //final List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MAGIC_SHIELD, x));
-            //applyto.getMap().broadcastMessage(applyto, CField.giveForeignBuff(applyto.getId(), stat, this), false);
+            //applyto.getMap().broadcastMessage(applyto, CField.giveForeignBuff(applyto.getWorldId(), stat, this), false);
             //break;
             //}
             case 32121003: { //twister

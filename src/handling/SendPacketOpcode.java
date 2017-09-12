@@ -20,20 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling;
 
-import constants.GameConstants;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
-import tools.HexTool;
+import tools.ExternalCodeShortTableGetter;
+import tools.StringUtil;
+import tools.WritableShortValueHolder;
 
-public enum SendPacketOpcode implements WritableIntValueHolder {
+import java.io.*;
+import java.util.Properties;
+
+public enum SendPacketOpcode implements WritableShortValueHolder {
     // GENERAL
 
     PING,
     // LOGIN
+    SHOW_MAPLESTORY,
+    LOGIN_AUTH,
     LOGIN_STATUS,
     LOGIN_SECOND,
+    GENDER_SET,
+    CHOOSE_GENDER,
     PIN_OPERATION,
     SECONDPW_ERROR,
     SERVERLIST,
@@ -57,7 +61,7 @@ public enum SendPacketOpcode implements WritableIntValueHolder {
     UPDATE_STOLEN_SKILLS,
     SKILL_SWIPE_WINDOW,
     FREE_CASH_ITEM,
-    ONE_A_DAY,    
+    ONE_A_DAY,
     // CHANNEL
     CHANGE_CHANNEL, SHOW_TITLE, GM_BOARD,
     UPDATE_STATS,
@@ -314,7 +318,6 @@ public enum SendPacketOpcode implements WritableIntValueHolder {
     ENGAGE_RESULT,
     UPDATE_JAGUAR,
     EXPEDITION_OPERATION,
-    LOGIN_AUTH,
     TESLA_TRIANGLE,
     MECH_PORTAL,
     MECH_DOOR_SPAWN,
@@ -422,7 +425,22 @@ public enum SendPacketOpcode implements WritableIntValueHolder {
     SPECIAL_CREATION,
     MONSTER_RESIST,
     PET_EXCEPTION_LIST,
-    RPS_GAME, AZWAN_FAME, ASWAN_MOB_TO_MOB_DAMAGE, ASWAN_SPAWN_MONSTER, ASWAN_KILL_MONSTER, ASWAN_SPAWN_MONSTER_CONTROL, PART_TIME_JOB, MAGIC_WHEEL, MAPLE_ADMIN_MSG, WEB_BOARD_UPDATE, CLASS_UPDATE, CONSULT_UPDATE, CHANGE_HOUR, ANTI_MACRO_RESULT, GAME_PATCHES, SEND_EULA;
+    RPS_GAME,
+    AZWAN_FAME,
+    ASWAN_MOB_TO_MOB_DAMAGE,
+    ASWAN_SPAWN_MONSTER,
+    ASWAN_KILL_MONSTER,
+    ASWAN_SPAWN_MONSTER_CONTROL,
+    PART_TIME_JOB,
+    MAGIC_WHEEL,
+    MAPLE_ADMIN_MSG,
+    WEB_BOARD_UPDATE,
+    CLASS_UPDATE,
+    CONSULT_UPDATE,
+    CHANGE_HOUR,
+    ANTI_MACRO_RESULT,
+    GAME_PATCHES,
+    SEND_EULA;
     private short code = -2;
 
     @Override
@@ -432,23 +450,11 @@ public enum SendPacketOpcode implements WritableIntValueHolder {
 
     @Override
     public short getValue() {
-        //System.out.println("Packet to send: " + this.name() + " Value: " + this.code + "\r\nCaller: " + Thread.currentThread().getStackTrace()[2]);
         return code;
     }
 
-    public static Properties getDefaultProperties() throws FileNotFoundException, IOException {
-        Properties props = new Properties();
-        FileInputStream fileInputStream = new FileInputStream("send.properties");
-        props.load(fileInputStream);
-        fileInputStream.close();
-        return props;
-    }
 
-    static {
-        reloadValues();
-    }
-    
-       public static String getOpcodeName(int value) {
+    public static String getOpcodeName(int value) {
         for (SendPacketOpcode opcode : SendPacketOpcode.values()) {
             if (opcode.getValue() == value) {
                 return opcode.name();
@@ -458,10 +464,37 @@ public enum SendPacketOpcode implements WritableIntValueHolder {
     }
 
     public static final void reloadValues() {
-        try {
-            ExternalCodeTableGetter.populateValues(getDefaultProperties(), values());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load sendops", e);
+        String fileName = "send.properties";
+        Properties props = new Properties();
+        try (FileInputStream fileInputStream = new FileInputStream(fileName); BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream, StringUtil.codeString(fileName)))) {
+            props.load(br);
+        } catch (IOException ex) {
+            InputStream in = SendPacketOpcode.class.getClassLoader().getResourceAsStream("properties/" + fileName);
+            if (in == null) {
+                System.err.println("錯誤: 未加載 " + fileName + " 檔案");
+                return;
+            }
+            try {
+                props.load(in);
+                in.close();
+            } catch (IOException e) {
+                throw new RuntimeException("加載 " + fileName + " 檔案出錯", e);
+            }
         }
+        ExternalCodeShortTableGetter.populateValues(props, values());
     }
+
+    public static String nameOf(int value) {
+        for (SendPacketOpcode opcode : SendPacketOpcode.values()) {
+            if (opcode.getValue() == value) {
+                return opcode.name();
+            }
+        }
+        return "UNKNOWN";
+    }
+
+    static {
+        reloadValues();
+    }
+
 }

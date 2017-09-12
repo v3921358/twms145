@@ -1,13 +1,18 @@
 package constants;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class ServerConstants {
 
+    public static boolean DEBUG = true;
     public static boolean TESPIA = false; // true = uses GMS test server, for MSEA it does nothing though
     public static final short MAPLE_VERSION = 145;
     public static final String MAPLE_PATCH = "1";
-    public static String SERVER_IP = "10.211.55.2";
-    public static String SERVER_NAME = "Development";
-    public static String wzPath = "./wz";
+    public static final int MAPLE_LOCLE = 6;
+    public static String SERVER_IP = "10.10.1.199";
+    public static String SERVER_NAME = "啾咪谷 v145";
+    public static final String WZ_PATH = "./wz";
     public static String WzRevision = "1.0";
     public static String SourceRev = "1.0"; // initial revision
     public static final String MasterPass = "ericftw";
@@ -30,7 +35,16 @@ public class ServerConstants {
     // TODO: messages handled per world:)
     public static String serverMessage = "Welcome to Development v117.2 Closed Alpha! * Type @commands for a list of commands * Report all bugs to our forums, or to Eric.";
     public static String WELCOME_MESSAGE = "Welcome to #rDevelopment#k - Closed Alpha!\r\n#gReport #ebugs#n to the forums!#k\r\n#bFacebook - #ehttp://www.facebook.com/Development#n#k";
-    
+
+    private static final List<MapleLoginBalloon> mapleLoginBalloonList = Arrays.asList(
+            new MapleLoginBalloon("歡迎來到" + ServerConstants.SERVER_NAME, 240, 140),
+            new MapleLoginBalloon("禁止開外掛", 100, 150),
+            new MapleLoginBalloon("遊戲愉快", 370, 150));
+
+    public static List<MapleLoginBalloon> getBalloons() {
+        return mapleLoginBalloonList;
+    }
+
     public static String getTip() {
         // Update these occasionally <3
         String[] tips = {
@@ -83,6 +97,17 @@ public class ServerConstants {
 
         public int getType() {
             return level;
+        }
+    }
+
+    public static class MapleLoginBalloon {
+        public int nX,nY;
+        public String sMessage;
+
+        public MapleLoginBalloon(String sMessage, int nX, int nY) {
+            this.sMessage = sMessage;
+            this.nX = nX;
+            this.nY = nY;
         }
     }
 }

@@ -33,7 +33,7 @@ import server.Randomizer;
 
 public class PetDataFactory {
 
-    private static MapleDataProvider dataRoot = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/Item.wz"));
+    private static MapleDataProvider dataRoot = MapleDataProviderFactory.getDataProvider("Item.wz");
     private static Map<Integer, List<PetCommand>> petCommands = new HashMap<>();
     private static Map<Integer, Integer> petHunger = new HashMap<>();
 

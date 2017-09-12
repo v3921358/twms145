@@ -20,22 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools;
 
+import tools.types.Pair;
+
 import java.awt.Point;
 import java.util.List;
 
 public class AttackPair {
 
-    public int objectid;
+    public int objectId;
     public Point point;
     public List<Pair<Integer, Boolean>> attack;
 
-    public AttackPair(int objectid, List<Pair<Integer, Boolean>> attack) {
-        this.objectid = objectid;
+    public AttackPair(int objectId, List<Pair<Integer, Boolean>> attack) {
+        this.objectId = objectId;
         this.attack = attack;
     }
 
-    public AttackPair(int objectid, Point point, List<Pair<Integer, Boolean>> attack) {
-        this.objectid = objectid;
+    public AttackPair(int objectId, Point point, List<Pair<Integer, Boolean>> attack) {
+        this.objectId = objectId;
         this.point = point;
         this.attack = attack;
     }

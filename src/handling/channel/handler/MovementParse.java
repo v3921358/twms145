@@ -32,8 +32,8 @@ import tools.data.LittleEndianAccessor;
 public class MovementParse {
 
     //1 = player, 2 = mob, 3 = pet, 4 = summon, 5 = dragon
-    public static List<LifeMovementFragment> parseMovement(final LittleEndianAccessor lea, final int kind) {
-        final List<LifeMovementFragment> res = new ArrayList<>();
+    public static List<ILifeMovementFragment> parseMovement(final LittleEndianAccessor lea, Point currentPos, final MovementKind kind) {
+        final List<ILifeMovementFragment> res = new ArrayList<>();
         final byte numCommands = lea.readByte();
 
         for (byte i = 0; i < numCommands; i++) {
@@ -43,31 +43,42 @@ public class MovementParse {
                 case 7:
                 case 14:
                 case 16:
-                case 44:
                 case 45:
                 case 46: {
-                    final short xpos = lea.readShort();
-                    final short ypos = lea.readShort();
-                    final short xwobble = lea.readShort();
-                    final short ywobble = lea.readShort();
+                    final short xPos = lea.readShort();
+                    final short yPos = lea.readShort();
+                    final short xWobble = lea.readShort();
+                    final short yWobble = lea.readShort();
                     final short unk = lea.readShort();
-                    short fh = 0, xoffset = 0, yoffset = 0;
+                    short fh = 0;
                     if (command == 14) {
                         fh = lea.readShort();
                     }
-                    if (command != 44) {
-                        xoffset = lea.readShort();
-                        yoffset = lea.readShort();
-                    }
-                    final byte newstate = lea.readByte();
+                    final short xOffset = lea.readShort();
+                    final short yOffset = lea.readShort();
+                    final byte newState = lea.readByte();
                     final short duration = lea.readShort();
-
-                    final AbsoluteLifeMovement alm = new AbsoluteLifeMovement(command, new Point(xpos, ypos), duration, newstate);
+                    final AbsoluteLifeMovement alm = new AbsoluteLifeMovement(command, new Point(xPos, yPos), duration, newState, kind);
                     alm.setUnk(unk);
                     alm.setFh(fh);
-                    alm.setPixelsPerSecond(new Point(xwobble, ywobble));
-                    alm.setOffset(new Point(xoffset, yoffset));
-
+                    alm.setPixelsPerSecond(new Point(xWobble, yWobble));
+                    alm.setOffset(new Point(xOffset, yOffset));
+                    res.add(alm);
+                    break;
+                }
+                case 44: {
+                    final short xPos = lea.readShort();
+                    final short yPos = lea.readShort();
+                    final short xWobble = lea.readShort();
+                    final short yWobble = lea.readShort();
+                    final short unk = lea.readShort();
+                    final byte newState = lea.readByte();
+                    final short duration = lea.readShort();
+                    final AbsoluteLifeMovement alm = new AbsoluteLifeMovement(command, new Point(xPos, yPos), duration, newState, kind);
+                    alm.setUnk(unk);
+                    alm.setFh((short)0);
+                    alm.setPixelsPerSecond(new Point(xWobble, yWobble));
+                    alm.setOffset(new Point(0, 0));
                     res.add(alm);
                     break;
                 }
@@ -80,23 +91,21 @@ public class MovementParse {
                 case 40:
                 case 41:
                 case 42:
-                case 43: {
-                    final short xmod = lea.readShort();
-                    final short ymod = lea.readShort();
+                case 43:
+                {
+                    final short xMod = lea.readShort();
+                    final short yMod = lea.readShort();
                     short unk = 0;
                     if (command == 18 || command == 19) {
                         unk = lea.readShort();
                     }
-                    final byte newstate = lea.readByte();
+                    final byte newState = lea.readByte();
                     final short duration = lea.readShort();
-
-                    final RelativeLifeMovement rlm = new RelativeLifeMovement(command, new Point(xmod, ymod), duration, newstate);
+                    final RelativeLifeMovement rlm = new RelativeLifeMovement(command, new Point(xMod, yMod), duration, newState, kind);
                     rlm.setUnk(unk);
                     res.add(rlm);
                     break;
                 }
-				case 17: // special?...final charge aran
-                case 22: // idk
 				case 23:
                 case 24:
                 case 25:
@@ -114,11 +123,9 @@ public class MovementParse {
                 case 37:
                 case 38:
                 case 39: {
-                    final byte newstate = lea.readByte();
+                    final byte newState = lea.readByte();
                     final short unk = lea.readShort();
-
-                    final GroundMovement am = new GroundMovement(command, new Point(0, 0), unk, newstate);
-
+                    final GroundMovement am = new GroundMovement(command, currentPos, unk, newState, kind);
                     res.add(am);
                     break;
                 }
@@ -130,35 +137,46 @@ public class MovementParse {
                 case 9:
                 case 10:
                 case 12:
-                case 13: {
-                    final short xpos = lea.readShort();
-                    final short ypos = lea.readShort();
+                {
+                    final short xPos = lea.readShort();
+                    final short yPos = lea.readShort();
                     final short fh = lea.readShort();
-                    final byte newstate = lea.readByte();
+                    final byte newState = lea.readByte();
                     final short duration = lea.readShort();
-
-                    final TeleportMovement tm = new TeleportMovement(command, new Point(xpos, ypos), duration, newstate);
+                    final TeleportMovement tm = new TeleportMovement(command, new Point(xPos, yPos), duration, newState, kind);
                     tm.setFh(fh);
-
                     res.add(tm);
                     break;
                 }
-                case 20: {
-                    final short xpos = lea.readShort();
-                    final short ypos = lea.readShort();
-                    final short xoffset = lea.readShort();
-                    final short yoffset = lea.readShort();
-                    final byte newstate = lea.readByte();
+                case 13: {
+                    final short xWobble = lea.readShort();
+                    final short yWobble = lea.readShort();
+                    final short unk = 0;
+                    short fh = lea.readShort();
+                    final byte newState = lea.readByte();
                     final short duration = lea.readShort();
-
-                    final BounceMovement bm = new BounceMovement(command, new Point(xpos, ypos), duration, newstate);
-                    bm.setOffset(new Point(xoffset, yoffset));
-
+                    final AbsoluteLifeMovement alm = new AbsoluteLifeMovement(command, currentPos, duration, newState, kind);
+                    alm.setUnk(unk);
+                    alm.setFh(fh);
+                    alm.setPixelsPerSecond(new Point(xWobble, yWobble));
+                    alm.setOffset(new Point(0, 0));
+                    res.add(alm);
+                    break;
+                }
+                case 20: {
+                    final short xPos = lea.readShort();
+                    final short yPos = lea.readShort();
+                    final short xOffset = lea.readShort();
+                    final short yOffset = lea.readShort();
+                    final byte newState = lea.readByte();
+                    final short duration = lea.readShort();
+                    final BounceMovement bm = new BounceMovement(command, new Point(xPos, yPos), duration, newState, kind);
+                    bm.setOffset(new Point(xOffset, yOffset));
                     res.add(bm);
                     break;
                 }
                 case 11: { // Update Equip or Dash
-                    res.add(new ChangeEquipSpecialAwesome(command, lea.readByte()));
+                    res.add(new ChangeEquipSpecialAwesome(command, currentPos, lea.readByte(), kind));
                     break;
                 }
                 default:
@@ -173,19 +191,17 @@ public class MovementParse {
         return res;
     }
     
-    public static void updatePosition(final List<LifeMovementFragment> movement, final AnimatedMapleMapObject target, final int yoffset) {
+    static void updatePosition(final List<ILifeMovementFragment> movement, final AnimatedMapleMapObject target, final int yoffset) {
         if (movement == null) {
             return;
         }
-        for (final LifeMovementFragment move : movement) {
-            if (move instanceof LifeMovement) {
-                if (move instanceof AbsoluteLifeMovement) {
-                    final Point position = ((LifeMovement) move).getPosition();
-                    position.y += yoffset;
-                    target.setPosition(position);
-                }
-                target.setStance(((LifeMovement) move).getNewstate());
+        movement.stream().filter(move -> move instanceof ILifeMovement).forEach(move -> {
+            if (move instanceof AbsoluteLifeMovement) {
+                final Point position = move.getPosition();
+                position.y += yoffset;
+                target.setPosition(position);
             }
-        }
+            target.setStance(((ILifeMovement) move).getNewState());
+        });
     }
 }

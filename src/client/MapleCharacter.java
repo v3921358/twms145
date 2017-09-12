@@ -58,7 +58,6 @@ import scripting.NPCScriptManager;
 import server.*;
 import server.MapleStatEffect.CancelEffectAction;
 import server.Timer.BuffTimer;
-import server.Timer.EtcTimer;
 import server.Timer.EventTimer;
 import server.Timer.MapTimer;
 import server.life.MapleLifeFactory;
@@ -68,14 +67,14 @@ import server.life.MobSkillFactory;
 import server.life.OverrideMonsterStats;
 import server.life.PlayerNPC;
 import server.maps.*;
-import server.movement.LifeMovementFragment;
+import server.movement.ILifeMovementFragment;
 import server.quest.MapleQuest;
 import server.shops.IMaplePlayerShop;
-import tools.ConcurrentEnumMap;
+import tools.types.ConcurrentEnumMap;
 import tools.FileoutputUtil;
-import tools.Pair;
+import tools.types.Pair;
 import tools.StringUtil;
-import tools.Triple;
+import tools.types.Triple;
 import tools.packet.*;
 import tools.packet.CField.EffectPacket;
 import tools.packet.CField.SummonPacket;
@@ -151,7 +150,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     private MonsterFamiliar summonedFamiliar;
     private int[] wishlist, rocks, savedLocations, regrocks, hyperrocks, remainingSp = new int[10];
     private transient AtomicInteger inst, insd;
-    private transient List<LifeMovementFragment> lastres;
+    private transient List<ILifeMovementFragment> lastres;
     private List<Integer> lastmonthfameids, lastmonthbattleids, extendedSlots;
     private List<MapleDoor> doors;
     private List<MechDoor> mechDoors;
@@ -993,7 +992,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                 /*if (!compensate_previousSP) {
                  for (Entry<Skill, SkillEntry> skill : ret.skills.entrySet()) {
                  if (!skill.getKey().isBeginnerSkill() && !skill.getKey().isSpecialSkill()) {
-                 ret.remainingSp[GameConstants.getSkillBookForSkill(skill.getKey().getId())] += skill.getValue().skillevel;
+                 ret.remainingSp[GameConstants.getSkillBookForSkill(skill.getKey().getWorldId())] += skill.getValue().skillevel;
                  skill.getValue().skillevel = 0;
                  }
                  }
@@ -3988,14 +3987,14 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
 	    /*List<MapleQuestStatus> cq = getCompletedQuests();
          for (MapleQuestStatus q : cq) {
          for (MapleQuestAction qs : q.getQuest().getCompleteActs()) {
-         if (qs.getType() == MapleQuestActionType.skill) {
+         if (qs.getValue() == MapleQuestActionType.skill) {
          for (Pair<Integer, Pair<Integer, Integer>> skill : qs.getSkills()) {
          final Skill skil = SkillFactory.getSkill(skill.left);
          if (skil != null && getSkillLevel(skil) <= skill.right.left && getMasterLevel(skil) <= skill.right.right) {
          changeSkillLevel(skil, (byte) (int)skill.right.left, (byte) (int)skill.right.right);
          }
          }
-         } else if (qs.getType() == MapleQuestActionType.item) { //skillbooks
+         } else if (qs.getValue() == MapleQuestActionType.item) { //skillbooks
          for (MapleQuestAction.QuestItem item : qs.getItems()) {
          if (item.itemid / 10000 == 228 && !haveItem(item.itemid,1)) { //skillbook
          //check if we have the skill
@@ -4523,7 +4522,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     }
 
     public void announce(byte[] packet) {
-        client.announce(packet);
+        client.sendPacket(packet);
     }
 
     public void changeElf() {//questEx 7784
@@ -5911,13 +5910,13 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         client.getSession().writeAndFlush(CField.removePlayerFromMap(this.getObjectId()));
         //don't need this, client takes care of it
         /*if (dragon != null) {
-         client.getSession().writeAndFlush(CField.removeDragon(this.getId()));
+         client.getSession().writeAndFlush(CField.removeDragon(this.getWorldId()));
          }
          if (android != null) {
-         client.getSession().writeAndFlush(CField.deactivateAndroid(this.getId()));
+         client.getSession().writeAndFlush(CField.deactivateAndroid(this.getWorldId()));
          }
          if (summonedFamiliar != null) {
-         client.getSession().writeAndFlush(CField.removeFamiliar(this.getId()));
+         client.getSession().writeAndFlush(CField.removeFamiliar(this.getWorldId()));
          }*/
     }
     
@@ -7088,7 +7087,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
 
     public final void maxAAllSkills() {
         for (Skill skil : SkillFactory.getAllSkills()) {
-            //   if (GameConstants.isApplicableSkill(skil.getId()) && skil.getId() < 90000000) { //no db/additionals/resistance skills
+            //   if (GameConstants.isApplicableSkill(skil.getWorldId()) && skil.getWorldId() < 90000000) { //no db/additionals/resistance skills
             changeSingleSkillLevel(SkillFactory.getSkill(skil.getId()), (byte) skil.getMaxLevel(), (byte) skil.getMaxLevel(), -1);
         }
         //    }
@@ -7751,11 +7750,11 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     }
     
     public void dropNPC(String message) {
-        client.announce(CField.getNPCTalk(9010000, (byte)0, message, "00 00"));
+        client.sendPacket(CField.getNPCTalk(9010000, (byte)0, message, "00 00"));
     }
     
     public void dropNPC(int npc, String message) {
-        client.announce(CField.getNPCTalk(npc, (byte)0, message, "00 00"));
+        client.sendPacket(CField.getNPCTalk(npc, (byte)0, message, "00 00"));
     }
     
     public void gainCurrency(int gain, boolean show) {
@@ -8601,11 +8600,11 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         return false;
     }
 
-    public List<LifeMovementFragment> getLastRes() {
+    public List<ILifeMovementFragment> getLastRes() {
         return lastres;
     }
 
-    public void setLastRes(List<LifeMovementFragment> lastres) {
+    public void setLastRes(List<ILifeMovementFragment> lastres) {
         this.lastres = lastres;
     }
     
@@ -9262,7 +9261,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
 
     public void changeChannel(final int channel) {
         final ChannelServer toch = ChannelServer.getInstance(world, channel);
-        String[] socket = LoginServer.getInstance().getIP(client.getWorld(), channel).split(":");
+        String[] socket = LoginServer.getInstance().getChannelIP(client.getWorld(), channel).split(":");
         
         if (channel == client.getChannel() || toch == null || toch.isShutdown()) {
             client.getSession().writeAndFlush(CField.serverBlocked(1));
@@ -10030,7 +10029,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
      return;
      }
      for (MonsterFamiliar mf : familiars.values()) {
-     if (summonedFamiliar != null && summonedFamiliar.getId() == mf.getId()) {
+     if (summonedFamiliar != null && summonedFamiliar.getWorldId() == mf.getWorldId()) {
      mf.addFatigue(this, 5);
      final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
      final MapleStatEffect eff = ii.getItemEffect(ii.getFamiliar(summonedFamiliar.getFamiliar()).passive);

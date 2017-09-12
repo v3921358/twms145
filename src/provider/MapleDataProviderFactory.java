@@ -23,11 +23,10 @@ package provider;
 import constants.ServerConstants;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 
 public class MapleDataProviderFactory {
 
-    private final static String wzPath = ServerConstants.wzPath;
+    private final static String wzPath = ServerConstants.WZ_PATH;
 
     public static MapleDataProvider getDataProvider(String file)  {
         return getWZ(fileInWZPath(file));

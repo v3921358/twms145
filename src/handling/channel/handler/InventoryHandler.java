@@ -33,9 +33,6 @@ import handling.world.MaplePartyCharacter;
 import handling.world.World;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.DateFormat;
@@ -56,8 +53,7 @@ import server.quest.MapleQuest;
 import server.shops.HiredMerchant;
 import server.shops.IMaplePlayerShop;
 import tools.FileoutputUtil;
-import tools.Pair;
-import tools.StringUtil;
+import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.*;
 import tools.packet.CField.EffectPacket;
@@ -842,7 +838,7 @@ public class InventoryHandler {
  }
         chr.getMap().broadcastMessage(chr, CField.getScrollEffect(c.getPlayer().getId(), scrollSuccess, legendarySpirit, whiteScroll, scroll.getItemId(), toScroll.getItemId()), vegas == 0);
   
-        //addToScrollLog(chr.getAccountID(), chr.getId(), scroll.getItemId(), itemID, oldSlots, (byte)(scrolled == null ? -1 : scrolled.getUpgradeSlots()), oldVH, scrollSuccess.name(), whiteScroll, legendarySpirit, vegas);
+        //addToScrollLog(chr.getAccountID(), chr.getWorldId(), scroll.getItemId(), itemID, oldSlots, (byte)(scrolled == null ? -1 : scrolled.getUpgradeSlots()), oldVH, scrollSuccess.name(), whiteScroll, legendarySpirit, vegas);
         // equipped item was scrolled and changed
 
         if (dst < 0 && (scrollSuccess == Equip.ScrollResult.SUCCESS || scrollSuccess == Equip.ScrollResult.CURSE) && vegas == 0) {
@@ -921,7 +917,7 @@ public class InventoryHandler {
                 map.broadcastMessage(MobPacket.catchMonster(mob.getObjectId(), itemid, (byte) 0));
                 c.getSession().write(CWvsContext.catchMob(mob.getId(), itemid, (byte) 0));
             }
-            c.announce(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (toUse != null && toUse.getQuantity() > 0 && toUse.getItemId() == itemid && mob != null && !chr.hasBlockedInventory() && itemid / 10000 == 227 && MapleItemInformationProvider.getInstance().getCardMobId(itemid) == mob.getId()) {
@@ -1020,7 +1016,7 @@ public class InventoryHandler {
                 }
                 case 2430033:
                     MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (byte) 1, false);
-                    MapleInventoryManipulator.addById(c, 4000378, (short) 1, "Server");
+                    MapleInventoryManipulator.addById(c, 4000378, (short) 1, "WorldConfig");
                     break;
                 case 2430112: //miracle cube fragment
                     if (c.getPlayer().getInventory(MapleInventoryType.USE).getNumFreeSlot() >= 1) {
@@ -2367,7 +2363,7 @@ public class InventoryHandler {
                         for (Map.Entry<Integer, StructFamiliar> f : MapleItemInformationProvider.getInstance().getFamiliars().entrySet()) {
                             if (Randomizer.nextInt(500) == 0 && ((i < 2 && f.getValue().grade == 0 || (i == 2 && f.getValue().grade != 0)))) {
                                 MapleInventoryManipulator.addById(c, f.getValue().itemid, (short) 1, "Booster Pack");
-                                //c.getSession().write(CField.getBoosterFamiliar(c.getPlayer().getId(), f.getKey(), 0));
+                                //c.getSession().write(CField.getBoosterFamiliar(c.getPlayer().getWorldId(), f.getKey(), 0));
                                 familiars[i] = f.getValue().itemid;
                                 break;
                             }
@@ -2870,7 +2866,7 @@ public class InventoryHandler {
                     flag |= ItemFlag.LUCKS_KEY.getValue();
                     item.setFlag(flag);
 
-                    c.announce(CWvsContext.InventoryPacket.scrolledItem(toUse, item, false, false));
+                    c.sendPacket(CWvsContext.InventoryPacket.scrolledItem(toUse, item, false, false));
                     used = true;
                 }
                 break;
@@ -2886,7 +2882,7 @@ public class InventoryHandler {
                     flag |= ItemFlag.SHIELD_WARD.getValue();
                     item.setFlag(flag);
 
-                    c.announce(CWvsContext.InventoryPacket.scrolledItem(toUse, item, false, false));
+                    c.sendPacket(CWvsContext.InventoryPacket.scrolledItem(toUse, item, false, false));
                     used = true;
                 }
                 break;
@@ -2898,7 +2894,7 @@ public class InventoryHandler {
                     flag |= ItemFlag.SLOTS_PROTECT.getValue();
                     item.setFlag(flag);
 
-                    c.announce(CWvsContext.InventoryPacket.scrolledItem(toUse, item, false, false));
+                    c.sendPacket(CWvsContext.InventoryPacket.scrolledItem(toUse, item, false, false));
                     used = true;
                 }
                 break;
@@ -2916,7 +2912,7 @@ public class InventoryHandler {
                     flag |= ItemFlag.SCROLL_PROTECT.getValue();
                     item.setFlag(flag);
 
-                    c.announce(CWvsContext.InventoryPacket.scrolledItem(toUse, item, false, false));
+                    c.sendPacket(CWvsContext.InventoryPacket.scrolledItem(toUse, item, false, false));
                     used = true;
                 }
                 break;
@@ -3880,7 +3876,7 @@ message = WordFilter.illegalArrayCheck(message, c.getPlayer());
                     removeItem(c.getPlayer(), mapitem, ob);
                     //another hack
                     if (mapitem.getItemId() / 10000 == 291) {
-                        c.getPlayer().getMap().broadcastMessage(CWvsContext.getTopMsg(c.getPlayer().getName() + " has captured " + (mapitem.getItemId() == 2910000 ? "Red" : "Blue") + " Team's flag!"));
+                        c.getPlayer().getMap().broadcastMessage(CWvsContext.getTopMsg(c.getPlayer().getName() + " has captured " + (mapitem.getItemId() == 2910000 ? "Red" : "Blue") + " Team's WORLD_FLAGS!"));
                         c.getPlayer().getMap().broadcastMessage(CField.getCapturePosition(c.getPlayer().getMap()));
                         //c.getPlayer().getMap().broadcastMessage(CField.resetCapture());
                     }
@@ -3940,11 +3936,11 @@ message = WordFilter.illegalArrayCheck(message, c.getPlayer());
             if (mapitem.getMeso() > 0) {
                 /*
                  * if (chr.getParty() != null && mapitem.getOwner() !=
-                 * chr.getId()) { List<MapleCharacter> toGive = new
+                 * chr.getWorldId()) { List<MapleCharacter> toGive = new
                  * LinkedList<>(); int splitMeso = mapitem.getMeso() * 40 / 100;
                  * for (MaplePartyCharacter z : chr.getParty().getMembers()) {
-                 * MapleCharacter m = chr.getMap().getCharacterById(z.getId());
-                 * if (m != null && m.getId() != chr.getId()) { toGive.add(m); }
+                 * MapleCharacter m = chr.getMap().getCharacterById(z.getWorldId());
+                 * if (m != null && m.getWorldId() != chr.getWorldId()) { toGive.add(m); }
                  * } for (MapleCharacter m : toGive) { m.gainMeso(splitMeso /
                  * toGive.size() + (m.getStat().hasPartyBonus ? (int)
                  * (mapitem.getMeso() / 20.0) : 0), true); }

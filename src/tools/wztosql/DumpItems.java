@@ -26,7 +26,7 @@ import client.inventory.EquipAdditions;
 import client.inventory.MapleInventoryType;
 import constants.GameConstants;
 import database.DatabaseConnection;
-import java.io.File;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,7 +37,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import provider.*;
 import server.life.Element;
-import tools.Pair;
+import tools.types.Pair;
 
 public class DumpItems {
 	private MapleDataProvider item, string = MapleDataProviderFactory.getDataProvider("String.wz"), character;

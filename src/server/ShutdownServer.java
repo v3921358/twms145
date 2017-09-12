@@ -1,17 +1,17 @@
 package server;
 
-import java.sql.SQLException;
-
 import database.DatabaseConnection;
 import handling.cashshop.CashShopServer;
 import handling.channel.ChannelServer;
 import handling.login.LoginServer;
 import handling.world.World;
-import java.lang.management.ManagementFactory;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import server.Timer.*;
 import tools.packet.CWvsContext;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
+import java.sql.SQLException;
 
 public class ShutdownServer implements ShutdownServerMBean {
 
@@ -29,18 +29,18 @@ public class ShutdownServer implements ShutdownServerMBean {
     }
 
     public static ShutdownServer getInstance() {
-	return instance;
+        return instance;
     }
 
     public int mode = 0;
 
     public void shutdown() {//can execute twice
-	run();
+        run();
     }
 
     @Override
     public void run() {
-	if (mode == 0) {
+        if (mode == 0) {
             int ret = 0;
             for (World worlds : LoginServer.getWorlds()) {
                 for (ChannelServer cs : worlds.getChannels()) {
@@ -51,28 +51,26 @@ public class ShutdownServer implements ShutdownServerMBean {
             }
             World.Guild.save();
             World.Alliance.save();
-	    World.Family.save();
+            World.Family.save();
             System.out.println("Shutdown 1 has completed. Hired merchants saved: " + ret);
-	    mode++;
-	} else if (mode == 1) {
-	    mode++;
+            mode++;
+        } else if (mode == 1) {
+            mode++;
             System.out.println("Shutdown 2 commencing...");
             try {
-	        World.Broadcast.broadcastMessage(-1, CWvsContext.serverNotice(0, "The world is going to shutdown now. Please log off safely.")); // -1 : all world servers
-                Integer[] chs =  ChannelServer.getAllInstance().toArray(new Integer[0]);
-                for (int i : chs) {
+                World.Broadcast.broadcastMessage(-1, CWvsContext.serverNotice(0, "The world is going to shutdown now. Please log off safely.")); // -1 : all world servers
+                for (World world : LoginServer.getWorlds()) {
                     try {
-                        for (World w : LoginServer.getWorlds()) {
-                            ChannelServer cs = ChannelServer.getInstance(w.getWorldId(), i);
+                        for (ChannelServer channelServer : world.getChannels()) {
                             synchronized (this) {
-                                cs.shutdown();
+                                channelServer.shutdown();
                             }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
-	        LoginServer.shutdown();
+                LoginServer.shutdown();
                 CashShopServer.shutdown();
                 DatabaseConnection.closeAll();
             } catch (SQLException e) {
@@ -82,15 +80,15 @@ public class ShutdownServer implements ShutdownServerMBean {
             MapTimer.getInstance().stop();
             BuffTimer.getInstance().stop();
             EventTimer.getInstance().stop();
-	    EtcTimer.getInstance().stop();
-	    PingTimer.getInstance().stop();
+            EtcTimer.getInstance().stop();
+            PingTimer.getInstance().stop();
             System.out.println("Shutdown 2 has finished.");
-            try{
+            try {
                 Thread.sleep(5000);
-            } catch(Exception e) {
+            } catch (Exception e) {
                 //shutdown
             }
             System.exit(0); //not sure if this is really needed for ChannelServer
-	}
+        }
     }
 }

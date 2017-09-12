@@ -75,6 +75,12 @@ public class HexTool {
         return Integer.toHexString(intValue);
     }
 
+
+    public static String toString(final long longValue)
+    {
+        return Long.toHexString(longValue);
+    }
+
     /**
      * Turns an array of bytes into a hexadecimal string.
      *

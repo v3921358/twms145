@@ -23,7 +23,6 @@ package handling.channel;
 import client.MapleCharacter;
 import constants.ServerConstants;
 import constants.WorldConstants;
-import handling.MapleServerHandler;
 import handling.login.LoginServer;
 import handling.netty.ServerConnection;
 import handling.world.World;
@@ -36,12 +35,9 @@ import server.maps.AramiaFireWorks;
 import server.maps.MapleMapFactory;
 import server.maps.MapleMapObject;
 import server.shops.HiredMerchant;
-import tools.ConcurrentEnumMap;
+import tools.types.ConcurrentEnumMap;
 import tools.packet.CWvsContext;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.channels.Channel;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -62,7 +58,6 @@ public class ChannelServer {
     private ServerConnection acceptor;
     private final MapleMapFactory mapFactory;
     private AramiaFireWorks works = new AramiaFireWorks();
-    private static final Map<Integer, ChannelServer> instances = new HashMap<>();
     private final Map<MapleSquadType, MapleSquad> mapleSquads = new ConcurrentEnumMap<>(MapleSquadType.class);
     private final Map<Integer, HiredMerchant> merchants = new HashMap<>();
     private final List<PlayerNPC> playerNPCs = new LinkedList<>();
@@ -72,16 +67,14 @@ public class ChannelServer {
     private ChannelServer(final int world, final int channel) {
         this.world = world;
         this.channel = channel;
-        setChannel(channel);
         mapFactory = new MapleMapFactory(world, channel);
     }
 
-    public static Set<Integer> getAllInstance() {
-        return new HashSet<>(instances.keySet());
+    public static Set<ChannelServer> getAllInstance(int world) {
+        return new HashSet<>(LoginServer.getWorld(world).getChannels());
     }
 
     public final void init() {
-        setChannel(channel);
         serverMessage = ServerConstants.serverMessage;
         eventSM = new EventScriptManager(this, WorldConstants.Events.split(","));
         port = 7575 + this.channel - 1;
@@ -91,9 +84,11 @@ public class ChannelServer {
         loadEvents();
         try {
             acceptor.run();
+            System.out.printf("[World:%d Channel:%d] is Bind on port %d\n", world, channel, port);
             eventSM.init();
-        } catch (InterruptedException e) {
-            System.out.println("Binding to port " + port + " failed (ch: " + getChannel() + ")" + e);
+        } catch (Exception e) {
+            System.err.printf("Binding to port %d failed (world: %d ch: %d)\n", port, world, channel);
+            e.printStackTrace();
             acceptor.close();
         }
     }
@@ -109,7 +104,7 @@ public class ChannelServer {
         System.out.println("Channel " + channel + ", Unbinding...");
         acceptor.close();
         acceptor = null;
-        instances.remove(channel);
+        LoginServer.getWorld(world).removeChannel(this.channel);
         setFinishShutdown();
     }
 
@@ -196,10 +191,6 @@ public class ChannelServer {
         return world;
     }
 
-    public final void setChannel(final int channel) {
-        instances.put(channel, this);
-        LoginServer.addChannel(channel);
-    }
 
     public final String getIP() {
         return ip;
@@ -436,13 +427,13 @@ public class ChannelServer {
         System.out.println("Channel " + channel + " has finished shutdown.");
     }
 
-    public static int getChannelCount() { // needs to be fixed for multi-world
-        return instances.size();
+    public static int getChannelCount(int world) { // needs to be fixed for multi-world
+        return LoginServer.getWorld(world).getChannels().size();
     }
 
-    public static Map<Integer, Integer> getChannelLoad() { // needs to be fixed for multi-world
+    public static Map<Integer, Integer> getChannelLoad(int world) { // needs to be fixed for multi-world
         Map<Integer, Integer> ret = new HashMap<>();
-        for (ChannelServer cs : instances.values()) {
+        for (ChannelServer cs : LoginServer.getWorld(world).getChannels()) {
             ret.put(cs.getChannel(), cs.getConnectedClients());
         }
         return ret;

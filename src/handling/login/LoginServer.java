@@ -21,37 +21,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.login;
 
 import constants.ServerConstants;
-import constants.WorldConstants;
+import constants.WorldConfig;
 import handling.MapleServerHandler;
 import handling.channel.ChannelServer;
 import handling.netty.ServerConnection;
 import handling.world.World;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import tools.Pair;
-import tools.packet.LoginPacket.Server;
+import tools.types.Pair;
+
+import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class LoginServer {
 
     public static final int PORT = 8484;
-    
+
     private static List<World> worlds = new ArrayList<>();
-    private static List<Map<Integer, String>> channels = new LinkedList<>();
     private static LoginServer instance = null;
-    
     private static ServerConnection acceptor;
-    private static Map<Integer, Integer> load = new HashMap<>();
-    private static int maxCharacters, usersOn = 0;
     private static boolean finishedShutdown = true, adminOnly = false;
     private static HashMap<Integer, Pair<String, String>> loginAuth = new HashMap<>();
     private static HashSet<String> loginIPAuth = new HashSet<>();
+    private static final ReentrantLock loginLock = new ReentrantLock();
 
     public static LoginServer getInstance() {
         if (instance == null) {
@@ -59,7 +49,7 @@ public class LoginServer {
         }
         return instance;
     }
-    
+
     public static void putLoginAuth(int chrid, String ip, String tempIP) {
         loginAuth.put(chrid, new Pair<>(ip, tempIP));
         loginIPAuth.add(ip);
@@ -81,25 +71,19 @@ public class LoginServer {
         loginIPAuth.add(ip);
     }
 
-    public static void addChannel(final int channel) {
-        load.put(channel, 0);
-    }
-
-    public void removeChannel(int worldid, final int channel) {
-        channels.remove(channel);
-
-        World world = worlds.get(worldid);
+    public void removeChannel(int worldId, final int channel) {
+        World world = worlds.get(worldId);
         if (world != null) {
             world.removeChannel(channel);
         }
     }
-    
+
     public ChannelServer getChannel(int world, int channel) {
-        return worlds.get(world).getChannel(channel);
+        return getWorld(world).getChannel(channel);
     }
 
     public List<ChannelServer> getChannelsFromWorld(int world) {
-        return worlds.get(world).getChannels();
+        return getWorld(world).getChannels();
     }
 
     public List<ChannelServer> getAllChannels() {
@@ -109,57 +93,26 @@ public class LoginServer {
         }
         return channelz;
     }
-    
-    public String getIP(int world, int channel) {
-        return channels.get(world).get(channel);
+
+    public String getChannelIP(int world, int channel) {
+        return getWorld(world).getChannel(channel).getIP();
     }
 
     public static void run_startup_configurations() {
-        adminOnly = ServerConstants.Admin_Only;
 
+        adminOnly = ServerConstants.Admin_Only;
         acceptor = new ServerConnection(PORT, -1, MapleServerHandler.LOGIN_SERVER);
-        
-        byte[] flagg = new byte[17];
-        int[] expp = new int[17];
-        int[] mesoo = new int[17];
-        int[] dropp = new int[17];
-        int userLimit = WorldConstants.UserLimit;
-        maxCharacters = WorldConstants.maxCharacters; // replace this with below
-        int maxCharacterss = WorldConstants.maxCharacters; // todo
-        String[] eventMessagee = new String[17];
-        for (Pair<Integer, Byte> flags : WorldConstants.flag) {
-            flagg[flags.left] = flags.right;
-        }
-        for (Pair<Integer, Integer> loadexp : WorldConstants.expRates) {
-            expp[loadexp.left] = loadexp.right;
-        }
-        for (Pair<Integer, Integer> loadmeso : WorldConstants.mesoRates) {
-            mesoo[loadmeso.left] = loadmeso.right;
-        }
-        for (Pair<Integer, Integer> loaddrop : WorldConstants.dropRates) {
-            dropp[loaddrop.left] = loaddrop.right;
-        }
-        for (Pair<Integer, String> eventmsg : WorldConstants.eventMessages) {
-            eventMessagee[eventmsg.left] = eventmsg.right;
-        }
-        for (int i = 0; i < WorldConstants.Worlds; i++) {
-            World world = new World(i, flagg[i], eventMessagee[i], expp[i], mesoo[i], dropp[i]);
-            worlds.add(world);
-            channels.add(new LinkedHashMap<Integer, String>());
-            for (int z = 0; z < WorldConstants.Channels; z++) {
-                int channelid = z + 1;
-                ChannelServer channel = ChannelServer.newInstance(i, channelid);
-                world.addChannel(channel);
-                world.setUserLimit(userLimit);
-                channel.init(); // initialize
-                channels.get(i).put(channelid, channel.getIP());
+
+        WorldConfig[] worldConfigs = WorldConfig.values();
+        for (WorldConfig worldConfig : worldConfigs) {
+            if (worldConfig.isOn()) {
+                System.out.printf("[World: %s ] Init...\n", worldConfig.name());
+                World world = new World(worldConfig);
+                worlds.add(world);
+                world.initWorld();
             }
-            System.out.println("    " + Server.getById(world.getWorldId()).toString() + " is online:");
-            System.out.println("        Channels: " + LoginServer.getInstance().getWorld(world.getWorldId()).getChannels().size());
-            System.out.println("        EXP: " + LoginServer.getInstance().getWorld(world.getWorldId()).getExpRate());
-            System.out.println("        MESO: " + LoginServer.getInstance().getWorld(world.getWorldId()).getMesoRate());
-            System.out.println("        DROP: " + LoginServer.getInstance().getWorld(world.getWorldId()).getDropRate());
         }
+
         try {
             acceptor.run();
         } catch (InterruptedException e) {
@@ -167,15 +120,15 @@ public class LoginServer {
             acceptor.close();
         }
     }
-    
-    public World getWorld(int id) {
-        return worlds.get(id);
+
+    public static World getWorld(int id) {
+        for(World world: worlds) {
+            if(world.getWorldId() == id)
+                return  world;
+        }
+        return null;
     }
-    
-    public static World getWorldStatic(int id) {
-        return worlds.get(id);
-    }
-    
+
     public static List<World> getWorlds() {
         return worlds;
     }
@@ -189,22 +142,8 @@ public class LoginServer {
         finishedShutdown = true; //nothing. lol
     }
 
-    public static int getMaxCharacters() {
-        return maxCharacters;
-    }
-
-    // TODO: remove most/all of this below
-    public static Map<Integer, Integer> getLoad() {
-        return load;
-    }
-
-    public static void setLoad(final Map<Integer, Integer> load_, final int usersOn_) {
-        load = load_;
-        usersOn = usersOn_;
-    }
-
-    public static int getUsersOn() {
-        return usersOn;
+    public static int getMaxCharacters(int world) {
+        return getWorld(world).getMaxCharacter();
     }
 
     public static boolean isAdminOnly() {
@@ -217,5 +156,9 @@ public class LoginServer {
 
     public static void setOn() {
         finishedShutdown = false;
+    }
+
+    public static ReentrantLock getLoginLock() {
+        return loginLock;
     }
 }

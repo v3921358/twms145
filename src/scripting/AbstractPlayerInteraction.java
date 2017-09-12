@@ -30,7 +30,6 @@ import handling.world.MaplePartyCharacter;
 import handling.world.World;
 import handling.world.guild.MapleGuild;
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.List;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
@@ -573,9 +572,9 @@ public abstract class AbstractPlayerInteraction {
         } else if (type == -2) {
             c.getPlayer().getMap().broadcastMessage(PlayerShopPacket.shopChat(message, 0)); //0 or what
         } else if (type == -3) {
-          //  c.getPlayer().getMap().broadcastMessage(CField.getChatText(getId(), message, isSuperGM(), 0)); //1 = hide
+          //  c.getPlayer().getMap().broadcastMessage(CField.getChatText(getWorldId(), message, isSuperGM(), 0)); //1 = hide
         } else if (type == -4) {
-          //  c.getPlayer().getMap().broadcastMessage(CField.getChatText(getId(), message, isSuperGM(), 1)); //1 = hide
+          //  c.getPlayer().getMap().broadcastMessage(CField.getChatText(getWorldId(), message, isSuperGM(), 1)); //1 = hide
         } else if (type == -5) {
             c.getPlayer().getMap().broadcastMessage(CField.getGameMessage(message, false)); //pink
         } else if (type == -6) {
@@ -888,7 +887,7 @@ public abstract class AbstractPlayerInteraction {
     
     public final void timeMoveMap(final int destination, final int movemap, final int time) {
         warp(movemap, 0);
-        getClient().announce(CField.getClock(time));
+        getClient().sendPacket(CField.getClock(time));
         EtcTimer tMan = EtcTimer.getInstance();
         Runnable r = new Runnable() {
             @Override

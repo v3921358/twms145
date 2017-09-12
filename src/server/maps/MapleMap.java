@@ -70,7 +70,7 @@ import server.maps.MapleNodes.MapleNodeInfo;
 import server.maps.MapleNodes.MaplePlatform;
 import server.maps.MapleNodes.MonsterPoint;
 import tools.FileoutputUtil;
-import tools.Pair;
+import tools.types.Pair;
 import tools.StringUtil;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
@@ -679,8 +679,8 @@ public final class MapleMap {
             }
             doShrine(true);
         } else if (mobid == 8810122 && mapid == 240060201) { // Horntail
-            World.Broadcast.broadcastGMMessage(chr.getWorld(), CWvsContext.serverNotice(5, "[GM-Message] Chaos Horntail was killed by : " + chr.getName()));
-            World.Broadcast.broadcastMessage(chr.getWorld(), CWvsContext.serverNotice(6, "To the crew that have finally conquered Chaos Horned Tail after numerous attempts, I salute thee! You are the true heroes of Leafre!!"));
+            World.Broadcast.broadcastGMMessage(chr.getWorld(), CWvsContext.serverNotice(5, "[GM-Message] 寒霜冰龍 Horntail was killed by : " + chr.getName()));
+            World.Broadcast.broadcastMessage(chr.getWorld(), CWvsContext.serverNotice(6, "To the crew that have finally conquered 寒霜冰龍 Horned Tail after numerous attempts, I salute thee! You are the true heroes of Leafre!!"));
             charactersLock.readLock().lock();
             try {
                 for (MapleCharacter c : characters) {
@@ -764,7 +764,7 @@ public final class MapleMap {
        /* this isn't automatic in gms anymore, it's actually done by npc. :)
             } else if (mobid == 9300010 && mapid == 922010700 && getAllMonstersThreadsafe().size() == 0) { // LudiPQ - Rombots
             for (MaplePartyCharacter pchr : chr.getParty().getMembers()) {
-                MapleCharacter chrz = chr.getClient().getChannelServer().getPlayerStorage().getCharacterById(pchr.getId());
+                MapleCharacter chrz = chr.getClient().getChannelServer().getPlayerStorage().getCharacterById(pchr.getWorldId());
                 EventInstanceManager eim = chr.getEventInstance();
                 if (eim.getProperty("stage7status") == null) { // just in case
                     chrz.removeAll(4001022);
@@ -3243,7 +3243,7 @@ public final class MapleMap {
           synchronized (characters) {
             for (MapleCharacter chr : characters) {
                 if (chr != source && !chr.superGM()) {
-                    chr.getClient().announce(packet);
+                    chr.getClient().sendPacket(packet);
                 }
             }
         }

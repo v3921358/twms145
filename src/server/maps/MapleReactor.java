@@ -24,7 +24,7 @@ import client.MapleClient;
 import java.awt.Rectangle;
 import scripting.ReactorScriptManager;
 import server.Timer.MapTimer;
-import tools.Pair;
+import tools.types.Pair;
 import tools.packet.CField;
 
 public class MapleReactor extends MapleMapObject {

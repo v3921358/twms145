@@ -1,7 +1,7 @@
 package handling;
 
 import io.netty.channel.ChannelHandlerContext;
-import tools.Pair;
+import tools.types.Pair;
 
 import java.util.ArrayList;
 import java.util.List;

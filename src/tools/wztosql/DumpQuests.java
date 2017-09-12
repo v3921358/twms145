@@ -23,7 +23,7 @@
 package tools.wztosql;
 
 import database.DatabaseConnection;
-import java.io.File;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,7 +35,7 @@ import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 import server.quest.MapleQuestActionType;
 import server.quest.MapleQuestRequirementType;
-import tools.Pair;
+import tools.types.Pair;
 
 public class DumpQuests {
 	private MapleDataProvider quest;

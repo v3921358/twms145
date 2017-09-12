@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import scripting.NPCScriptManager;
-import tools.Pair;
+import tools.types.Pair;
 import tools.packet.CField.EffectPacket;
 
 public class MapleQuest implements Serializable {

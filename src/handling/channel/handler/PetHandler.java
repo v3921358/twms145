@@ -29,21 +29,16 @@ import client.inventory.MaplePet;
 import client.inventory.PetCommand;
 import constants.GameConstants;
 import constants.Occupations;
-import handling.world.MaplePartyCharacter;
-import java.awt.Point;
-import java.util.Arrays;
-import java.util.LinkedList;
+
 import java.util.List;
-import java.util.concurrent.locks.Lock;
+
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.Randomizer;
-import server.life.MapleMonster;
 import server.maps.FieldLimitType;
-import server.maps.MapleMapItem;
-import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
-import server.movement.LifeMovementFragment;
+import server.movement.ILifeMovementFragment;
+import server.movement.MovementKind;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField.EffectPacket;
 import tools.packet.CWvsContext;
@@ -256,13 +251,15 @@ public class PetHandler {
             return;
         }
         final int petId = (int) slea.readLong();
+        final MaplePet pet = chr.getPet(GameConstants.GMS ? (chr.getPetIndex(petId)) : petId);
+        if (pet == null) {
+            return;
+        }
+
         slea.skip(9); // byte(index?), int(pos), int
-        final List<LifeMovementFragment> res = MovementParse.parseMovement(slea, 3);
-        if (res != null && chr != null && !res.isEmpty() && chr.getMap() != null) { // map crash hack
-            final MaplePet pet = chr.getPet(GameConstants.GMS ? (chr.getPetIndex(petId)) : petId);
-            if (pet == null) {
-                return;
-            }
+        final List<ILifeMovementFragment> res = MovementParse.parseMovement(slea, pet.getPos(), MovementKind.PET_MOVEMENT);
+        if (res != null  && !res.isEmpty() && chr.getMap() != null) { // map crash hack
+
             pet.updatePosition(res);
 	    chr.getMap().broadcastMessage(chr, PetPacket.movePet(chr.getId(), petId, chr.getPetIndex(petId), res), false);
             if (chr.getOccupation().is(Occupations.Hacker)) { // the question is, should we make this level 2 or something

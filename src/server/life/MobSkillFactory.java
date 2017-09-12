@@ -33,7 +33,7 @@ import java.sql.SQLException;
 
 import database.DatabaseConnection;
 import java.util.List;
-import tools.Pair;
+import tools.types.Pair;
 
 public class MobSkillFactory {
 

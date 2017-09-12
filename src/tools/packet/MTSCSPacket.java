@@ -25,7 +25,6 @@ import client.MapleClient;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import constants.GameConstants;
-import constants.ServerConstants;
 import handling.SendPacketOpcode;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,7 +37,7 @@ import server.CashItemInfo.CashModInfo;
 import server.CashShop;
 import server.MTSStorage.MTSItemInfo;
 import tools.HexTool;
-import tools.Pair;
+import tools.types.Pair;
 import tools.data.MaplePacketLittleEndianWriter;
 
 public class MTSCSPacket {

@@ -25,7 +25,7 @@ import constants.GameConstants;
 import java.util.EnumMap;
 import java.util.Map;
 import server.Randomizer;
-import tools.Pair;
+import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CWvsContext;
 

@@ -21,11 +21,16 @@
 package handling.netty;
 
 import client.MapleClient;
+import constants.ServerConstants;
+import handling.RecvPacketOpcode;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.AttributeKey;
+import tools.HexTool;
 import tools.MapleAESOFB;
+import tools.data.ByteArrayByteStream;
+import tools.data.LittleEndianAccessor;
 
 import java.util.List;
 
@@ -58,6 +63,19 @@ public class MaplePacketDecoder extends ByteToMessageDecoder {
             decoderState.packetLength = -1;
             client.getReceiveCrypto().crypt(decryptedPacket);
             message.add(decryptedPacket);
+
+            if(ServerConstants.DEBUG) {
+                int packetLen = decryptedPacket.length;
+                short pHeader = new LittleEndianAccessor(new ByteArrayByteStream(decryptedPacket)).readShort();
+                String op = RecvPacketOpcode.nameOf(pHeader);
+                    String tab = "";
+                    for (int i = 4; i > op.length() / 8; i--) {
+                        tab += "\t";
+                    }
+                    String t = packetLen >= 10 ? packetLen >= 100 ? packetLen >= 1000 ? "" : " " : "  " : "   ";
+                    final StringBuilder sb = new StringBuilder("[Debug] Recv: \t" + op + tab + "\tOpcode:" + HexTool.getOpcodeToString(pHeader) + t + "[" + packetLen + "]");
+                    System.out.println(sb.toString());
+            }
         }
     }
 }

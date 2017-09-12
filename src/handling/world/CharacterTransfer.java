@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import server.quest.MapleQuest;
-import tools.Pair;
+import tools.types.Pair;
 
 public class CharacterTransfer implements Externalizable {
 

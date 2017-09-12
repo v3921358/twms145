@@ -6,9 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import tools.Pair;
+import tools.types.Pair;
 import tools.StringUtil;
-import tools.Triple;
+import tools.types.Triple;
 
 public class SpeedRunner {
     private static final Map<ExpeditionType, Triple<String, Map<Integer, String>, Long>> speedRunData = new EnumMap<>(ExpeditionType.class);

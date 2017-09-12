@@ -54,8 +54,8 @@ import server.maps.*;
 import server.quest.MapleQuest;
 import tools.AttackPair;
 import tools.FileoutputUtil;
-import tools.Pair;
-import tools.Triple;
+import tools.types.Pair;
+import tools.types.Triple;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
@@ -143,7 +143,7 @@ public class PlayersHandler {
             return; 
         } 
         if (!search_chr.getAntiMacro().startLieDetector(chr.getName(), isItem, false)) { 
-            chr.dropMessage(5, "Sorry! The Captcha Server is not available now, please try again later."); //error occured, usually cannot access to captcha server 
+            chr.dropMessage(5, "Sorry! The Captcha WorldConfig is not available now, please try again later."); //error occured, usually cannot access to captcha server
             c.getSession().writeAndFlush(CWvsContext.enableActions());
             return; 
         } 
@@ -731,7 +731,7 @@ public class PlayersHandler {
     }
 
     public static void RingAction(final LittleEndianAccessor slea, final MapleClient c) {
-        c.announce(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
         final byte mode = slea.readByte();
         if (mode == 0) {
             DoRing(c, slea.readMapleAsciiString(), slea.readInt());
@@ -1111,7 +1111,7 @@ public class PlayersHandler {
      * c.getPlayer().getMap().getPortal(type == 0 ? 0 : (type == 3 ?
      * (c.getPlayer().getTeam() == 0 ? 3 : 1) : (c.getPlayer().getTeam() == 0 ?
      * 2 : 3))));
-     * c.getSession().write(CField.getPVPScore(Integer.parseInt(c.getPlayer().getEventInstance().getProperty(String.valueOf(c.getPlayer().getId()))),
+     * c.getSession().write(CField.getPVPScore(Integer.parseInt(c.getPlayer().getEventInstance().getProperty(String.valueOf(c.getPlayer().getWorldId()))),
      * false));
      *
      * if (c.getPlayer().getLevel() >= 30 && c.getPlayer().getLevel() < 70) {
@@ -1123,7 +1123,7 @@ public class PlayersHandler {
      * List<MapleCharacter> players =
      * c.getPlayer().getEventInstance().getPlayers(); List<Pair<Integer,
      * String>> players1 = new LinkedList<>(); for (int xx = 0; xx <
-     * players.size(); xx++) { players1.add(new Pair<>(players.get(xx).getId(),
+     * players.size(); xx++) { players1.add(new Pair<>(players.get(xx).getWorldId(),
      * players.get(xx).getName())); }
      * c.getSession().write(CField.getPVPType(type, players1,
      * c.getPlayer().getTeam(), true, lvl));

@@ -23,7 +23,6 @@ package client;
 import client.status.MonsterStatus;
 import constants.GameConstants;
 import java.awt.Point;
-import java.io.File;
 import java.util.*;
 
 import provider.MapleData;
@@ -34,7 +33,7 @@ import provider.MapleDataDirectoryEntry;
 import provider.MapleDataTool;
 import server.Randomizer;
 import tools.StringUtil;
-import tools.Triple;
+import tools.types.Triple;
 
 public class SkillFactory {
 
@@ -48,7 +47,7 @@ public class SkillFactory {
     public static void load() {
         final MapleData delayData = MapleDataProviderFactory.getDataProvider( "Character.wz").getData("00002000.img");
         final MapleData stringData = MapleDataProviderFactory.getDataProvider("String.wz").getData("Skill.img");
-        final MapleDataProvider datasource = MapleDataProviderFactory.getDataProvider("Skill.wz"));
+        final MapleDataProvider datasource = MapleDataProviderFactory.getDataProvider("Skill.wz");
         final MapleDataDirectoryEntry root = datasource.getRoot();
         int del = 0; //buster is 67 but its the 57th one!
         for (MapleData delay : delayData) {

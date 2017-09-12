@@ -33,7 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import tools.Pair;
+import tools.types.Pair;
 
 public final class MTSCart implements Serializable {
 

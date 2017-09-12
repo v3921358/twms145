@@ -33,8 +33,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import server.MapleItemInformationProvider;
 import server.movement.AbsoluteLifeMovement;
-import server.movement.LifeMovement;
-import server.movement.LifeMovementFragment;
+import server.movement.ILifeMovement;
+import server.movement.ILifeMovementFragment;
 
 public class MaplePet implements Serializable {
 
@@ -291,13 +291,13 @@ public class MaplePet implements Serializable {
         return false;
     }
 
-    public final void updatePosition(final List<LifeMovementFragment> movement) {
-        for (final LifeMovementFragment move : movement) {
-            if (move instanceof LifeMovement) {
+    public final void updatePosition(final List<ILifeMovementFragment> movement) {
+        for (final ILifeMovementFragment move : movement) {
+            if (move instanceof ILifeMovement) {
                 if (move instanceof AbsoluteLifeMovement) {
-                    setPos(((LifeMovement) move).getPosition());
+                    setPos(((ILifeMovement) move).getPosition());
                 }
-                setStance(((LifeMovement) move).getNewstate());
+                setStance(((ILifeMovement) move).getNewState());
             }
         }
     }

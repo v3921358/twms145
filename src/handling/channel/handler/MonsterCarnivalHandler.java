@@ -9,7 +9,7 @@ import java.util.List;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.life.MobSkillFactory;
-import tools.Pair;
+import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CWvsContext;
 import tools.packet.MonsterCarnivalPacket;

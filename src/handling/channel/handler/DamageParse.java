@@ -26,7 +26,6 @@ import client.inventory.MapleInventoryType;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.GameConstants;
-import constants.ServerConstants;
 import handling.login.LoginServer;
 import handling.world.World;
 import java.awt.Point;
@@ -47,11 +46,10 @@ import server.maps.MapleMapItem;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import tools.AttackPair;
-import tools.Pair;
+import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
-import tools.packet.MobPacket;
 
 public class DamageParse {
 
@@ -130,7 +128,7 @@ public class DamageParse {
                 if (oned.attack != null) {
                     continue;
                 }
-                final MapleMapObject mapobject = map.getMapObject(oned.objectid, MapleMapObjectType.ITEM);
+                final MapleMapObject mapobject = map.getMapObject(oned.objectId, MapleMapObjectType.ITEM);
 
                 if (mapobject != null) {
                     final MapleMapItem mapitem = (MapleMapItem) mapobject;
@@ -178,7 +176,7 @@ public class DamageParse {
         boolean Tempest;
         
         for (final AttackPair oned : attack.allDamage) {
-            monster = map.getMonsterByOid(oned.objectid);
+            monster = map.getMonsterByOid(oned.objectId);
 
             if (monster != null && monster.getLinkCID() <= 0) {
                 totDamageToOneMonster = 0;
@@ -207,7 +205,7 @@ public class DamageParse {
                     if (useAttackCount && overallAttackCount - 1 == attackCount) { // Is a Shadow partner hit so let's divide it once
                         maxDamagePerHit = (maxDamagePerHit / 100) * (ShdowPartnerAttackPercentage * (monsterstats.isBoss() ? stats.bossdam_r : stats.dam_r) / 100);
                     }
-                     //System.out.println("Client damage : " + eachd + " Server : " + maxDamagePerHit);
+                     //System.out.println("Client damage : " + eachd + " WorldConfig : " + maxDamagePerHit);
                     if (fixeddmg != -1) {
                         if (monsterstats.getOnlyNoramlAttack()) {
                             eachd = attack.skill != 0 ? 0 : (int) fixeddmg;
@@ -226,7 +224,7 @@ public class DamageParse {
                             } else if ((player.getJob() >= 3200 && player.getJob() <= 3212 && !monster.isBuffed(MonsterStatus.DAMAGE_IMMUNITY) && !monster.isBuffed(MonsterStatus.MAGIC_IMMUNITY) && !monster.isBuffed(MonsterStatus.MAGIC_DAMAGE_REFLECT)) || attack.skill == 23121003 || ((player.getJob() < 3200 || player.getJob() > 3212) && !monster.isBuffed(MonsterStatus.DAMAGE_IMMUNITY) && !monster.isBuffed(MonsterStatus.WEAPON_IMMUNITY) && !monster.isBuffed(MonsterStatus.WEAPON_DAMAGE_REFLECT))) {
                                 if (eachd > maxDamagePerHit) {
                                     if (eachd > maxDamagePerHit * 2) {
-                                        //    player.getCheatTracker().registerOffense(CheatingOffense.HIGH_DAMAGE_2, "[Damage: " + eachd + ", Expected: " + maxDamagePerHit + ", Mob: " + monster.getId() + "] [Job: " + player.getJob() + ", Level: " + player.getLevel() + ", Skill: " + attack.skill + "]");
+                                        //    player.getCheatTracker().registerOffense(CheatingOffense.HIGH_DAMAGE_2, "[Damage: " + eachd + ", Expected: " + maxDamagePerHit + ", Mob: " + monster.getWorldId() + "] [Job: " + player.getJob() + ", Level: " + player.getLevel() + ", Skill: " + attack.skill + "]");
                                         eachd = (int) (maxDamagePerHit * 2); // Convert to server calculated damage
                                     }
                                 }
@@ -396,7 +394,7 @@ public class DamageParse {
                          final Skill skill = SkillFactory.getSkill(1211006);
                          if (player.isBuffFrom(MapleBuffStat.WK_CHARGE, skill)) {
                          final MapleStatEffect eff = skill.getEffect(player.getTotalSkillLevel(skill));
-                         final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(MonsterStatus.FREEZE, 1, skill.getId(), null, false);
+                         final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(MonsterStatus.FREEZE, 1, skill.getWorldId(), null, false);
                          monster.applyStatus(player, monsterStatusEffect, false, eff.getY() * 2000, true, eff);
                          }
                         
@@ -516,7 +514,7 @@ public class DamageParse {
             }
         }
         for (final AttackPair oned : attack.allDamage) {
-            final MapleMonster monster = map.getMonsterByOid(oned.objectid);
+            final MapleMonster monster = map.getMonsterByOid(oned.objectId);
 
             if (monster != null && monster.getLinkCID() <= 0) {
                 Tempest = monster.getStatusSourceID(MonsterStatus.FREEZE) == 21120006 && !monster.getStats().isBoss();
@@ -545,7 +543,7 @@ public class DamageParse {
                         if (monsterstats.getOnlyNoramlAttack()) {
                             eachd = 0; // Magic is always not a normal attack
                         } else if (!player.isGM()) {
-//			    System.out.println("Client damage : " + eachd + " Server : " + MaxDamagePerHit);
+//			    System.out.println("Client damage : " + eachd + " WorldConfig : " + MaxDamagePerHit);
 
                             if (Tempest) { // Buffed with Tempest
                                 // In special case such as Chain lightning, the damage will be reduced from the maxMP.
@@ -555,7 +553,7 @@ public class DamageParse {
                             } else if (!monster.isBuffed(MonsterStatus.MAGIC_IMMUNITY) && !monster.isBuffed(MonsterStatus.MAGIC_DAMAGE_REFLECT)) {
                                 if (eachd > MaxDamagePerHit) {
                                     if (eachd > MaxDamagePerHit * 2) {
-//				    System.out.println("EXCEED!!! Client damage : " + eachd + " Server : " + MaxDamagePerHit);
+//				    System.out.println("EXCEED!!! Client damage : " + eachd + " WorldConfig : " + MaxDamagePerHit);
                                         eachd = (int) (MaxDamagePerHit * 2); // Convert to server calculated damage
 
                                     }

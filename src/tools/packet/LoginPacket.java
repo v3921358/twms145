@@ -25,78 +25,76 @@ import client.MapleClient;
 import constants.ServerConstants;
 import handling.SendPacketOpcode;
 import handling.channel.ChannelServer;
-import handling.login.LoginServer;
+
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
 import server.Randomizer;
 import tools.HexTool;
-import tools.Pair;
+import tools.KoreanDateUtil;
+import tools.types.Pair;
 import tools.data.MaplePacketLittleEndianWriter;
 
 public class LoginPacket {
-    
-    public enum Server {
-        Scania(0),
-        Bera(1),
-        Broa(2),
-        Windia(3),
-        Khaini(4),
-        Bellocan(5),
-        Mardia(6),
-        Kradia(7),
-        Yellonde(8),
-        Demethos(9),
-        Galicia(10),
-        El_Nido(11),
-        Zenith(12),
-        Arcania(13),
-        Chaos(14),
-        Nova(15),
-        Renegades(16);
-        
-        final int id;
-        private Server(int serverId) {
-            id = serverId;
-        }
-        public int getId() {
-            return id;
-        }
-        public static Server getById(int id) {
-            for (Server server : values()) {
-                if (server.getId() == id) {
-                    return server;
-                }
-            }
-            return null;
-        }
-    }
 
-    public static byte[] getHello(final short mapleVersion, final byte[] sendIv, final byte[] recvIv) {
+
+    public static byte[] getHello(final byte[] sendIv, final byte[] recvIv) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(15 + ServerConstants.MAPLE_PATCH.length());
-
-        mplew.writeShort(13 + ServerConstants.MAPLE_PATCH.length()); // length of the packet
-        mplew.writeShort(mapleVersion);
+        mplew.writeShort(0x0D + ServerConstants.MAPLE_PATCH.length()); // length of the packet
+        mplew.writeShort(ServerConstants.MAPLE_VERSION);
         mplew.writeMapleAsciiString(ServerConstants.MAPLE_PATCH);
         mplew.write(recvIv);
         mplew.write(sendIv);
-        mplew.write(8); // 7 = MSEA, 8 = GlobalMS, 5 = Test Server
+        mplew.write(ServerConstants.MAPLE_LOCLE);
+        return mplew.getPacket();
+    }
+
+    public static byte[] showMapleStory() {
+        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(2);
+        mplew.writeShort(SendPacketOpcode.SHOW_MAPLESTORY.getValue());
+        return mplew.getPacket();
+    }
+
+    public static byte[] getLoginBackground() {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+
+        mplew.writeShort(SendPacketOpcode.LOGIN_AUTH.getValue());
+        //UI.wz/MapLogin.img ... MapLogin2.img
+        String[] bg = {"MapLogin", "MapLogin0", "MapLogin1", "MapLogin2"};
+        mplew.writeMapleAsciiString(bg[(int) (Math.random() * bg.length)]);
+        mplew.writeInt(KoreanDateUtil.getCurrentDate());
+        mplew.write(1);
 
         return mplew.getPacket();
     }
 
+    public static final byte[] getGenderChanged(final MapleClient client) {
+        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+
+        mplew.writeShort(SendPacketOpcode.GENDER_SET.getValue());
+        mplew.writeMapleAsciiString(client.getAccountName());
+
+        return mplew.getPacket();
+    }
+
+    public static final byte[] getGenderNeeded(final MapleClient client) {
+        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+
+        mplew.writeShort(SendPacketOpcode.CHOOSE_GENDER.getValue());
+        mplew.writeMapleAsciiString(client.getAccountName());
+
+        return mplew.getPacket();
+    }
+
+
     public static byte[] getPing() {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(2);
-
         mplew.writeShort(SendPacketOpcode.PING.getValue());
-
         return mplew.getPacket();
     }
 
     public static byte[] getAuthSuccessRequest(final MapleClient client) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
         mplew.writeShort(SendPacketOpcode.LOGIN_STATUS.getValue());
         mplew.write(0);
         mplew.write(0);
@@ -263,26 +261,28 @@ public class LoginPacket {
 
     public static byte[] getServerList(final int serverId, String serverName, int flag, String eventMessage, List<ChannelServer> channelLoad) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
         mplew.writeShort(SendPacketOpcode.SERVERLIST.getValue());
-        mplew.write(serverId); // 0 = Aquilla, 1 = bootes, 2 = cass, 3 = delphinus
-        // final String worldName = LoginServer.getTrueServerName(); //remove the SEA
+        mplew.write(serverId);
+        mplew.write(0);
         mplew.writeMapleAsciiString(serverName);
         mplew.write(flag);
         mplew.writeMapleAsciiString(eventMessage);
-        mplew.writeShort(100);
-        mplew.writeShort(100);
-        mplew.write(0);
+        mplew.writeShort(0x64);
+        mplew.writeShort(0x64);
         mplew.write(channelLoad.size());
         for (ChannelServer ch : channelLoad) {
             mplew.writeMapleAsciiString(serverName + "-" + ch.getChannel());
             mplew.writeInt((ch.getConnectedClients() * 1200) / ServerConstants.CHANNEL_LOAD);
-            mplew.write(1);
+            mplew.write(0);
             mplew.writeShort(ch.getChannel() - 1);
         }
-        mplew.writeShort(0); //size: (short x, short y, string msg)
+        mplew.writeShort(ServerConstants.getBalloons().size());
+        for (ServerConstants.MapleLoginBalloon balloon : ServerConstants.getBalloons()) {
+            mplew.writeShort(balloon.nX);
+            mplew.writeShort(balloon.nY);
+            mplew.writeMapleAsciiString(balloon.sMessage);
+        }
         mplew.writeInt(0);
-
         return mplew.getPacket();
     }
 
@@ -291,7 +291,7 @@ public class LoginPacket {
 
         mplew.writeShort(SendPacketOpcode.SERVERLIST.getValue());
         mplew.write(0xFF);
-        mplew.write(0);
+        mplew.write(0xFF);
 
         return mplew.getPacket();
     }

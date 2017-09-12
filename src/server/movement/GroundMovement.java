@@ -22,14 +22,14 @@ import tools.data.MaplePacketLittleEndianWriter;
 
 public class GroundMovement extends AbstractLifeMovement {
 
-    public GroundMovement(int type, Point position, int duration, int newstate) {
-        super(type, position, duration, newstate);
+    public GroundMovement(int type, Point position, int duration, int newState, MovementKind kind) {
+        super(type, position, duration, newState, kind);
     }
 
     @Override
     public void serialize(MaplePacketLittleEndianWriter lew) {
-        lew.write(getType());
-        lew.write(getNewstate());
+        lew.write(getValue());
+        lew.write(getNewState());
         lew.writeShort(getDuration());
     }
 }

@@ -175,7 +175,7 @@ public class PlayerInteractionHandler {
                             chr.setPlayerShop(mps);
                             chr.getMap().addMapObject(mps);
                             c.getSession().write(PlayerShopPacket.getPlayerStore(chr, true));
-                            c.announce(PlayerShopPacket.shopVisitorLeave((byte)1));
+                            c.sendPacket(PlayerShopPacket.shopVisitorLeave((byte)1));
                         } else if (HiredMerchantHandler.UseHiredMerchant(chr.getClient(), false)) {
                             final HiredMerchant merch = new HiredMerchant(chr, shop.getItemId(), desc);
                             chr.setPlayerShop(merch);
@@ -591,7 +591,7 @@ public class PlayerInteractionHandler {
                     ips.removeFromSlot(a1);
                     ((MaplePlayerShop) ips).banPlayer(a2);
                 }
-                c.announce(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 break;
             }
             case GIVE_UP: {

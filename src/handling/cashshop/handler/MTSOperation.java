@@ -51,7 +51,7 @@ public class MTSOperation {
                 slot = (byte) slea.readInt();
                 slea.skip(4); //skip the quantity int, equips are always 1
             } else {
-                slea.readShort(); //flag
+                slea.readShort(); //WORLD_FLAGS
                 if (GameConstants.isThrowingStar(itemid) || GameConstants.isBullet(itemid)) {
                     slea.skip(8);//recharge ID thing
                 }

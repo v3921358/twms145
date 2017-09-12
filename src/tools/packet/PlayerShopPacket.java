@@ -29,7 +29,7 @@ import java.util.List;
 import server.MerchItemPackage;
 import server.shops.AbstractPlayerStore.BoughtItem;
 import server.shops.*;
-import tools.Pair;
+import tools.types.Pair;
 import tools.data.MaplePacketLittleEndianWriter;
 
 public class PlayerShopPacket {

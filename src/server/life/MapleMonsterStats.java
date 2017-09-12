@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
-import tools.Pair;
+import tools.types.Pair;
 
 public class MapleMonsterStats {
 

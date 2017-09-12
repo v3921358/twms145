@@ -8,12 +8,19 @@ import client.MapleClient;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+
 import tools.FileoutputUtil;
+import tools.StringUtil;
 
 /**
  *
@@ -46,42 +53,37 @@ import tools.FileoutputUtil;
         }
         
         public static Invocable getInvocableCommand(String commandType, String path, MapleClient c) {
-            FileReader fr = null;
-            try {
-                if (!path.equals("nocommand")) {
-                    path = "scripts/commands/" + commandType + "/" + path + ".js";
-                } else {
-                    path = "scripts/commands/nocommand.js";
+
+            if (path.equals("nocommand"))
+                path = "scripts/commands/nocommand.js";
+            else
+                path = "scripts/commands/" + commandType + "/" + path + ".js";
+
+            ScriptEngine engine = null;
+
+            if (c != null) {
+                engine = c.getScriptEngine(path);
+            }
+
+            if (engine == null) {
+                File scriptFile = new File(path);
+                if (!scriptFile.exists()) {
+                    return null;
                 }
-                ScriptEngine engine = null;
-     
+                engine = sem.getEngineByName("nashorn");
                 if (c != null) {
-                    engine = c.getScriptEngine(path);
+                    c.setScriptEngine(path, engine);
                 }
-                if (engine == null) {
-                    File scriptFile = new File(path);
-                    if (!scriptFile.exists()) {
-                        return null;
-                    }
-                    engine = sem.getEngineByName("javascript");
-                    if (c != null) {
-                        c.setScriptEngine(path, engine);
-                    }
-                    fr = new FileReader(scriptFile);
-                    engine.eval(fr);
-                }
-                return (Invocable) engine;
-            } catch (Exception e) {
-                System.err.println("Error executing script. Path: " + commandType + "/" + path + "\nException " + e);
-                FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing script. Path: " + commandType + "/" + path + "\nException " + e);
-                return null;
-            } finally {
-                try {
-                    if (fr != null) {
-                        fr.close();
-                    }
-                } catch (IOException ignore) {
+                try (Stream<String> stream = Files.lines(scriptFile.toPath(), Charset.forName(StringUtil.codeString(scriptFile)))) {
+                    String lines = "load('nashorn:mozilla_compat.js');" + stream.collect(Collectors.joining(System.lineSeparator()));
+                    engine.eval(lines);
+                    stream.close();
+                } catch (ScriptException | IOException e) {
+                    System.err.println("Error executing script. Path: " + path + "\r\nException " + e);
+                    FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Error executing script. Path: " + path + "\r\nException " + e);
+                    return null;
                 }
             }
+            return (Invocable) engine;
         }
     }

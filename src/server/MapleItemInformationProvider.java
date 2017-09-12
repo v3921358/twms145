@@ -4,10 +4,8 @@ import client.MapleCharacter;
 import client.MapleTrait.MapleTraitType;
 import client.inventory.*;
 import constants.GameConstants;
-import constants.ServerConstants;
 import database.DatabaseConnection;
 import java.awt.Point;
-import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,8 +14,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import provider.*;
 import server.StructSetItem.SetItem;
-import tools.Pair;
-import tools.Triple;
+import tools.types.Pair;
+import tools.types.Triple;
 
 public class MapleItemInformationProvider {
 
@@ -132,59 +130,7 @@ public class MapleItemInformationProvider {
         Map<Integer, StructItemOption> gradeB = new HashMap<>();
         Map<Integer, StructItemOption> gradeC = new HashMap<>();
         Map<Integer, StructItemOption> gradeD = new HashMap<>();
-        MapleData nebuliteData = itemData.getData("Install/0306.img");
-        for (MapleData dat : nebuliteData) {
-            item = new StructItemOption();
-            item.opID = Integer.parseInt(dat.getName()); // Item Id
-            item.optionType = MapleDataTool.getInt("optionType", dat.getChildByPath("socket"), 0);
-            for (MapleData info : dat.getChildByPath("socket/option")) {
-                String optionString = MapleDataTool.getString("optionString", info, "");
-                int level = MapleDataTool.getInt("level", info, 0);
-                if (level > 0) { // Save memory
-                    item.data.put(optionString, level);
-                }
-            }
-            switch (item.opID) {
-                case 3063370: // Haste
-                    item.data.put("skillID", 8000);
-                    break;
-                case 3063380: // Mystic Door
-                    item.data.put("skillID", 8001);
-                    break;
-                case 3063390: // Sharp Eyes
-                    item.data.put("skillID", 8002);
-                    break;
-                case 3063400: // Hyper Body
-                    item.data.put("skillID", 8003);
-                    break;
-                case 3064470: // Combat Orders
-                    item.data.put("skillID", 8004);
-                    break;
-                case 3064480: // Advanced Blessing
-                    item.data.put("skillID", 8005);
-                    break;
-                case 3064490: // Speed Infusion
-                    item.data.put("skillID", 8006);
-                    break;
-            }
-            switch (GameConstants.getNebuliteGrade(item.opID)) {
-                case 4: //S
-                    gradeS.put(Integer.parseInt(dat.getName()), item);
-                    break;
-                case 3: //A
-                    gradeA.put(Integer.parseInt(dat.getName()), item);
-                    break;
-                case 2: //B
-                    gradeB.put(Integer.parseInt(dat.getName()), item);
-                    break;
-                case 1: //C
-                    gradeC.put(Integer.parseInt(dat.getName()), item);
-                    break;
-                case 0: //D
-                    gradeD.put(Integer.parseInt(dat.getName()), item);
-                    break; // impossible to be -1 since we're looping in 306.img.xml					
-            }
-        }
+
         socketCache.put(4, gradeS);
         socketCache.put(3, gradeA);
         socketCache.put(2, gradeB);
@@ -278,47 +224,6 @@ public class MapleItemInformationProvider {
     }
 
     public void runItems() {
-        if (GameConstants.GMS) { //these must be loaded before items..
-            MapleData fData = etcData.getData("FamiliarInfo.img");
-            for (MapleData d : fData) {
-                StructFamiliar f = new StructFamiliar();
-                f.grade = 0;
-                f.mob = MapleDataTool.getInt("mob", d, 0);
-                f.passive = MapleDataTool.getInt("passive", d, 0);
-                f.itemid = MapleDataTool.getInt("consume", d, 0);
-                f.familiar = Integer.parseInt(d.getName());
-                familiars.put(f.familiar, f);
-                familiars_Item.put(f.itemid, f);
-                familiars_Mob.put(f.mob, f);
-            }
-            MapleDataDirectoryEntry e = (MapleDataDirectoryEntry) chrData.getRoot().getEntry("Familiar");
-            for (MapleDataEntry d : e.getFiles()) {
-                int id = Integer.parseInt(d.getName().substring(0, d.getName().length() - 4));
-                if (familiars.containsKey(id)) {
-                    familiars.get(id).grade = (byte) MapleDataTool.getInt("grade", chrData.getData("Familiar/" + d.getName()).getChildByPath("info"), 0);
-                }
-            }
-
-            MapleData mSetsData = etcData.getData("MonsterBookSet.img");
-            for (MapleData d : mSetsData.getChildByPath("setList")) {
-                if (MapleDataTool.getInt("deactivated", d, 0) > 0) {
-                    continue;
-                }
-                List<Integer> set = new ArrayList<>(), potential = new ArrayList<>(3);
-                for (MapleData ds : d.getChildByPath("stats/potential")) {
-                    if (ds.getType() != MapleDataType.STRING && MapleDataTool.getInt(ds, 0) > 0) {
-                        potential.add(MapleDataTool.getInt(ds, 0));
-                        if (potential.size() >= 5) {
-                            break;
-                        }
-                    }
-                }
-                for (MapleData ds : d.getChildByPath("cardList")) {
-                    set.add(MapleDataTool.getInt(ds, 0));
-                }
-                monsterBookSets.put(Integer.parseInt(d.getName()), new Triple<>(MapleDataTool.getInt("setScore", d, 0), set, potential));
-            }
-        }
 
         try {
             Connection con = DatabaseConnection.getConnection();
@@ -372,7 +277,6 @@ public class MapleItemInformationProvider {
             }
         } catch (SQLException ex) {
         }
-        Start.itemSize = dataCache.size();
     }
 
     public List<StructItemOption> getPotentialInfo(int potId) {
@@ -1218,7 +1122,7 @@ public class MapleItemInformationProvider {
         if (i == null) {
             return false;
         }
-        return ((i.flag & 0x200) != 0 || (i.flag & 0x400) != 0 || GameConstants.isDropRestricted(itemId)) && (itemId == 3012000 || itemId == 3012015 || itemId / 10000 != 301) && itemId != 2041200 && itemId != 5640000 && itemId != 4170023 && itemId != 2040124 && itemId != 2040125 && itemId != 2040126 && itemId != 2040211 && itemId != 2040212 && itemId != 2040227 && itemId != 2040228 && itemId != 2040229 && itemId != 2040230 && itemId != 1002926 && itemId != 1002906 && itemId != 1002927 && !PokemonItem.isPokemonItem(itemId);
+        return ((i.WORLD_FLAGS & 0x200) != 0 || (i.WORLD_FLAGS & 0x400) != 0 || GameConstants.isDropRestricted(itemId)) && (itemId == 3012000 || itemId == 3012015 || itemId / 10000 != 301) && itemId != 2041200 && itemId != 5640000 && itemId != 4170023 && itemId != 2040124 && itemId != 2040125 && itemId != 2040126 && itemId != 2040211 && itemId != 2040212 && itemId != 2040227 && itemId != 2040228 && itemId != 2040229 && itemId != 2040230 && itemId != 1002926 && itemId != 1002906 && itemId != 1002927 && !PokemonItem.isPokemonItem(itemId);
     }
 
     public boolean isPickupRestricted(int itemId) {
@@ -1226,7 +1130,7 @@ public class MapleItemInformationProvider {
         if (i == null) {
             return false;
         }
-        return ((i.flag & 0x80) != 0 || GameConstants.isPickupRestricted(itemId)) && itemId != 4001168 && itemId != 4031306 && itemId != 4031307;
+        return ((i.WORLD_FLAGS & 0x80) != 0 || GameConstants.isPickupRestricted(itemId)) && itemId != 4001168 && itemId != 4031306 && itemId != 4031307;
     }
     * 
     */
@@ -1284,7 +1188,7 @@ public class MapleItemInformationProvider {
         if (i == null) {
             return false;
         }
-        return (i.flag & 0x40) != 0;
+        return (i.WORLD_FLAGS & 0x40) != 0;
     }
     * 
     */
@@ -1294,7 +1198,7 @@ public class MapleItemInformationProvider {
         if (i == null) {
             return false;
         }
-        return (i.flag & 0x20) != 0;
+        return (i.WORLD_FLAGS & 0x20) != 0;
     }
     * 
     */
@@ -1304,7 +1208,7 @@ public class MapleItemInformationProvider {
         if (i == null) {
             return false;
         }
-        return (i.flag & 0x10) != 0;
+        return (i.WORLD_FLAGS & 0x10) != 0;
     }
     * 
     */

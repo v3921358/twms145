@@ -30,8 +30,8 @@ import server.life.MapleMonsterStats;
 import server.maps.AnimatedMapleMapObject;
 import server.maps.MapleMapObjectType;
 import server.movement.AbsoluteLifeMovement;
-import server.movement.LifeMovement;
-import server.movement.LifeMovementFragment;
+import server.movement.ILifeMovement;
+import server.movement.ILifeMovementFragment;
 import tools.data.MaplePacketLittleEndianWriter;
 import tools.packet.CField;
 import tools.packet.PacketHelper;
@@ -155,9 +155,9 @@ public final class MonsterFamiliar extends AnimatedMapleMapObject implements Ser
         return MapleMapObjectType.FAMILIAR;
     }
 
-    public final void updatePosition(final List<LifeMovementFragment> movement) {
-        for (final LifeMovementFragment move : movement) {
-            if (move instanceof LifeMovement) {
+    public final void updatePosition(final List<ILifeMovementFragment> movement) {
+        for (final ILifeMovementFragment move : movement) {
+            if (move instanceof ILifeMovement) {
                 if (move instanceof AbsoluteLifeMovement) {
                     setFh(((AbsoluteLifeMovement) move).getUnk());
                 }

@@ -20,7 +20,7 @@ public class CashItemFactory {
     private final Map<Integer, List<Integer>> itemPackage = new HashMap<>();
     private final Map<Integer, CashModInfo> itemMods = new HashMap<>();
     private final Map<Integer, List<Integer>> openBox = new HashMap<>();
-    private final MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("net.sf.odinms.wzpath") + "/Etc.wz"));
+    private final MapleDataProvider data = MapleDataProviderFactory.getDataProvider("Etc.wz");
 
     public static CashItemFactory getInstance() {
         return instance;

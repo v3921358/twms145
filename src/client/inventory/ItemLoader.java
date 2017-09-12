@@ -29,7 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import server.MapleItemInformationProvider;
-import tools.Pair;
+import tools.types.Pair;
 
 public enum ItemLoader {
 
@@ -84,7 +84,7 @@ public enum ItemLoader {
                     MapleInventoryType mit = MapleInventoryType.getByType(rs.getByte("inventorytype"));
 
                     if (mit.equals(MapleInventoryType.EQUIP) || mit.equals(MapleInventoryType.EQUIPPED)) {
-                        Equip equip = new Equip(rs.getInt("itemid"), rs.getShort("position"), rs.getInt("uniqueid"), rs.getShort("flag"));
+                        Equip equip = new Equip(rs.getInt("itemid"), rs.getShort("position"), rs.getInt("uniqueid"), rs.getShort("WORLD_FLAGS"));
                         if (!login && equip.getPosition() != -55) { //monsterbook
                             equip.setQuantity((short) 1);
                             equip.setInventoryId(rs.getLong("inventoryitemid"));
@@ -147,7 +147,7 @@ public enum ItemLoader {
                         }
                         items.put(rs.getLong("inventoryitemid"), new Pair<>(equip.copy(), mit));
                     } else {
-                        Item item = new Item(rs.getInt("itemid"), rs.getShort("position"), rs.getShort("quantity"), rs.getShort("flag"), rs.getInt("uniqueid"));
+                        Item item = new Item(rs.getInt("itemid"), rs.getShort("position"), rs.getShort("quantity"), rs.getShort("WORLD_FLAGS"), rs.getInt("uniqueid"));
                         item.setOwner(rs.getString("owner"));
                         item.setInventoryId(rs.getLong("inventoryitemid"));
                         item.setExpiration(rs.getLong("expiredate"));
@@ -198,7 +198,7 @@ public enum ItemLoader {
         query_2.append(table);
         query_2.append("` (");
         query_2.append(arg);
-        query_2.append(", itemid, inventorytype, position, quantity, owner, GM_Log, uniqueid, expiredate, flag, `type`, sender) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        query_2.append(", itemid, inventorytype, position, quantity, owner, GM_Log, uniqueid, expiredate, WORLD_FLAGS, `type`, sender) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         ps = con.prepareStatement(query_2.toString(), Statement.RETURN_GENERATED_KEYS);
         PreparedStatement pse = con.prepareStatement("INSERT INTO " + table_equip + " VALUES (DEFAULT, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         final Iterator<Pair<Item, MapleInventoryType>> iter = items.iterator();

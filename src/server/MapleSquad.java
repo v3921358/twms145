@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ScheduledFuture;
 import server.Timer.EtcTimer;
 import server.maps.MapleMap;
-import tools.Pair;
+import tools.types.Pair;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
 

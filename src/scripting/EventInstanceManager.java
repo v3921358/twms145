@@ -1,6 +1,6 @@
 
 /*
-This file is part of the OdinMS Maple Story Server
+This file is part of the OdinMS Maple Story WorldConfig
 Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
 Matthias Butz <matze@odinms.de>
 Jan Christian Meyer <vimes@odinms.de>
@@ -25,7 +25,6 @@ import client.MapleCharacter;
 import client.MapleQuestStatus;
 import client.MapleTrait.MapleTraitType;
 import client.SkillFactory;
-import constants.ServerConstants;
 import constants.WorldConstants;
 import handling.channel.ChannelServer;
 import handling.login.LoginServer;
@@ -47,7 +46,7 @@ import server.maps.MapleMap;
 import server.maps.MapleMapFactory;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
-import tools.Pair;
+import tools.types.Pair;
 import tools.packet.CField;
 import tools.packet.CWvsContext.InfoPacket;
 
@@ -58,6 +57,7 @@ public class EventInstanceManager {
     private List<MapleMonster> mobs = new LinkedList<>();
     private Map<Integer, Integer> killCount = new HashMap<>();
     private EventManager em;
+    private int world;
     private int channel;
     private String name;
     private Properties props = new Properties();
@@ -70,9 +70,10 @@ public class EventInstanceManager {
     private final Lock rL = mutex.readLock(), wL = mutex.writeLock();
     private boolean disposed = false;
 
-    public EventInstanceManager(EventManager em, String name, int channel) {
+    public EventInstanceManager(EventManager em, String name, int world, int channel) {
         this.em = em;
         this.name = name;
+        this.world = world;
         this.channel = channel;
     }
 
@@ -536,12 +537,7 @@ public class EventInstanceManager {
     }
 
     public ChannelServer getChannelServer() {
-        if (WorldConstants.Worlds > 0) {
-            for (World world : LoginServer.getWorlds()) {
-                return ChannelServer.getInstance(world.getWorldId(), channel);
-            }
-        }
-        return ChannelServer.getInstance(0, channel); // Scania
+        return ChannelServer.getInstance(world, channel); // 雪吉拉
     }
 
     public List<MapleMonster> getMobs() {

@@ -458,7 +458,7 @@ public class AdminCommand {
                 case "insult1":
                    // for (MapleCharacter random_player : World.getAllCharacters()) {
                    //     HashMap<String, Integer> players = new HashMap<>();
-                   //     players.put(random_player.getName(), random_player.getId());
+                   //     players.put(random_player.getName(), random_player.getWorldId());
                    //     for (int i : players.values()) {
                    //         MapleCharacter chosen = c.getChannelServer().getPlayerStorage().getCharacterById(i);
                    //         final String announced = chosen.getName();

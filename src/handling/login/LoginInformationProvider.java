@@ -22,17 +22,17 @@ package handling.login;
 
 import constants.GameConstants;
 import constants.MapConstants;
-import constants.ServerConstants;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
-import tools.Triple;
+import tools.types.Triple;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class LoginInformationProvider {
 
@@ -84,6 +84,7 @@ public class LoginInformationProvider {
             return Adventurer;
         }
     }
+
     private final static LoginInformationProvider instance = new LoginInformationProvider();
     protected final List<String> ForbiddenName = new ArrayList<>();
     //gender, val, job
@@ -97,65 +98,47 @@ public class LoginInformationProvider {
     protected LoginInformationProvider() {
         final MapleDataProvider prov = MapleDataProviderFactory.getDataProvider("Etc.wz");
         MapleData nameData = prov.getData("ForbiddenName.img");
-        for (final MapleData data : nameData.getChildren()) {
-            ForbiddenName.add(MapleDataTool.getString(data));
-        }
+        ForbiddenName.addAll(nameData.getChildren().stream().map(MapleDataTool::getString).collect(Collectors.toList()));
         nameData = prov.getData("Curse.img");
-        for (final MapleData data : nameData.getChildren()) {
-            ForbiddenName.add(MapleDataTool.getString(data).split(",")[0]);
-        }
+        ForbiddenName.addAll(nameData.getChildren().stream().map(data -> MapleDataTool.getString(data).split(",")[0]).collect(Collectors.toList()));
         final MapleData infoData = prov.getData("MakeCharInfo.img");
-        final MapleData data = infoData.getChildByPath("Info");
-        for (MapleData dat : data) {
-            int val = -1;
-            if (dat.getName().endsWith("Female")) { // comes first..
-                val = 1;
-            } else if (dat.getName().endsWith("Male")) {
-                val = 0;
+        for (MapleData dat : infoData) {
+            if (!dat.getName().matches("^\\d+$") && !dat.getName().equals("000_1")) {
+                continue;
             }
-            final int job = JobType.getByJob(dat.getName()).type;
-            for (MapleData da : dat) {
-                final Triple<Integer, Integer, Integer> key = new Triple<>(val, Integer.parseInt(da.getName()), job);
-                List<Integer> our = makeCharInfo.get(key);
-                if (our == null) {
-                    our = new ArrayList<>();
-                    makeCharInfo.put(key, our);
+            for (MapleData d : dat) {
+                int gender;
+                if (d.getName().startsWith("female")) {
+                    gender = 1;
+                } else if (d.getName().startsWith("male")) {
+                    gender = 0;
+                } else {
+                    continue;
                 }
-                for (MapleData d : da) {
-                    our.add(MapleDataTool.getInt(d, -1));
-                }
-            }
-        }
-        if (GameConstants.GMS) { //TODO LEGEND
-            for (MapleData dat : infoData) {
-                try {
-                    final int type = JobType.getById(Integer.parseInt(dat.getName())).type;
-                    for (MapleData d : dat) {
-                        int val;
-                        if (d.getName().endsWith("female")) {
-                            val = 1;
-			} else if (d.getName().endsWith("male")) {
-                            val = 0;
-                        } else {
-                            continue;
-                        }
-                        for (MapleData da : d) {
-                            final Triple<Integer, Integer, Integer> key = new Triple<>(val, Integer.parseInt(da.getName()), type);
-                            List<Integer> our = makeCharInfo.get(key);
-                            if (our == null) {
-                                our = new ArrayList<>();
-                                makeCharInfo.put(key, our);
+
+                for (MapleData da : d) {
+                    Triple<Integer, Integer, Integer> key = new Triple<>(gender, Integer.parseInt(da.getName()), dat.getName().equals("000_1") ? 1 : Integer.parseInt(dat.getName()));
+                    List<Integer> our = makeCharInfo.get(key);
+                    if (our == null) {
+                        our = new ArrayList<>();
+                        makeCharInfo.put(key, our);
+                    }
+                    for (MapleData dd : da) {
+                        if (dd.getName().equalsIgnoreCase("color")) {
+                            for (MapleData dda : dd) {
+                                for (MapleData ddd : dda) {
+                                    our.add(MapleDataTool.getInt(ddd, -1));
+                                }
                             }
-                            for (MapleData dd : da) {
-                                our.add(MapleDataTool.getInt(dd, -1));
-                            }
+                        } else if (!dd.getName().equalsIgnoreCase("name")) {
+                            our.add(MapleDataTool.getInt(dd, -1));
                         }
                     }
-                } catch (NumberFormatException e) {
                 }
             }
         }
-         final MapleData uA = infoData.getChildByPath("UltimateAdventurer");
+
+        final MapleData uA = infoData.getChildByPath("UltimateAdventurer");
         for (MapleData dat : uA) {
             final Triple<Integer, Integer, Integer> key = new Triple<Integer, Integer, Integer>(-1, Integer.parseInt(dat.getName()), JobType.UltimateAdventurer.type);
             List<Integer> our = makeCharInfo.get(key);
@@ -185,7 +168,7 @@ public class LoginInformationProvider {
         final Triple<Integer, Integer, Integer> key = new Triple<>(gender, val, job);
         final List<Integer> our = makeCharInfo.get(key);
         if (our == null) {
-	return false;
+            return false;
         }
         return our.contains(item);
     }

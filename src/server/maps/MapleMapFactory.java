@@ -21,13 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package server.maps;
 
 import client.MapleCharacter;
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.PreparedStatement;
 import constants.GameConstants;
 import database.DatabaseConnection;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.File;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -45,7 +44,7 @@ import server.life.MapleNPC;
 import server.maps.MapleNodes.DirectionInfo;
 import server.maps.MapleNodes.MapleNodeInfo;
 import server.maps.MapleNodes.MaplePlatform;
-import tools.Pair;
+import tools.types.Pair;
 import tools.StringUtil;
 
 public class MapleMapFactory {
@@ -574,9 +573,9 @@ public class MapleMapFactory {
     if (isMapLoaded(mapId)) {
         synchronized (maps) {
             final MapleMap remove = maps.remove(mapId);
-            List<MapleCharacter> chrs = new ArrayList(remove.getCharacters());
+            ArrayList<MapleCharacter> chrs = new ArrayList(remove.getCharacters());
             final MapleMap newMap = getMap(mapId);
-            for (MapleCharacter chr : chrs) 
+            for (MapleCharacter chr : chrs)
                 chr.changeMap(newMap, newMap.getPortal(remove.findClosestSpawnpoint(chr.getPosition()).getId()));
             return newMap;
         }

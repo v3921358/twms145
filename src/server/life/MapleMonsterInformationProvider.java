@@ -46,7 +46,7 @@ public class MapleMonsterInformationProvider {
     private static final MapleMonsterInformationProvider instance = new MapleMonsterInformationProvider();
     private final Map<Integer, ArrayList<MonsterDropEntry>> drops = new HashMap<Integer, ArrayList<MonsterDropEntry>>();
     private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<MonsterGlobalDropEntry>();
-    private static final MapleDataProvider stringDataWZ = MapleDataProviderFactory.getDataProvider("String.wz"));
+    private static final MapleDataProvider stringDataWZ = MapleDataProviderFactory.getDataProvider("String.wz");
     private static final MapleData mobStringData = stringDataWZ.getData("MonsterBook.img");
 
     public static MapleMonsterInformationProvider getInstance() {

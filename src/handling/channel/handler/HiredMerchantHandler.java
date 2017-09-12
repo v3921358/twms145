@@ -38,10 +38,9 @@ import java.util.List;
 import java.util.Map;
 import server.MapleInventoryManipulator;
 import server.MerchItemPackage;
-import tools.Pair;
+import tools.types.Pair;
 import tools.StringUtil;
 import tools.data.LittleEndianAccessor;
-import tools.packet.CField.NPCPacket;
 import tools.packet.CWvsContext;
 import tools.packet.PlayerShopPacket;
 
@@ -102,7 +101,7 @@ public class HiredMerchantHandler {
 
    /* public static void displayMerch(MapleClient c) {
         final int conv = c.getPlayer().getConversation();
-        boolean merch = World.hasMerchant(c.getPlayer().getAccountID(), c.getPlayer().getId());
+        boolean merch = World.hasMerchant(c.getPlayer().getAccountID(), c.getPlayer().getWorldId());
         if (merch) {
             c.getPlayer().dropMessage(1, "Please close the existing store and try again.");
             c.getPlayer().setConversation(0);
@@ -120,7 +119,7 @@ public class HiredMerchantHandler {
                     c.getPlayer().getClient().getSession().writeAndFlush(CWvsContext.enableActions());
                     return;
                 }
-                if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageid(), c.getPlayer().getId())) {
+                if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageid(), c.getPlayer().getWorldId())) {
                     c.getPlayer().gainMeso(pack.getMesos(), false);
                     c.getSession().writeAndFlush(PlayerShopPacket.merchItem_Message((byte) 32));
                 } else {

@@ -27,7 +27,7 @@ import client.inventory.MaplePet;
 import constants.GameConstants;
 import handling.SendPacketOpcode;
 import java.util.List;
-import server.movement.LifeMovementFragment;
+import server.movement.ILifeMovementFragment;
 import tools.data.MaplePacketLittleEndianWriter;
 
 public class PetPacket {
@@ -103,7 +103,7 @@ public class PetPacket {
         return mplew.getPacket();
     }
 
-    public static byte[] movePet(final int cid, final int pid, final byte slot, final List<LifeMovementFragment> moves) {
+    public static byte[] movePet(final int cid, final int pid, final byte slot, final List<ILifeMovementFragment> moves) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.MOVE_PET.getValue());

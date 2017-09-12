@@ -40,17 +40,14 @@ import client.MapleCharacter;
 import client.inventory.MapleInventoryType;
 import client.MapleClient;
 import client.MapleTrait.MapleTraitType;
-import handling.channel.ChannelServer;
 import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.Occupations;
-import constants.ServerConstants;
 
 import handling.world.MapleParty;
 import handling.world.MaplePartyCharacter;
-import java.awt.Point;
-import java.util.Arrays;
+
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import pvp.WizerDual;
 import scripting.EventInstanceManager;
@@ -61,10 +58,9 @@ import server.Timer.EtcTimer;
 import server.maps.MapleMap;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
-import tools.ConcurrentEnumMap;
-import tools.Pair;
+import tools.types.ConcurrentEnumMap;
+import tools.types.Pair;
 import tools.packet.CField;
-import tools.packet.CWvsContext;
 import tools.packet.MobPacket;
 
 public class MapleMonster extends AbstractLoadedMapleLife {

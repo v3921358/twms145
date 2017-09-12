@@ -68,7 +68,7 @@ import server.maps.MapleMapObjectType;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
 import tools.StringUtil;
-import tools.Triple;
+import tools.types.Triple;
 import tools.packet.CField;
 import tools.packet.CField.NPCPacket;
 import tools.packet.CField.UIPacket;
@@ -136,7 +136,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
     
     public static void dispose(MapleClient c){
-        c.announce(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
         NPCScriptManager.getInstance().getCM(c).dispose();
     }  
 

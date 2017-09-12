@@ -32,7 +32,7 @@ public class AutoRegister {
                 return accountExists;
         }
 
-        public static void createAccount(String login, String pwd, String eip) {
+        public static void createAccount(String login, String pwd, String eip, String macs) {
                 String sockAddr = eip;
                 Connection con;
 

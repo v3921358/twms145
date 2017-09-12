@@ -22,15 +22,11 @@ package handling.channel.handler;
 
 import client.MapleClient;
 import client.MapleCharacter;
-import client.MapleCharacterUtil;
 import client.inventory.Item;
 import client.messages.CommandProcessor;
 import client.messages.commands.AbstractCommandScriptManager;
 import client.messages.commands.DonatorCommand;
-import client.messages.commands.GMCommand;
-import client.messages.commands.InternCommand;
 import client.messages.commands.PlayerCommand;
-import client.messages.commands.SuperDonatorCommand;
 import constants.ServerConstants;
 import constants.ServerConstants.CommandType;
 import constants.ServerConstants.PlayerGMRank;
@@ -42,7 +38,6 @@ import java.util.LinkedList;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import server.MapleItemInformationProvider;
-import server.Randomizer;
 import server.WordFilter;
 import tools.StringUtil;
 import tools.packet.CField;
@@ -76,7 +71,7 @@ public class ChatHandler {
         int tryingToTalk = 0;
         if (text.startsWith("@@") || text.startsWith("!!")) {
             tryingToTalk = 1; // they tried
-            //chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, c.getPlayer().isSuperGM(), unk), c.getPlayer().getTruePosition());
+            //chr.getMap().broadcastMessage(CField.getChatText(chr.getWorldId(), text, c.getPlayer().isSuperGM(), unk), c.getPlayer().getTruePosition());
 	}
             boolean commandWorked = false;
             // @ for players, and ! allowed if isGM(), allow SKIP if a player goes "!!" or "@@"++ for fun. :)
@@ -431,14 +426,14 @@ public class ChatHandler {
         final int world = World.Find.findWorld(spouse);
         if (c.getPlayer().getMarriageId() == 0 || !c.getPlayer().getPartner().equalsIgnoreCase(spouse)) {
             c.getPlayer().dropMessage(5, "You are not married or your spouse is offline.");
-            c.announce(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (channel > 0) {
             MapleCharacter spouseChar = ChannelServer.getInstance(world, channel).getPlayerStorage().getCharacterByName(spouse);
             if (spouseChar == null) {
                 c.getPlayer().dropMessage(5, "You are not married or your spouse is offline.");
-                c.announce(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 return;
             }
             // TODO: code spouse-chat watch system: if (c.getPlayer().getWatcher() != null) { return; }

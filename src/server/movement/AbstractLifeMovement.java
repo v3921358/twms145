@@ -19,24 +19,25 @@ package server.movement;
 
 import java.awt.Point;
 
-public abstract class AbstractLifeMovement implements LifeMovement {
+public abstract class AbstractLifeMovement implements ILifeMovement {
 
     private Point position;
     private int duration;
-    private int newstate;
-    private int type;
+    private int newState;
+    private int value;
+    private MovementKind kind;
 
-    public AbstractLifeMovement(int type, Point position, int duration, int newstate) {
+    public AbstractLifeMovement(int value, Point position, int duration, int newState, MovementKind kind) {
         super();
-        this.type = type;
+        this.value = value;
         this.position = position;
         this.duration = duration;
-        this.newstate = newstate;
+        this.newState = newState;
+        this.kind = kind;
     }
 
-    @Override
-    public int getType() {
-        return this.type;
+    public int getValue() {
+        return this.value;
     }
 
     @Override
@@ -45,12 +46,15 @@ public abstract class AbstractLifeMovement implements LifeMovement {
     }
 
     @Override
-    public int getNewstate() {
-        return newstate;
+    public int getNewState() {
+        return newState;
     }
 
     @Override
     public Point getPosition() {
         return position;
     }
+
+    @Override
+    public MovementKind getKind() { return kind; }
 }

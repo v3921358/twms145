@@ -24,8 +24,8 @@ public class RelativeLifeMovement extends AbstractLifeMovement {
 
     private short unk;
 
-    public RelativeLifeMovement(int type, Point position, int duration, int newstate) {
-        super(type, position, duration, newstate);
+    public RelativeLifeMovement(int type, Point position, int duration, int newState, MovementKind kind) {
+        super(type, position, duration, newState, kind);
     }
 
     public void setUnk(short unk) {
@@ -38,12 +38,12 @@ public class RelativeLifeMovement extends AbstractLifeMovement {
 
     @Override
     public void serialize(MaplePacketLittleEndianWriter lew) {
-        lew.write(getType());
+        lew.write(getValue());
         lew.writePos(getPosition());
-        if (getType() == 18 || getType() == 19) {
+        if (getValue() == 18 || getValue() == 19) {
             lew.writeShort(unk);
         }
-        lew.write(getNewstate());
+        lew.write(getNewState());
         lew.writeShort(getDuration());
     }
 }

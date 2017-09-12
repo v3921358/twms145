@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import server.Randomizer;
-import tools.Pair;
+import tools.types.Pair;
 
 public class MapleOxQuizFactory {
 

@@ -20,21 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling;
 
-import constants.GameConstants;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import tools.ExternalCodeShortTableGetter;
+import tools.StringUtil;
+import tools.WritableShortValueHolder;
+
+import java.io.*;
 import java.util.Properties;
 
-public enum RecvPacketOpcode implements WritableIntValueHolder {
+public enum RecvPacketOpcode implements WritableShortValueHolder {
     // GENERIC
 
     PONG(false),
     CLIENT_HELLO(false),
+    GET_SERVER(false),
     // LOGIN
     LOGIN_PASSWORD(false),
     SEND_ENCRYPTED(false),
     CLIENT_ERROR(false),
+    SET_GENDER(false),
     SERVERLIST_REQUEST,
     TOS,
     FIND_FRIEND,
@@ -276,29 +279,20 @@ public enum RecvPacketOpcode implements WritableIntValueHolder {
     ENTER_AZWAN_EVENT,
     LEAVE_AZWAN,
     MTS_TAB, MCAUGHTEFF;
+
+    static {
+        reloadValues();
+    }
+
     private short code = -2;
+    private boolean checkState;
 
-    @Override
-    public void setValue(short code) {
-        this.code = code;
+    RecvPacketOpcode() {
+        this.checkState = true;
     }
 
-    @Override
-    public final short getValue() {
-        return code;
-    }
-    private boolean CheckState;
-
-    private RecvPacketOpcode() {
-        this.CheckState = true;
-    }
-
-    private RecvPacketOpcode(final boolean CheckState) {
-        this.CheckState = CheckState;
-    }
-
-    public final boolean NeedsChecking() {
-        return CheckState;
+    RecvPacketOpcode(final boolean CheckState) {
+        this.checkState = CheckState;
     }
 
     public static Properties getDefaultProperties() throws FileNotFoundException, IOException {
@@ -309,15 +303,47 @@ public enum RecvPacketOpcode implements WritableIntValueHolder {
         return props;
     }
 
-    static {
-        reloadValues();
+    public static final void reloadValues() {
+        String fileName = "recv.properties";
+        Properties props = new Properties();
+        try (FileInputStream fileInputStream = new FileInputStream(fileName); BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream, StringUtil.codeString(fileName)))) {
+            props.load(br);
+        } catch (IOException ex) {
+            InputStream in = RecvPacketOpcode.class.getClassLoader().getResourceAsStream("properties/" + fileName);
+            if (in == null) {
+                System.err.println("錯誤: 未加載 " + fileName + " 檔案");
+                return;
+            }
+            try {
+                props.load(in);
+                in.close();
+            } catch (IOException e) {
+                throw new RuntimeException("加載 " + fileName + " 檔案出錯", e);
+            }
+        }
+        ExternalCodeShortTableGetter.populateValues(props, values());
     }
 
-    public static final void reloadValues() {
-        try {
-            ExternalCodeTableGetter.populateValues(getDefaultProperties(), values());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load recvops", e);
+    public static String nameOf(short value) {
+        for (RecvPacketOpcode header : RecvPacketOpcode.values()) {
+            if (header.getValue() == value) {
+                return header.name();
+            }
         }
+        return "UNKNOWN";
+    }
+
+    @Override
+    public final short getValue() {
+        return code;
+    }
+
+    @Override
+    public void setValue(short code) {
+        this.code = code;
+    }
+
+    public final boolean NeedsChecking() {
+        return checkState;
     }
 }

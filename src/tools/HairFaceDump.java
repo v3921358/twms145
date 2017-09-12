@@ -82,7 +82,7 @@ public class HairFaceDump {
         List<Integer> maleFace = new LinkedList();
         List<Integer> femaleFace = new LinkedList();
         System.out.println("Loading Faces");
-        data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Character.wz/Face"));
+        data = MapleDataProviderFactory.getDataProvider("Character.wz/Face");
         root = data.getRoot();
         for (MapleDataFileEntry topDir : root.getFiles()) {
             int id = Integer.parseInt(topDir.getName().substring(0, 8));
@@ -170,7 +170,7 @@ public class HairFaceDump {
     }
 
     public static boolean hairExists(int hair) {
-        MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Character.wz/Hair"));
+        MapleDataProvider data = MapleDataProviderFactory.getDataProvider("Character.wz/Hair");
         final MapleDataDirectoryEntry root = data.getRoot();
         for (MapleDataFileEntry topDir : root.getFiles()) {
             int id = Integer.parseInt(topDir.getName().substring(0, 8));
@@ -182,7 +182,7 @@ public class HairFaceDump {
     }
 
     public static boolean faceExists(int face) {
-        MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Character.wz/Face"));
+        MapleDataProvider data = MapleDataProviderFactory.getDataProvider("Character.wz/Face");
         final MapleDataDirectoryEntry root = data.getRoot();
         for (MapleDataFileEntry topDir : root.getFiles()) {
             int id = Integer.parseInt(topDir.getName().substring(0, 8));

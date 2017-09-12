@@ -21,10 +21,13 @@
 package handling.netty;
 
 import client.MapleClient;
+import constants.ServerConstants;
+import handling.SendPacketOpcode;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import tools.MapleAESOFB;
+import tools.StringUtil;
 
 import java.util.concurrent.locks.Lock;
 
@@ -38,7 +41,22 @@ public class MaplePacketEncoder extends MessageToByteEncoder<Object> {
             final MapleAESOFB send_crypto = client.getSendCrypto();
 
             byte[] input = ((byte[]) message);
-            int pHeader = ((input[0]) & 0xFF) + (((input[1]) & 0xFF) << 8);
+
+            if(ServerConstants.DEBUG) {
+                int packetLen = input.length;
+                int pHeader = ((input[0]) & 0xFF) + (((input[1]) & 0xFF) << 8);
+                String op = SendPacketOpcode.nameOf(pHeader);
+                String pHeaderStr = Integer.toHexString(pHeader).toUpperCase();
+                pHeaderStr = "0x" + StringUtil.getLeftPaddedStr(pHeaderStr, '0', 4);
+                String tab = "";
+                for (int i = 4; i > op.length() / 8; i--) {
+                    tab += "\t";
+                }
+                String t = packetLen >= 10 ? packetLen >= 100 ? packetLen >= 1000 ? "" : " " : "  " : "   ";
+                final StringBuilder sb = new StringBuilder("[Debug] Send: \t" + op + tab + "\t包頭:" + pHeaderStr + t + "[" + packetLen/* + "\r\nCaller: " + Thread.currentThread().getStackTrace()[2] */ + "字元]");
+                System.out.println(sb.toString());
+            }
+
 
             final byte[] unencrypted = new byte[input.length];
             System.arraycopy(input, 0, unencrypted, 0, input.length);

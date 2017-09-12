@@ -272,7 +272,7 @@ public class InterServerHandler {
             player.getClient().getSession().write(CWvsContext.getMidMsg("The server is preparing to shutdown, so don't get too comfortable!", true, 1));
         }
         if (player.getMap().getId() == MapConstants.STARTER_MAP) {
-            World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.yellowChat("[" + c.getPlayer().getName() + "] Just Joined " + ServerConstants.SERVER_NAME + " - The Ultimate MapleStory Private Server!"));
+            World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.yellowChat("[" + c.getPlayer().getName() + "] Just Joined " + ServerConstants.SERVER_NAME + " - The Ultimate MapleStory Private WorldConfig!"));
             player.dropMessage(6, "Welcome to " + ServerConstants.SERVER_NAME + ", Player #" + player.getId() + "!");
         }
         if (player.haveItem(ServerConstants.Currency, 1000, false, true) && !player.isDonator() && player.getReborns() < 50 && !player.isSuperDonor() && !player.isGM()) {

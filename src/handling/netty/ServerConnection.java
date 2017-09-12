@@ -47,8 +47,8 @@ public class ServerConnection {
                 .option(ChannelOption.SO_BACKLOG, 2000)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childHandler(new ChannelInitializer<SocketChannel>() {      //为accept channel的pipeline预添加的inboundhandler
-                    @Override     //当新连接accept的时候，这个方法会调用
+                .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast("idleStateHandler", new IdleStateHandler(10, 0, 0, TimeUnit.MINUTES));
                         ch.pipeline().addLast(new ServerInitializer(world, channels));

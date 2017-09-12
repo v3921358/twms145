@@ -29,7 +29,7 @@ import provider.MapleDataTool;
 import server.MapleStatEffect;
 import server.Randomizer;
 import server.life.Element;
-import tools.Pair;
+import tools.types.Pair;
 
 public class Skill {
 

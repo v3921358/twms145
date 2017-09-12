@@ -586,7 +586,7 @@ public class MapleGuild implements java.io.Serializable {
     }
 
     public int getAllianceId() {
-        //return alliance.getId();
+        //return alliance.getWorldId();
         return this.allianceid;
     }
 

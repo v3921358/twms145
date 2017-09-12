@@ -170,7 +170,7 @@ public class DumpHairs {
     }
 
     public static boolean hairExists(int hair) {
-        MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Character.wz/Hair"));
+        MapleDataProvider data = MapleDataProviderFactory.getDataProvider("Character.wz/Hair");
         final MapleDataDirectoryEntry root = data.getRoot();
         for (MapleDataFileEntry topDir : root.getFiles()) {
             int id = Integer.parseInt(topDir.getName().substring(0, 8));
@@ -182,7 +182,7 @@ public class DumpHairs {
     }
 
     public static boolean faceExists(int face) {
-        MapleDataProvider data = MapleDataProviderFactory.getDataProvider(new File(System.getProperty("wzpath") + "/Character.wz/Face"));
+        MapleDataProvider data = MapleDataProviderFactory.getDataProvider("Character.wz/Face");
         final MapleDataDirectoryEntry root = data.getRoot();
         for (MapleDataFileEntry topDir : root.getFiles()) {
             int id = Integer.parseInt(topDir.getName().substring(0, 8));

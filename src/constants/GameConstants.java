@@ -925,7 +925,7 @@ case 5211015:
     public static byte gachaponRareItem(int id) {
         switch (id) {
             case 2340000: // White Scroll
-            case 2049100: // Chaos Scroll
+            case 2049100: // 寒霜冰龍 Scroll
             case 2049000: // Reverse Scroll
             case 2049001: // Reverse Scroll
             case 2049002: // Reverse Scroll
@@ -985,7 +985,7 @@ case 5211015:
         2290085, 1, // Triple Throw 30
         2290116, 1, // Areal Strike
         1302059, 3, // Dragon Carabella
-        2049100, 1, // Chaos Scroll
+        2049100, 1, // 寒霜冰龍 Scroll
         1092049, 1, // Dragon Kanjar
         1102041, 1, // Pink Cape
         1432018, 3, // Sky Ski
@@ -2136,7 +2136,7 @@ case 5211015:
         1302021, 5, // Pico Pico Hammer
         1072238, 1, // Voilet Snowshoe
         1072239, 1, // Yellow Snowshoe
-        2049100, 2, // Chaos Scroll
+        2049100, 2, // 寒霜冰龍 Scroll
         2430144, 1,
         2290285, 1,
         2028062, 1,

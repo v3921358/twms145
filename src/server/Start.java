@@ -7,7 +7,6 @@ import constants.WorldConstants;
 import database.DatabaseConnection;
 import handling.MapleServerHandler;
 import handling.cashshop.CashShopServer;
-import handling.channel.ChannelServer;
 import handling.channel.MapleGuildRanking;
 import handling.login.LoginInformationProvider;
 import handling.login.LoginServer;
@@ -31,35 +30,27 @@ import server.life.MobSkillFactory;
 import server.life.PlayerNPC;
 import server.maps.MapleMapFactory;
 import server.quest.MapleQuest;
-import tools.Pair;
-import tools.packet.LoginPacket.Server;
 
 public class Start {
 
     public static long startTime = System.currentTimeMillis();
     public static final Start instance = new Start();
     public static AtomicInteger CompletedLoadingThreads = new AtomicInteger(0);
-    public static int itemSize = 0;
 
-    public void run() throws InterruptedException {
+    private void setAccountsLoginStatus() {
         try {
             PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET loggedin = 0");
             ps.executeUpdate();
             ps.close();
-            //ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = 9223372036854775807");
-            //ps.executeUpdate(); 
-            //ps.close();
             ps = DatabaseConnection.getConnection().prepareStatement("UPDATE guilds SET GP = 2147483647 WHERE guildid = 1");
             ps.executeUpdate();
             ps.close();
         } catch (SQLException ex) {
             System.out.println(ex);
         }
-        System.out.println("楓之谷v145模擬器 啟動中" + "." + ServerConstants.MAPLE_PATCH +"..");
-        // Worlds
-        WorldConstants.init();
-        World.init();
-        // Timers
+    }
+
+    private void initTimers() {
         WorldTimer.getInstance().start();
         PokeTimer.getInstance().start();
         EtcTimer.getInstance().start();
@@ -67,18 +58,26 @@ public class Start {
         EventTimer.getInstance().start();
         BuffTimer.getInstance().start();
         PingTimer.getInstance().start();
-        // Server Handler
+    }
+
+    public void run() throws InterruptedException {
+
+        System.out.println("楓之谷v145模擬器 啟動中" + "." + ServerConstants.MAPLE_PATCH +"..");
+        // Worlds
+        WorldConstants.init();
+        World.init();
+        // Timers
+        this.initTimers();
+        // WorldConfig Handler
         MapleServerHandler.initiate();
         // Servers
         LoginServer.run_startup_configurations();
         CashShopServer.run_startup_configurations();
-        World.registerRespawn();
         // Information
         MapleItemInformationProvider.getInstance().runEtc(); 
         MapleMonsterInformationProvider.getInstance().load(); 
         MapleItemInformationProvider.getInstance().runItems(); 
-        System.out.println("Development is online with " + itemSize + " items in-game.");
-        LoginServer.setOn(); 
+        LoginServer.setOn();
         // Every other instance cache :)
         SkillFactory.load();
         LoginInformationProvider.getInstance();
@@ -90,7 +89,7 @@ public class Start {
         RandomRewards.load();
         MapleOxQuizFactory.getInstance();
         MapleCarnivalFactory.getInstance();
-        CharacterCardFactory.getInstance().initialize();
+        //CharacterCardFactory.getInstance().initialize();
         MobSkillFactory.getInstance();
         SpeedRunner.loadSpeedRuns();
         MapleInventoryIdentifier.getInstance();
@@ -99,6 +98,7 @@ public class Start {
         PlayerNPC.loadAll();// touch - so we see database problems early...
         MapleMonsterInformationProvider.getInstance().addExtra();
         RankingWorker.run();
+        System.out.println("Server is Opened");
     }
 
     public static void main(final String args[]) throws InterruptedException {

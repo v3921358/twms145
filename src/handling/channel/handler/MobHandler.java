@@ -26,10 +26,11 @@ import server.life.MobSkillFactory;
 import server.life.OverrideMonsterStats;
 import server.maps.MapleMap;
 import server.maps.MapleNodes.MapleNodeInfo;
-import server.movement.LifeMovementFragment;
+import server.movement.ILifeMovementFragment;
+import server.movement.MovementKind;
 import tools.FileoutputUtil;
-import tools.Pair;
-import tools.Triple;
+import tools.types.Pair;
+import tools.types.Triple;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
@@ -101,14 +102,14 @@ public class MobHandler {
         slea.skip(4);
         slea.skip(4);
         Point startPos = monster.getPosition();
-        List<LifeMovementFragment> res = null;
-        res = MovementParse.parseMovement(slea, 2);
+        List<ILifeMovementFragment> res = null;
+        res = MovementParse.parseMovement(slea, monster.getTruePosition(), MovementKind.MOB_MOVEMENT);
         if ((res != null) && (chr != null) && (res.size() > 0)) {
             MapleMap map = chr.getMap();
             if (useSkill) {
-                c.announce(MobPacket.moveMonsterResponse(monster.getObjectId(), moveid, monster.getMp(), monster.isControllerHasAggro(), realskill, level));
+                c.sendPacket(MobPacket.moveMonsterResponse(monster.getObjectId(), moveid, monster.getMp(), monster.isControllerHasAggro(), realskill, level));
             } else {
-                c.announce(MobPacket.moveMonsterResponse(monster.getObjectId(), moveid, monster.getMp(), monster.isControllerHasAggro()));
+                c.sendPacket(MobPacket.moveMonsterResponse(monster.getObjectId(), moveid, monster.getMp(), monster.isControllerHasAggro()));
             }
             if (slea.available() != 36L) {
                 FileoutputUtil.log("Log_Packet_Except.rtf", "slea.available != 35 (movement parsing error)\n" + slea.toString(true));
@@ -371,7 +372,7 @@ public class MobHandler {
 
     public static final void MoveFamiliar(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr) {
         slea.skip(13);
-        List res = MovementParse.parseMovement(slea, 6);
+        List res = MovementParse.parseMovement(slea, chr.getTruePosition(), MovementKind.FAMILIAR_MOVMENT);
         if ((chr != null) && (chr.getSummonedFamiliar() != null) && (res.size() > 0)) {
             Point pos = chr.getSummonedFamiliar().getPosition();
             MovementParse.updatePosition(res, chr.getSummonedFamiliar(), 0);
