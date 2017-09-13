@@ -42,7 +42,7 @@ public class GuildHandler {
     public static void DenyGuildRequest(final String from, final MapleClient c) {
         final MapleCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
         if (cfrom != null && invited.remove(c.getPlayer().getName().toLowerCase()) != null) {
-            cfrom.getClient().getSession().writeAndFlush(GuildPacket.denyGuildInvitation(c.getPlayer().getName()));
+            cfrom.getClient().sendPacket(GuildPacket.denyGuildInvitation(c.getPlayer().getName()));
         }
     }
 
@@ -107,8 +107,8 @@ public class GuildHandler {
                 c.getPlayer().setGuildRank((byte) 1);
                 c.getPlayer().saveGuildStatus();
                 World.Guild.setGuildMemberOnline(c.getPlayer().getMGC(), true, c.getChannel());
-                //c.getSession().writeAndFlush(GuildPacket.showGuildInfo(c.getPlayer()));
-                c.getSession().writeAndFlush(GuildPacket.newGuildInfo(c.getPlayer()));
+                //c.sendPacket(GuildPacket.showGuildInfo(c.getPlayer()));
+                c.sendPacket(GuildPacket.newGuildInfo(c.getPlayer()));
 		World.Guild.gainGP(c.getPlayer().getGuildId(), 500, c.getPlayer().getId());
                 //c.getPlayer().dropMessage(1, "You have successfully created a Guild.");
                 //respawnPlayer(c.getPlayer());
@@ -125,7 +125,7 @@ public class GuildHandler {
                 final MapleGuildResponse mgr = MapleGuild.sendInvite(c, name);
 
                 if (mgr != null) {
-                    c.getSession().writeAndFlush(mgr.getPacket());
+                    c.sendPacket(mgr.getPacket());
                 } else {
                     invited.put(name, new Pair<>(c.getPlayer().getGuildId(), currentTime + (20 * 60000))); //20 mins expire
                 }
@@ -151,11 +151,11 @@ public class GuildHandler {
                         c.getPlayer().setGuildId(0);
                         return;
                     }
-                    c.getSession().writeAndFlush(GuildPacket.showGuildInfo(c.getPlayer()));
+                    c.sendPacket(GuildPacket.showGuildInfo(c.getPlayer()));
                     final MapleGuild gs = World.Guild.getGuild(guildId);
                     for (byte[] pack : World.Alliance.getAllianceInfo(gs.getAllianceId(), true)) {
                         if (pack != null) {
-                            c.getSession().writeAndFlush(pack);
+                            c.sendPacket(pack);
                         }
                     }
                     c.getPlayer().saveGuildStatus();
@@ -170,7 +170,7 @@ public class GuildHandler {
                     return;
                 }
                 World.Guild.leaveGuild(c.getPlayer().getMGC());
-                c.getSession().writeAndFlush(GuildPacket.showGuildInfo(null));
+                c.sendPacket(GuildPacket.showGuildInfo(null));
                 break;
             case 0x08: // Expel
                 cid = slea.readInt();

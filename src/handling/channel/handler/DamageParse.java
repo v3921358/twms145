@@ -68,7 +68,7 @@ public class DamageParse {
         }
         if (attack.skill != 0) {
             if (effect == null) {
-                player.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+                player.getClient().sendPacket(CWvsContext.enableActions());
                 return;
             }
             if (GameConstants.isMulungSkill(attack.skill)) {

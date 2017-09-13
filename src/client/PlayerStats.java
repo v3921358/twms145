@@ -2592,7 +2592,7 @@ public class PlayerStats implements Serializable {
         }
         if (changed) {
             chr.equipChanged();
-            chr.getClient().getSession().write(EffectPacket.showItemLevelupEffect());
+            chr.getClient().sendPacket(EffectPacket.showItemLevelupEffect());
             chr.getMap().broadcastMessage(chr, EffectPacket.showForeignItemLevelupEffect(chr.getId()), false);
         }
         return changed;
@@ -2618,8 +2618,8 @@ public class PlayerStats implements Serializable {
         for (Equip eqq : all) {
             if (eqq != null && eqq.getDurability() == 0 && eqq.getPosition() < 0) { //> 0 went to negative
                 if (chr.getInventory(MapleInventoryType.EQUIP).isFull()) {
-                    chr.getClient().getSession().write(InventoryPacket.getInventoryFull());
-                    chr.getClient().getSession().write(InventoryPacket.getShowInventoryFull());
+                    chr.getClient().sendPacket(InventoryPacket.getInventoryFull());
+                    chr.getClient().sendPacket(InventoryPacket.getShowInventoryFull());
                     return false;
                 }
                 durabilityHandling.remove(eqq);
@@ -3094,7 +3094,6 @@ public class PlayerStats implements Serializable {
         mplew.writeShort(dex); // dex
         mplew.writeShort(int_); // int
         mplew.writeShort(luk); // luk
-
         mplew.writeInt(hp); // hp -- INT after bigbang
         mplew.writeInt(maxhp); // maxhp
         mplew.writeInt(mp); // mp

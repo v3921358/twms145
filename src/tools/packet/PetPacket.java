@@ -35,7 +35,7 @@ public class PetPacket {
     public static byte[] updatePet(final MaplePet pet, final Item item, final boolean active) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-        mplew.writeShort(SendPacketOpcode.INVENTORY_OPERATION.getValue());
+        mplew.writeShort(SendPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
         mplew.write(0);
         mplew.write(2);
         mplew.write(3);

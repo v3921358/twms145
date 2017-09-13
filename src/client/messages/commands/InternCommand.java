@@ -116,7 +116,7 @@ public class InternCommand {
             }
                 builder.setLength(builder.length() - 2);
                 player.dropMessage(builder.toString());
-                // c.getSession().writeAndFlush(CWvsContext.serverNotice(6, builder.toString()));
+                // c.sendPacket(CWvsContext.serverNotice(6, builder.toString()));
             return true;
                 // End of Eric's Commands
                 case "hide": // fixed

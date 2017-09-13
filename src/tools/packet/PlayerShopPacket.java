@@ -149,7 +149,7 @@ public class PlayerShopPacket {
             mplew.writeShort(item.bundles);
             mplew.writeShort(item.item.getQuantity());
             mplew.writeInt(item.price);
-            PacketHelper.addItemInfo(mplew, item.item);
+            PacketHelper.GW_ItemSlotBase_Decode(mplew, item.item);
         }
         mplew.writeShort(0);
 
@@ -189,7 +189,7 @@ public class PlayerShopPacket {
             mplew.writeShort(item.bundles);
             mplew.writeShort(item.item.getQuantity());
             mplew.writeInt(item.price);
-            PacketHelper.addItemInfo(mplew, item.item);
+            PacketHelper.GW_ItemSlotBase_Decode(mplew, item.item);
         }
         mplew.writeShort(0);
         return mplew.getPacket();
@@ -255,7 +255,7 @@ public class PlayerShopPacket {
             mplew.writeShort(item.bundles);
             mplew.writeShort(item.item.getQuantity());
             mplew.writeInt(item.price);
-            PacketHelper.addItemInfo(mplew, item.item);
+            PacketHelper.GW_ItemSlotBase_Decode(mplew, item.item);
         }
 	mplew.writeShort(0);
         return mplew.getPacket();
@@ -356,7 +356,7 @@ public class PlayerShopPacket {
         mplew.write(0);
         mplew.write(pack.getItems().size());
         for (final Item item : pack.getItems()) {
-            PacketHelper.addItemInfo(mplew, item);
+            PacketHelper.GW_ItemSlotBase_Decode(mplew, item);
         }
         mplew.writeZeroBytes(3);
 

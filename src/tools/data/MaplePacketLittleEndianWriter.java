@@ -155,6 +155,10 @@ public class MaplePacketLittleEndianWriter {
         }
     }
 
+    public final void writeBoolean(final boolean b) {
+        write(b ? 1 : 0);
+    }
+
     /**
      * Writes a maple-convention ASCII string to the stream.
      *

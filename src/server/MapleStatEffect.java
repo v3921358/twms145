@@ -1350,7 +1350,7 @@ case 12111007:
                         if (absorbMp > 0) {
                             mob.setMp(mob.getMp() - absorbMp);
                             applyto.getStat().setMp(applyto.getStat().getMp() + absorbMp, applyto);
-                            applyto.getClient().getSession().writeAndFlush(EffectPacket.showOwnBuffEffect(sourceid, 1, applyto.getLevel(), level));
+                            applyto.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sourceid, 1, applyto.getLevel(), level));
                             applyto.getMap().broadcastMessage(applyto, EffectPacket.showBuffeffect(applyto.getId(), sourceid, 1, applyto.getLevel(), level), false);
                         }
                     }
@@ -1373,27 +1373,27 @@ case 12111007:
             return false;
         } else if (!applyfrom.isGM() && sourceid == 23111001 && applyfrom.getEventMap()) { // why would a gm use this idk
             applyfrom.dropMessage(5, "You can't use this skill in this map.");
-            applyfrom.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
         }
         if ((isSoaring_Mount() && applyfrom.getBuffedValue(MapleBuffStat.MONSTER_RIDING) == null) || (isSoaring_Normal() && !applyfrom.getMap().canSoar())) {
-            applyfrom.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
         } else if (sourceid == 4341006 && applyfrom.getBuffedValue(MapleBuffStat.SHADOWPARTNER) == null) {
-            applyfrom.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
         } else if (sourceid == 33101008 && (applyfrom.getBuffedValue(MapleBuffStat.RAINING_MINES) == null || applyfrom.getBuffedValue(MapleBuffStat.SUMMON) != null || !applyfrom.canSummon())) {
-            applyfrom.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
         } else if (isShadow() && applyfrom.getJob() != 412 && applyfrom.getJob() != 422) { //pirate/shadow = dc
-            applyfrom.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
         } else if (isMI() && applyfrom.getJob() != 434) { //pirate/shadow = dc
-            applyfrom.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
         } else if (sourceid == 33101004 && applyfrom.getMap().isTown()) {
             applyfrom.dropMessage(5, "You may not use this skill in towns.");
-            applyfrom.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
         } else if (sourceid == 20031203) { // To the Skies
             applyfrom.changeMap(150000000);
@@ -1413,7 +1413,7 @@ case 12111007:
         if (primary) {
             if (itemConNo != 0 && !applyto.inPVP()) {
                 if (!applyto.haveItem(itemCon, itemConNo, false, true)) {
-                    applyto.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+                    applyto.getClient().sendPacket(CWvsContext.enableActions());
                     return false;
                 }
                 MapleInventoryManipulator.removeById(applyto.getClient(), GameConstants.getInventoryType(itemCon), itemCon, itemConNo, false, true);
@@ -1443,14 +1443,14 @@ case 12111007:
         final Map<MapleStat, Integer> hpmpupdate = new EnumMap<>(MapleStat.class);
         if (hpchange != 0) {
             if (hpchange < 0 && (-hpchange) > stat.getHp() && !applyto.hasDisease(MapleDisease.ZOMBIFY)) {
-                applyto.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+                applyto.getClient().sendPacket(CWvsContext.enableActions());
                 return false;
             }
             stat.setHp(stat.getHp() + hpchange, applyto);
         }
         if (mpchange != 0) {
             if (mpchange < 0 && (-mpchange) > stat.getMp()) {
-                applyto.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+                applyto.getClient().sendPacket(CWvsContext.enableActions());
                 return false;
             }
             //short converting needs math.min cuz of overflow
@@ -1461,16 +1461,16 @@ case 12111007:
         }
         hpmpupdate.put(MapleStat.HP, Integer.valueOf(stat.getHp()));
 
-        applyto.getClient().getSession().writeAndFlush(CWvsContext.updatePlayerStats(hpmpupdate, true, applyto));
+        applyto.getClient().sendPacket(CWvsContext.updatePlayerStats(hpmpupdate, true, applyto));
         if (expinc != 0) {
             applyto.gainExp(expinc, true, true, false);
-            applyto.getClient().getSession().writeAndFlush(EffectPacket.showForeignEffect(20));
+            applyto.getClient().sendPacket(EffectPacket.showForeignEffect(20));
         } else if (sourceid / 10000 == 238) {
             final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
             final int mobid = ii.getCardMobId(sourceid);
             if (mobid > 0) {
                 final boolean done = applyto.getMonsterBook().monsterCaught(applyto.getClient(), mobid, MapleLifeFactory.getMonsterStats(mobid).getName());
-                applyto.getClient().getSession().writeAndFlush(CWvsContext.getCard(done ? sourceid : 0, 1));
+                applyto.getClient().sendPacket(CWvsContext.getCard(done ? sourceid : 0, 1));
             }
         } else if (isReturnScroll()) {
             applyReturnScroll(applyto);
@@ -1516,7 +1516,7 @@ case 12111007:
             }
             final int xd = Integer.parseInt(applyto.getEventInstance().getProperty(String.valueOf(applyto.getId())));
             applyto.getEventInstance().setProperty(String.valueOf(applyto.getId()), String.valueOf(xd + bs));
-            applyto.getClient().getSession().writeAndFlush(CField.getPVPScore(xd + bs, false));
+            applyto.getClient().sendPacket(CField.getPVPScore(xd + bs, false));
         } else if (iceGageCon > 0) {
             if (!applyto.inPVP()) {
                 return false;
@@ -1526,7 +1526,7 @@ case 12111007:
                 return false;
             }
             applyto.getEventInstance().setProperty("icegage", String.valueOf(fdf - iceGageCon));
-            applyto.getClient().getSession().writeAndFlush(CField.getPVPIceGage(fdf - iceGageCon));
+            applyto.getClient().sendPacket(CField.getPVPIceGage(fdf - iceGageCon));
             applyto.applyIceGage(fdf - iceGageCon);
         } else if (recipe > 0) {
             if (applyto.getSkillLevel(recipe) > 0 || applyto.getProfessionLevel((recipe / 10000) * 10000) < reqSkillLevel) {
@@ -1536,12 +1536,12 @@ case 12111007:
         } else if (isComboRecharge()) {
             applyto.setCombo((short) Math.min(30000, applyto.getCombo() + y));
             applyto.setLastCombo(System.currentTimeMillis());
-            applyto.getClient().getSession().writeAndFlush(CField.rechargeCombo(applyto.getCombo()));
+            applyto.getClient().sendPacket(CField.rechargeCombo(applyto.getCombo()));
             SkillFactory.getSkill(21000000).getEffect(10).applyComboBuff(applyto, applyto.getCombo());
         } else if (isDragonBlink()) {
             final MaplePortal portal = applyto.getMap().getPortal(Randomizer.nextInt(applyto.getMap().getPortals().size()));
             if (portal != null) {
-                applyto.getClient().getSession().writeAndFlush(CField.dragonBlink(portal.getId()));
+                applyto.getClient().sendPacket(CField.dragonBlink(portal.getId()));
                 applyto.getMap().movePlayer(applyto, portal.getPosition());
                 applyto.checkFollow();
             }
@@ -1620,10 +1620,10 @@ case 12111007:
                 }
             } else {
                 if (sourceid == 2910000 || sourceid == 2910001) { //red WORLD_FLAGS
-                    applyto.getClient().getSession().writeAndFlush(EffectPacket.showOwnBuffEffect(sourceid, 13, applyto.getLevel(), level));
+                    applyto.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sourceid, 13, applyto.getLevel(), level));
                     applyto.getMap().broadcastMessage(applyto, EffectPacket.showBuffeffect(applyto.getId(), sourceid, 13, applyto.getLevel(), level), false);
 
-                    applyto.getClient().getSession().writeAndFlush(EffectPacket.showOwnCraftingEffect("UI/UIWindow2.img/CTF/Effect", 0, 0));
+                    applyto.getClient().sendPacket(EffectPacket.showOwnCraftingEffect("UI/UIWindow2.img/CTF/Effect", 0, 0));
                     applyto.getMap().broadcastMessage(applyto, EffectPacket.showCraftingEffect(applyto.getId(), "UI/UIWindow2.img/CTF/Effect", 0, 0), false);
                     if (applyto.getTeam() == (sourceid - 2910000)) { //restore duh WORLD_FLAGS
                         if (sourceid == 2910000) {
@@ -1637,12 +1637,12 @@ case 12111007:
                         if (sourceid == 2910000) {
                             applyto.getEventInstance().setProperty("redflag", String.valueOf(applyto.getId()));
                             // applyto.getEventInstance().broadcastPlayerMsg(-7, "The Red Team's WORLD_FLAGS has been captured!");
-                            applyto.getClient().getSession().writeAndFlush(EffectPacket.showOwnCraftingEffect("UI/UIWindow2.img/CTF/Tail/Red", 600000, 0));
+                            applyto.getClient().sendPacket(EffectPacket.showOwnCraftingEffect("UI/UIWindow2.img/CTF/Tail/Red", 600000, 0));
                             applyto.getMap().broadcastMessage(applyto, EffectPacket.showCraftingEffect(applyto.getId(), "UI/UIWindow2.img/CTF/Tail/Red", 600000, 0), false);
                         } else {
                             applyto.getEventInstance().setProperty("blueflag", String.valueOf(applyto.getId()));
                             // applyto.getEventInstance().broadcastPlayerMsg(-7, "The Blue Team's WORLD_FLAGS has been captured!");
-                            applyto.getClient().getSession().writeAndFlush(EffectPacket.showOwnCraftingEffect("UI/UIWindow2.img/CTF/Tail/Blue", 600000, 0));
+                            applyto.getClient().sendPacket(EffectPacket.showOwnCraftingEffect("UI/UIWindow2.img/CTF/Tail/Blue", 600000, 0));
                             applyto.getMap().broadcastMessage(applyto, EffectPacket.showCraftingEffect(applyto.getId(), "UI/UIWindow2.img/CTF/Tail/Blue", 600000, 0), false);
                         }
                     }
@@ -1696,11 +1696,11 @@ case 12111007:
                 if (count.size() != 3) {
                     return true; //no buff until 3
                 }
-                applyfrom.getClient().getSession().writeAndFlush(CField.skillCooldown(sourceid, getCooldown(applyfrom)));
+                applyfrom.getClient().sendPacket(CField.skillCooldown(sourceid, getCooldown(applyfrom)));
                 applyfrom.addCooldown(sourceid, System.currentTimeMillis(), getCooldown(applyfrom) * 1000);
                 applyfrom.getMap().broadcastMessage(CField.teslaTriangle(applyfrom.getId(), count.get(0), count.get(1), count.get(2)));
             } else if (sourceid == 35121003) {
-				applyfrom.getClient().getSession().writeAndFlush(CWvsContext.enableActions()); //doubt we need this at all
+				applyfrom.getClient().sendPacket(CWvsContext.enableActions()); //doubt we need this at all
             }
         } else if (isMechDoor()) {
             int newId = 0;
@@ -1722,7 +1722,7 @@ case 12111007:
             final MechDoor door = new MechDoor(applyto, new Point(pos == null ? applyto.getTruePosition() : pos), newId);
             applyto.getMap().spawnMechDoor(door);
             applyto.addMechDoor(door);
-            applyto.getClient().getSession().writeAndFlush(CWvsContext.mechPortal(door.getTruePosition()));
+            applyto.getClient().sendPacket(CWvsContext.mechPortal(door.getTruePosition()));
             if (!applyBuff) {
                 return true; //do not apply buff until 2 doors spawned
             }
@@ -1730,7 +1730,7 @@ case 12111007:
         if (primary && availableMap != null) {
             for (Pair<Integer, Integer> e : availableMap) {
                 if (applyto.getMapId() < e.left || applyto.getMapId() > e.right) {
-                    applyto.getClient().getSession().write(CWvsContext.enableActions());
+                    applyto.getClient().sendPacket(CWvsContext.enableActions());
                     return true;
                 }
             }
@@ -1774,7 +1774,7 @@ case 12111007:
             for (MapleCoolDownValueHolder i : applyto.getCooldowns()) {
                 if (i.skillId != 5121010) {
                     applyto.removeCooldown(i.skillId);
-                    applyto.getClient().getSession().write(CField.skillCooldown(i.skillId, 0));
+                    applyto.getClient().sendPacket(CField.skillCooldown(i.skillId, 0));
                 }
             }
         } else {
@@ -1865,7 +1865,7 @@ case 12111007:
                 }
                 for (MapleCharacter chr : awarded) {
                     applyTo(applyfrom, chr, false, null, newDuration);
-                    chr.getClient().getSession().write(EffectPacket.showOwnBuffEffect(sourceid, 2, applyfrom.getLevel(), level));
+                    chr.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sourceid, 2, applyfrom.getLevel(), level));
                     chr.getMap().broadcastMessage(chr, EffectPacket.showBuffeffect(chr.getId(), sourceid, 2, applyfrom.getLevel(), level), false);
                 }
             }
@@ -1878,14 +1878,14 @@ case 12111007:
                 if (affected.getId() != applyfrom.getId()  && (isGmBuff() || (applyfrom.inPVP() && affected.getTeam() == applyfrom.getTeam() && Integer.parseInt(applyfrom.getEventInstance().getProperty("type")) != 0) || (applyfrom.getParty() != null && affected.getParty() != null && applyfrom.getParty().getId() == affected.getParty().getId()))) {
                     if ((isResurrection() && !affected.isAlive()) || (!isResurrection() && affected.isAlive())) {
                         applyTo(applyfrom, affected, false, null, newDuration);
-                        affected.getClient().getSession().write(EffectPacket.showOwnBuffEffect(sourceid, 2, applyfrom.getLevel(), level));
+                        affected.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sourceid, 2, applyfrom.getLevel(), level));
                         affected.getMap().broadcastMessage(affected, EffectPacket.showBuffeffect(affected.getId(), sourceid, 2, applyfrom.getLevel(), level), false);
                     }
                     if (isTimeLeap()) {
                         for (MapleCoolDownValueHolder i : affected.getCooldowns()) {
                             if (i.skillId != 5121010) {
                                 affected.removeCooldown(i.skillId);
-                                affected.getClient().getSession().write(CField.skillCooldown(i.skillId, 0));
+                                affected.getClient().sendPacket(CField.skillCooldown(i.skillId, 0));
                             }
                         }
                     }
@@ -1991,7 +1991,7 @@ case 12111007:
             } else {
                 localstatups.put(MapleBuffStat.MORPH, x);
             }
-            chr.getClient().getSession().write(BuffPacket.giveBuff(localsourceid, getDuration(), localstatups, this));
+            chr.getClient().sendPacket(BuffPacket.giveBuff(localsourceid, getDuration(), localstatups, this));
             chr.registerEffect(this, starttime, BuffTimer.getInstance().schedule(new CancelEffectAction(chr, this, starttime, localstatups), isSubTime(sourceid) ? getSubTime() : getDuration()), localstatups, false, getDuration(), applyfrom.getId());
         }
     }
@@ -2051,7 +2051,7 @@ case 12111007:
     public final void applyComboBuff(final MapleCharacter applyto, short combo) {
         final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
         stat.put(MapleBuffStat.ARAN_COMBO, (int) combo);
-        applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, 99999, stat, this)); // Hackish timing, todo find out
+        applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, 99999, stat, this)); // Hackish timing, todo find out
 
         final long starttime = System.currentTimeMillis();
 //	final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime);
@@ -2062,7 +2062,7 @@ case 12111007:
     public final void applyEnergyBuff(final MapleCharacter applyto, final boolean infinity) {
         final long starttime = System.currentTimeMillis();
         if (infinity) {
-            applyto.getClient().getSession().write(BuffPacket.giveEnergyChargeTest(0, duration / 1000));
+            applyto.getClient().sendPacket(BuffPacket.giveEnergyChargeTest(0, duration / 1000));
             applyto.registerEffect(this, starttime, null, applyto.getId());
         } else {
             final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
@@ -2106,13 +2106,13 @@ case 12111007:
             case 5311004:{//dice
                 final int zz = Randomizer.nextInt(6) + 1;
                 applyto.getMap().broadcastMessage(applyto, EffectPacket.showDiceEffect(applyto.getId(), sourceid, zz, -1, level), false);
-                applyto.getClient().getSession().write(EffectPacket.showOwnDiceEffect(sourceid, zz, -1, level));
+                applyto.getClient().sendPacket(EffectPacket.showOwnDiceEffect(sourceid, zz, -1, level));
                 if (zz <= 1) {
                     return;
                 }
                 localstatups = new EnumMap<>(MapleBuffStat.class);
                 localstatups.put(MapleBuffStat.DICE_ROLL, zz);
-                applyto.getClient().getSession().write(BuffPacket.giveDice(zz, sourceid, localDuration, localstatups));
+                applyto.getClient().sendPacket(BuffPacket.giveDice(zz, sourceid, localDuration, localstatups));
                 normal = false;
                 showEffect = false;
                 break;
@@ -2121,7 +2121,7 @@ case 12111007:
                 final int zz = Randomizer.nextInt(6) + 1;
                 final int zz2 = makeChanceResult() ? (Randomizer.nextInt(6) + 1) : 0;
                 applyto.getMap().broadcastMessage(applyto, EffectPacket.showDiceEffect(applyto.getId(), sourceid, zz, zz2 > 0 ? -1 : 0, level), false);
-                applyto.getClient().getSession().write(EffectPacket.showOwnDiceEffect(sourceid, zz, zz2 > 0 ? -1 : 0, level));
+                applyto.getClient().sendPacket(EffectPacket.showOwnDiceEffect(sourceid, zz, zz2 > 0 ? -1 : 0, level));
                 if (zz <= 1 && zz2 <= 1) {
                     return;
                 }
@@ -2133,7 +2133,7 @@ case 12111007:
                 }
                 localstatups = new EnumMap<>(MapleBuffStat.class);
                 localstatups.put(MapleBuffStat.DICE_ROLL, buffid);
-                applyto.getClient().getSession().write(BuffPacket.giveDice(zz, sourceid, localDuration, localstatups));
+                applyto.getClient().sendPacket(BuffPacket.giveDice(zz, sourceid, localDuration, localstatups));
                 normal = false;
                 showEffect = false;
                 break;
@@ -2166,7 +2166,7 @@ case 12111007:
                 }
                 localstatups = new EnumMap<>(MapleBuffStat.class);
                 localstatups.put(theBuff, theStat);
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 normal = false;
                 break;
             }
@@ -2182,7 +2182,7 @@ case 12111007:
             case 5001005: // Dash
             case 4321000: //tornado spin
             case 15001003: {
-                applyto.getClient().getSession().write(BuffPacket.givePirate(statups, localDuration / 1000, sourceid));
+                applyto.getClient().sendPacket(BuffPacket.givePirate(statups, localDuration / 1000, sourceid));
                 if (!applyto.isHidden()) {
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignPirate(statups, localDuration / 1000, applyto.getId(), sourceid), false);
                 }
@@ -2201,13 +2201,13 @@ case 12111007:
 /* 2014 */       applyto.addRunningStack(skillid == 24100003 ? 5 : 10);
 /* 2015 */       applyto.getMap().broadcastMessage(applyto, CField.gainCardStack(applyto.getId(), applyto.getRunningStack(), skillid == 24120002 ? 2 : 1, skillid, 0, skillid == 24100003 ? 5 : 10), true);
 /* 2016 */       applyto.getMap().broadcastMessage(applyto, CField.EffectPacket.showDiceEffect(applyto.getId(), this.sourceid, zz, -1, this.level), false);
-/* 2017 */       applyto.getClient().getSession().write(CField.EffectPacket.showOwnDiceEffect(this.sourceid, zz, -1, this.level));
+/* 2017 */       applyto.getClient().sendPacket(CField.EffectPacket.showOwnDiceEffect(this.sourceid, zz, -1, this.level));
 /* 2018 */       localstatups = new EnumMap<>(MapleBuffStat.class);
 /* 2019 */       localstatups.put(MapleBuffStat.JUDGMENT_DRAW, Integer.valueOf(zz));
 /* 2020 */       if (zz == 5) {
 /* 2021 */         localstatups.put(MapleBuffStat.ABSORB_DAMAGE_HP, z);
 /*      */       }
-/* 2023 */       applyto.getClient().getSession().write(CWvsContext.BuffPacket.giveBuff(this.sourceid, localDuration, localstatups, this));
+/* 2023 */       applyto.getClient().sendPacket(CWvsContext.BuffPacket.giveBuff(this.sourceid, localDuration, localstatups, this));
 /* 2024 */       normal = false;
 /* 2025 */       showEffect = false;
 /* 2026 */       break;
@@ -2216,8 +2216,8 @@ case 12111007:
             case 22151002: //killer wings
             case 5220011: {// Bullseye
                 if (applyto.getFirstLinkMid() > 0) {
-                    applyto.getClient().getSession().write(BuffPacket.cancelHoming());
-                    applyto.getClient().getSession().write(BuffPacket.giveHoming(sourceid, applyto.getFirstLinkMid(), 1));
+                    applyto.getClient().sendPacket(BuffPacket.cancelHoming());
+                    applyto.getClient().sendPacket(BuffPacket.giveHoming(sourceid, applyto.getFirstLinkMid(), 1));
                 } else {
                     return;
                 }
@@ -2228,7 +2228,7 @@ case 12111007:
             case 2220010:
             case 2320011: //arcane aim
                 if (applyto.getFirstLinkMid() > 0) {
-                    applyto.getClient().getSession().write(BuffPacket.giveArcane(applyto.getAllLinkMid(), localDuration));
+                    applyto.getClient().sendPacket(BuffPacket.giveArcane(applyto.getAllLinkMid(), localDuration));
                 } else {
                     return;
                 }
@@ -2321,14 +2321,14 @@ case 12111007:
                 }
                 localstatups = new EnumMap<>(MapleBuffStat.class);
                 localstatups.put(MapleBuffStat.BODY_BOOST, (int) level);
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 localstatups.put(statt.left, statt.right);
                 final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
                 stat.put(statt.left, statt.right);
                 applyto.cancelEffectFromBuffStat(MapleBuffStat.BLUE_AURA, applyfrom.getId());
                 applyto.cancelEffectFromBuffStat(MapleBuffStat.YELLOW_AURA, applyfrom.getId());
                 applyto.cancelEffectFromBuffStat(MapleBuffStat.DARK_AURA, applyfrom.getId());
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourcez, localDuration, stat, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourcez, localDuration, stat, this));
                 normal = false;
                 break;
             }
@@ -2346,10 +2346,10 @@ case 12111007:
                 applyto.cancelEffectFromBuffStat(MapleBuffStat.BODY_BOOST);
                 final EnumMap<MapleBuffStat, Integer> statt = new EnumMap<>(MapleBuffStat.class);
 				statt.put(sourceid == 32110007 ? MapleBuffStat.BODY_BOOST : MapleBuffStat.AURA, (int) (sourceid == 32120000 ? applyfrom.getTotalSkillLevel(32001003) : level));
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid == 32120000 ? 32001003 : sourceid, localDuration, statt, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid == 32120000 ? 32001003 : sourceid, localDuration, statt, this));
                 statt.clear();
                 statt.put(MapleBuffStat.DARK_AURA, x);
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, statt, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, statt, this));
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), statt, this), false);
                 normal = false;
                 break;
@@ -2370,10 +2370,10 @@ case 12111007:
                 applyto.cancelEffectFromBuffStat(MapleBuffStat.BODY_BOOST);
                 final EnumMap<MapleBuffStat, Integer> statt = new EnumMap<>(MapleBuffStat.class);
                 statt.put(sourceid == 32110008 ? MapleBuffStat.BODY_BOOST : MapleBuffStat.AURA, (int) (sourceid == 32110000 ? applyfrom.getTotalSkillLevel(32111012) : level));
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid == 32110000 ? 32111012 : sourceid, localDuration, statt, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid == 32110000 ? 32111012 : sourceid, localDuration, statt, this));
                 statt.clear();
                 statt.put(MapleBuffStat.BLUE_AURA, (int) level);
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, statt, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, statt, this));
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), statt, this), false);
                 normal = false;
                 break;
@@ -2392,10 +2392,10 @@ case 12111007:
                 applyto.cancelEffectFromBuffStat(MapleBuffStat.BODY_BOOST);
                 final EnumMap<MapleBuffStat, Integer> statt = new EnumMap<>(MapleBuffStat.class);
                 statt.put(sourceid == 32110009 ? MapleBuffStat.BODY_BOOST : MapleBuffStat.AURA, (int) (sourceid == 32120001 ? applyfrom.getTotalSkillLevel(32101003) : level));
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid == 32120001 ? 32101003 : sourceid, localDuration, statt, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid == 32120001 ? 32101003 : sourceid, localDuration, statt, this));
                 statt.clear();
                 statt.put(MapleBuffStat.YELLOW_AURA, (int) level);
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, statt, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, statt, this));
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), statt, this), false);
                 normal = false;
                 break;
@@ -2409,7 +2409,7 @@ case 12111007:
                     stat.put(MapleBuffStat.WK_CHARGE, 1);
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 }
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 normal = false;
                 break;
             }
@@ -2488,14 +2488,14 @@ case 12111007:
             case 15111006: { // Spark
                 localstatups = new EnumMap<>(MapleBuffStat.class);
                 localstatups.put(MapleBuffStat.SPARK, x);
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 normal = false;
                 break;
             }
             case 4341002: { // Final Cut
                 localstatups = new EnumMap<>(MapleBuffStat.class);
                 localstatups.put(MapleBuffStat.FINAL_CUT, y);
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 normal = false;
                 break;
             }
@@ -2554,7 +2554,7 @@ case 12111007:
             case 4331003: { // Owl Spirit
                 localstatups = new EnumMap<>(MapleBuffStat.class);
                 localstatups.put(MapleBuffStat.OWL_SPIRIT, y);
-                applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
+                applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 applyto.setBattleshipHP(x); //a variable that wouldnt' be used by a db
                 normal = false;
                 break;
@@ -2581,7 +2581,7 @@ case 12111007:
 					final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
                     stat.put(MapleBuffStat.MORPH, getMorph(applyto));
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
-                    applyto.getClient().getSession().write(BuffPacket.giveBuff(sourceid, localDuration, stat, this));
+                    applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, stat, this));
                     maskedStatups = new EnumMap<>(localstatups);
                     maskedStatups.remove(MapleBuffStat.MORPH);
 					normal = false;
@@ -2593,7 +2593,7 @@ case 12111007:
                         //odd
                         final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
                         stat.put(MapleBuffStat.ICE_KNIGHT, 2);
-                        applyto.getClient().getSession().write(BuffPacket.giveBuff(0, localDuration, stat, this));
+                        applyto.getClient().sendPacket(BuffPacket.giveBuff(0, localDuration, stat, this));
                     }
                     final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
                     stat.put(MapleBuffStat.MORPH, getMorph(applyto));
@@ -2623,7 +2623,7 @@ case 12111007:
                         stat.put(MapleBuffStat.MONSTER_RIDING, 0);
                         applyto.cancelEffectFromBuffStat(MapleBuffStat.POWERGUARD);
                         applyto.cancelEffectFromBuffStat(MapleBuffStat.MANA_REFLECTION);
-                        applyto.getClient().getSession().write(BuffPacket.giveMount(mountid2, sourceid, stat));
+                        applyto.getClient().sendPacket(BuffPacket.giveMount(mountid2, sourceid, stat));
                         applyto.getMap().broadcastMessage(applyto, BuffPacket.showMonsterRiding(applyto.getId(), stat, mountid, sourceid), false);
                     } else {
                         return;
@@ -2665,14 +2665,14 @@ case 12111007:
             applyto.getMap().broadcastMessage(applyto, EffectPacket.showBuffeffect(applyto.getId(), sourceid, 1, applyto.getLevel(), level), false);
         }
         if (isMechPassive()) {
-            applyto.getClient().getSession().write(EffectPacket.showOwnBuffEffect(sourceid - 1000, 1, applyto.getLevel(), level, (byte) 1));
+            applyto.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sourceid - 1000, 1, applyto.getLevel(), level, (byte) 1));
         }
         if (!isMonsterRiding() && !isMechDoor()) {
             applyto.cancelEffect(this, true, -1, localstatups);
         }
 		// Broadcast effect to self
         if (normal && localstatups.size() > 0) {
-            applyto.getClient().getSession().write(BuffPacket.giveBuff((skill ? sourceid : -sourceid), localDuration, maskedStatups == null ? localstatups : maskedStatups, this));
+            applyto.getClient().sendPacket(BuffPacket.giveBuff((skill ? sourceid : -sourceid), localDuration, maskedStatups == null ? localstatups : maskedStatups, this));
         }
         final long starttime = System.currentTimeMillis();
         final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime, localstatups);
@@ -2842,7 +2842,7 @@ case 12111007:
         return skill && (sourceid == 5110001 || sourceid == 15100004);
     }
 
-    private boolean isMonsterBuff() {
+    public boolean isMonsterBuff() {
         switch (sourceid) {
             case 1201006: // threaten
             case 2101003: // fp slow
@@ -3689,4 +3689,14 @@ case 12111007:
             }
         }
     }
+
+    public final boolean isUnstealable() {
+        for (MapleBuffStat b : statups.keySet()) {
+            if (b == MapleBuffStat.MAPLE_WARRIOR) {
+                return true;
+            }
+        }
+        return sourceid == 4221013;
+    }
+
 }

@@ -192,14 +192,14 @@ public class Event_DojoAgent {
                             c.getTrait(MapleTraitType.will).addExp(points, c);
                             final int dojo = chr.getIntRecord(GameConstants.DOJO) + points;
                             chr.getQuestNAdd(MapleQuest.getInstance(GameConstants.DOJO)).setCustomData(String.valueOf(dojo));
-                            // chr.getClient().getSession().writeAndFlush(CWvsContext.Mulung_Pts(points, dojo));
+                            // chr.getClient().sendPacket(CWvsContext.Mulung_Pts(points, dojo));
                         }
                     }
                 } else {
                     c.getTrait(MapleTraitType.will).addExp(points, c);
                     final int dojo = c.getIntRecord(GameConstants.DOJO) + points;
                     c.getQuestNAdd(MapleQuest.getInstance(GameConstants.DOJO)).setCustomData(String.valueOf(dojo));
-                    // c.getClient().getSession().writeAndFlush(CWvsContext.Mulung_Pts(points, dojo));
+                    // c.getClient().sendPacket(CWvsContext.Mulung_Pts(points, dojo));
                 }
             }
             if (currentmap.getId() >= 925023800 && currentmap.getId() <= 925023814) {
@@ -224,7 +224,7 @@ public class Event_DojoAgent {
                             c.getTrait(MapleTraitType.will).addExp(points, c);
                             final int dojo = chr.getIntRecord(GameConstants.DOJO) + point;
                             chr.getQuestNAdd(MapleQuest.getInstance(GameConstants.DOJO)).setCustomData(String.valueOf(dojo));
-                            // chr.getClient().getSession().writeAndFlush(CWvsContext.Mulung_Pts(point, dojo));
+                            // chr.getClient().sendPacket(CWvsContext.Mulung_Pts(point, dojo));
                         }
                     }
                 } else {
@@ -244,7 +244,7 @@ public class Event_DojoAgent {
                     c.getTrait(MapleTraitType.will).addExp(points, c);
                     final int dojo = c.getIntRecord(GameConstants.DOJO) + point;
                     c.getQuestNAdd(MapleQuest.getInstance(GameConstants.DOJO)).setCustomData(String.valueOf(dojo));
-                    // c.getClient().getSession().writeAndFlush(CWvsContext.Mulung_Pts(point, dojo));
+                    // c.getClient().sendPacket(CWvsContext.Mulung_Pts(point, dojo));
                 }
                 return true;
             }

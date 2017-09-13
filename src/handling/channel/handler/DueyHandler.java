@@ -60,7 +60,7 @@ public class DueyHandler {
         final int conv = c.getPlayer().getConversation();
 
         if (conv == 2) { // Duey
-        c.getSession().write(CField.sendDuey((byte) 10, loadItems(c.getPlayer())));
+        c.sendPacket(CField.sendDuey((byte) 10, loadItems(c.getPlayer())));
         }
         break;
         }
@@ -98,12 +98,12 @@ public class DueyHandler {
         final MapleInventoryType inv = MapleInventoryType.getByType(inventId);
         final Item item = c.getPlayer().getInventory(inv).getItem((byte) itemPos);
         if (item == null) {
-        c.getSession().write(CField.sendDuey((byte) 17, null)); // Unsuccessfull
+        c.sendPacket(CField.sendDuey((byte) 17, null)); // Unsuccessfull
         return;
         }
         final byte WORLD_FLAGS = item.getFlag();
         if (ItemFlag.UNTRADEABLE.check(WORLD_FLAGS) || ItemFlag.LOCK.check(WORLD_FLAGS)) {
-        c.getSession().write(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
         return;
         }
         if (c.getPlayer().getItemQuantity(item.getItemId(), false) >= amount) {
@@ -116,36 +116,36 @@ public class DueyHandler {
         MapleInventoryManipulator.removeFromSlot(c, inv, (byte) itemPos, amount, true, false);
         }
         c.getPlayer().gainMeso(-finalcost, false);
-        c.getSession().write(CField.sendDuey((byte) 19, null)); // Successfull
+        c.sendPacket(CField.sendDuey((byte) 19, null)); // Successfull
         } else {
-        c.getSession().write(CField.sendDuey((byte) 17, null)); // Unsuccessful
+        c.sendPacket(CField.sendDuey((byte) 17, null)); // Unsuccessful
         }
         } else {
-        c.getSession().write(CField.sendDuey((byte) 17, null)); // Unsuccessfull
+        c.sendPacket(CField.sendDuey((byte) 17, null)); // Unsuccessfull
         }
         } else {
-        c.getSession().write(CField.sendDuey((byte) 17, null)); // Unsuccessfull
+        c.sendPacket(CField.sendDuey((byte) 17, null)); // Unsuccessfull
         }
         } else {
         if (addMesoToDB(mesos, c.getPlayer().getName(), accid, recipientOn)) {
         c.getPlayer().gainMeso(-finalcost, false);
 
-        c.getSession().write(CField.sendDuey((byte) 19, null)); // Successfull
+        c.sendPacket(CField.sendDuey((byte) 19, null)); // Successfull
         } else {
-        c.getSession().write(CField.sendDuey((byte) 17, null)); // Unsuccessfull
+        c.sendPacket(CField.sendDuey((byte) 17, null)); // Unsuccessfull
         }
         }
         //                            if (recipientOn && rClient != null) {
-        //                              rClient.getSession().write(CField.sendDueyMSG(Actions.PACKAGE_MSG.getCode()));
+        //                              rClient.sendPacket(CField.sendDueyMSG(Actions.PACKAGE_MSG.getCode()));
         //                        }
         } else {
-        c.getSession().write(CField.sendDuey((byte) 15, null)); // Same acc error
+        c.sendPacket(CField.sendDuey((byte) 15, null)); // Same acc error
         }
         } else {
-        c.getSession().write(CField.sendDuey((byte) 14, null)); // Name does not exist
+        c.sendPacket(CField.sendDuey((byte) 14, null)); // Name does not exist
         }
         } else {
-        c.getSession().write(CField.sendDuey((byte) 12, null)); // Not enough mesos
+        c.sendPacket(CField.sendDuey((byte) 12, null)); // Not enough mesos
         }
         break;
         }
@@ -160,10 +160,10 @@ public class DueyHandler {
         return;
         }
         if (dp.getItem() != null && !MapleInventoryManipulator.checkSpace(c, dp.getItem().getItemId(), dp.getItem().getQuantity(), dp.getItem().getOwner())) {
-        c.getSession().write(CField.sendDuey((byte) 16, null)); // Not enough Space
+        c.sendPacket(CField.sendDuey((byte) 16, null)); // Not enough Space
         return;
         } else if (dp.getMesos() < 0 || (dp.getMesos() + c.getPlayer().getMeso()) < 0) {
-        c.getSession().write(CField.sendDuey((byte) 17, null)); // Unsuccessfull
+        c.sendPacket(CField.sendDuey((byte) 17, null)); // Unsuccessfull
         return;
         }
         removeItemFromDB(packageid, c.getPlayer().getWorldId()); // Remove first
@@ -174,7 +174,7 @@ public class DueyHandler {
         if (dp.getMesos() != 0) {
         c.getPlayer().gainMeso(dp.getMesos(), false);
         }
-        c.getSession().write(CField.removeItemFromDuey(false, packageid));
+        c.sendPacket(CField.removeItemFromDuey(false, packageid));
         break;
         }
         case 6: { // Remove package
@@ -183,7 +183,7 @@ public class DueyHandler {
         }
         final int packageid = slea.readInt();
         removeItemFromDB(packageid, c.getPlayer().getWorldId());
-        c.getSession().write(CField.removeItemFromDuey(true, packageid));
+        c.sendPacket(CField.removeItemFromDuey(true, packageid));
         break;
         }
         case 8: { // Close Duey

@@ -38,37 +38,46 @@ public class LoginInformationProvider {
 
     public enum JobType {
 
-        UltimateAdventurer(-1, "Ultimate", 0, MapConstants.STARTER_MAP),
-        Resistance(0, "Resistance", 3000, MapConstants.STARTER_MAP),
-        Adventurer(1, "", 0, MapConstants.STARTER_MAP),
-        Cygnus(2, "Premium", 1000, MapConstants.STARTER_MAP),
-        Aran(3, "Orient", 2000, MapConstants.STARTER_MAP),
-        Evan(4, "Evan", 2001, MapConstants.STARTER_MAP),
-        Mercedes(5, "", 2002, MapConstants.STARTER_MAP),
-        Demon(6, "", 3001, MapConstants.STARTER_MAP),
-        Phantom(7, "", 2400, MapConstants.STARTER_MAP);
-        public int type, id, map;
-        public String job;
+        UltimateAdventurer(-1, "終極冒險家", 0, 130000000),
+        Resistance(0, "反抗軍", 3000, 931000000),
+        Adventurer(1, "冒險家", 0, 10000),
+        DualBlade(1, "影武者", 0, 10000, 1),
+        Cygnus(2, "皇家騎士團", 1000, 913040000),
+        Aran(3, "狂狼勇士", 2000, 914000000),
+        Evan(4, "龍魔導士", 2001, 900090000),
+        Mercedes(5, "精靈遊俠", 2002, 910150000),
+        Demon(6, "惡魔殺手", 3001, 931050310),
+        Phantom(7, "捷諾", 2400, 915000000);
+        public int type, id, map, sub = 0;
+        public String name;
 
-        private JobType(int type, String job, int id, int map) {
+        JobType(int type, String job, int id, int map) {
             this.type = type;
-            this.job = job;
+            this.name = job;
             this.id = id;
             this.map = map;
         }
 
+        JobType(int type, String job, int id, int map, int sub) {
+            this.type = type;
+            this.name = job;
+            this.id = id;
+            this.map = map;
+            this.sub = sub;
+        }
+
         public static JobType getByJob(String g) {
             for (JobType e : JobType.values()) {
-                if (e.job.length() > 0 && g.startsWith(e.job)) {
+                if (e.name.length() > 0 && g.startsWith(e.name)) {
                     return e;
                 }
             }
             return Adventurer;
         }
 
-        public static JobType getByType(int g) {
+        public static JobType getByType(int g, int sub) {
             for (JobType e : JobType.values()) {
-                if (e.type == g) {
+                if (e.type == g && e.sub == sub) {
                     return e;
                 }
             }

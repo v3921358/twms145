@@ -74,6 +74,8 @@ public class MaplePacketDecoder extends ByteToMessageDecoder {
                     }
                     String t = packetLen >= 10 ? packetLen >= 100 ? packetLen >= 1000 ? "" : " " : "  " : "   ";
                     final StringBuilder sb = new StringBuilder("[Debug] Recv: \t" + op + tab + "\tOpcode:" + HexTool.getOpcodeToString(pHeader) + t + "[" + packetLen + "]");
+                    sb.append("\n        Hex : \t").append(HexTool.toString(decryptedPacket));
+                    sb.append("\n        Ascii: \t").append(HexTool.toPaddedStringFromAscii(decryptedPacket));
                     System.out.println(sb.toString());
             }
         }

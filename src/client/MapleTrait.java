@@ -71,7 +71,7 @@ public class MapleTrait {
 			this.totalExp += e;
 			this.localTotalExp += e;
 			c.updateSingleStat(type.stat, totalExp);
-			c.getClient().getSession().write(InfoPacket.showTraitGain(type, e));
+			c.getClient().sendPacket(InfoPacket.showTraitGain(type, e));
             recalcLevel();
         }
     }

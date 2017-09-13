@@ -140,7 +140,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
         client.getSession().attr(MaplePacketDecoder.DECODER_STATE_KEY).set(decoderState);
 
 
-        client.getSession().writeAndFlush(LoginPacket.getHello(ivSend, ivRecv));
+        client.sendPacket(LoginPacket.getHello(ivSend, ivRecv));
         client.getSession().attr(MapleClient.CLIENT_KEY).set(client);
 
     }
@@ -238,7 +238,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                     CharLoginHandler.CheckVersion(slea, client);
                     break;
                 case GET_SERVER:
-                    client.getSession().writeAndFlush(LoginPacket.getLoginBackground());
+                    client.sendPacket(LoginPacket.getLoginBackground());
                     break;
                 case LOGIN_PASSWORD:
                     CharLoginHandler.login(slea, client);
@@ -324,12 +324,12 @@ public class MapleServerHandler extends ChannelDuplexHandler {
         switch (header) {
             case CLIENT_START:
             case CLIENT_FAILED:
-                // c.getSession().writeAndFlush(LoginPacket.getCustomEncryption());
+                // c.sendPacket(LoginPacket.getCustomEncryption());
                 break;
 
 
             case ENABLE_SPECIAL_CREATION:
-                client.getSession().writeAndFlush(LoginPacket.enableSpecialCreation(client.getAccID(), true));
+                client.sendPacket(LoginPacket.enableSpecialCreation(client.getAccID(), true));
                 break;
             // END OF LOGIN SERVER
             case CHANGE_CHANNEL:
@@ -620,12 +620,12 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 break;
             case USE_ALIEN_SOCKET_RESPONSE:
                 slea.skip(4); // all 0
-                client.getSession().writeAndFlush(MTSCSPacket.useAlienSocket(false));
+                client.sendPacket(MTSCSPacket.useAlienSocket(false));
                 break;
             case VICIOUS_HAMMER:
                 slea.skip(4); // 3F 00 00 00
                 slea.skip(4); // all 0
-                client.getSession().writeAndFlush(MTSCSPacket.ViciousHammer(false, 0));
+                client.sendPacket(MTSCSPacket.ViciousHammer(false, 0));
                 break;
             case USE_NEBULITE_FUSION:
                 InventoryHandler.UseNebuliteFusion(slea, client);
@@ -973,15 +973,16 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 PlayersHandler.Report(slea, client);
                 break;
             case EQUIP_STOLEN_SKILL:
-                PlayersHandler.UpdateEquippedSkills(slea, client, client.getPlayer());
+                //PlayersHandler.UpdateEquippedSkills(slea, client, client.getPlayer());
                 break;
             case UPDATE_STOLEN_SKILL:
-                PlayersHandler.UpdateStolenSkills(slea, client, client.getPlayer());
+                //PlayersHandler.UpdateStolenSkills(slea, client, client.getPlayer());
                 break;
             case SKILL_SWIPE_REQUEST:
-                PlayersHandler.SkillSwipeRequest(slea, client, client.getPlayer());
+                //PlayersHandler.SkillSwipeRequest(slea, client, client.getPlayer());
                 break;
             default:
+                System.out.printf("[Warning] Opcode: %s not found.", header.toString());
                 client.getPlayer().dropMessage(6, "[UNHANDLED] Recv [" + header.toString() + "] found");
                 break;
         }

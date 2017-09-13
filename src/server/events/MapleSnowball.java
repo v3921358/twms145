@@ -147,7 +147,7 @@ public class MapleSnowball extends MapleEvent {
         public void broadcast(MapleMap map, int message) {
             for (MapleCharacter chr : map.getCharactersThreadsafe()) {
                 //if ((team == 0 && chr.getPosition().y > -80) || (team == 1 && chr.getPosition().y <= -80)) {
-                chr.getClient().getSession().writeAndFlush(CField.snowballMessage(team, message));
+                chr.getClient().sendPacket(CField.snowballMessage(team, message));
                 //}
             }
         }
@@ -196,8 +196,8 @@ public class MapleSnowball extends MapleEvent {
                     chr.getMap().broadcastMessage(CField.hitSnowBall(team, damage, 0, 1));
                     if (damage == 0) {
                         if (Math.random() < 0.2) {
-                            chr.getClient().getSession().writeAndFlush(CField.leftKnockBack());
-                            chr.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+                            chr.getClient().sendPacket(CField.leftKnockBack());
+                            chr.getClient().sendPacket(CWvsContext.enableActions());
                         }
                     } else {
                         ball.setPositionX(ball.getPosition() + 1);

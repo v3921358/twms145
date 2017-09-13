@@ -82,7 +82,7 @@ public final class MonsterFamiliar extends AnimatedMapleMapObject implements Ser
     public void addFatigue(MapleCharacter owner, int f) {
         //f += ((familiar / 10000) % 10) * f;
         fatigue = Math.min(vitality * 300, Math.max(0, fatigue + f));
-        owner.getClient().getSession().write(CField.updateFamiliar(this));
+        owner.getClient().sendPacket(CField.updateFamiliar(this));
         if (fatigue >= (vitality * 300)) {
             owner.removeFamiliar();
         }
@@ -142,12 +142,12 @@ public final class MonsterFamiliar extends AnimatedMapleMapObject implements Ser
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        client.getSession().write(CField.spawnFamiliar(this, true));
+        client.sendPacket(CField.spawnFamiliar(this, true));
     }
 
     @Override
     public void sendDestroyData(MapleClient client) {
-        client.getSession().write(CField.spawnFamiliar(this, false));
+        client.sendPacket(CField.spawnFamiliar(this, false));
     }
 
     @Override

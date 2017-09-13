@@ -176,8 +176,8 @@ public class NPCHandler {
                 } else {
                     q.complete(chr, npc);
                 }
-                // c.getSession().write(CField.completeQuest(c.getPlayer(), quest));
-                //c.getSession().write(CField.updateQuestInfo(c.getPlayer(), quest, npc, (byte)14));
+                // c.sendPacket(CField.completeQuest(c.getPlayer(), quest));
+                //c.sendPacket(CField.updateQuestInfo(c.getPlayer(), quest, npc, (byte)14));
                 // 6 = start quest
                 // 7 = unknown error
                 // 8 = equip is full
@@ -210,7 +210,7 @@ public class NPCHandler {
                 }
                 //c.getPlayer().updateTick(slea.readInt());
                 NPCScriptManager.getInstance().endQuest(c, npc, quest, false);
-                c.getSession().write(EffectPacket.showForeignEffect(12)); // Quest completion
+                c.sendPacket(EffectPacket.showForeignEffect(12)); // Quest completion
                 chr.getMap().broadcastMessage(chr, EffectPacket.showForeignEffect(chr.getId(), 12), false);
                 break;
             }
@@ -244,7 +244,7 @@ public class NPCHandler {
                         storage.sendTakenOut(c, GameConstants.getInventoryType(item.getItemId()));
                     }
                 } else {
-                    c.getSession().write(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                 }
                 break;
             }
@@ -259,11 +259,11 @@ public class NPCHandler {
                     return;
                 }
                 if (storage.isFull()) {
-                    c.getSession().write(NPCPacket.getStorageFull());
+                    c.sendPacket(NPCPacket.getStorageFull());
                     return;
                 }
                 if (chr.getInventory(type).getItem(slot) == null) {
-                    c.getSession().write(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                     return;
                 }
 
@@ -273,12 +273,12 @@ public class NPCHandler {
                     Item item = chr.getInventory(type).getItem(slot).copy();
 
                     if (GameConstants.isPet(item.getItemId())) {
-                        c.getSession().write(CWvsContext.enableActions());
+                        c.sendPacket(CWvsContext.enableActions());
                         return;
                     }
                     final short flag = item.getFlag();
                     /*   if (ii.isPickupRestricted(item.getItemId()) && storage.findById(item.getItemId()) != null) {
-                     c.getSession().write(CWvsContext.enableActions());
+                     c.sendPacket(CWvsContext.enableActions());
                      return;
                      }
                      * 
@@ -294,7 +294,7 @@ public class NPCHandler {
                          } else if (ItemFlag.KARMA_ACC_USE.check(WORLD_FLAGS)) {
                          item.setFlag((short) (WORLD_FLAGS - ItemFlag.KARMA_ACC_USE.getValue()));
                          } else {
-                         c.getSession().write(CWvsContext.enableActions());
+                         c.sendPacket(CWvsContext.enableActions());
                          return;
                          }
                         
@@ -529,29 +529,29 @@ public class NPCHandler {
                 if (c.getPlayer().getMeso() >= 1000) {
                     c.getPlayer().setRPS(new RockPaperScissors(c, mode));
                 } else {
-                    c.getSession().write(CField.getRPSMode((byte) 0x08, -1, -1, -1));
+                    c.sendPacket(CField.getRPSMode((byte) 0x08, -1, -1, -1));
                 }
                 break;
             case 1: //answer
                 if (c.getPlayer().getRPS() == null || !c.getPlayer().getRPS().answer(c, slea.readByte())) {
-                    c.getSession().write(CField.getRPSMode((byte) 0x0D, -1, -1, -1));
+                    c.sendPacket(CField.getRPSMode((byte) 0x0D, -1, -1, -1));
                 }
                 break;
             case 2: //time over
                 if (c.getPlayer().getRPS() == null || !c.getPlayer().getRPS().timeOut(c)) {
-                    c.getSession().write(CField.getRPSMode((byte) 0x0D, -1, -1, -1));
+                    c.sendPacket(CField.getRPSMode((byte) 0x0D, -1, -1, -1));
                 }
                 break;
             case 3: //continue
                 if (c.getPlayer().getRPS() == null || !c.getPlayer().getRPS().nextRound(c)) {
-                    c.getSession().write(CField.getRPSMode((byte) 0x0D, -1, -1, -1));
+                    c.sendPacket(CField.getRPSMode((byte) 0x0D, -1, -1, -1));
                 }
                 break;
             case 4: //leave
                 if (c.getPlayer().getRPS() != null) {
                     c.getPlayer().getRPS().dispose(c);
                 } else {
-                    c.getSession().write(CField.getRPSMode((byte) 0x0D, -1, -1, -1));
+                    c.sendPacket(CField.getRPSMode((byte) 0x0D, -1, -1, -1));
                 }
                 break;
         }

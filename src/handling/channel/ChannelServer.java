@@ -252,7 +252,7 @@ public class ChannelServer {
 
     public void yellowWorldMessage(String msg) {
         for (MapleCharacter mc : getPlayerStorage().getAllCharacters()) {
-            mc.getClient().getSession().write(CWvsContext.yellowChat(msg));
+            mc.getClient().sendPacket(CWvsContext.yellowChat(msg));
         }
     }
 

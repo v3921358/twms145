@@ -107,7 +107,7 @@ public class PortalScriptManager {
         if (portalnpc == 0) 
             return;
         NPCScriptManager.getInstance().start( c ,portalnpc);// ask if trying to get back
-        c.getSession().write(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
         if (!c.getPlayer().getReturningToMap()) 
             return; // want to get back = true
         String fname = "./scripts/portal/"+name+".js";

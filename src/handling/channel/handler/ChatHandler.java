@@ -47,6 +47,7 @@ import tools.packet.CWvsContext;
 public class ChatHandler {
 
     public static final void GeneralChat(String text, final byte unk, final MapleClient c, final MapleCharacter chr) {
+        MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         text = WordFilter.illegalArrayCheck(text, c.getPlayer()); 
         if (c.getPlayer().getLeetness()) {
             String normal = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -262,7 +263,7 @@ public class ChatHandler {
                                 case 94:
                                         c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
                                         if (unk == 0) {
-                                            Item test = MapleItemInformationProvider.getEquipById(1302000); // test for now :/
+                                            Item test = ii.getEquipById(1302000); // test for now :/
                                             byte rareness = 0; // this isn't needed because it doesn't use this in the packet
                                             c.getPlayer().getMap().broadcastMessage(CWvsContext.getGachaponMega(c.getPlayer().getName(), text, test, rareness, false, "Test"));
                                         }
@@ -388,7 +389,7 @@ public class ChatHandler {
                                 }
                             }
                         } else {
-                            c.getSession().writeAndFlush(CWvsContext.serverNotice(6, "You have been muted and are therefore unable to talk."));
+                            c.sendPacket(CWvsContext.serverNotice(6, "You have been muted and are therefore unable to talk."));
                         }
                     }
                }
@@ -437,8 +438,8 @@ public class ChatHandler {
                 return;
             }
             // TODO: code spouse-chat watch system: if (c.getPlayer().getWatcher() != null) { return; }
-            spouseChar.getClient().getSession().writeAndFlush(CWvsContext.toSpouse(c.getPlayer().getName(), message, 5));
-            c.getSession().writeAndFlush(CWvsContext.toSpouse(c.getPlayer().getName(), message, 5));
+            spouseChar.getClient().sendPacket(CWvsContext.toSpouse(c.getPlayer().getName(), message, 5));
+            c.sendPacket(CWvsContext.toSpouse(c.getPlayer().getName(), message, 5));
         } else {
             c.getPlayer().dropMessage(5, "You are not married or your spouse is offline.");
         }
@@ -457,7 +458,7 @@ public class ChatHandler {
         }
         final String chattext = slea.readMapleAsciiString();
         if (chr == null || !chr.getCanTalk()) {
-            c.getSession().writeAndFlush(CWvsContext.serverNotice(6, "You have been muted and are therefore unable to talk."));
+            c.sendPacket(CWvsContext.serverNotice(6, "You have been muted and are therefore unable to talk."));
             return;
         }
         if (c.getPlayer().getMuteLevel() == 1) {
@@ -545,19 +546,19 @@ public class ChatHandler {
                     if (target != null) {
                         if (target.getMessenger() == null) {
                             if (!target.isIntern() || c.getPlayer().isIntern()) {
-                                c.getSession().writeAndFlush(CField.messengerNote(input, 4, 1));
-                                target.getClient().getSession().writeAndFlush(CField.messengerInvite(c.getPlayer().getName(), messenger.getId()));
+                                c.sendPacket(CField.messengerNote(input, 4, 1));
+                                target.getClient().sendPacket(CField.messengerInvite(c.getPlayer().getName(), messenger.getId()));
                             } else {
-                                c.getSession().writeAndFlush(CField.messengerNote(input, 4, 0));
+                                c.sendPacket(CField.messengerNote(input, 4, 0));
                             }
                         } else {
-                            c.getSession().writeAndFlush(CField.messengerChat(c.getPlayer().getName(), " : " + target.getName() + " is already using Maple Messenger."));
+                            c.sendPacket(CField.messengerChat(c.getPlayer().getName(), " : " + target.getName() + " is already using Maple Messenger."));
                         }
                     } else {
                         if (World.isConnected(input)) {
                             World.Messenger.messengerInvite(c.getPlayer().getName(), messenger.getId(), input, c.getWorld(), c.getChannel(), c.getPlayer().isIntern());
                         } else {
-                            c.getSession().writeAndFlush(CField.messengerNote(input, 4, 0));
+                            c.sendPacket(CField.messengerNote(input, 4, 0));
                         }
                     }
                 }
@@ -567,7 +568,7 @@ public class ChatHandler {
                 final MapleCharacter target = c.getChannelServer().getPlayerStorage().getCharacterByName(targeted);
                 if (target != null) { // This channel
                     if (target.getMessenger() != null) {
-                        target.getClient().getSession().writeAndFlush(CField.messengerNote(c.getPlayer().getName(), 5, 0));
+                        target.getClient().sendPacket(CField.messengerNote(c.getPlayer().getName(), 5, 0));
                     }
                 } else { // Other channel
                     if (!c.getPlayer().isIntern()) {
@@ -606,9 +607,9 @@ public class ChatHandler {
                 if (player != null) {
                     if (!player.isIntern() || c.getPlayer().isIntern() && player.isIntern()) {
 
-                        c.getSession().writeAndFlush(CField.getFindReplyWithMap(player.getName(), player.getMap().getId(), mode == 68));
+                        c.sendPacket(CField.getFindReplyWithMap(player.getName(), player.getMap().getId(), mode == 68));
                     } else {
-                        c.getSession().writeAndFlush(CField.getWhisperReply(recipient, (byte) 0));
+                        c.sendPacket(CField.getWhisperReply(recipient, (byte) 0));
                     }
                 } else { // Not found
                     int ch = World.Find.findChannel(recipient);
@@ -620,19 +621,19 @@ public class ChatHandler {
                         }
                         if (player != null) {
                             if (!player.isIntern() || (c.getPlayer().isIntern() && player.isIntern())) {
-                                c.getSession().writeAndFlush(CField.getFindReply(recipient, (byte) ch, mode == 68));
+                                c.sendPacket(CField.getFindReply(recipient, (byte) ch, mode == 68));
                             } else {
-                                c.getSession().writeAndFlush(CField.getWhisperReply(recipient, (byte) 0));
+                                c.sendPacket(CField.getWhisperReply(recipient, (byte) 0));
                             }
                             return;
                         }
                     }
                     if (ch == -10) {
-                        c.getSession().writeAndFlush(CField.getFindReplyWithCS(recipient, mode == 68));
+                        c.sendPacket(CField.getFindReplyWithCS(recipient, mode == 68));
                     } else if (ch == -20) {
                         c.getPlayer().dropMessage(5, "'" + recipient + "' is at the MTS which doesnt exist so let's ban him/her."); //idfc
                     } else {
-                        c.getSession().writeAndFlush(CField.getWhisperReply(recipient, (byte) 0));
+                        c.sendPacket(CField.getWhisperReply(recipient, (byte) 0));
                     }
                 }
                 break;
@@ -653,14 +654,14 @@ public class ChatHandler {
                     if (c.getPlayer().getWatcher() != null) {
                        c.getPlayer().getWatcher().dropMessage(5, "[" + c.getPlayer().getName() + "] Whispered to [" + recipient + "] : " + text);
                     }
-                    player.getClient().getSession().writeAndFlush(CField.getWhisper(c.getPlayer().getName(), c.getChannel(), text));
+                    player.getClient().sendPacket(CField.getWhisper(c.getPlayer().getName(), c.getChannel(), text));
                     if (!c.getPlayer().isIntern() && player.isIntern()) {
-                        c.getSession().writeAndFlush(CField.getWhisperReply(recipient, (byte) 0));
+                        c.sendPacket(CField.getWhisperReply(recipient, (byte) 0));
                     } else {
-                        c.getSession().writeAndFlush(CField.getWhisperReply(recipient, (byte) 1));
+                        c.sendPacket(CField.getWhisperReply(recipient, (byte) 1));
                     }
                 } else {
-                    c.getSession().writeAndFlush(CField.getWhisperReply(recipient, (byte) 0));
+                    c.sendPacket(CField.getWhisperReply(recipient, (byte) 0));
                 }
             }
             break;

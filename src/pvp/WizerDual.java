@@ -335,7 +335,7 @@ public class WizerDual {
             } else {
                 attackedPlayers.setMp(attackedPlayers.getStat().getMp() - mploss);
                 stats.put(MapleStat.MP, Integer.valueOf(attackedPlayers.getStat().getMp()));
-                attackedPlayers.getClient().getSession().write(CWvsContext.updatePlayerStats(stats, attackedPlayers));
+                attackedPlayers.getClient().sendPacket(CWvsContext.updatePlayerStats(stats, attackedPlayers));
             }
         } else if (mesoguard != null) {
             int mesoloss = (int) (damageCount * .75);
@@ -348,7 +348,7 @@ public class WizerDual {
                 }
         }
                 MapleMonster pvpMob = MapleLifeFactory.getMonster(9400711);
-                player.getClient().getSession().write(player.makeHPBarPacket(attackedPlayers)); // HP Bar 
+                player.getClient().sendPacket(player.makeHPBarPacket(attackedPlayers)); // HP Bar
                 if (!attackedPlayers.wantHit()) { // GM Perk - Godmode
                     pvpDamage = 0; // yes, we don't use this value. 
                     damageCount = 0; // (smirk)
@@ -356,7 +356,7 @@ public class WizerDual {
                     attackedPlayers.updateSingleStat(MapleStat.MP, attackedPlayers.getStat().getMaxMp());
                     attackedPlayers.setHp(attackedPlayers.getStat().getMaxHp());
                     attackedPlayers.updateSingleStat(MapleStat.HP, attackedPlayers.getStat().getMaxHp());
-                    attackedPlayers.getClient().getSession().write(CWvsContext.serverNotice(5, player.getName() + " has done 0 damage!"));
+                    attackedPlayers.getClient().sendPacket(CWvsContext.serverNotice(5, player.getName() + " has done 0 damage!"));
                     return;
                 }
                 if (player.fakeDamage() && attackedPlayers != player) { // GM Perk - Fake Damage
@@ -379,7 +379,7 @@ public class WizerDual {
                 if (attackedPlayers.getStat().getHp() <= 100) {
                     player.dropMessage(5, attackedPlayers.getName() + " is near death at only " + attackedPlayers.getStat().getHp() + " HP! Finish " + attackedPlayers.getPvPGender() + " off!");
                 }
-                attackedPlayers.getClient().getSession().write(CWvsContext.serverNotice(5, player.getName() + " has done " + (damageCount * effect.getAttackCount()) + " damage!"));
+                attackedPlayers.getClient().sendPacket(CWvsContext.serverNotice(5, player.getName() + " has done " + (damageCount * effect.getAttackCount()) + " damage!"));
                 // EXP, Currency, and PvP Kill Rewards
                 if (attackedPlayers.getStat().getHp() <= 0 && !attackedPlayers.isAlive()) {
                         int expReward = attackedPlayers.getLevel() * 1000;
@@ -389,10 +389,10 @@ public class WizerDual {
                         player.gainExp(expReward, true, false, true);
                         player.gainPvpKill();
                         MapleInventoryManipulator.addById(player.getClient(), 4000252, (short) 1, "");
-                        player.getClient().getSession().write(CWvsContext.serverNotice(6, "You have killed " + attackedPlayers.getName() + " gaining a pvp kill!"));
+                        player.getClient().sendPacket(CWvsContext.serverNotice(6, "You have killed " + attackedPlayers.getName() + " gaining a pvp kill!"));
                         attackedPlayers.gainPvpDeath();
                         attackedPlayers.setHpMp(0);
-                        attackedPlayers.getClient().getSession().write(CWvsContext.serverNotice(6, getKillMessage(player)));
+                        attackedPlayers.getClient().sendPacket(CWvsContext.serverNotice(6, getKillMessage(player)));
                 }
                 map.killMonster(pvpMob);
         }

@@ -63,13 +63,13 @@ public class PetHandler {
         final Item toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
 
         if (toUse == null || toUse.getQuantity() < 1 || toUse.getItemId() != slea.readInt()) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         final long time = System.currentTimeMillis();
         if (chr.getNextConsume() > time) {
             chr.dropMessage(5, "You may not use this item yet.");
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (!FieldLimitType.PotionUse.check(chr.getMap().getFieldLimit())) { //cwk quick hack
@@ -80,7 +80,7 @@ public class PetHandler {
                 }
             }
         } else {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
         }
     }
 
@@ -108,10 +108,10 @@ public class PetHandler {
                 pet.setCloseness(newCloseness);
                 if (newCloseness >= GameConstants.getClosenessNeededForLevel(pet.getLevel() + 1)) {
                     pet.setLevel(pet.getLevel() + 1);
-                    c.getSession().writeAndFlush(EffectPacket.showOwnPetLevelUp(petIndex));
+                    c.sendPacket(EffectPacket.showOwnPetLevelUp(petIndex));
                     chr.getMap().broadcastMessage(PetPacket.showPetLevelUp(chr, petIndex));
                 }
-                c.getSession().writeAndFlush(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem((byte) pet.getInventoryPosition()), true));
+                c.sendPacket(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem((byte) pet.getInventoryPosition()), true));
             }
         }
         chr.getMap().broadcastMessage(PetPacket.commandResponse(chr.getId(), (byte) petCommand.getSkillId(), petIndex, success, false));
@@ -132,7 +132,7 @@ public class PetHandler {
             }
         }
         if (pet == null) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
 
@@ -141,7 +141,7 @@ public class PetHandler {
         final int itemId = slea.readInt();
         Item petFood = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
         if (petFood == null || petFood.getItemId() != itemId || petFood.getQuantity() <= 0 || itemId / 10000 != 212) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         boolean gainCloseness = false;
@@ -166,11 +166,11 @@ public class PetHandler {
                 if (newCloseness >= GameConstants.getClosenessNeededForLevel(pet.getLevel() + 1)) {
                     pet.setLevel(pet.getLevel() + 1);
 
-                    c.getSession().writeAndFlush(EffectPacket.showOwnPetLevelUp(index));
+                    c.sendPacket(EffectPacket.showOwnPetLevelUp(index));
                     chr.getMap().broadcastMessage(PetPacket.showPetLevelUp(chr, index));
                 }
             }
-            c.getSession().writeAndFlush(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem((byte) pet.getInventoryPosition()), true));
+            c.sendPacket(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem((byte) pet.getInventoryPosition()), true));
             chr.getMap().broadcastMessage(c.getPlayer(), PetPacket.commandResponse(chr.getId(), (byte) 1, index, true, true), true);
         } else {
             if (gainCloseness) {
@@ -183,11 +183,11 @@ public class PetHandler {
                     pet.setLevel(pet.getLevel() - 1);
                 }
             }
-            c.getSession().writeAndFlush(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem((byte) pet.getInventoryPosition()), true));
+            c.sendPacket(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem((byte) pet.getInventoryPosition()), true));
             chr.getMap().broadcastMessage(chr, PetPacket.commandResponse(chr.getId(), (byte) 1, chr.getPetIndex(pet), false, true), true);
         }
         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, true, false);
-        c.getSession().writeAndFlush(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
     }
     
     public static void conductPetAttacking(MapleCharacter chr, boolean perk) {

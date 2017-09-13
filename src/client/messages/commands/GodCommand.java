@@ -38,14 +38,14 @@ public class GodCommand {
                     return true;
                  case "hair":
                     player.setHair(Integer.parseInt(splitted[1]));
-                    player.getClient().getSession().writeAndFlush(CField.getCharInfo(player));
+                    player.getClient().sendPacket(CField.getCharInfo(player));
                     player.getMap().removePlayer(player);
                     player.getMap().addPlayer(player);
                     player.dropMessage(5, "Your hair ID has been changed to " + splitted[1]);
                     return true;
                 case "eyes":
                     player.setFace(Integer.parseInt(splitted[1]));
-                    player.getClient().getSession().writeAndFlush(CField.getCharInfo(player));
+                    player.getClient().sendPacket(CField.getCharInfo(player));
                     player.getMap().removePlayer(player);
                     player.getMap().addPlayer(player);
                     player.dropMessage(5, "Your face ID has been changed to " + splitted[1]);

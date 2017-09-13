@@ -91,7 +91,7 @@ public enum MapleFamilyBuff {
 	}
 
 	public void applyTo(MapleCharacter chr) {
-		chr.getClient().getSession().write(BuffPacket.giveBuff(-getEffectId(), duration*60000, effects, null));
+		chr.getClient().sendPacket(BuffPacket.giveBuff(-getEffectId(), duration*60000, effects, null));
 		final MapleStatEffect eff = MapleItemInformationProvider.getInstance().getItemEffect(getEffectId());
 		chr.cancelEffect(eff, true, -1, effects);
        		final long starttime = System.currentTimeMillis();

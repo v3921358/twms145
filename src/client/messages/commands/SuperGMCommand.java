@@ -157,7 +157,7 @@ public class SuperGMCommand {
                     player.traits.get(MapleTrait.MapleTraitType.insight).setExp(93596);
                     player.traits.get(MapleTrait.MapleTraitType.sense).setExp(93596);
                     player.traits.get(MapleTrait.MapleTraitType.will).setExp(93596);
-                    c.getSession().writeAndFlush(CField.getCharInfo(player));
+                    c.sendPacket(CField.getCharInfo(player));
                     player.getMap().removePlayer(player);
                     player.getMap().addPlayer(player);
                     player.dropMessage(5, "Maxed your traits to 93596! If you don't see it, relog!");
@@ -165,7 +165,7 @@ public class SuperGMCommand {
                 case "rank1":
                         player.pvpExp = 10001562;
                         player.savePlayer();
-                        c.getSession().writeAndFlush(CField.getCharInfo(player));
+                        c.sendPacket(CField.getCharInfo(player));
                         player.getMap().removePlayer(player);
                         player.getMap().addPlayer(player);
                         player.dropMessage(5, "You are now PvP Rank 1! If you don't see it, try doing a relog!");
@@ -361,12 +361,12 @@ public class SuperGMCommand {
                                 if (ItemFlag.LOCK.check(item.getFlag())) {
                                     item.setFlag((byte) (item.getFlag() - ItemFlag.LOCK.getValue()));
                                     add = true;
-                                    //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                    //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                                 }
                                 if (ItemFlag.UNTRADEABLE.check(item.getFlag())) {
                                     item.setFlag((byte) (item.getFlag() - ItemFlag.UNTRADEABLE.getValue()));
                                     add = true;
-                                    //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                    //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                                 }
                                 if (add) {
                                     eqs.put(item, type);
@@ -379,12 +379,12 @@ public class SuperGMCommand {
                             if (ItemFlag.LOCK.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.LOCK.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (ItemFlag.UNTRADEABLE.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.UNTRADEABLE.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (add) {
                                 eqs.put(item, MapleInventoryType.EQUIP);
@@ -396,12 +396,12 @@ public class SuperGMCommand {
                             if (ItemFlag.LOCK.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.LOCK.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (ItemFlag.UNTRADEABLE.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.UNTRADEABLE.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (add) {
                                 eqs.put(item, MapleInventoryType.EQUIP);
@@ -413,12 +413,12 @@ public class SuperGMCommand {
                             if (ItemFlag.LOCK.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.LOCK.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (ItemFlag.UNTRADEABLE.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.UNTRADEABLE.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (add) {
                                 eqs.put(item, MapleInventoryType.USE);
@@ -430,12 +430,12 @@ public class SuperGMCommand {
                             if (ItemFlag.LOCK.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.LOCK.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (ItemFlag.UNTRADEABLE.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.UNTRADEABLE.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (add) {
                                 eqs.put(item, MapleInventoryType.SETUP);
@@ -447,12 +447,12 @@ public class SuperGMCommand {
                             if (ItemFlag.LOCK.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.LOCK.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (ItemFlag.UNTRADEABLE.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.UNTRADEABLE.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (add) {
                                 eqs.put(item, MapleInventoryType.ETC);
@@ -464,12 +464,12 @@ public class SuperGMCommand {
                             if (ItemFlag.LOCK.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.LOCK.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (ItemFlag.UNTRADEABLE.check(item.getFlag())) {
                                 item.setFlag((byte) (item.getFlag() - ItemFlag.UNTRADEABLE.getValue()));
                                 add = true;
-                                //c.getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                                //c.sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                             }
                             if (add) {
                                 eqs.put(item, MapleInventoryType.CASH);

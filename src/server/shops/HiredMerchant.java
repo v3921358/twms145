@@ -116,11 +116,11 @@ public class HiredMerchant extends AbstractPlayerStore {
                 }
             } else {
                 c.getPlayer().dropMessage(1, "The seller has too many " + (ServerConstants.MerchantsUseCurrency ? "Munny" : "mesos") + ".");
-                c.getSession().write(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
             }
         } else {
             c.getPlayer().dropMessage(1, "Your inventory is full.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
         }
     }
 
@@ -157,14 +157,14 @@ public class HiredMerchant extends AbstractPlayerStore {
     @Override
     public void sendDestroyData(MapleClient client) {
         if (isAvailable()) {
-            client.getSession().write(PlayerShopPacket.destroyHiredMerchant(getOwnerId()));
+            client.sendPacket(PlayerShopPacket.destroyHiredMerchant(getOwnerId()));
         }
     }
 
     @Override
     public void sendSpawnData(MapleClient client) {
         if (isAvailable()) {
-            client.getSession().write(PlayerShopPacket.spawnHiredMerchant(this));
+            client.sendPacket(PlayerShopPacket.spawnHiredMerchant(this));
         }
     }
 
@@ -181,10 +181,10 @@ public class HiredMerchant extends AbstractPlayerStore {
     }
 
     public final void sendBlackList(final MapleClient c) {
-        c.getSession().write(PlayerShopPacket.MerchantBlackListView(blacklist));
+        c.sendPacket(PlayerShopPacket.MerchantBlackListView(blacklist));
     }
 
     public final void sendVisitor(final MapleClient c) {
-        c.getSession().write(PlayerShopPacket.MerchantVisitorView(visitors));
+        c.sendPacket(PlayerShopPacket.MerchantVisitorView(visitors));
     }
 }

@@ -62,7 +62,7 @@ public class HiredMerchantHandler {
                             return false;
                         }
                         if (packet) {
-                            c.getSession().writeAndFlush(PlayerShopPacket.sendTitleBox());
+                            c.sendPacket(PlayerShopPacket.sendTitleBox());
                         }
                         return true;
                     } else {
@@ -115,19 +115,19 @@ public class HiredMerchantHandler {
                 c.getPlayer().setConversation(0);
             } else if (pack.getItems().size() <= 0) { //error fix for complainers.
                 if (!check(c.getPlayer(), pack)) {
-                    c.getSession().writeAndFlush(PlayerShopPacket.merchItem_Message((byte) 33));
-                    c.getPlayer().getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(PlayerShopPacket.merchItem_Message((byte) 33));
+                    c.getPlayer().getClient().sendPacket(CWvsContext.enableActions());
                     return;
                 }
                 if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageid(), c.getPlayer().getWorldId())) {
                     c.getPlayer().gainMeso(pack.getMesos(), false);
-                    c.getSession().writeAndFlush(PlayerShopPacket.merchItem_Message((byte) 32));
+                    c.sendPacket(PlayerShopPacket.merchItem_Message((byte) 32));
                 } else {
                     c.getPlayer().dropMessage(1, "An unknown error occured.");
                 }
                 c.getPlayer().setConversation(0);
             } else {
-                c.getSession().writeAndFlush(PlayerShopPacket.merchItemStore_ItemData(pack));
+                c.sendPacket(PlayerShopPacket.merchItemStore_ItemData(pack));
             }
         }
     }*/
@@ -151,8 +151,8 @@ public class HiredMerchantHandler {
                 c.getPlayer().setConversation(0);
             } else if (pack.getItems().size() <= 0) { //error fix for complainers.
                 if (!check(c.getPlayer(), pack)) {
-                    c.getSession().writeAndFlush(PlayerShopPacket.merchItem_Message((byte) 33));
-                    c.getPlayer().getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(PlayerShopPacket.merchItem_Message((byte) 33));
+                    c.getPlayer().getClient().sendPacket(CWvsContext.enableActions());
                     return;
                 }
                 if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageid(), c.getPlayer().getId())) {
@@ -161,14 +161,14 @@ public class HiredMerchantHandler {
                     } else {
                         c.getPlayer().gainMeso(pack.getMesos(), false);
                     }
-                    c.getSession().writeAndFlush(PlayerShopPacket.merchItem_Message((byte) 32));
+                    c.sendPacket(PlayerShopPacket.merchItem_Message((byte) 32));
                     c.getPlayer().dropMessage(1, "You have retrieved your " + (ServerConstants.MerchantsUseCurrency ? "Munny" : "mesos") + ".");
                 } else {
                     c.getPlayer().dropMessage(1, "An unknown error occured.");
                 }
                 c.getPlayer().setConversation(0);
             } else {
-               c.getSession().write(PlayerShopPacket.merchItemStore_ItemData(pack));
+               c.sendPacket(PlayerShopPacket.merchItemStore_ItemData(pack));
                 MapleInventoryManipulator.checkSpace(c, conv, conv, null);
                 for (final Item item : pack.getItems()) {
                     if(c.getPlayer().getInventory(GameConstants.getInventoryType(item.getItemId())).isFull()){
@@ -183,7 +183,7 @@ public class HiredMerchantHandler {
                 c.getPlayer().dropNPC(9030000, "Here are your items! Have fun!");
             }
         }
-        c.getSession().write(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
     }
     
 
@@ -222,19 +222,19 @@ public class HiredMerchantHandler {
         final double percentage = days / 100.0;
         final int fee = (int) Math.ceil(percentage * pack.getMesos()); // if no mesos = no tax
         if (request && days > 0 && percentage > 0 && pack.getMesos() > 0 && fee > 0) {
-            c.getSession().write(PlayerShopPacket.merchItemStore((byte) 38, days, fee));
+            c.sendPacket(PlayerShopPacket.merchItemStore((byte) 38, days, fee));
             return;
         }
         if (fee < 0) { // impossible
-            c.getSession().write(PlayerShopPacket.merchItem_Message(33));
+            c.sendPacket(PlayerShopPacket.merchItem_Message(33));
             return;
         }
         if (c.getPlayer().getMeso() < fee) {
-            c.getSession().write(PlayerShopPacket.merchItem_Message(35));
+            c.sendPacket(PlayerShopPacket.merchItem_Message(35));
             return;
         }
         if (!check(c.getPlayer(), pack)) {
-            c.getSession().write(PlayerShopPacket.merchItem_Message(36));
+            c.sendPacket(PlayerShopPacket.merchItem_Message(36));
             return;
         }
         if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageid(), c.getPlayer().getId())) {
@@ -245,7 +245,7 @@ public class HiredMerchantHandler {
             for (Item item : pack.getItems()) {
                 MapleInventoryManipulator.addFromDrop(c, item, false);
             }
-            c.getSession().write(PlayerShopPacket.merchItem_Message(32));
+            c.sendPacket(PlayerShopPacket.merchItem_Message(32));
         } else {
             c.getPlayer().dropMessage(1, "An unknown error occured.");
         }

@@ -58,7 +58,7 @@ public class MapleTrade {
         exchangeMeso = 0;
 
 
-        chr.get().getClient().getSession().write(InteractionPacket.TradeMessage(tradingslot, (byte) 0x07));
+        chr.get().getClient().sendPacket(InteractionPacket.TradeMessage(tradingslot, (byte) 0x07));
     }
 
     private static String getDateTime() {
@@ -85,7 +85,7 @@ public class MapleTrade {
         meso = 0;
 
 
-        c.getSession().write(InteractionPacket.getTradeCancel(tradingslot, unsuccessful));
+        c.sendPacket(InteractionPacket.getTradeCancel(tradingslot, unsuccessful));
     }
 
     public final boolean isLocked() {
@@ -99,9 +99,9 @@ public class MapleTrade {
         if (chr.get().getMeso() >= meso) {
             chr.get().gainMeso(-meso, false, false);
             this.meso += meso;
-            chr.get().getClient().getSession().write(InteractionPacket.getTradeMesoSet((byte) 0, this.meso));
+            chr.get().getClient().sendPacket(InteractionPacket.getTradeMesoSet((byte) 0, this.meso));
             if (partner != null) {
-                partner.getChr().getClient().getSession().write(InteractionPacket.getTradeMesoSet((byte) 1, this.meso));
+                partner.getChr().getClient().sendPacket(InteractionPacket.getTradeMesoSet((byte) 1, this.meso));
             }
         }
     }
@@ -111,9 +111,9 @@ public class MapleTrade {
             return;
         }
         items.add(item);
-        chr.get().getClient().getSession().write(InteractionPacket.getTradeItemAdd((byte) 0, item));
+        chr.get().getClient().sendPacket(InteractionPacket.getTradeItemAdd((byte) 0, item));
         if (partner != null) {
-            partner.getChr().getClient().getSession().write(InteractionPacket.getTradeItemAdd((byte) 1, item));
+            partner.getChr().getClient().sendPacket(InteractionPacket.getTradeItemAdd((byte) 1, item));
         }
         
     }
@@ -122,18 +122,18 @@ public class MapleTrade {
         message = WordFilter.illegalArrayCheck(message, chr.get()); 
         if (chr.get().getMap().getId() == GameConstants.JAIL) {
             chr.get().dropMessage(5, "You're in jail, herp derp.");
-            chr.get().getClient().getSession().write(CWvsContext.enableActions());
+            chr.get().getClient().sendPacket(CWvsContext.enableActions());
             return;
         }
         if (chr.get().isMuted() || (chr.get().getMap().getMuted() && !chr.get().isGM())) {
             chr.get().dropMessage(5, chr.get().isMuted() ? "You are Muted, therefore you are unable to talk. " : "The map is Muted, therefore you are unable to talk.");
-            chr.get().getClient().getSession().write(CWvsContext.enableActions());
+            chr.get().getClient().sendPacket(CWvsContext.enableActions());
             return;
         }
         if (!CommandProcessor.processCommand(chr.get().getClient(), message, CommandType.TRADE)) {
             chr.get().dropMessage(-2, chr.get().getName() + " : " + message);
             if (partner != null) {
-                partner.getChr().getClient().getSession().write(PlayerShopPacket.shopChat(chr.get().getName() + " : " + message, 1));
+                partner.getChr().getClient().sendPacket(PlayerShopPacket.shopChat(chr.get().getName() + " : " + message, 1));
             }
         }
     }
@@ -142,17 +142,17 @@ public class MapleTrade {
         message = WordFilter.illegalArrayCheck(message, chr.get()); 
         if (chr.get().getMap().getId() == GameConstants.JAIL) {
             chr.get().dropMessage(5, "You're in jail, herp derp.");
-            chr.get().getClient().getSession().write(CWvsContext.enableActions());
+            chr.get().getClient().sendPacket(CWvsContext.enableActions());
             return;
         }
         if (chr.get().isMuted() || (chr.get().getMap().getMuted() && !chr.get().isGM())) {
             chr.get().dropMessage(5, chr.get().isMuted() ? "You are Muted, therefore you are unable to talk. " : "The map is Muted, therefore you are unable to talk.");
-            chr.get().getClient().getSession().write(CWvsContext.enableActions());
+            chr.get().getClient().sendPacket(CWvsContext.enableActions());
             return;
         }
         chr.get().dropMessage(-2, message);
         if (partner != null) {
-            partner.getChr().getClient().getSession().write(PlayerShopPacket.shopChat(message, 1));
+            partner.getChr().getClient().sendPacket(PlayerShopPacket.shopChat(message, 1));
         }
     }
 
@@ -196,12 +196,12 @@ public class MapleTrade {
         }
         final short flag = item.getFlag();
         if (ItemFlag.UNTRADEABLE.check(flag) || ItemFlag.LOCK.check(flag)) {
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return false;
         }
         if (ii.isAccountShared(item.getItemId())) {
             if (!(ItemFlag.KARMA_EQ.check(flag) || ItemFlag.KARMA_USE.check(flag))) {
-                c.getSession().write(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 return false;
             }
         }
@@ -276,7 +276,7 @@ public class MapleTrade {
             return;
         }
         local.locked = true; // Locking the trade
-        partner.getChr().getClient().getSession().write(InteractionPacket.getTradeConfirmation());
+        partner.getChr().getClient().sendPacket(InteractionPacket.getTradeConfirmation());
 
         partner.exchangeItems = new LinkedList<>(local.items); // Copy this to partner's trade since it's alreadt accepted
         partner.exchangeMeso = local.meso; // Copy this to partner's trade since it's alreadt accepted
@@ -310,9 +310,9 @@ public class MapleTrade {
     public static void startTrade(final MapleCharacter c) {
         if (c.getTrade() == null) {
             c.setTrade(new MapleTrade((byte) 0, c));
-            c.getClient().getSession().write(InteractionPacket.getTradeStart(c.getClient(), c.getTrade(), (byte) 0));
+            c.getClient().sendPacket(InteractionPacket.getTradeStart(c.getClient(), c.getTrade(), (byte) 0));
         } else {
-            c.getClient().getSession().write(CWvsContext.serverNotice(5, "You are already in a trade"));
+            c.getClient().sendPacket(CWvsContext.serverNotice(5, "You are already in a trade"));
         }
     }
 
@@ -324,9 +324,9 @@ public class MapleTrade {
             c2.setTrade(new MapleTrade((byte) 1, c2));
             c2.getTrade().setPartner(c1.getTrade());
             c1.getTrade().setPartner(c2.getTrade());
-            c2.getClient().getSession().write(InteractionPacket.getTradeInvite(c1));
+            c2.getClient().sendPacket(InteractionPacket.getTradeInvite(c1));
         } else {
-            c1.getClient().getSession().write(CWvsContext.serverNotice(5, "The other player is already trading with someone else."));
+            c1.getClient().sendPacket(CWvsContext.serverNotice(5, "The other player is already trading with someone else."));
             cancelTrade(c1.getTrade(), c1.getClient(), c1);
         }
     }
@@ -335,12 +335,12 @@ public class MapleTrade {
         if (c2 != null && c1.getTrade() != null && c1.getTrade().getPartner() == c2.getTrade() && c2.getTrade() != null && c2.getTrade().getPartner() == c1.getTrade()) {
             // We don't need to check for map here as the user is found via MapleMap.getCharacterById()
             c1.getTrade().inTrade = true;
-            c2.getClient().getSession().write(PlayerShopPacket.shopVisitorAdd(c1, 1));
-            c1.getClient().getSession().write(InteractionPacket.getTradeStart(c1.getClient(), c1.getTrade(), (byte) 1));
+            c2.getClient().sendPacket(PlayerShopPacket.shopVisitorAdd(c1, 1));
+            c1.getClient().sendPacket(InteractionPacket.getTradeStart(c1.getClient(), c1.getTrade(), (byte) 1));
             c1.dropMessage(-2, "System : Use @tradehelp to see the list of trading commands");
             c2.dropMessage(-2, "System : Use @tradehelp to see the list of trading commands");
         } else {
-            c1.getClient().getSession().write(CWvsContext.serverNotice(5, "The other player has already closed the trade"));
+            c1.getClient().sendPacket(CWvsContext.serverNotice(5, "The other player has already closed the trade"));
         }
     }
 

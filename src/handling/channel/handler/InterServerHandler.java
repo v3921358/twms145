@@ -51,33 +51,33 @@ public class InterServerHandler {
 
     public static final void EnterCS(final MapleClient c, final MapleCharacter chr, final boolean mts) {
         if (chr.hasBlockedInventory() || chr.getMap() == null || chr.getEventInstance() != null || c.getChannelServer() == null) {
-            c.getSession().write(CField.serverBlocked(2));
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CField.serverBlocked(2));
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (ServerConstants.BlockCS == true) {
             chr.dropMessage(1, "The Cash Shop has been temporarily disabled due to the amount of bugged players.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (chr.inJQ()) {
             chr.dropMessage(1, "You can't exit the AutoJQ unless you type @exit.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (chr.getMapId() == 502) {
             chr.dropMessage(1, "You can't enter the Cash Shop while in Fiesta.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (GameConstants.isJail(chr.getMapId())) {
             chr.dropMessage(1, "You can't enter the Cash Shop while in Jail.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (World.getPendingCharacterSize() >= 10) {
             chr.dropMessage(1, "The server is busy at the moment. Please try again in a minute or less.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         World.ChannelChange_Data(new CharacterTransfer(c.getPlayer()), c.getPlayer().getId(), c.getWorld(), 30);
@@ -95,7 +95,7 @@ public class InterServerHandler {
         c.getChannelServer().removePlayer(c.getPlayer());
         c.getPlayer().saveToDB(false, false);
         c.updateLoginState(MapleClient.CHANGE_CHANNEL, c.getSessionIPAddress());
-        c.getSession().write(CField.getChannelChange(c, Integer.parseInt(CashShopServer.getIP().split(":")[1])));
+        c.sendPacket(CField.getChannelChange(c, Integer.parseInt(CashShopServer.getIP().split(":")[1])));
         c.setPlayer(null);
         c.setReceiving(false);
     }
@@ -145,14 +145,14 @@ public class InterServerHandler {
                             }
                         }
                     }
-                    c.getSession().write(CWvsContext.serverNotice(1, "You were stuck.\r\n Please relog."));
+                    c.sendPacket(CWvsContext.serverNotice(1, "You were stuck.\r\n Please relog."));
                     break;
                 }
             }
         }
         if (World.isCSConnected(c.loadCharacterIds(c.getWorld()))) {
             // this won't happen anymore actually, i managed to fix the cash shop glitch when doing multi-worlds.
-            c.getSession().write(CWvsContext.serverNotice(1, "Uh-oh!\r\nLooks like you were stuck in the Cash shop!\r\n\r\nPlease exit back to the login as your character has been fixed."));
+            c.sendPacket(CWvsContext.serverNotice(1, "Uh-oh!\r\nLooks like you were stuck in the Cash shop!\r\n\r\nPlease exit back to the login as your character has been fixed."));
             MapleCharacter victim = CashShopServer.getPlayerStorage().getCharacterByName(player.getName());
             CashShopServer.getPlayerStorage().deregisterPlayer(victim);
             CashShopServer.getPlayerStorage().deregisterPendingPlayer(victim.getId());
@@ -169,18 +169,18 @@ public class InterServerHandler {
         player.giveCoolDowns(PlayerBuffStorage.getCooldownsFromStorage(player.getId()));
         player.silentGiveBuffs(PlayerBuffStorage.getBuffsFromStorage(player.getId()));
         player.giveSilentDebuff(PlayerBuffStorage.getDiseaseFromStorage(player.getId()));
-        c.getSession().write(CField.getCharInfo(player));
+        c.sendPacket(CField.getCharInfo(player));
         player.getMap().addPlayer(player);
         World world = LoginServer.getInstance().getWorld(c.getWorld());
         world.getPlayerStorage().addPlayer(player);
-        c.getSession().write(MTSCSPacket.enableCSUse());
-        c.getSession().write(CWvsContext.temporaryStats_Reset()); //?
+        c.sendPacket(MTSCSPacket.enableCSUse());
+        c.sendPacket(CWvsContext.temporaryStats_Reset()); //?
         
         if (player.inCS()) {
             player.setInCS(false); // exit them from CS enabling
         } else {
-            c.getSession().write(CWvsContext.yellowChat("[Welcome] Welcome to " + ServerConstants.SERVER_NAME + " v117.2!"));
-            c.getSession().write(CField.sendHint("" + ServerConstants.WELCOME_MESSAGE + "", 350, 5));
+            c.sendPacket(CWvsContext.yellowChat("[Welcome] Welcome to " + ServerConstants.SERVER_NAME + " v117.2!"));
+            c.sendPacket(CField.sendHint("" + ServerConstants.WELCOME_MESSAGE + "", 350, 5));
         }
         // GM Hide is a skill now, and auto-applies super hide. 
         if (player.isGM()) {
@@ -202,7 +202,7 @@ public class InterServerHandler {
                 if (party != null && party.getExpeditionId() > 0) {
                     final MapleExpedition me = World.Party.getExped(party.getExpeditionId());
                     if (me != null) {
-                        c.getSession().write(ExpeditionPacket.expeditionStatus(me, false));
+                        c.sendPacket(ExpeditionPacket.expeditionStatus(me, false));
                     }
                 }
             }
@@ -210,7 +210,7 @@ public class InterServerHandler {
             for (CharacterIdChannelPair onlineBuddy : onlineBuddies) {
                 player.getBuddylist().get(onlineBuddy.getCharacterId()).setChannel(onlineBuddy.getChannel());
             }
-            c.getSession().write(BuddylistPacket.updateBuddylist(player.getBuddylist().getBuddies()));
+            c.sendPacket(BuddylistPacket.updateBuddylist(player.getBuddylist().getBuddies()));
 
             // Start of Messenger
             final MapleMessenger messenger = player.getMessenger();
@@ -222,14 +222,14 @@ public class InterServerHandler {
             // Start of Guild and alliance
             if (player.getGuildId() > 0) {
                 World.Guild.setGuildMemberOnline(player.getMGC(), true, c.getChannel());
-                c.getSession().write(GuildPacket.showGuildInfo(player));
+                c.sendPacket(GuildPacket.showGuildInfo(player));
                 final MapleGuild gs = World.Guild.getGuild(player.getGuildId());
                 if (gs != null) {
                     final List<byte[]> packetList = World.Alliance.getAllianceInfo(gs.getAllianceId(), true);
                     if (packetList != null) {
                         for (byte[] pack : packetList) {
                             if (pack != null) {
-                                c.getSession().write(pack);
+                                c.sendPacket(pack);
                             }
                         }
                     }
@@ -244,19 +244,19 @@ public class InterServerHandler {
             if (player.getFamilyId() > 0) {
                 World.Family.setFamilyMemberOnline(player.getMFC(), true, c.getChannel());
             }
-            c.getSession().write(FamilyPacket.getFamilyData());
-            c.getSession().write(FamilyPacket.getFamilyInfo(player));
+            c.sendPacket(FamilyPacket.getFamilyData());
+            c.sendPacket(FamilyPacket.getFamilyInfo(player));
         } catch (Exception e) {
             FileoutputUtil.outputFileError(FileoutputUtil.Login_Error, e);
         }
-        player.getClient().getSession().write(CWvsContext.serverMessage(channelServer.getServerMessage()));
+        player.getClient().sendPacket(CWvsContext.serverMessage(channelServer.getServerMessage()));
         player.sendMacros();
         player.showNote();
         player.sendImp();
         player.updatePartyMemberHP();
         player.startFairySchedule(false);
-        c.getSession().write(CField.getKeymap(player.getKeyLayout()));
-        c.getSession().write(LoginPacket.enableReport());
+        c.sendPacket(CField.getKeymap(player.getKeyLayout()));
+        c.sendPacket(LoginPacket.enableReport());
         player.updatePetAuto();
         player.expirationTask(true, player == null);
         if (player.getJob() == 132) { // DARKKNIGHT
@@ -267,11 +267,11 @@ public class InterServerHandler {
             SkillFactory.getSkill(player.getStat().equippedSummon).getEffect(1).applyTo(player);
         }
         player.loadQuests(c);
-        c.getSession().write(CWvsContext.getFamiliarInfo(player));
+        c.sendPacket(CWvsContext.getFamiliarInfo(player));
         if (World.getShutdown()) {
-            player.getClient().getSession().write(CWvsContext.getMidMsg("The server is preparing to shutdown, so don't get too comfortable!", true, 1));
+            player.getClient().sendPacket(CWvsContext.getMidMsg("The server is preparing to shutdown, so don't get too comfortable!", true, 1));
         }
-        if (player.getMap().getId() == MapConstants.STARTER_MAP) {
+        if (MapConstants.isStartingEventMap(player.getMap().getId())) {
             World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.yellowChat("[" + c.getPlayer().getName() + "] Just Joined " + ServerConstants.SERVER_NAME + " - The Ultimate MapleStory Private WorldConfig!"));
             player.dropMessage(6, "Welcome to " + ServerConstants.SERVER_NAME + ", Player #" + player.getId() + "!");
         }
@@ -284,17 +284,17 @@ public class InterServerHandler {
         player.saveToDB(false, false);
         //final List<Pair<Integer, String>> ii = new LinkedList<>();
         //ii.add(new Pair<>(10000, "Pio"));
-        //player.getClient().getSession().write(CField.NPCPacket.setNPCScriptable(ii));
+        //player.getClient().sendPacket(CField.NPCPacket.setNPCScriptable(ii));
     }
 
     public static void ChangeChannel(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr, final boolean room) {
         if (chr == null || chr.hasBlockedInventory() || chr.getEventInstance() != null || chr.getMap() == null || chr.isInBlockedMap() || FieldLimitType.ChannelSwitch.check(chr.getMap().getFieldLimit())) {
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (World.getPendingCharacterSize() >= 10) {
             chr.dropMessage(1, "The server is busy at the moment. Please try again in a less than a minute.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         final int chc = slea.readByte() + 1;
@@ -305,29 +305,29 @@ public class InterServerHandler {
         slea.readInt();
         if (!World.isChannelAvailable(c.getWorld(), chc)) {
             chr.dropMessage(1, "The channel is full at the moment.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (room && (mapid < 910000001 || mapid > 910000022)) {
             chr.dropMessage(1, "The channel is full at the moment.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (chr.inJQ()) {
             chr.dropMessage(1, "You can't CC during a Jump Quest, try @exit.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (GameConstants.isJail(chr.getMapId())) {
             chr.dropMessage(1, "You can't Change Channels in Jail, fgt.");
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (room) {
             if (chr.getMapId() == mapid) {
                 if (c.getChannel() == chc) {
                     chr.dropMessage(1, "You are already in " + chr.getMap().getMapName());
-                    c.getSession().write(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                 } else { // diff channel
                     chr.changeChannel(chc);
                 }
@@ -340,7 +340,7 @@ public class InterServerHandler {
                     chr.changeMap(warpz, warpz.getPortal("out00"));
                 } else {
                     chr.dropMessage(1, "The channel is full at the moment.");
-                    c.getSession().write(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                 }
             }
         } else {

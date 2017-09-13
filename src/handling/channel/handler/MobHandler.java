@@ -131,7 +131,7 @@ public class MobHandler {
         if (map.getMonsterByOid(from) != null && map.getMonsterByOid(to) != null) {
             final int damage = (mobto.getStats().getLevel() * Randomizer.nextInt(mobto.getStats().getLevel())) / 2; // Temp for now until I figure out something more effective
             mobto.damage(chr, damage, true);
-            chr.getClient().getSession().write(MobPacket.damageFriendlyMob(mobto, damage, true));
+            chr.getClient().sendPacket(MobPacket.damageFriendlyMob(mobto, damage, true));
             checkShammos(chr, mobto, map);
         }
     }
@@ -226,7 +226,7 @@ public class MobHandler {
             System.out.println("Damage To Monster: " + rDamage + " Damage Given: " + (mob_to.getHp() - rDamage));
             mob_to.setHp(mob_to.getHp() - rDamage);
             // mob_to.damage(chr, damage, true);
-            client.getSession().write(MobPacket.damageFriendlyMob(mob_to, damage, false));
+            client.sendPacket(MobPacket.damageFriendlyMob(mob_to, damage, false));
             checkShammos(chr, mob_to, chr.getMap());
         }
     }
@@ -234,7 +234,7 @@ public class MobHandler {
     public static void DisplayNode(final LittleEndianAccessor slea, final MapleCharacter chr) {
         final MapleMonster mob_from = chr.getMap().getMonsterByOid(slea.readInt());
         if (mob_from != null) {
-            chr.getClient().getSession().write(MobPacket.getNodeProperties(mob_from, chr.getMap()));
+            chr.getClient().sendPacket(MobPacket.getNodeProperties(mob_from, chr.getMap()));
         }
     }
 
@@ -348,17 +348,17 @@ public class MobHandler {
         String newName = slea.readMapleAsciiString();
         if ((mf != null) && (mf.getName().equals(mf.getOriginalName()))) {
             mf.setName(newName);
-            c.getSession().write(CField.renameFamiliar(mf));
+            c.sendPacket(CField.renameFamiliar(mf));
         } else {
             chr.dropMessage(1, "Name was not eligible.");
         }
-        c.getSession().write(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
     }
 
     public static final void SpawnFamiliar(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr) {
         slea.readInt();
         int mId = slea.readInt();
-        c.getSession().write(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
         c.getPlayer().removeFamiliar();
         if ((c.getPlayer().getFamiliars().containsKey(Integer.valueOf(mId))) && (slea.readByte() > 0)) {
             MonsterFamiliar mf = (MonsterFamiliar) c.getPlayer().getFamiliars().get(Integer.valueOf(mId));
@@ -466,7 +466,7 @@ public class MobHandler {
 
     public static final void UseFamiliar(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr) {
         if ((chr == null) || (!chr.isAlive()) || (chr.getMap() == null) || (chr.hasBlockedInventory())) {
-            c.getSession().write(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }      //AD 00 | F3 CB 66 68  | 10 00  | 0B CC 2B 00 
         slea.readInt();
@@ -474,7 +474,7 @@ public class MobHandler {
         int itemId = slea.readInt();
         Item toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
 
-        c.getSession().write(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
         if ((toUse == null) || (toUse.getQuantity() < 1) || (toUse.getItemId() != itemId) || (itemId / 10000 != 287)) {
             return;
         }
@@ -492,7 +492,7 @@ public class MobHandler {
             c.getPlayer().getFamiliars().put(Integer.valueOf(f.familiar), mf);
         }
         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (byte) 1, false, false);
-        c.getSession().write(CField.registerFamiliar(mf));
+        c.sendPacket(CField.registerFamiliar(mf));
         return;
     }
 }

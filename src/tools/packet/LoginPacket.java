@@ -181,29 +181,6 @@ public class LoginPacket {
         return mplew.getPacket();
     }
 
-    public static byte[] getSecondAuthSuccess(final MapleClient client) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
-        mplew.writeShort(SendPacketOpcode.LOGIN_SECOND.getValue());
-        mplew.write(0);
-        mplew.writeInt(client.getAccID());
-        mplew.write(client.getGender());
-        // mplew.write(client.gmLevel() > 3 ? 1 : 0); // Flash Jump in JQs
-        mplew.write(0); // Admin byte - Find, Trade, etc.
-        mplew.writeShort(2);
-        mplew.write(0); // Admin byte - Commands
-        mplew.writeMapleAsciiString(client.getAccountName());
-        mplew.write(3); //0 for new accounts
-        mplew.write(0); // quiet ban
-        mplew.writeLong(0); // quiet ban time
-        mplew.writeLong(PacketHelper.getTime(System.currentTimeMillis())); //really create date
-        mplew.writeInt(4); //idk
-        mplew.writeLong(Randomizer.nextLong()); //randomizer.nextLong(), remote hack check.
-        mplew.write(0); // a boolean, 1/0
-
-        return mplew.getPacket();
-    }
-
     public static byte[] deleteCharResponse(final int cid, final int state) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
@@ -273,7 +250,7 @@ public class LoginPacket {
         for (ChannelServer ch : channelLoad) {
             mplew.writeMapleAsciiString(serverName + "-" + ch.getChannel());
             mplew.writeInt((ch.getConnectedClients() * 1200) / ServerConstants.CHANNEL_LOAD);
-            mplew.write(0);
+            mplew.write(serverId);
             mplew.writeShort(ch.getChannel() - 1);
         }
         mplew.writeShort(ServerConstants.getBalloons().size());
@@ -346,21 +323,20 @@ public class LoginPacket {
         return mplew.getPacket();
     }  
 
-    public static byte[] getCharList(final String secondpw, final List<MapleCharacter> chars, int charslots) {
+    public static byte[] getCharacterList(final boolean need2ndPassword, final List<MapleCharacter> chars, int charSlots) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.CHARLIST.getValue());
         mplew.write(0);
+        mplew.writeInt(1000000);
         mplew.write(chars.size());
-        for (final MapleCharacter chr : chars) {
-            addCharEntry(mplew, chr, !chr.isGM() && chr.getLevel() >= 30, false);
-        }
-        mplew.write(secondpw != null && secondpw.length() > 0 ? 1 : (secondpw != null && secondpw.length() <= 0 ? 2 : 0)); // second pw request
+        chars.stream().forEach((chr) -> addCharEntry(mplew, chr, !chr.isGM() && chr.getLevel() >= 30, false));
+        mplew.write(need2ndPassword ? 0 : 3); // second pw request
         mplew.write(0);
-        mplew.writeInt(charslots);
+        mplew.writeInt(charSlots);
         mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
+        mplew.writeInt(-1);
+        mplew.writeReversedLong(PacketHelper.getTime(System.currentTimeMillis()));
         return mplew.getPacket();
     }
 

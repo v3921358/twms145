@@ -143,7 +143,7 @@ public class PlayerHandler {
             chr.getQuestNAdd(MapleQuest.getInstance(GameConstants.ITEM_TITLE)).setCustomData(String.valueOf(itemId));
         }
         chr.getMap().broadcastMessage(chr, CField.showTitle(chr.getId(), itemId), false);
-        c.getSession().writeAndFlush(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
     }
 
     public static void UseChair(final int itemId, final MapleClient c, final MapleCharacter chr) {
@@ -164,14 +164,14 @@ public class PlayerHandler {
         if (c.getPlayer().getWatcher() != null) {
             c.getPlayer().getWatcher().dropMessage(5, "" + c.getPlayer().getName() + " has sat down in [Chair ID #" + itemId + " - " + (MapleItemInformationProvider.getInstance().getName(itemId)) + "]");
         }
-        c.getSession().writeAndFlush(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
     }
 
     public static void CancelChair(final short id, final MapleClient c, final MapleCharacter chr) {
         if (id == -1) { // Cancel Chair
             chr.cancelFishingTask();
             chr.setChair(0);
-            c.getSession().writeAndFlush(CField.cancelChair(-1));
+            c.sendPacket(CField.cancelChair(-1));
             if (chr.getMap() != null) {
                 chr.getMap().broadcastMessage(chr, CField.showChair(chr.getId(), 0), false);
             }
@@ -180,7 +180,7 @@ public class PlayerHandler {
             }
         } else { // Use In-Map Chair
             chr.setChair(id);
-            c.getSession().writeAndFlush(CField.cancelChair(id));
+            c.sendPacket(CField.cancelChair(id));
         }
     }
 
@@ -219,7 +219,7 @@ public class PlayerHandler {
                 }
             }
         }
-        c.getSession().writeAndFlush(MTSCSPacket.OnMapTransferResult(chr, vip, addrem == 0));
+        c.sendPacket(MTSCSPacket.OnMapTransferResult(chr, vip, addrem == 0));
     }
 
     public static final void CharInfoRequest(int objectid, MapleClient c, MapleCharacter chr) {
@@ -228,7 +228,7 @@ public class PlayerHandler {
 /*      */     }
                 MapleCharacter player = c.getPlayer().getMap().getCharacterById(objectid);
                    if ((player.isGM()) && (player.getCharToggle() == 1)) {
-                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                 } else {
                        if ((!c.getPlayer().isGM()) && player.isDonator() && player.getTicklePower() == 1) {
                            if (!c.getPlayer().Spam(60000, player.getId())) {
@@ -238,11 +238,11 @@ public class PlayerHandler {
                        if (c.getPlayer().getWatcher() != null) {
                         c.getPlayer().getWatcher().dropMessage(5, "" + c.getPlayer().getName() + " has clicked on " + player.getName());
                     }
-                    c.getSession().writeAndFlush(CWvsContext.charInfo(player, c.getPlayer().getId() == objectid));
-                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.charInfo(player, c.getPlayer().getId() == objectid));
+                    c.sendPacket(CWvsContext.enableActions());
                 }
 /*  233 */     //if ((player != null) && ((!player.isGM()) || (c.getPlayer().isGM())))
-/*  235 */       //c.getSession().writeAndFlush(CWvsContext.charInfo(player, c.getPlayer().getWorldId() == objectid));
+/*  235 */       //c.sendPacket(CWvsContext.charInfo(player, c.getPlayer().getWorldId() == objectid));
 /*      */   }
 
     public static byte player_direction;
@@ -269,11 +269,11 @@ public class PlayerHandler {
         Point pPos = new Point(0, 0);
         MapleMonster attacker = null;
         if (chr == null || chr.isHidden() || chr.getMap() == null) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (chr.isGM() && chr.isInvincible()) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         final PlayerStats stats = chr.getStat();
@@ -350,11 +350,11 @@ return;
             }
         } else if (damage < -1 || damage > 200000) {
             //AutobanManager.getInstance().addPoints(c, 1000, 60000, "Taking abnormal amounts of damge from " + monsteridfrom + ": " + damage);
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (chr.getStat().dodgeChance > 0 && Randomizer.nextInt(100) < chr.getStat().dodgeChance) {
-            c.getSession().writeAndFlush(EffectPacket.showForeignEffect(20));
+            c.sendPacket(EffectPacket.showForeignEffect(20));
             return;
         }
         if (pPhysical && skillid == 1201007 && chr.getTotalSkillLevel(1201007) > 0) { // Only Power Guard decreases damage
@@ -456,7 +456,7 @@ return;
                 offset = 0;
             }
         }
-        //c.getSession().writeAndFlush(CWvsContext.enableActions());
+        //c.sendPacket(CWvsContext.enableActions());
         chr.getMap().broadcastMessage(chr, CField.damagePlayer(chr.getId(), type, damage, monsteridfrom, direction, skillid, pDMG, pPhysical, pID, pType, pPos, offset, offset_d, fake), false);
     }
 
@@ -474,7 +474,7 @@ return;
             chr.setLastCombo(curr);
             chr.setCombo(combo);
 
-            c.getSession().writeAndFlush(CField.testCombo(combo));
+            c.sendPacket(CField.testCombo(combo));
 
             switch (combo) { // Hackish method xD
                 case 10:
@@ -500,7 +500,7 @@ return;
             final Item toUse = chr.getInventory(MapleInventoryType.CASH).findById(itemId);
             
             if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 return;
             }
         }
@@ -564,7 +564,7 @@ return;
     public static void SkillEffect(final LittleEndianAccessor slea, final MapleCharacter chr) {
         final int skillId = slea.readInt();
         if (skillId >= 91000000) { //guild/recipe? no
-            chr.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            chr.getClient().sendPacket(CWvsContext.enableActions());
             return;
         }
         final byte level = slea.readByte();
@@ -588,13 +588,13 @@ return;
 
     public static void SpecialMove(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         if (chr == null || chr.hasBlockedInventory() || chr.getMap() == null || slea.available() < 9) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         slea.skip(4); // Old X and Y
         int skillid = slea.readInt();
         if (skillid >= 91000000) { //guild/recipe? no
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (skillid == 23111008) { //spirits, hack
@@ -611,7 +611,7 @@ return;
         int skillLevel = slea.readByte();
         final Skill skill = SkillFactory.getSkill(skillid);
         if (skill == null || (GameConstants.isAngel(skillid) && (chr.getStat().equippedSummon % 10000) != (skillid % 10000)) || (chr.inPVP() && skill.isPVPDisabled())) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (chr.getTotalSkillLevel(GameConstants.getLinkedAranSkill(skillid)) <= 0 || chr.getTotalSkillLevel(GameConstants.getLinkedAranSkill(skillid)) != skillLevel) {
@@ -651,16 +651,16 @@ return;
         final MapleStatEffect effect = chr.inPVP() ? skill.getPVPEffect(skillLevel) : skill.getEffect(skillLevel);
         if (effect.isMPRecovery() && chr.getStat().getHp() < (chr.getStat().getMaxHp() / 100) * 10) { //less than 10% hp
             c.getPlayer().dropMessage(5, "You do not have the HP to use this skill.");
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         if (effect.getCooldown(chr) > 0 && !chr.isGM()) {
             if (chr.skillisCooling(skillid)) {
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 return;
             }
             if (skillid != 5221006 && skillid != 35111002) { // Battleship
-                c.getSession().writeAndFlush(CField.skillCooldown(skillid, effect.getCooldown(chr)));
+                c.sendPacket(CField.skillCooldown(skillid, effect.getCooldown(chr)));
                 chr.addCooldown(skillid, System.currentTimeMillis(), effect.getCooldown(chr) * 1000);
             }
         }
@@ -685,7 +685,7 @@ return;
                     }
                 }
                 chr.getMap().broadcastMessage(chr, EffectPacket.showBuffeffect(chr.getId(), skillid, 1, chr.getLevel(), skillLevel, slea.readByte()), chr.getTruePosition());
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 break;
             case 30001061: //capture
                 int mobID = slea.readInt();
@@ -697,16 +697,16 @@ return;
                         chr.getQuestNAdd(MapleQuest.getInstance(GameConstants.JAGUAR)).setCustomData(String.valueOf((mob.getId() - 9303999) * 10));
                         chr.getMap().killMonster(mob, chr, true, false, (byte) 1);
                         chr.cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
-                        c.getSession().writeAndFlush(CWvsContext.updateJaguar(chr));
+                        c.sendPacket(CWvsContext.updateJaguar(chr));
                     } else {
                         chr.dropMessage(5, "The monster has too much physical strength, so you cannot catch it.");
                     }
                 }
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 break;
             case 30001062: //hunter call
                 chr.dropMessage(5, "No monsters can be summoned. Capture a monster first."); //lool
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 break;
             case 33101005: //jaguar oshi
                 mobID = chr.getFirstLinkMid();
@@ -724,7 +724,7 @@ return;
                 } else {
                     chr.dropMessage(5, "No monster was sucked. The skill failed.");
                 }
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 break;
             case 4341003: //monster bomb
                 chr.setKeyDownSkill_Time(0);
@@ -739,13 +739,13 @@ return;
                     if (!FieldLimitType.MysticDoor.check(chr.getMap().getFieldLimit())) {
                         effect.applyTo(c.getPlayer(), pos);
                     } else {
-                        c.getSession().writeAndFlush(CWvsContext.enableActions());
+                        c.sendPacket(CWvsContext.enableActions());
                     }
                 } else {
                     final int mountid = MapleStatEffect.parseMountInfo(c.getPlayer(), skill.getId());
                     if (mountid != 0 && mountid != GameConstants.getMountItem(skill.getId(), c.getPlayer()) && !c.getPlayer().isIntern() && c.getPlayer().getBuffedValue(MapleBuffStat.MONSTER_RIDING) == null && c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -122) == null) {
                         if (!GameConstants.isMountItemAvailable(mountid, c.getPlayer().getJob())) {
-                            c.getSession().writeAndFlush(CWvsContext.enableActions());
+                            c.sendPacket(CWvsContext.enableActions());
                             return;
                         }
                     }
@@ -764,7 +764,7 @@ return;
         }
         AttackInfo attack = DamageParse.parseDmgM(slea, chr);
         if (attack == null) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         final boolean mirror = chr.getBuffedValue(MapleBuffStat.SHADOWPARTNER) != null;
@@ -778,7 +778,7 @@ return;
         if (attack.skill != 0) {
             skill = SkillFactory.getSkill(GameConstants.getLinkedAranSkill(attack.skill));
             if (skill == null || (GameConstants.isAngel(attack.skill) && (chr.getStat().equippedSummon % 10000) != (attack.skill % 10000))) {
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 return;
             }
             skillLevel = chr.getTotalSkillLevel(skill);
@@ -804,10 +804,10 @@ return;
 
             if (effect.getCooldown(chr) > 0 && !chr.isGM() && !energy) {
                 if (chr.skillisCooling(attack.skill)) {
-                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                     return;
                 }
-                c.getSession().writeAndFlush(CField.skillCooldown(attack.skill, effect.getCooldown(chr)));
+                c.sendPacket(CField.skillCooldown(attack.skill, effect.getCooldown(chr)));
                 chr.addCooldown(attack.skill, System.currentTimeMillis(), effect.getCooldown(chr) * 1000);
             }
         }
@@ -853,7 +853,7 @@ return;
         }
         AttackInfo attack = DamageParse.parseDmgR(slea, chr);
         if (attack == null) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         int bulletCount = 1, skillLevel = 0;
@@ -864,7 +864,7 @@ return;
         if (attack.skill != 0) {
             skill = SkillFactory.getSkill(GameConstants.getLinkedAranSkill(attack.skill));
             if (skill == null || (GameConstants.isAngel(attack.skill) && (chr.getStat().equippedSummon % 10000) != (attack.skill % 10000))) {
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 return;
             }
             skillLevel = chr.getTotalSkillLevel(skill);
@@ -946,10 +946,10 @@ return;
             }
             if (effect.getCooldown(chr) > 0 && !chr.isGM() && ((attack.skill != 35111004 && attack.skill != 35121013) || chr.getBuffSource(MapleBuffStat.MECH_CHANGE) != attack.skill)) {
                 if (chr.skillisCooling(attack.skill)) {
-                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                     return;
                 }
-                c.getSession().writeAndFlush(CField.skillCooldown(attack.skill, effect.getCooldown(chr)));
+                c.sendPacket(CField.skillCooldown(attack.skill, effect.getCooldown(chr)));
                 chr.addCooldown(attack.skill, System.currentTimeMillis(), effect.getCooldown(chr) * 1000);
             }
         }
@@ -986,9 +986,9 @@ return;
                         final MapleStatEffect eff = expert.getEffect(chr.getTotalSkillLevel(expert));
                         if (eff.makeChanceResult()) {
                             ipp.setQuantity((short) (ipp.getQuantity() + 1));
-                            c.getSession().writeAndFlush(InventoryPacket.updateInventorySlot(MapleInventoryType.USE, ipp, false));
-                            bulletConsume = 0; //regain a star after using
-                            c.getSession().writeAndFlush(InventoryPacket.getInventoryStatus());
+                            c.getSession().writeAndFlush(InventoryPacket.updateInventorySlot(ipp, false));
+                            bulletConsume = 0;
+                            c.getSession().writeAndFlush(InventoryPacket.updateInventoryFull());
                         }
                     }
                 }
@@ -1065,12 +1065,12 @@ return;
         }
         AttackInfo attack = DamageParse.parseDmgMa(slea, chr);
         if (attack == null) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         final Skill skill = SkillFactory.getSkill(GameConstants.getLinkedAranSkill(attack.skill));
         if (skill == null || (GameConstants.isAngel(attack.skill) && (chr.getStat().equippedSummon % 10000) != (attack.skill % 10000))) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         final int skillLevel = chr.getTotalSkillLevel(skill);
@@ -1100,10 +1100,10 @@ return;
         }
         if (effect.getCooldown(chr) > 0 && !chr.isGM()) {
             if (chr.skillisCooling(attack.skill)) {
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 return;
             }
-            c.getSession().writeAndFlush(CField.skillCooldown(attack.skill, effect.getCooldown(chr)));
+            c.sendPacket(CField.skillCooldown(attack.skill, effect.getCooldown(chr)));
             chr.addCooldown(attack.skill, System.currentTimeMillis(), effect.getCooldown(chr) * 1000);
         }
         chr.checkFollow();
@@ -1118,7 +1118,7 @@ return;
 
     public static void DropMeso(final int meso, final MapleCharacter chr) {
         if (!chr.isAlive() || (meso < 10 || meso > 50000) || (meso > chr.getMeso())) {
-            chr.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            chr.getClient().sendPacket(CWvsContext.enableActions());
             return;
         }
         chr.gainMeso(-meso, false, true);
@@ -1235,13 +1235,13 @@ return;
                 final MapleCharacter fol = map.getCharacterById(chr.getFollowId());
                 if (fol != null) {
                     final Point original_pos = fol.getPosition();
-                    fol.getClient().getSession().writeAndFlush(CField.moveFollow(Original_Pos, original_pos, pos, res));
+                    fol.getClient().sendPacket(CField.moveFollow(Original_Pos, original_pos, pos, res));
                     MovementParse.updatePosition(res, fol, 0);
                     map.movePlayer(fol, pos);
                     map.broadcastMessage(fol, CField.movePlayer(fol.getId(), res, original_pos), false);
                     if ((fol.getId() == 45 && fol.getMapId() == 910000000) && (fol.getPosition().x >= 340 && fol.getPosition().x <= 430) && fol.getPosition().y == 82) {
                         fol.setChair(0);
-                        fol.getClient().getSession().writeAndFlush(CField.cancelChair(-1));
+                        fol.getClient().sendPacket(CField.cancelChair(-1));
                         fol.getMap().broadcastMessage(fol, CField.showChair(fol.getId(), 0), false);
                         fol.giveDebuff(MapleDisease.SEDUCE,MobSkillFactory.getMobSkill(128, 10));
                     }
@@ -1286,7 +1286,7 @@ return;
         if (portal != null && !chr.hasBlockedInventory()) {
             portal.enterPortal(c);
         } else {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
         }
     }
 
@@ -1325,7 +1325,7 @@ return;
                     final MapleMap to = chr.getMap().getReturnMap();
                     chr.changeMap(to, to.getPortal(0));
                 } else {
-                    c.getSession().writeAndFlush(EffectPacket.useWheel((byte) (chr.getInventory(MapleInventoryType.CASH).countById(5510000) - 1)));
+                    c.sendPacket(EffectPacket.useWheel((byte) (chr.getInventory(MapleInventoryType.CASH).countById(5510000) - 1)));
                     chr.getStat().setHp(((chr.getStat().getMaxHp() / 100) * 40), chr);
                     MapleInventoryManipulator.removeById(c, MapleInventoryType.CASH, 5510000, 1, true, false);
 
@@ -1405,9 +1405,9 @@ return;
                     warp = true;
                 }
                 if (unlock) {
-                    c.getSession().writeAndFlush(UIPacket.IntroDisableUI(false));
-                    c.getSession().writeAndFlush(UIPacket.IntroLock(false));
-                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(UIPacket.IntroDisableUI(false));
+                    c.sendPacket(UIPacket.IntroLock(false));
+                    c.sendPacket(CWvsContext.enableActions());
                 }
                 if (warp) {
                     final MapleMap to = ChannelServer.getInstance(c.getChannel()).getMapFactory().getMap(targetid);
@@ -1419,7 +1419,7 @@ return;
                 if (portal != null && !chr.hasBlockedInventory()) {
                     portal.enterPortal(c);
                 } else {
-                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                 }
             }
         }
@@ -1428,7 +1428,7 @@ return;
     public static final void InnerPortal(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr)
 /*      */   {
 /* 1502 */     if ((chr == null) || (chr.getMap() == null)) {
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
 /* 1503 */       return;
 /*      */     }
 /* 1505 */     MaplePortal portal = chr.getMap().getPortal(slea.readMapleAsciiString());
@@ -1438,7 +1438,7 @@ return;
 /* 1511 */     if (portal == null)
 /* 1512 */       return;
 /* 1513 */     if ((portal.getPosition().distanceSq(chr.getTruePosition()) > 22500.0D) && (!chr.isGM())) {
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
 /* 1515 */       return;
 /*      */     }
 /* 1517 */     chr.getMap().movePlayer(chr, new Point(toX, toY));
@@ -1451,14 +1451,14 @@ return;
         //00 00 [unknown]
         //89 [position]
         //01 [stage]
-        c.getSession().writeAndFlush(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
         //empty, we do this in closerange
     }
 
     public static void leftKnockBack(LittleEndianAccessor slea, final MapleClient c) {
         if (c.getPlayer().getMapId() / 10000 == 10906) { //must be in snowball map or else its like infinite FJ
-            c.getSession().writeAndFlush(CField.leftKnockBack());
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CField.leftKnockBack());
+            c.sendPacket(CWvsContext.enableActions());
         }
     }
 
@@ -1466,23 +1466,23 @@ return;
         final MapleQuest q = MapleQuest.getInstance(slea.readShort());
         final int itemid = q.getMedalItem();
         if (itemid != slea.readInt() || itemid <= 0 || q == null || chr.getQuestStatus(q.getId()) != 2) {
-            c.getSession().writeAndFlush(UIPacket.reissueMedal(itemid, 4));
+            c.sendPacket(UIPacket.reissueMedal(itemid, 4));
             return;
         }
         if (chr.haveItem(itemid, 1, true, true)) {
-            c.getSession().writeAndFlush(UIPacket.reissueMedal(itemid, 3));
+            c.sendPacket(UIPacket.reissueMedal(itemid, 3));
             return;
         }
         if (!MapleInventoryManipulator.checkSpace(c, itemid, (short) 1, "")) {
-            c.getSession().writeAndFlush(UIPacket.reissueMedal(itemid, 2));
+            c.sendPacket(UIPacket.reissueMedal(itemid, 2));
             return;
         }
         if (chr.getMeso() < 100) {
-            c.getSession().writeAndFlush(UIPacket.reissueMedal(itemid, 1));
+            c.sendPacket(UIPacket.reissueMedal(itemid, 1));
             return;
         }
         chr.gainMeso(-100, true, true);
         MapleInventoryManipulator.addById(c, itemid, (short) 1, "Redeemed item through medal quest " + q.getId() + " on " + FileoutputUtil.CurrentReadable_Date());
-        c.getSession().writeAndFlush(UIPacket.reissueMedal(itemid, 0));
+        c.sendPacket(UIPacket.reissueMedal(itemid, 0));
     }
 }

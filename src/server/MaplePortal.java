@@ -106,7 +106,7 @@ public class MaplePortal {
     
     public final void enterPortal(final MapleClient c) {
         if (getPosition().distanceSq(c.getPlayer().getPosition()) > 40000 && !c.getPlayer().isGM()) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
 	    return;
         }
         final MapleMap currentmap = c.getPlayer().getMap();
@@ -122,13 +122,13 @@ public class MaplePortal {
             } else if (getTargetMapId() != 999999999) {
                 final MapleMap to = ChannelServer.getInstance(c.getWorld(), c.getChannel()).getMapFactory().getMap(getTargetMapId());
 				if (to == null) {
-            	    c.getSession().writeAndFlush(CWvsContext.enableActions());
+            	    c.sendPacket(CWvsContext.enableActions());
 					return;
 				}
                 if (!c.getPlayer().isGM()) {
                     if (to.getLevelLimit() > 0 && to.getLevelLimit() > c.getPlayer().getLevel()) {
                         c.getPlayer().dropMessage(-1, "You are too low of a level to enter this place.");
-                        c.getSession().writeAndFlush(CWvsContext.enableActions());
+                        c.sendPacket(CWvsContext.enableActions());
                         return;
                     }
                 }
@@ -136,7 +136,7 @@ public class MaplePortal {
             }
         }
         if (c != null && c.getPlayer() != null && c.getPlayer().getMap() == currentmap) { // Character is still on the same map.
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
         }
     }
 

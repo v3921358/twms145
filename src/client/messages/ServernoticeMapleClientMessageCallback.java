@@ -39,11 +39,11 @@ public class ServernoticeMapleClientMessageCallback implements MessageCallback {
 
     @Override
     public void dropMessage(String message) {
-        client.getSession().writeAndFlush(CWvsContext.serverNotice(mode, message));
+        client.sendPacket(CWvsContext.serverNotice(mode, message));
     }
     
     @Override
     public void dropMessage(int type, String message) {
-        client.getSession().writeAndFlush(CWvsContext.serverNotice(type, message));
+        client.sendPacket(CWvsContext.serverNotice(type, message));
     }
 }

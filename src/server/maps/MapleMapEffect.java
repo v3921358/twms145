@@ -57,6 +57,6 @@ public class MapleMapEffect {
     }
 
     public void sendStartData(MapleClient c) {
-        c.getSession().writeAndFlush(makeStartData());
+        c.sendPacket(makeStartData());
     }
 }

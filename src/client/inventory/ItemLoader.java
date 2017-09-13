@@ -129,7 +129,7 @@ public enum ItemLoader {
                             equip.setEquipMSIUpgrades(rs.getInt("equipMSIUpgrades")); // EUS
                             equip.setCharmEXP(rs.getShort("charmEXP"));
                             if (equip.getCharmEXP() < 0) { //has not been initialized yet
-                                equip.setCharmEXP(((Equip) MapleItemInformationProvider.getEquipById(equip.getItemId())).getCharmEXP());
+                                equip.setCharmEXP(((Equip) ii.getEquipById(equip.getItemId())).getCharmEXP());
                             }
                             if (equip.getUniqueId() > -1) {
                                 if (GameConstants.isEffectRing(rs.getInt("itemid"))) {

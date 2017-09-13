@@ -121,12 +121,12 @@ public class MapleReactor extends MapleMapObject {
 
     @Override
     public void sendDestroyData(MapleClient client) {
-        client.getSession().write(CField.destroyReactor(this));
+        client.sendPacket(CField.destroyReactor(this));
     }
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        client.getSession().write(CField.spawnReactor(this));
+        client.sendPacket(CField.spawnReactor(this));
     }
 
     public void forceStartReactor(MapleClient c) {

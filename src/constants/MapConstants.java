@@ -3,7 +3,22 @@ package constants;
 public class MapConstants {
     
     public static String FM_BGM = "Bgm04/WhiteChristmas";
-    public static int STARTER_MAP = 0;
+
+    public boolean isStartupMap(int mapid) {
+        switch (mapid) {
+            case 130000000:
+            case 931000000:
+            case 10000:
+            case 913040000:
+            case 914000000:
+            case 900090000:
+            case 910150000:
+            case 931050310:
+            case 915000000:
+                return true;
+        }
+        return false;
+    }
 
     public static boolean isStartingEventMap(final int mapid) {
         switch (mapid) {

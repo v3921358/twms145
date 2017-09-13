@@ -39,12 +39,12 @@ public class FamilyHandler {
     public static void RequestFamily(final LittleEndianAccessor slea, MapleClient c) {
         MapleCharacter chr = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
         if (chr != null) {
-            c.getSession().write(FamilyPacket.getFamilyPedigree(chr));
+            c.sendPacket(FamilyPacket.getFamilyPedigree(chr));
         }
     }
 
     public static void OpenFamily(final LittleEndianAccessor slea, MapleClient c) {
-        c.getSession().write(FamilyPacket.getFamilyInfo(c.getPlayer()));
+        c.sendPacket(FamilyPacket.getFamilyInfo(c.getPlayer()));
     }
 
     public static void UseFamily(final LittleEndianAccessor slea, MapleClient c) {
@@ -83,7 +83,7 @@ public class FamilyHandler {
                 } else if (victim.getTeleportName().length() > 0) {
                     c.getPlayer().dropMessage(1, "Another character has requested to summon this character. Please try again later.");
                 } else if (victim.getFamilyId() == c.getPlayer().getFamilyId() && !FieldLimitType.VipRock.check(victim.getMap().getFieldLimit()) && victim.getId() != c.getPlayer().getId() && !victim.isInBlockedMap()) {
-                    victim.getClient().getSession().write(FamilyPacket.familySummonRequest(c.getPlayer().getName(), c.getPlayer().getMap().getMapName()));
+                    victim.getClient().sendPacket(FamilyPacket.familySummonRequest(c.getPlayer().getName(), c.getPlayer().getMap().getMapName()));
                     victim.setTeleportName(c.getPlayer().getName());
                 } else {
                     c.getPlayer().dropMessage(5, "Summons failed. Your current location or state does not allow a summons.");
@@ -95,7 +95,7 @@ public class FamilyHandler {
             case EXP_12_30: // exp rate + 100% 15 min
 	    case Drop_15_15:
 	    case Drop_15_30:
-                //c.getSession().write(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
+                //c.sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
                 entry.applyTo(c.getPlayer());
                 break;
             case Bonding: // 6 family members in pedigree online Drop Rate & Exp Rate + 100% 30 minutes
@@ -112,7 +112,7 @@ public class FamilyHandler {
                         }
                         MapleCharacter chrr = World.getStorage(wl, chr).getCharacterById(chrz.getId());
                         entry.applyTo(chrr);
-                        //chrr.getClient().getSession().write(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
+                        //chrr.getClient().sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
                     }
                 }
                 break;
@@ -120,14 +120,14 @@ public class FamilyHandler {
             case Drop_Party_12: // drop rate + 100% party 30 min
             case Drop_Party_15: // exp rate + 100% party 30 min
                 entry.applyTo(c.getPlayer());
-                //c.getSession().write(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
+                //c.sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
                 if (c.getPlayer().getParty() != null ) {
                     for (MaplePartyCharacter mpc : c.getPlayer().getParty().getMembers()) {
                         if (mpc.getId() != c.getPlayer().getId()) {
                             MapleCharacter chr = c.getPlayer().getMap().getCharacterById(mpc.getId());
                             if (chr != null) {
                                 entry.applyTo(chr);
-                                //chr.getClient().getSession().write(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
+                                //chr.getClient().sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
                             }
                         }
                     }
@@ -136,7 +136,7 @@ public class FamilyHandler {
         }
         if (success) { //again
             c.getPlayer().setCurrentRep(c.getPlayer().getCurrentRep() - entry.rep);
-            c.getSession().write(FamilyPacket.changeRep(-entry.rep, c.getPlayer().getName()));
+            c.sendPacket(FamilyPacket.changeRep(-entry.rep, c.getPlayer().getName()));
             c.getPlayer().useFamilyBuff(entry);
         } else {
             c.getPlayer().dropMessage(5, "An error occured.");
@@ -167,9 +167,9 @@ public class FamilyHandler {
         } else if (c.getPlayer().getJunior1() > 0 && c.getPlayer().getJunior2() > 0) {
             c.getPlayer().dropMessage(1, "You have 2 juniors already.");
         } else {// if (c.getPlayer().isGM() || !addChr.isGM()) {
-            addChr.getClient().getSession().write(FamilyPacket.sendFamilyInvite(c.getPlayer().getId(), c.getPlayer().getLevel(), c.getPlayer().getJob(), c.getPlayer().getName()));
+            addChr.getClient().sendPacket(FamilyPacket.sendFamilyInvite(c.getPlayer().getId(), c.getPlayer().getLevel(), c.getPlayer().getJob(), c.getPlayer().getName()));
         }
-        c.getSession().write(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
     }
 
     public static void FamilyPrecept(final LittleEndianAccessor slea, MapleClient c) {
@@ -191,7 +191,7 @@ public class FamilyHandler {
             if (accepted) {
                 c.getPlayer().changeMap(tt.getMap(), tt.getMap().getPortal(0));
                 tt.setCurrentRep(tt.getCurrentRep() - cost.rep);
-                tt.getClient().getSession().write(FamilyPacket.changeRep(-cost.rep, tt.getName()));
+                tt.getClient().sendPacket(FamilyPacket.changeRep(-cost.rep, tt.getName()));
                 tt.useFamilyBuff(cost);
             } else {
                 tt.dropMessage(5, "Summons failed. Your current location or state does not allow a summons.");
@@ -233,7 +233,7 @@ public class FamilyHandler {
             fam.resetPedigree();
         }
         c.getPlayer().dropMessage(1, "Broke up with (" + other.getName() + ").\r\nFamily relationship has ended.");
-        c.getSession().write(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
     }
 
     public static void DeleteSenior(final LittleEndianAccessor slea, MapleClient c) {
@@ -263,17 +263,17 @@ public class FamilyHandler {
             fam.resetPedigree();
         }
         c.getPlayer().dropMessage(1, "Broke up with (" + mgc.getName() + ").\r\nFamily relationship has ended.");
-        c.getSession().write(CWvsContext.enableActions());
+        c.sendPacket(CWvsContext.enableActions());
     }
 
     public static void AcceptFamily(LittleEndianAccessor slea, MapleClient c) {
         MapleCharacter inviter = c.getPlayer().getMap().getCharacterById(slea.readInt());
         if (inviter != null && c.getPlayer().getSeniorId() == 0 && (c.getPlayer().isGM() || !inviter.isHidden()) && inviter.getLevel() - 20 <= c.getPlayer().getLevel() && inviter.getLevel() >= 10 && inviter.getName().equals(slea.readMapleAsciiString()) && inviter.getNoJuniors() < 2 /*&& inviter.getFamily().getGens() < 1000*/ && c.getPlayer().getLevel() >= 10) {
             boolean accepted = slea.readByte() > 0;
-            inviter.getClient().getSession().write(FamilyPacket.sendFamilyJoinResponse(accepted, c.getPlayer().getName()));
+            inviter.getClient().sendPacket(FamilyPacket.sendFamilyJoinResponse(accepted, c.getPlayer().getName()));
             if (accepted) {
-                //c.getSession().write(FamilyPacket.sendFamilyMessage(0));
-                c.getSession().write(FamilyPacket.getSeniorMessage(inviter.getName()));
+                //c.sendPacket(FamilyPacket.sendFamilyMessage(0));
+                c.sendPacket(FamilyPacket.getSeniorMessage(inviter.getName()));
                 int old = c.getPlayer().getMFC() == null ? 0 : c.getPlayer().getMFC().getFamilyId();
                 int oldj1 = c.getPlayer().getMFC() == null ? 0 : c.getPlayer().getMFC().getJunior1();
                 int oldj2 = c.getPlayer().getMFC() == null ? 0 : c.getPlayer().getMFC().getJunior2();
@@ -321,7 +321,7 @@ public class FamilyHandler {
 
                     }
                 }
-                c.getSession().write(FamilyPacket.getFamilyInfo(c.getPlayer()));
+                c.sendPacket(FamilyPacket.getFamilyInfo(c.getPlayer()));
             }
         }
     }

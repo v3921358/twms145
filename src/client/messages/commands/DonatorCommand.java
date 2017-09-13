@@ -61,7 +61,7 @@ public class DonatorCommand {
                         player.dropMessage(6, "Nice try. :)");
                         return true;
                     }
-                    c.getSession().writeAndFlush(CWvsContext.clearMidMsg());
+                    c.sendPacket(CWvsContext.clearMidMsg());
                     player.changeMap(100000000); // should i give a choice fm/henesys?
                     return true;
                 default: 

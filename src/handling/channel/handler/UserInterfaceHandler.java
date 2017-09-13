@@ -41,7 +41,7 @@ public class UserInterfaceHandler {
 
             if (selection >= 0 && selection <= ServerConstants.Poll_Answers.length) {
                 if (MapleCharacterUtil.SetPoll(c.getAccID(), selection)) {
-                    c.getSession().write(CField.getPollReply("Thank you."));
+                    c.sendPacket(CField.getPollReply("Thank you."));
                     //idk what goes here lol
                 }
             }
@@ -97,6 +97,6 @@ public class UserInterfaceHandler {
                 System.out.println("Unhandled ship object, MapID : " + mapid);
                 break;
         }
-        c.getSession().write(CField.boatPacket(effect));*/
+        c.sendPacket(CField.boatPacket(effect));*/
     }
 }

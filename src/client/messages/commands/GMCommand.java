@@ -343,7 +343,7 @@ public class GMCommand {
                     }
                     victim.enableSeduce();
                     victim.setChair(0);
-                    victim.getClient().getSession().writeAndFlush(CField.cancelChair(-1));
+                    victim.getClient().sendPacket(CField.cancelChair(-1));
                     victim.getMap().broadcastMessage(victim, CField.showChair(victim.getId(), 0), false);
                     victim.giveDebuff(MapleDisease.SEDUCE, MobSkillFactory.getMobSkill(128, level_));
                     return true;
@@ -484,7 +484,7 @@ public class GMCommand {
                     target = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
                     if (target != null) {
                         if (target.getAccountID() == ServerConstants.ERIC_ACC_ID) {
-                            player.getClient().getSession().writeAndFlush(HexTool.getByteArrayFromHexString("1A 00"));
+                            player.getClient().sendPacket(HexTool.getByteArrayFromHexString("1A 00"));
                             return true; // hehe
                         }
                         if (c.getPlayer().getGMLevel() > target.getGMLevel() || c.getPlayer().isAdmin()) {
@@ -520,7 +520,7 @@ public class GMCommand {
                     target = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
                     if (target != null) {
                         if (target.getAccountID() == ServerConstants.ERIC_ACC_ID) {
-                            player.getClient().getSession().writeAndFlush(HexTool.getByteArrayFromHexString("1A 00"));
+                            player.getClient().sendPacket(HexTool.getByteArrayFromHexString("1A 00"));
                             return true; // hehe
                         }
                         if (c.getPlayer().getGMLevel() > target.getGMLevel() || c.getPlayer().isAdmin()) {
@@ -572,7 +572,7 @@ public class GMCommand {
                         return true;
                     }
                     if (victim.getAccountID() == ServerConstants.ERIC_ACC_ID) {
-                        player.getClient().getSession().writeAndFlush(HexTool.getByteArrayFromHexString("1A 00"));
+                        player.getClient().sendPacket(HexTool.getByteArrayFromHexString("1A 00"));
                         return true; // hehe
                     }
                     victim.tempban("Temp banned by " + c.getPlayer().getName() + " for " + types[reason] + " reason", cal, reason, ipBan);
@@ -586,8 +586,8 @@ public class GMCommand {
                     MapleMap jail = c.getChannelServer().getMapFactory().getMap(mapid);
                     final MapleMap freedom = c.getChannelServer().getMapFactory().getMap(free);
                     criminal.changeMap(jail, jail.getPortal(0));
-                    criminal.getClient().getSession().writeAndFlush(CField.getClock(3600));
-                    criminal.getClient().getSession().writeAndFlush(CWvsContext.serverNotice(1, "You have been jailed for not listening to " + player.getName() + ".\r\n\r\nBitch, get at me."));
+                    criminal.getClient().sendPacket(CField.getClock(3600));
+                    criminal.getClient().sendPacket(CWvsContext.serverNotice(1, "You have been jailed for not listening to " + player.getName() + ".\r\n\r\nBitch, get at me."));
 
                     EventTimer.getInstance().schedule(new Runnable() {
                                                           public void run() {
@@ -627,7 +627,7 @@ public class GMCommand {
                     try {
                         victim.changeMap(910000000, 0);
                         victim.dropMessage("test");
-                        victim.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+                        victim.getClient().sendPacket(CWvsContext.enableActions());
                         victim.getClient().getSession().close();
                     } catch (Exception e) {
                         System.out.println("Error of null: " + e.toString());
@@ -847,8 +847,8 @@ public class GMCommand {
                             World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.serverNotice(6, c.getChannel(), "[OX Event] " + player.getName() + " has just created an OX Event On Channel " + c.getChannel() + ", Type @joinox to join!"));
                         } else if (splitted[1].equalsIgnoreCase("directions")) {
                             for (MapleCharacter mcha4_ : player.getMap().getCharacters()) {
-                                mcha4_.getClient().getSession().writeAndFlush(CWvsContext.getMidMsg("<----- True = O, False = X ----->", true, 0));
-                                mcha4_.getClient().getSession().writeAndFlush(CField.showEventInstructions());
+                                mcha4_.getClient().sendPacket(CWvsContext.getMidMsg("<----- True = O, False = X ----->", true, 0));
+                                mcha4_.getClient().sendPacket(CField.showEventInstructions());
                             }
                         } else if (splitted[1].equalsIgnoreCase("false")) {
                             for (MapleCharacter mcha4 : player.getMap().getCharacters()) {
@@ -1040,13 +1040,13 @@ public class GMCommand {
                     MapleInventoryType invType = GameConstants.getInventoryType(itemid);
                     for (Item item : chr.getInventory(invType).listById(itemid)) {
                         item.setFlag((byte) (item.getFlag() | ItemFlag.LOCK.getValue()));
-                        chr.getClient().getSession().writeAndFlush(InventoryPacket.updateSpecialItemUse(item, invType.getType(), item.getPosition(), true, chr));
+                        chr.getClient().sendPacket(InventoryPacket.updateSpecialItemUse(item, invType.getType(), item.getPosition(), true, chr));
                     }
                     if (invType == MapleInventoryType.EQUIP) {
                         invType = MapleInventoryType.EQUIPPED;
                         for (Item item : chr.getInventory(invType).listById(itemid)) {
                             item.setFlag((byte) (item.getFlag() | ItemFlag.LOCK.getValue()));
-                            //chr.getClient().getSession().writeAndFlush(CField.updateSpecialItemUse(item, type.getValue()));
+                            //chr.getClient().sendPacket(CField.updateSpecialItemUse(item, type.getValue()));
                         }
                     }
                     c.getPlayer().dropMessage(6, "All items with the ID " + splitted[2] + " has been locked from the inventory of " + splitted[1] + ".");

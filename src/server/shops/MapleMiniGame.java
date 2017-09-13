@@ -157,9 +157,9 @@ public final class MapleMiniGame extends AbstractPlayerStore {
 	    closeShop(false, false);
 	    return;
 	}
-        c.getSession().write(PlayerShopPacket.getMiniGame(c, this));
+        c.sendPacket(PlayerShopPacket.getMiniGame(c, this));
         if (c.getPlayer() != getMCOwner()) {
-            c.getSession().write(PlayerShopPacket.getMiniGameFullMem());
+            c.sendPacket(PlayerShopPacket.getMiniGameFullMem());
         }
     }
 

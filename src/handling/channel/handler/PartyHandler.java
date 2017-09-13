@@ -86,12 +86,12 @@ public class PartyHandler {
                         c.getPlayer().receivePartyMemberHP();
                         c.getPlayer().updatePartyMemberHP();
                     } else {
-                        c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(22, null));
+                        c.sendPacket(PartyPacket.partyStatusMessage(22, null));
                     }
                 } else if (action != (GameConstants.GMS ? 0x1E : 0x16)) {
                     final MapleCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterById(party.getLeader().getId());
                     if (cfrom != null) { // %s has denied the party request.
-                        cfrom.getClient().getSession().writeAndFlush(PartyPacket.partyStatusMessage(23, c.getPlayer().getName()));
+                        cfrom.getClient().sendPacket(PartyPacket.partyStatusMessage(23, c.getPlayer().getName()));
                     }
                 }
             } else {
@@ -113,7 +113,7 @@ public class PartyHandler {
                 if (party == null) {
                     party = World.Party.createParty(partyplayer);
                     c.getPlayer().setParty(party);
-                    c.getSession().writeAndFlush(PartyPacket.partyCreated(party.getId()));
+                    c.sendPacket(PartyPacket.partyCreated(party.getId()));
 
                 } else {
                   //  if (party.getExpeditionId() > 0) {
@@ -121,7 +121,7 @@ public class PartyHandler {
                 //        return;
                //     }
                     if (partyplayer.equals(party.getLeader()) && party.getMembers().size() == 1) { //only one, reupdate
-                        c.getSession().writeAndFlush(PartyPacket.partyCreated(party.getId()));
+                        c.sendPacket(PartyPacket.partyCreated(party.getId()));
                     } else {
                         System.out.println("[DEBUG]: Operation 1 : Create");
                         c.getPlayer().dropMessage(5, "You can't create a party as you are already in one");
@@ -175,7 +175,7 @@ public class PartyHandler {
                             c.getPlayer().receivePartyMemberHP();
                             c.getPlayer().updatePartyMemberHP();
                         } else {
-                            c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(22, null));
+                            c.sendPacket(PartyPacket.partyStatusMessage(22, null));
                         }
                     } else {
                         c.getPlayer().dropMessage(5, "The party you are trying to join does not exist");
@@ -189,7 +189,7 @@ public class PartyHandler {
                 if (party == null) {
                     party = World.Party.createParty(partyplayer);
                     c.getPlayer().setParty(party);
-                    c.getSession().writeAndFlush(PartyPacket.partyCreated(party.getId()));
+                    c.sendPacket(PartyPacket.partyCreated(party.getId()));
                 }
                 // TODO store pending invitations and check against them
                 final String theName = slea.readMapleAsciiString();
@@ -203,16 +203,16 @@ public class PartyHandler {
                         //    return;
                        // }
                         if (party.getMembers().size() < 6) {
-                            c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(26, invited.getName()));
-                            invited.getClient().getSession().writeAndFlush(PartyPacket.partyInvite(c.getPlayer()));
+                            c.sendPacket(PartyPacket.partyStatusMessage(26, invited.getName()));
+                            invited.getClient().sendPacket(PartyPacket.partyInvite(c.getPlayer()));
                         } else {
-                            c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(22, null));
+                            c.sendPacket(PartyPacket.partyStatusMessage(22, null));
                         }
                     } else {
-                        c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(21, null));
+                        c.sendPacket(PartyPacket.partyStatusMessage(21, null));
                     }
                 } else {
-                    c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(17, null));
+                    c.sendPacket(PartyPacket.partyStatusMessage(17, null));
                 }
                 break;
             case 5: // expel
@@ -277,8 +277,8 @@ public class PartyHandler {
                      //   }
                         final MapleCharacter cfrom = c.getPlayer().getMap().getCharacterById(party.getLeader().getId());
                         if (cfrom != null && cfrom.getQuestNoAdd(MapleQuest.getInstance(GameConstants.PARTY_REQUEST)) == null) {
-                            c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(50, c.getPlayer().getName()));
-                            cfrom.getClient().getSession().writeAndFlush(PartyPacket.partyRequestInvite(c.getPlayer()));
+                            c.sendPacket(PartyPacket.partyStatusMessage(50, c.getPlayer().getName()));
+                            cfrom.getClient().sendPacket(PartyPacket.partyRequestInvite(c.getPlayer()));
                         } else {
                             c.getPlayer().dropMessage(5, "Player was not found or player is not accepting party requests.");
                         }
@@ -318,7 +318,7 @@ public class PartyHandler {
                     chars.add(chr);
                 }
             }
-            c.getSession().writeAndFlush(PartyPacket.showMemberSearch(chars));
+            c.sendPacket(PartyPacket.showMemberSearch(chars));
         }
     }
 
@@ -335,7 +335,7 @@ public class PartyHandler {
                 }
             }
         }
-        c.getSession().writeAndFlush(PartyPacket.showPartySearch(parties));
+        c.sendPacket(PartyPacket.showPartySearch(parties));
     }
 
     public static void PartyListing(final LittleEndianAccessor slea, final MapleClient c) {
@@ -354,13 +354,13 @@ public class PartyHandler {
                 if (c.getPlayer().getParty() == null && World.Party.searchParty(pst).size() < 10) {
                     party = World.Party.createParty(new MaplePartyCharacter(c.getPlayer()), pst.id);
                     c.getPlayer().setParty(party);
-                    c.getSession().writeAndFlush(PartyPacket.partyCreated(party.getId()));
+                    c.sendPacket(PartyPacket.partyCreated(party.getId()));
                     final PartySearch ps = new PartySearch(slea.readMapleAsciiString(), pst.exped ? party.getExpeditionId() : party.getId(), pst);
                     World.Party.addSearch(ps);
                     if (pst.exped) {
-                        c.getSession().writeAndFlush(ExpeditionPacket.expeditionStatus(World.Party.getExped(party.getExpeditionId()), true));
+                        c.sendPacket(ExpeditionPacket.expeditionStatus(World.Party.getExped(party.getExpeditionId()), true));
                     }
-                    c.getSession().writeAndFlush(PartyPacket.partyListingAdded(ps));
+                    c.sendPacket(PartyPacket.partyListingAdded(ps));
                 } else {
                     c.getPlayer().dropMessage(1, "Unable to create. Please leave the party.");
                 }
@@ -373,7 +373,7 @@ public class PartyHandler {
                 if (pst == null || c.getPlayer().getLevel() > pst.maxLevel || c.getPlayer().getLevel() < pst.minLevel) {
                     return;
                 }
-                c.getSession().writeAndFlush(PartyPacket.getPartyListing(pst));
+                c.sendPacket(PartyPacket.getPartyListing(pst));
                 break;
             case 84: //close
             case 0xA2:
@@ -397,7 +397,7 @@ public class PartyHandler {
                             c.getPlayer().receivePartyMemberHP();
                             c.getPlayer().updatePartyMemberHP();
                         } else {
-                            c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(21, null));
+                            c.sendPacket(PartyPacket.partyStatusMessage(21, null));
                         }
                     } else {
                         MapleExpedition exped = World.Party.getExped(theId);
@@ -406,12 +406,12 @@ public class PartyHandler {
                             if (ps != null && c.getPlayer().getLevel() <= ps.getType().maxLevel && c.getPlayer().getLevel() >= ps.getType().minLevel && exped.getAllMembers() < exped.getType().maxMembers) {
                                 int partyId = exped.getFreeParty();
                                 if (partyId < 0) {
-                                    c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(21, null));
+                                    c.sendPacket(PartyPacket.partyStatusMessage(21, null));
                                 } else if (partyId == 0) { //signal to make a new party
                                     party = World.Party.createPartyAndAdd(partyplayer, exped.getId());
                                     c.getPlayer().setParty(party);
-                                    c.getSession().writeAndFlush(PartyPacket.partyCreated(party.getId()));
-                                    c.getSession().writeAndFlush(ExpeditionPacket.expeditionStatus(exped, true));
+                                    c.sendPacket(PartyPacket.partyCreated(party.getId()));
+                                    c.sendPacket(ExpeditionPacket.expeditionStatus(exped, true));
                                     World.Party.expedPacket(exped.getId(), ExpeditionPacket.expeditionJoined(c.getPlayer().getName()), null);
                                     World.Party.expedPacket(exped.getId(), ExpeditionPacket.expeditionUpdate(exped.getIndex(party.getId()), party), null);
                                 } else {
@@ -419,11 +419,11 @@ public class PartyHandler {
                                     World.Party.updateParty(partyId, PartyOperation.JOIN, partyplayer);
                                     c.getPlayer().receivePartyMemberHP();
                                     c.getPlayer().updatePartyMemberHP();
-                                    c.getSession().writeAndFlush(ExpeditionPacket.expeditionStatus(exped, true));
+                                    c.sendPacket(ExpeditionPacket.expeditionStatus(exped, true));
                                     World.Party.expedPacket(exped.getId(), ExpeditionPacket.expeditionJoined(c.getPlayer().getName()), null);
                                 }
                             } else {
-                                c.getSession().writeAndFlush(ExpeditionPacket.expeditionError(0, c.getPlayer().getName()));
+                                c.sendPacket(ExpeditionPacket.expeditionError(0, c.getPlayer().getName()));
                             }
                         }
                     }
@@ -445,7 +445,7 @@ public class PartyHandler {
                             player.receivePartyMemberHP();
                             player.updatePartyMemberHP();
                         } else {
-                            c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(21, null));
+                            c.sendPacket(PartyPacket.partyStatusMessage(21, null));
                         }
                     }
                 }
@@ -474,10 +474,10 @@ public class PartyHandler {
                 if (et != null && c.getPlayer().getParty() == null && c.getPlayer().getLevel() <= et.maxLevel && c.getPlayer().getLevel() >= et.minLevel) {
                     party = World.Party.createParty(new MaplePartyCharacter(c.getPlayer()), et.exped);
                     c.getPlayer().setParty(party);
-                    c.getSession().writeAndFlush(PartyPacket.partyCreated(party.getId()));
-                    c.getSession().writeAndFlush(ExpeditionPacket.expeditionStatus(World.Party.getExped(party.getExpeditionId()), true));
+                    c.sendPacket(PartyPacket.partyCreated(party.getId()));
+                    c.sendPacket(ExpeditionPacket.expeditionStatus(World.Party.getExped(party.getExpeditionId()), true));
                 } else {
-                    c.getSession().writeAndFlush(ExpeditionPacket.expeditionError(0, ""));
+                    c.sendPacket(ExpeditionPacket.expeditionError(0, ""));
                 }
                 break;
             case 65: //invite [name]
@@ -492,16 +492,16 @@ public class PartyHandler {
                     if (invited != null && invited.getParty() == null && party != null && party.getExpeditionId() > 0) {
                         MapleExpedition me = World.Party.getExped(party.getExpeditionId());
                         if (me != null && me.getAllMembers() < me.getType().maxMembers && invited.getLevel() <= me.getType().maxLevel && invited.getLevel() >= me.getType().minLevel) {
-                            c.getSession().writeAndFlush(ExpeditionPacket.expeditionError(7, invited.getName()));
-                            invited.getClient().getSession().writeAndFlush(ExpeditionPacket.expeditionInvite(c.getPlayer(), me.getType().exped));
+                            c.sendPacket(ExpeditionPacket.expeditionError(7, invited.getName()));
+                            invited.getClient().sendPacket(ExpeditionPacket.expeditionInvite(c.getPlayer(), me.getType().exped));
                         } else {
-                            c.getSession().writeAndFlush(ExpeditionPacket.expeditionError(3, invited.getName()));
+                            c.sendPacket(ExpeditionPacket.expeditionError(3, invited.getName()));
                         }
                     } else {
-                        c.getSession().writeAndFlush(ExpeditionPacket.expeditionError(2, name));
+                        c.sendPacket(ExpeditionPacket.expeditionError(2, name));
                     }
                 } else {
-                    c.getSession().writeAndFlush(ExpeditionPacket.expeditionError(0, name));
+                    c.sendPacket(ExpeditionPacket.expeditionError(0, name));
                 }
                 break;
             case 66: //accept invite [name] [int - 7, then int 8? lol.]
@@ -520,12 +520,12 @@ public class PartyHandler {
                             if (c.getPlayer().getLevel() <= exped.getType().maxLevel && c.getPlayer().getLevel() >= exped.getType().minLevel && exped.getAllMembers() < exped.getType().maxMembers) {
                                 int partyId = exped.getFreeParty();
                                 if (partyId < 0) {
-                                    c.getSession().writeAndFlush(PartyPacket.partyStatusMessage(21, null));
+                                    c.sendPacket(PartyPacket.partyStatusMessage(21, null));
                                 } else if (partyId == 0) { //signal to make a new party
                                     party = World.Party.createPartyAndAdd(new MaplePartyCharacter(c.getPlayer()), exped.getId());
                                     c.getPlayer().setParty(party);
-                                    c.getSession().writeAndFlush(PartyPacket.partyCreated(party.getId()));
-                                    c.getSession().writeAndFlush(ExpeditionPacket.expeditionStatus(exped, true));
+                                    c.sendPacket(PartyPacket.partyCreated(party.getId()));
+                                    c.sendPacket(ExpeditionPacket.expeditionStatus(exped, true));
                                     World.Party.expedPacket(exped.getId(), ExpeditionPacket.expeditionJoined(c.getPlayer().getName()), null);
                                     World.Party.expedPacket(exped.getId(), ExpeditionPacket.expeditionUpdate(exped.getIndex(party.getId()), party), null);
                                 } else {
@@ -533,14 +533,14 @@ public class PartyHandler {
                                     World.Party.updateParty(partyId, PartyOperation.JOIN, new MaplePartyCharacter(c.getPlayer()));
                                     c.getPlayer().receivePartyMemberHP();
                                     c.getPlayer().updatePartyMemberHP();
-                                    c.getSession().writeAndFlush(ExpeditionPacket.expeditionStatus(exped, true));
+                                    c.sendPacket(ExpeditionPacket.expeditionStatus(exped, true));
                                     World.Party.expedPacket(exped.getId(), ExpeditionPacket.expeditionJoined(c.getPlayer().getName()), null);
                                 }
                             } else {
-                                c.getSession().writeAndFlush(ExpeditionPacket.expeditionError(3, cfrom.getName()));
+                                c.sendPacket(ExpeditionPacket.expeditionError(3, cfrom.getName()));
                             }
                         } else if (action == 9) {
-                            cfrom.getClient().getSession().writeAndFlush(PartyPacket.partyStatusMessage(23, c.getPlayer().getName()));
+                            cfrom.getClient().sendPacket(PartyPacket.partyStatusMessage(23, c.getPlayer().getName()));
                         }
                     }
                 }
@@ -685,13 +685,13 @@ public class PartyHandler {
                                                 World.Party.updateParty(party.getId(), PartyOperation.JOIN, expelled);
                                                 chr.receivePartyMemberHP();
                                                 chr.updatePartyMemberHP();
-                                                chr.getClient().getSession().writeAndFlush(ExpeditionPacket.expeditionStatus(exped, true));
+                                                chr.getClient().sendPacket(ExpeditionPacket.expeditionStatus(exped, true));
                                             }
                                         } else {
                                             party = World.Party.createPartyAndAdd(expelled, exped.getId());
                                             chr.setParty(party);
-                                            chr.getClient().getSession().writeAndFlush(PartyPacket.partyCreated(party.getId()));
-                                            chr.getClient().getSession().writeAndFlush(ExpeditionPacket.expeditionStatus(exped, true));
+                                            chr.getClient().sendPacket(PartyPacket.partyCreated(party.getId()));
+                                            chr.getClient().sendPacket(ExpeditionPacket.expeditionStatus(exped, true));
                                             World.Party.expedPacket(exped.getId(), ExpeditionPacket.expeditionUpdate(exped.getIndex(party.getId()), party), null);
                                         }
                                         if (c.getPlayer().getEventInstance() != null) {

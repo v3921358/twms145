@@ -155,9 +155,9 @@ public class EventInstanceManager {
 
             for (MapleCharacter chr : getPlayers()) {
 				if (name.startsWith("PVP")) {
-					chr.getClient().getSession().write(CField.getPVPClock(Integer.parseInt(getProperty("type")), timesend));
+					chr.getClient().sendPacket(CField.getPVPClock(Integer.parseInt(getProperty("type")), timesend));
 				} else {
-					chr.getClient().getSession().write(CField.getClock(timesend));
+					chr.getClient().sendPacket(CField.getClock(timesend));
 				}
             }
             timeOut(time, this);
@@ -578,7 +578,7 @@ public class EventInstanceManager {
             return;
         }
         for (MapleCharacter chr : getPlayers()) {
-            chr.getClient().getSession().write(p);
+            chr.getClient().sendPacket(p);
         }
     }
 
@@ -588,7 +588,7 @@ public class EventInstanceManager {
         }
         for (MapleCharacter chr : getPlayers()) {
             if (chr.getTeam() == team) {
-                chr.getClient().getSession().write(p);
+                chr.getClient().sendPacket(p);
             }
         }
     }
@@ -868,7 +868,7 @@ public class EventInstanceManager {
 
     public void applyBuff(final MapleCharacter chr, final int id) {
         MapleItemInformationProvider.getInstance().getItemEffect(id).applyTo(chr);
-        chr.getClient().getSession().write(InfoPacket.getStatusMsg(id));
+        chr.getClient().sendPacket(InfoPacket.getStatusMsg(id));
     }
 	
     public void applySkill(final MapleCharacter chr, final int id) {

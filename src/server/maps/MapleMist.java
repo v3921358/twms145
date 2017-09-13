@@ -162,12 +162,12 @@ public class MapleMist extends MapleMapObject {
 
     @Override
     public void sendSpawnData(final MapleClient c) {
-        c.getSession().writeAndFlush(CField.spawnMist(this));
+        c.sendPacket(CField.spawnMist(this));
     }
 
     @Override
     public void sendDestroyData(final MapleClient c) {
-        c.getSession().writeAndFlush(CField.removeMist(getObjectId(), false));
+        c.sendPacket(CField.removeMist(getObjectId(), false));
     }
 
     public boolean makeChanceResult() {

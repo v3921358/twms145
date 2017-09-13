@@ -257,7 +257,7 @@ public class SummonHandler {
                 chr.checkMonsterAggro(mob);
 /* 240 */
                 if (!mob.isAlive())
-/* 241 */ chr.getClient().getSession().write(MobPacket.killMonster(mob.getObjectId(), 1));
+/* 241 */ chr.getClient().sendPacket(MobPacket.killMonster(mob.getObjectId(), 1));
 /*     */
             }
 /*     */
@@ -355,7 +355,7 @@ public class SummonHandler {
                    mob.damage(chr, toDamage, true);
                    chr.checkMonsterAggro(mob);
                    if (!mob.isAlive()) {
-                       chr.getClient().getSession().write(MobPacket.killMonster(mob.getObjectId(), 1));
+                       chr.getClient().sendPacket(MobPacket.killMonster(mob.getObjectId(), 1));
                    }
                } else {
                    break;
@@ -427,7 +427,7 @@ public class SummonHandler {
                     return;
                 }
                 chr.addHP((int) (chr.getStat().getCurrentMaxHp() * SkillFactory.getSkill(sum.getSkill()).getEffect(sum.getSkillLevel()).getHp() / 100.0));
-                chr.getClient().getSession().write(EffectPacket.showOwnBuffEffect(sum.getSkill(), 2, chr.getLevel(), sum.getSkillLevel()));
+                chr.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sum.getSkill(), 2, chr.getLevel(), sum.getSkillLevel()));
                 chr.getMap().broadcastMessage(chr, EffectPacket.showBuffeffect(chr.getId(), sum.getSkill(), 2, chr.getLevel(), sum.getSkillLevel()), false);
                 break;
             case 1321007: //beholder
@@ -445,7 +445,7 @@ public class SummonHandler {
                     }
                     chr.addHP(healEffect.getHp());
                 }
-                chr.getClient().getSession().write(EffectPacket.showOwnBuffEffect(sum.getSkill(), 2, chr.getLevel(), bHealingLvl));
+                chr.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sum.getSkill(), 2, chr.getLevel(), bHealingLvl));
                 chr.getMap().broadcastMessage(SummonPacket.summonSkill(chr.getId(), sum.getSkill(), bHealing.getId() == 1320008 ? 5 : (Randomizer.nextInt(3) + 6)));
                 chr.getMap().broadcastMessage(chr, EffectPacket.showBuffeffect(chr.getId(), sum.getSkill(), 2, chr.getLevel(), bHealingLvl), false);
                 break;
@@ -458,7 +458,7 @@ public class SummonHandler {
             } else {
                 MapleItemInformationProvider.getInstance().getItemEffect(2022746).applyTo(chr);
             }
-            chr.getClient().getSession().write(EffectPacket.showOwnBuffEffect(sum.getSkill(), 2, 2, 1));
+            chr.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sum.getSkill(), 2, 2, 1));
             chr.getMap().broadcastMessage(chr, EffectPacket.showBuffeffect(chr.getId(), sum.getSkill(), 2, 2, 1), false);
         }
     }
@@ -575,7 +575,7 @@ public class SummonHandler {
                     }
                     effect.handleExtraPVP(chr, attacked);
                 }
-                chr.getClient().getSession().write(CField.getPVPHPBar(attacked.getId(), attacked.getStat().getHp(), attacked.getStat().getCurrentMaxHp()));
+                chr.getClient().sendPacket(CField.getPVPHPBar(attacked.getId(), attacked.getStat().getHp(), attacked.getStat().getCurrentMaxHp()));
                 addedScore += (totalHPLoss / 100) + (totalMPLoss / 100); //ive NO idea
                 if (!attacked.isAlive()) {
                     killed = true;
@@ -588,7 +588,7 @@ public class SummonHandler {
         }
         if (killed || addedScore > 0) {
             chr.getEventInstance().addPVPScore(chr, addedScore);
-            chr.getClient().getSession().write(CField.getPVPScore(ourScore + addedScore, killed));
+            chr.getClient().sendPacket(CField.getPVPScore(ourScore + addedScore, killed));
         }
         if (didAttack) {
             chr.getMap().broadcastMessage(SummonPacket.pvpSummonAttack(chr.getId(), chr.getLevel(), summon.getObjectId(), summon.isFacingLeft() ? 4 : 0x84, summon.getTruePosition(), ourAttacks));

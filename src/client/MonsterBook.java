@@ -331,7 +331,7 @@ public final class MonsterBook implements Serializable {
         if (!cards.containsKey(cardid) || cards.get(cardid) < 2) {
             changed = true;
             c.getPlayer().dropMessage(-6, "Book entry updated - " + cardname);
-            c.getSession().write(EffectPacket.showForeignEffect(16));
+            c.sendPacket(EffectPacket.showForeignEffect(16));
             cards.put(cardid, 2);
             if (GameConstants.GMS) {
                 if (c.getPlayer().getQuestStatus(50195) != 1) {
@@ -346,7 +346,7 @@ public final class MonsterBook implements Serializable {
                     if (c.getPlayer().getQuestStatus(50197) != 1) {
                         MapleQuest.getInstance(50197).forceStart(c.getPlayer(), 9010000, "1"); //this quest signifies that a set is done
                     }
-                    c.getSession().write(EffectPacket.showForeignEffect(RecvPacketOpcode.MCAUGHTEFF.getValue()));
+                    c.sendPacket(EffectPacket.showForeignEffect(RecvPacketOpcode.MCAUGHTEFF.getValue()));
                     if (rr > 1) {
                         applyBook(c.getPlayer(), false);
                     }
@@ -369,6 +369,6 @@ public final class MonsterBook implements Serializable {
         // New card
         c.getPlayer().dropMessage(-6, "New book entry - " + cardname);
         cards.put(cardid, 1);
-        c.getSession().write(EffectPacket.showForeignEffect(16));
+        c.sendPacket(EffectPacket.showForeignEffect(16));
     }
 }

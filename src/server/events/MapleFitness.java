@@ -47,7 +47,7 @@ public class MapleFitness extends MapleEvent {
     public void onMapLoad(MapleCharacter chr) {
 	super.onMapLoad(chr);
         if (isTimerStarted()) {
-            chr.getClient().getSession().write(CField.getClock((int) (getTimeLeft() / 1000)));
+            chr.getClient().sendPacket(CField.getClock((int) (getTimeLeft() / 1000)));
         }
     }
 

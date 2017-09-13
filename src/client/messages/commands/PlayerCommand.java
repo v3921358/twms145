@@ -118,7 +118,7 @@ public class PlayerCommand {
                         player.dropMessage(6, "Nice try. :)");
                         return true;
                     }
-                    c.getSession().writeAndFlush(CWvsContext.clearMidMsg());
+                    c.sendPacket(CWvsContext.clearMidMsg());
                     player.changeMap(100000000); // should i give a choice fm/henesys?
                     return true;
                 default: 
@@ -141,7 +141,7 @@ public class PlayerCommand {
            //     return true;
             case "serveruptime":
             case "uptime":
-                c.getSession().writeAndFlush(CWvsContext.yellowChat(ServerConstants.SERVER_NAME + " + has been online for " + StringUtil.getReadableMillis(ChannelServer.serverStartTime, System.currentTimeMillis()) + " without a restart!"));
+                c.sendPacket(CWvsContext.yellowChat(ServerConstants.SERVER_NAME + " + has been online for " + StringUtil.getReadableMillis(ChannelServer.serverStartTime, System.currentTimeMillis()) + " without a restart!"));
                 return true;
             case "storage":
                 player.getStorage().sendStorage(c, 9930100);
@@ -261,7 +261,7 @@ public class PlayerCommand {
                     player.dropMessage(5, "There is no open OX Event to join, please try again later.");
                 return true;
             case "relog":
-                c.getSession().writeAndFlush(CField.getCharInfo(player));
+                c.sendPacket(CField.getCharInfo(player));
                 player.getMap().removePlayer(player);
                 player.getMap().addPlayer(player);
                 return true;
@@ -303,7 +303,7 @@ public class PlayerCommand {
                     player.dropMessage(5, "Please enter a channel number from 1~4.");
                     return true;
                 }
-                player.getClient().getSession().writeAndFlush(CWvsContext.changeChannelMsg((channel-1), "You are now switching channels to Channel " + channel + "."));
+                player.getClient().sendPacket(CWvsContext.changeChannelMsg((channel-1), "You are now switching channels to Channel " + channel + "."));
                 return true;
             case "str":
             case "dex":
@@ -358,7 +358,7 @@ public class PlayerCommand {
           } else {
             player.setChalkboard("" + StringUtil.joinStringFrom(splitted, 1) + "");
             player.getMap().broadcastMessage(MTSCSPacket.useChalkboard(player.getId(), StringUtil.joinStringFrom(splitted, 1)));
-            player.getClient().getSession().writeAndFlush(CWvsContext.enableActions());
+            player.getClient().sendPacket(CWvsContext.enableActions());
           }
             return true;
             case "sex":
@@ -658,7 +658,7 @@ public class PlayerCommand {
         case "dispose":
             c.removeClickedNPC();
             NPCScriptManager.getInstance().dispose(c);
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             player.dropMessage("Done.");
             return true;
         case "tsmega":

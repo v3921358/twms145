@@ -33,7 +33,7 @@ public class StatsHandling {
 
     public static void DistributeAP(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         Map<MapleStat, Integer> statupdate = new EnumMap<>(MapleStat.class);
-        c.getSession().writeAndFlush(CWvsContext.updatePlayerStats(statupdate, true, chr));
+        c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
 slea.readInt();
 
         final PlayerStats stat = chr.getStat();
@@ -121,12 +121,12 @@ slea.readInt();
                     statupdate.put(MapleStat.MAXMP, (int) maxmp);
                     break;
                 default:
-                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                     return;
             }
             chr.setRemainingAp((chr.getRemainingAp() - 1));
           //  statupdate.put(MapleStat.AVAILABLEAP, (int) chr.getRemainingAp());
-            c.getSession().writeAndFlush(CWvsContext.updatePlayerStats(statupdate, true, chr));
+            c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
         }
     }
 
@@ -159,7 +159,7 @@ slea.readInt();
 
         if (skill.isInvisible() && chr.getSkillLevel(skill) == 0) {
             if ((skill.isFourthJob() && chr.getMasterLevel(skill) == 0) || (!skill.isFourthJob() && maxlevel < 10 && !isBeginnerSkill)) {
-                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                c.sendPacket(CWvsContext.enableActions());
                 //AutobanManager.getInstance().addPoints(c, 1000, 0, "Illegal distribution of SP to invisible skills (" + skillid + ")");
                 return;
             }
@@ -175,7 +175,7 @@ slea.readInt();
             //} else if (!skill.canBeLearnedBy(chr.getJob())) {
             //    AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to learn a skill for a different job (" + skillid + ")");
         } else {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
         }
     }
 
@@ -196,7 +196,7 @@ slea.readInt();
         final PlayerStats playerst = chr.getStat();
 
         Map<MapleStat, Integer> statupdate = new EnumMap<>(MapleStat.class);
-        c.getSession().writeAndFlush(CWvsContext.updatePlayerStats(statupdate, true, chr));
+        c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
 
         if (chr.getRemainingAp() == amount + amount2) {
             switch (PrimaryStat) {
@@ -229,7 +229,7 @@ slea.readInt();
                     statupdate.put(MapleStat.LUK, (int) playerst.getLuk());
                     break;
                 default:
-                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                     return;
             }
             switch (SecondaryStat) {
@@ -262,12 +262,12 @@ slea.readInt();
                     statupdate.put(MapleStat.LUK, (int) playerst.getLuk());
                     break;
                 default:
-                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    c.sendPacket(CWvsContext.enableActions());
                     return;
             }
             chr.setRemainingAp((chr.getRemainingAp() - (amount + amount2)));
            // statupdate.put(MapleStat.AVAILABLEAP, (int) chr.getRemainingAp());
-            c.getSession().writeAndFlush(CWvsContext.updatePlayerStats(statupdate, true, chr));
+            c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
         }
     }
 }

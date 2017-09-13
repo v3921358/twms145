@@ -134,7 +134,7 @@ public abstract class MapleEvent {
 
     public void onMapLoad(MapleCharacter chr) { //most dont do shit here
 	if (GameConstants.isEventMap(chr.getMapId()) && FieldLimitType.Event.check(chr.getMap().getFieldLimit()) && FieldLimitType.Event2.check(chr.getMap().getFieldLimit())) {
-	    chr.getClient().getSession().write(CField.showEventInstructions());
+	    chr.getClient().sendPacket(CField.showEventInstructions());
 	}
     }
 

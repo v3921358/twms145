@@ -33,8 +33,14 @@ import tools.packet.PacketHelper;
  */
 public class KoreanDateUtil {
 
+    private final static int QUEST_UNIXAGE = 27111908;
     private final static int ITEM_YEAR2000 = -1085019342;
     private final static long REAL_YEAR2000 = 946681229830l;
+
+    public static final int getQuestTimestamp(final long realTimestamp) {
+        final int time = (int) (realTimestamp / 1000 / 60); // convert to minutes
+        return (int) (time * 0.1396987) + QUEST_UNIXAGE;
+    }
 
     /**
      * Converts a Unix Timestamp into File Time

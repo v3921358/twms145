@@ -69,7 +69,7 @@ public class MapleSummon extends AnimatedMapleMapObject {
 
     @Override
     public final void sendDestroyData(final MapleClient client) {
-        client.getSession().write(SummonPacket.removeSummon(this, false));
+        client.sendPacket(SummonPacket.removeSummon(this, false));
     }
 
     public final void updateMap(final MapleMap map) {

@@ -56,7 +56,7 @@ public class MapleLieDetector {
         this.type = (byte) (isItem ? 0 : 1); 
         this.attempt++; 
 
-        chr.getClient().getSession().write(CWvsContext.sendLieDetector(image)); 
+        chr.getClient().sendPacket(CWvsContext.sendLieDetector(image));
         EtcTimer.getInstance().schedule(new Runnable() { 
 
             @Override 
@@ -69,7 +69,7 @@ public class MapleLieDetector {
                             search_chr.gainMeso(7000, true); 
                         } 
                         end(); 
-                        // chr.getClient().getSession().write(CWvsContext.LieDetectorResponse((byte) 7, (byte) 4)); 
+                        // chr.getClient().sendPacket(CWvsContext.LieDetectorResponse((byte) 7, (byte) 4));
                         final MapleMap to = chr.getMap().getReturnMap(); 
                         chr.changeMap(to, to.getPortal(0)); 
                     } else { // can have another attempt 

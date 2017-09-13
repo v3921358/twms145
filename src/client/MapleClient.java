@@ -1401,6 +1401,56 @@ public class MapleClient implements Serializable {
         }
     }
 
+    public int getCharacterSlots() {
+        if (isGm()) {
+            return 15;
+        }
+        if (charslots != DEFAULT_CHAR_SLOT) {
+            return charslots; //save a sql
+        }
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            try (PreparedStatement ps = con.prepareStatement("SELECT * FROM character_slots WHERE accountid = ? AND worldid = ?")) {
+                ps.setInt(1, accountId);
+                ps.setInt(2, world);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        charslots = rs.getInt("charslots");
+                    } else {
+                        try (PreparedStatement psu = con.prepareStatement("INSERT INTO character_slots (accountid, worldid, charslots) VALUES (?, ?, ?)")) {
+                            psu.setInt(1, accountId);
+                            psu.setInt(2, world);
+                            psu.setInt(3, charslots);
+                            psu.executeUpdate();
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ignored) {
+        }
+        return charslots;
+    }
+
+    public boolean gainCharacterSlot() {
+        if (getCharacterSlots() >= 15) {
+            return false;
+        }
+        charslots++;
+
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            try (PreparedStatement ps = con.prepareStatement("UPDATE character_slots SET charslots = ? WHERE worldid = ? AND accountid = ?")) {
+                ps.setInt(1, charslots);
+                ps.setInt(2, world);
+                ps.setInt(3, accountId);
+                ps.executeUpdate();
+            }
+        } catch (SQLException sqlE) {
+            return false;
+        }
+        return true;
+    }
+
     public static byte unbanIPMacs(String charname) {
         try {
             Connection con = DatabaseConnection.getConnection();

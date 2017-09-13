@@ -140,7 +140,7 @@ public class MaplePlayerShop extends AbstractPlayerStore {
         owner.setPlayerShop(null);
         getMCOwner().getMap().broadcastMessage(PlayerShopPacket.removeCharBox(getMCOwner()));
         // update();
-        // getMCOwner().getClient().getSession().writeAndFlush(PlayerShopPacket.shopErrorMessage(3, 1));
+        // getMCOwner().getClient().sendPacket(PlayerShopPacket.shopErrorMessage(3, 1));
     }
     
     public void send(MapleClient c) {
@@ -148,7 +148,7 @@ public class MaplePlayerShop extends AbstractPlayerStore {
 	    closeShop(false, false);
 	    return;
 	}
-        c.getSession().writeAndFlush(PlayerShopPacket.getPlayerStore(c.getPlayer(), true));
+        c.sendPacket(PlayerShopPacket.getPlayerStore(c.getPlayer(), true));
     }
 
     public void banPlayer(String name) {
@@ -158,7 +158,7 @@ public class MaplePlayerShop extends AbstractPlayerStore {
         for (int i = 0; i < getMaxSize(); i++) {
             MapleCharacter chr = getVisitor(i);
             if (chr.getName().equals(name)) {
-                chr.getClient().getSession().writeAndFlush(PlayerShopPacket.shopErrorMessage(5, 1));
+                chr.getClient().sendPacket(PlayerShopPacket.shopErrorMessage(5, 1));
                 chr.setPlayerShop(null);
                 removeVisitor(chr);
             }

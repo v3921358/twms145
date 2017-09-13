@@ -254,7 +254,7 @@ public class MapleQuest implements Serializable {
             // we save forfeits only for logging purposes, they shouldn't matter anymore
             // completion time is set by the constructor
 
-            c.getClient().getSession().write(EffectPacket.showForeignEffect(12)); // Quest completion
+            c.getClient().sendPacket(EffectPacket.showForeignEffect(12)); // Quest completion
             c.getMap().broadcastMessage(c, EffectPacket.showForeignEffect(c.getId(), 12), false);
         }
     }

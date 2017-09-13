@@ -33,12 +33,12 @@ public class AllianceHandler {
 
     public static void HandleAlliance(final LittleEndianAccessor slea, final MapleClient c, boolean denied) {
         if (c.getPlayer().getGuildId() <= 0) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         final MapleGuild gs = World.Guild.getGuild(c.getPlayer().getGuildId());
         if (gs == null) {
-            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            c.sendPacket(CWvsContext.enableActions());
             return;
         }
         //System.out.println("Unhandled GuildAlliance \n" + slea.toString());
@@ -72,7 +72,7 @@ public class AllianceHandler {
 
                 for (byte[] pack : World.Alliance.getAllianceInfo(gs.getAllianceId(), false)) {
                     if (pack != null) {
-                        c.getSession().writeAndFlush(pack);
+                        c.sendPacket(pack);
                     }
                 }
                 break;
@@ -81,7 +81,7 @@ public class AllianceHandler {
                 if (newGuild > 0 && c.getPlayer().getAllianceRank() == 1 && leaderid == c.getPlayer().getId()) {
                     chr = c.getChannelServer().getPlayerStorage().getCharacterById(newGuild);
                     if (chr != null && chr.getGuildId() > 0 && World.Alliance.canInvite(gs.getAllianceId())) {
-                        chr.getClient().getSession().writeAndFlush(AlliancePacket.sendAllianceInvite(World.Alliance.getAlliance(gs.getAllianceId()).getName(), c.getPlayer()));
+                        chr.getClient().sendPacket(AlliancePacket.sendAllianceInvite(World.Alliance.getAlliance(gs.getAllianceId()).getName(), c.getPlayer()));
                         World.Guild.setInvitedId(chr.getGuildId(), gs.getAllianceId());
                     } else {
 		        c.getPlayer().dropMessage(1, "Make sure the leader of the guild is online and in your channel.");
@@ -152,7 +152,7 @@ public class AllianceHandler {
                 System.out.println("Unhandled GuildAlliance op: " + op + ", \n" + slea.toString());
                 break;
         }
-        //c.getSession().writeAndFlush(CWvsContext.enableActions());
+        //c.sendPacket(CWvsContext.enableActions());
     }
 
     public static void DenyInvite(MapleClient c, final MapleGuild gs) { //playername that invited -> guildname that was invited but we also don't care
@@ -167,6 +167,6 @@ public class AllianceHandler {
                 World.Guild.setInvitedId(c.getPlayer().getGuildId(), 0);
             }
         }
-        //c.getSession().writeAndFlush(CWvsContext.enableActions());
+        //c.sendPacket(CWvsContext.enableActions());
     }
 }

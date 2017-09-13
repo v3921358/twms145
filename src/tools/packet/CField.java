@@ -1099,7 +1099,7 @@ public class CField {
             mplew.writeShort(0);
             mplew.write((byte) items.size());
             for (Item item : items) {
-                PacketHelper.addItemInfo(mplew, item);
+                PacketHelper.GW_ItemSlotBase_Decode(mplew, item);
             }
             mplew.writeShort(0);
             mplew.write(0);
@@ -1140,7 +1140,7 @@ public class CField {
             mplew.writeZeroBytes(10);
             mplew.write(items.size());
             for (Item item : items) {
-                PacketHelper.addItemInfo(mplew, item);
+                PacketHelper.GW_ItemSlotBase_Decode(mplew, item);
             }
             mplew.write(0);
             return mplew.getPacket();
@@ -1157,7 +1157,7 @@ public class CField {
             mplew.writeInt(0);
             mplew.write(items.size());
             for (Item item : items) {
-                PacketHelper.addItemInfo(mplew, item);
+                PacketHelper.GW_ItemSlotBase_Decode(mplew, item);
             }
             return mplew.getPacket();
         }
@@ -1173,7 +1173,7 @@ public class CField {
             mplew.writeInt(0);
             mplew.write(items.size());
             for (Item item : items) {
-                PacketHelper.addItemInfo(mplew, item);
+                PacketHelper.GW_ItemSlotBase_Decode(mplew, item);
             }
             return mplew.getPacket();
         }
@@ -1404,13 +1404,11 @@ public class CField {
 
         public static byte[] getTradeItemAdd(byte number, Item item) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
             mplew.writeShort(SendPacketOpcode.PLAYER_INTERACTION.getValue());
             mplew.write(GameConstants.GMS ? 0 : 0xE);
             mplew.write(number);
             mplew.write(item.getPosition()); // Only in inv and not equipped //PacketHelper.addItemPosition(mplew, item, true, false);
-            PacketHelper.addItemInfo(mplew, item);
-
+            PacketHelper.GW_ItemSlotBase_Decode(mplew, item);
             return mplew.getPacket();
         }
 
@@ -1500,54 +1498,12 @@ public class CField {
         return mplew.getPacket();
     }
 
-    public static byte[] getCharInfo(final MapleCharacter chr) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
-/* 1424 */     mplew.writeShort(SendPacketOpcode.WARP_TO_MAP.getValue());
-/* 1425 */     mplew.writeShort(2);
-/* 1426 */     mplew.writeLong(1);
-/* 1427 */     mplew.writeLong(2);
-/* 1428 */     mplew.writeLong(chr.getClient().getChannel() - 1);
-/* 1429 */     mplew.write(0);
-/* 1430 */     mplew.write(1);
-/* 1431 */     mplew.writeInt(0);
-/* 1432 */     mplew.write(1);
-/* 1433 */     mplew.writeShort(0);
-/* 1434 */     chr.CRand().connectData(mplew);
-/* 1435 */     PacketHelper.addCharacterInfo(mplew, chr);
-/* 1436 */     mplew.writeInt(0);
-/* 1437 */     mplew.writeInt(0);
-/* 1438 */     mplew.writeInt(0);
-/* 1439 */     mplew.writeInt(0);
-/* 1440 */     mplew.writeLong(PacketHelper.getTime(System.currentTimeMillis()));
-/* 1441 */     mplew.writeInt(100);
-/* 1442 */     mplew.write(0);
-/* 1443 */     mplew.write(1);
-
-        return mplew.getPacket();
+    public static byte[] getCharInfo(MapleCharacter chr) {
+        return setField(chr, true, null, 0);
     }
 
-    public static byte[] getWarpToMap(final MapleMap to, final int spawnPoint, final MapleCharacter chr) {
-
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendPacketOpcode.WARP_TO_MAP.getValue());
-        mplew.writeShort(2);
-        mplew.writeLong(1);
-        mplew.writeLong(2);
-        mplew.writeLong(chr.getClient().getChannel() - 1);
-        mplew.write(0);
-        mplew.writeLong(2); // Count
-        mplew.write(0);
-        mplew.writeInt(to.getId());
-        mplew.write(spawnPoint);
-        mplew.writeInt(chr.getStat().getHp());
-        mplew.write(0);
-        mplew.writeLong(PacketHelper.getTime(System.currentTimeMillis()));
-        mplew.writeInt(100);
-        mplew.write(0);
-        mplew.write(GameConstants.isResist(chr.getJob()) ? 0 : 1);
-
-        return mplew.getPacket();
+    public static byte[] getWarpToMap(MapleMap to, int spawnPoint, MapleCharacter chr) {
+        return setField(chr, false, to, spawnPoint);
     }
 
     public static byte[] spawnFlags(List<Pair<String, Integer>> flags) { //Flag_R_1 to 0, etc
@@ -1562,6 +1518,51 @@ public class CField {
             }
         }
 
+        return mplew.getPacket();
+    }
+
+
+    public static byte[] setField(MapleCharacter chr, boolean CharInfo, MapleMap to, int spawnPoint) {
+        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(SendPacketOpcode.WARP_TO_MAP.getValue());
+        mplew.writeInt(chr.getClient().getChannel() - 1);
+        mplew.write(0);
+        mplew.writeInt(0);
+        mplew.write(CharInfo ? 1 : 2);
+        mplew.writeInt(0);
+        mplew.write(CharInfo ? 1 : 0);
+        int v104 = 0;
+        mplew.writeShort(v104); // size :: v104
+        if (v104 != 0) {
+            mplew.writeMapleAsciiString("");
+            for (int i = 0; i < v104; i++) {
+                mplew.writeMapleAsciiString("");
+            }
+        }
+        if (CharInfo) {
+            chr.CRand().connectData(mplew); // [Int][Int][Int]
+            PacketHelper.addCharacterInfo(mplew, chr);
+            mplew.writeInt(0);
+            for (int i = 0; i < 3; i++) {
+                mplew.writeInt(0);
+            }
+        } else {
+            mplew.write(0);
+            mplew.writeInt(to.getId());
+            mplew.write(spawnPoint);
+            mplew.writeInt(chr.getStat().getHp());
+            boolean v12 = false;
+            mplew.write(v12 ? 1 : 0);
+            if (v12) {
+                mplew.writeInt(0);
+                mplew.writeInt(0);
+            }
+        }
+        mplew.writeLong(PacketHelper.getTime(System.currentTimeMillis()));
+        mplew.writeInt(100);
+        mplew.writeBoolean(false);
+        mplew.write(0);
+        mplew.write(GameConstants.isSeparatedSp(chr.getJob()) ? 1 : 0); // v109
         return mplew.getPacket();
     }
 
@@ -3914,7 +3915,7 @@ mplew.writeLong(0);
 
                     if (dp.getItem() != null) {
                         mplew.write(1);
-                        PacketHelper.addItemInfo(mplew, dp.getItem());
+                        PacketHelper.GW_ItemSlotBase_Decode(mplew, dp.getItem());
                     } else {
                         mplew.write(0);
                     }

@@ -437,12 +437,12 @@ public class World {
                 public void run() {
                     getAllCharacters().stream().filter(chr -> chr.getMapId() == 109060001).forEach(chr -> {
                         if (getEventMap() == 0) {
-                            chr.getClient().getSession().write(CWvsContext.clearMidMsg());
+                            chr.getClient().sendPacket(CWvsContext.clearMidMsg());
                             chr.changeMap(100000000);
                             setEventOn(false);
                             autojqOn = true;
                         } else {
-                            chr.getClient().getSession().write(CWvsContext.clearMidMsg());
+                            chr.getClient().sendPacket(CWvsContext.clearMidMsg());
                             chr.changeMap(getEventMap());
                             chr.dropMessage(-1, "The Automatic Jump Quest has started!");
                             setEventOn(false);
@@ -521,7 +521,7 @@ public class World {
                 if (ch > 0 && (exception == null || partychar.getId() != exception.getId())) {
                     MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(partychar.getName());
                     if (chr != null) { //Extra check just in case
-                        chr.getClient().getSession().write(packet);
+                        chr.getClient().sendPacket(packet);
                     }
                 }
             }
@@ -539,7 +539,7 @@ public class World {
                 if (ch > 0) {
                     MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(partychar.getName());
                     if (chr != null && !chr.getName().equalsIgnoreCase(namefrom)) { //Extra check just in case
-                        chr.getClient().getSession().write(CField.multiChat(namefrom, chattext, mode));
+                        chr.getClient().sendPacket(CField.multiChat(namefrom, chattext, mode));
                     }
                 }
             }
@@ -631,9 +631,9 @@ public class World {
                     if (chr != null) {
                         chr.setParty(null);
                         if (oldExped > 0) {
-                            chr.getClient().getSession().write(ExpeditionPacket.expeditionMessage(80));
+                            chr.getClient().sendPacket(ExpeditionPacket.expeditionMessage(80));
                         }
-                        chr.getClient().getSession().write(PartyPacket.updateParty(chr.getClient().getChannel(), party, operation, target));
+                        chr.getClient().sendPacket(PartyPacket.updateParty(chr.getClient().getChannel(), party, operation, target));
                     }
                 }
                 if (target.getId() == party.getLeader().getId() && party.getMembers().size() > 0) { //pass on lead
@@ -663,12 +663,12 @@ public class World {
                         if (operation == PartyOperation.DISBAND) {
                             chr.setParty(null);
                             if (oldExped > 0) {
-                                chr.getClient().getSession().write(ExpeditionPacket.expeditionMessage(83));
+                                chr.getClient().sendPacket(ExpeditionPacket.expeditionMessage(83));
                             }
                         } else {
                             chr.setParty(party);
                         }
-                        chr.getClient().getSession().write(PartyPacket.updateParty(chr.getClient().getChannel(), party, operation, target));
+                        chr.getClient().sendPacket(PartyPacket.updateParty(chr.getClient().getChannel(), party, operation, target));
                     }
                 }
             }
@@ -822,7 +822,7 @@ public class World {
                 if (ch > 0) {
                     MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterById(characterId);
                     if (chr != null && chr.getBuddylist().containsVisible(cidFrom)) {
-                        chr.getClient().getSession().write(CField.multiChat(nameFrom, chattext, 0));
+                        chr.getClient().sendPacket(CField.multiChat(nameFrom, chattext, 0));
                     }
                 }
             }
@@ -845,7 +845,7 @@ public class World {
                                 ble.setChannel(channel);
                                 mcChannel = channel - 1;
                             }
-                            chr.getClient().getSession().write(BuddylistPacket.updateBuddyChannel(ble.getCharacterId(), mcChannel));
+                            chr.getClient().sendPacket(BuddylistPacket.updateBuddyChannel(ble.getCharacterId(), mcChannel));
                         }
                     }
                 }
@@ -863,13 +863,13 @@ public class World {
                         case ADDED:
                             if (buddylist.contains(cidFrom)) {
                                 buddylist.put(new BuddylistEntry(name, cidFrom, group, channel, true));
-                                addChar.getClient().getSession().write(BuddylistPacket.updateBuddyChannel(cidFrom, channel - 1));
+                                addChar.getClient().sendPacket(BuddylistPacket.updateBuddyChannel(cidFrom, channel - 1));
                             }
                             break;
                         case DELETED:
                             if (buddylist.contains(cidFrom)) {
                                 buddylist.put(new BuddylistEntry(name, cidFrom, group, -1, buddylist.get(cidFrom).isVisible()));
-                                addChar.getClient().getSession().write(BuddylistPacket.updateBuddyChannel(cidFrom, -1));
+                                addChar.getClient().sendPacket(BuddylistPacket.updateBuddyChannel(cidFrom, -1));
                             }
                             break;
                     }
@@ -933,7 +933,7 @@ public class World {
                 if (chr != null) {
                     MapleMessenger messenger = chr.getMessenger();
                     if (messenger != null) {
-                        chr.getClient().getSession().write(CField.messengerNote(namefrom, 5, 0));
+                        chr.getClient().sendPacket(CField.messengerNote(namefrom, 5, 0));
                     }
                 }
             }
@@ -958,7 +958,7 @@ public class World {
                     if (ch > 0) {
                         MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(mmc.getName());
                         if (chr != null) {
-                            chr.getClient().getSession().write(CField.removeMessengerPlayer(position));
+                            chr.getClient().sendPacket(CField.removeMessengerPlayer(position));
                         }
                     }
                 }
@@ -992,7 +992,7 @@ public class World {
                     MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(messengerchar.getName());
                     if (chr != null) {
                         MapleCharacter from = ChannelServer.getInstance(fromworld, fromchannel).getPlayerStorage().getCharacterByName(namefrom);
-                        chr.getClient().getSession().write(CField.updateMessengerPlayer(namefrom, from, position, fromchannel - 1));
+                        chr.getClient().sendPacket(CField.updateMessengerPlayer(namefrom, from, position, fromchannel - 1));
                     }
                 }
             });
@@ -1015,11 +1015,11 @@ public class World {
                         if (!messengerchar.getName().equals(from)) {
                             MapleCharacter fromCh = ChannelServer.getInstance(fromworld, fromchannel).getPlayerStorage().getCharacterByName(from);
                             if (fromCh != null) {
-                                chr.getClient().getSession().write(CField.addMessengerPlayer(from, fromCh, position, fromchannel - 1));
-                                fromCh.getClient().getSession().write(CField.addMessengerPlayer(chr.getName(), chr, mposition, messengerchar.getChannel() - 1));
+                                chr.getClient().sendPacket(CField.addMessengerPlayer(from, fromCh, position, fromchannel - 1));
+                                fromCh.getClient().sendPacket(CField.addMessengerPlayer(chr.getName(), chr, mposition, messengerchar.getChannel() - 1));
                             }
                         } else {
-                            chr.getClient().getSession().write(CField.joinMessenger(mposition));
+                            chr.getClient().sendPacket(CField.joinMessenger(mposition));
                         }
                     }
                 }
@@ -1038,7 +1038,7 @@ public class World {
                 if (ch > 0) {
                     MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(messengerchar.getName());
                     if (chr != null) {
-                        chr.getClient().getSession().write(CField.messengerChat(charname, text));
+                        chr.getClient().sendPacket(CField.messengerChat(charname, text));
                     }
                 }
             });
@@ -1055,13 +1055,13 @@ public class World {
                     MapleCharacter targeter = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterByName(target);
                     if (targeter != null && targeter.getMessenger() == null) {
                         if (!targeter.isIntern() || gm) {
-                            targeter.getClient().getSession().write(CField.messengerInvite(sender, messengerId));
-                            from.getClient().getSession().write(CField.messengerNote(target, 4, 1));
+                            targeter.getClient().sendPacket(CField.messengerInvite(sender, messengerId));
+                            from.getClient().sendPacket(CField.messengerNote(target, 4, 1));
                         } else {
-                            from.getClient().getSession().write(CField.messengerNote(target, 4, 0));
+                            from.getClient().sendPacket(CField.messengerNote(target, 4, 0));
                         }
                     } else {
-                        from.getClient().getSession().write(CField.messengerChat(sender, " : " + target + " is already using Maple Messenger"));
+                        from.getClient().sendPacket(CField.messengerChat(sender, " : " + target + " is already using Maple Messenger"));
                     }
                 }
             }
@@ -1453,7 +1453,7 @@ public class World {
                 }
                 c = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterById(i);
                 if (c != null) {
-                    c.getClient().getSession().write(packet);
+                    c.getClient().sendPacket(packet);
                 }
             }
         }
@@ -1466,7 +1466,7 @@ public class World {
             }
             final MapleCharacter c = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterById(targetId);
             if (c != null) {
-                c.getClient().getSession().write(packet);
+                c.getClient().sendPacket(packet);
             }
         }
 
@@ -1481,7 +1481,7 @@ public class World {
             }
             final MapleCharacter c = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterById(targetIds);
             if (c != null && c.getGuildId() == guildid) {
-                c.getClient().getSession().write(packet);
+                c.getClient().sendPacket(packet);
             }
         }
 
@@ -1496,7 +1496,7 @@ public class World {
             }
             final MapleCharacter c = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterById(targetIds);
             if (c != null && c.getFamilyId() == guildid) {
-                c.getClient().getSession().write(packet);
+                c.getClient().sendPacket(packet);
             }
         }
     }
@@ -2085,7 +2085,7 @@ public class World {
             chr.getCooldowns().stream().filter(m -> m.startTime + m.length < now).forEach(m -> {
                 final int skillId = m.skillId;
                 chr.removeCooldown(skillId);
-                chr.getClient().getSession().write(CField.skillCooldown(skillId, 0));
+                chr.getClient().sendPacket(CField.skillCooldown(skillId, 0));
             });
         }
         if (chr.isAlive()) {
@@ -2138,7 +2138,7 @@ public class World {
                     chr.unequipPet(pet, true, true);
                 } else {
                     pet.setFullness(newFullness);
-                    chr.getClient().getSession().write(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem(pet.getInventoryPosition()), true));
+                    chr.getClient().sendPacket(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem(pet.getInventoryPosition()), true));
                 }
             }*/
         }

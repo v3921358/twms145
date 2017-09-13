@@ -309,9 +309,9 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        client.getSession().writeAndFlush(NPCPacket.spawnNPC(this, true));
-        client.getSession().writeAndFlush(CWvsContext.spawnPlayerNPC(this, client));
-        client.getSession().writeAndFlush(NPCPacket.spawnNPCRequestController(this, true));
+        client.sendPacket(NPCPacket.spawnNPC(this, true));
+        client.sendPacket(CWvsContext.spawnPlayerNPC(this, client));
+        client.sendPacket(NPCPacket.spawnNPCRequestController(this, true));
     }
 
     public MapleNPC getNPCFromWZ() {

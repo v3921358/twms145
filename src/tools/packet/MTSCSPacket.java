@@ -252,7 +252,7 @@ public class MTSCSPacket {
             mplew.writeInt(size);
             for (Item itemz : mci.getInventory()) {
                 if (GameConstants.isPet(itemz.getItemId()) || GameConstants.getInventoryType(itemz.getItemId()) == MapleInventoryType.EQUIP) {
-                    PacketHelper.addItemInfo(mplew, itemz);
+                    PacketHelper.GW_ItemSlotBase_Decode(mplew, itemz);
                 }
             }
         }
@@ -439,7 +439,7 @@ public class MTSCSPacket {
         mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
         mplew.write(Operation_Code + 36); // 37 = Failed
         mplew.writeShort(pos);
-        PacketHelper.addItemInfo(mplew, item);
+        PacketHelper.GW_ItemSlotBase_Decode(mplew, item);
         mplew.writeInt(0); // For each: 8 bytes(Could be 2 ints or 1 long)
 
         return mplew.getPacket();
@@ -552,7 +552,7 @@ public class MTSCSPacket {
         mplew.write(Operation_Code + 99); // 100 = Failed
         mplew.writeLong(uniqueid);
         mplew.writeInt(1302000);
-        PacketHelper.addItemInfo(mplew, item);
+        PacketHelper.GW_ItemSlotBase_Decode(mplew, item);
         mplew.writeShort(0);
         mplew.writeInt(0); // Item Size.->For each 8 bytes.
 
@@ -1047,7 +1047,7 @@ public class MTSCSPacket {
     }
 
     private static void addMTSItemInfo(final MaplePacketLittleEndianWriter mplew, final MTSItemInfo item) {
-        PacketHelper.addItemInfo(mplew, item.getItem());
+        PacketHelper.GW_ItemSlotBase_Decode(mplew, item.getItem());
         mplew.writeInt(item.getId()); //id
         mplew.writeInt(item.getTaxes()); //this + below = price
         mplew.writeInt(item.getPrice()); //price
@@ -1076,7 +1076,7 @@ public class MTSCSPacket {
         mplew.writeInt(items.size());
         int i = 0;
         for (Item item : items) {
-            PacketHelper.addItemInfo(mplew, item);
+            PacketHelper.GW_ItemSlotBase_Decode(mplew, item);
             mplew.writeInt(Integer.MAX_VALUE - i); //fake ID
             mplew.writeZeroBytes(GameConstants.GMS ? 52 : 56); //really just addMTSItemInfo
             i++;

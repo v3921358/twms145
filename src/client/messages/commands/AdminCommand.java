@@ -93,7 +93,7 @@ public class AdminCommand {
                 }
                     return true;
                 case "shammos":
-                    c.getSession().writeAndFlush(MobPacket.talkMonster(Integer.parseInt(splitted[1]), 2, 5000, "You fools!"));
+                    c.sendPacket(MobPacket.talkMonster(Integer.parseInt(splitted[1]), 2, 5000, "You fools!"));
                     return true;
                 case "trip":
                     victim = cserv.getPlayerStorage().getCharacterByName(splitted[1]);
@@ -111,7 +111,7 @@ public class AdminCommand {
                 case "crash":
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
                     if (victim != null && c.getPlayer().getGMLevel() >= victim.getGMLevel()) {
-                        victim.getClient().getSession().writeAndFlush(HexTool.getByteArrayFromHexString("1A 00")); //give_buff with no data :D
+                        victim.getClient().sendPacket(HexTool.getByteArrayFromHexString("1A 00")); //give_buff with no data :D
                         return true;
                     } else {
                         c.getPlayer().dropMessage(6, "The victim does not exist.");
@@ -258,7 +258,7 @@ public class AdminCommand {
                             int emoteid = 5159992 + emote;
                         }
                         if (victim != null) {
-                            victim.getClient().getSession().writeAndFlush(CField.facialExpression(victim, emote));
+                            victim.getClient().sendPacket(CField.facialExpression(victim, emote));
                             victim.getMap().broadcastMessage(victim, CField.facialExpression(victim, emote), true);
                             victim.getMap().broadcastMessage(victim, CField.facialExpression(victim, emote), victim.getPosition());
                         } else {
@@ -333,7 +333,7 @@ public class AdminCommand {
                         player.setHair(victim.getHair());
                         player.setGender(victim.getGender());
                         player.setSkinColor(victim.getSkinColor());
-                        c.getPlayer().getClient().getSession().writeAndFlush(CField.getCharInfo(c.getPlayer()));
+                        c.getPlayer().getClient().sendPacket(CField.getCharInfo(c.getPlayer()));
                         c.getPlayer().getMap().removePlayer(c.getPlayer());
                         c.getPlayer().getMap().addPlayer(c.getPlayer());
                 return true;
@@ -471,7 +471,7 @@ public class AdminCommand {
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
                     if (!victim.isEric()) {
                         victim.setHair(hair);
-                        victim.getClient().getSession().writeAndFlush(CField.getCharInfo(victim));
+                        victim.getClient().sendPacket(CField.getCharInfo(victim));
                         victim.getMap().removePlayer(victim);
                         victim.getMap().addPlayer(victim);   
                     }
@@ -481,7 +481,7 @@ public class AdminCommand {
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
                     if (!victim.isEric()) {
                         victim.setFace(eyes);
-                        victim.getClient().getSession().writeAndFlush(CField.getCharInfo(victim));
+                        victim.getClient().sendPacket(CField.getCharInfo(victim));
                         victim.getMap().removePlayer(victim);
                         victim.getMap().addPlayer(victim);   
                     }
@@ -528,7 +528,7 @@ public class AdminCommand {
                         } else {
                             map.enableSeduce();
                             map.setChair(0);
-                            map.getClient().getSession().writeAndFlush(CField.cancelChair(-1));
+                            map.getClient().sendPacket(CField.cancelChair(-1));
                             map.getMap().broadcastMessage(map, CField.showChair(map.getId(), 0), false);
                             map.giveDebuff(MapleDisease.SEDUCE,MobSkillFactory.getMobSkill(128,level));
                         }
@@ -814,7 +814,7 @@ public class AdminCommand {
                 case "msgtest":
                     // String hint = InternCommand.joinStringFrom(splitted, 1);
                     String hint = ServerConstants.WELCOME_MESSAGE;
-                    c.getSession().writeAndFlush(CField.sendHint("" + hint + "", 0, 0));
+                    c.sendPacket(CField.sendHint("" + hint + "", 0, 0));
                     c.getPlayer().dropMessage("Length: " + hint.length() + ".");
                     c.getPlayer().dropMessage("Width: " + Math.max(hint.length() * 10, 40) + ".");
                     c.getPlayer().dropMessage("Height: " + Math.max(0, 5) + ".");
@@ -1079,7 +1079,7 @@ public class AdminCommand {
                     z = y * 1000;
                     time = z;
                     for (MapleCharacter all : World.getAllCharacters()) {
-                      all.getClient().getSession().writeAndFlush(CWvsContext.getMidMsg("Performing an immediate Shutdown in " + x + " minute(s)..", true, 1));
+                      all.getClient().sendPacket(CWvsContext.getMidMsg("Performing an immediate Shutdown in " + x + " minute(s)..", true, 1));
                     }
                     World.Shutdown = true;
                          EventTimer.getInstance().schedule(() -> {
