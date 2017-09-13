@@ -148,7 +148,6 @@ public class CharacterTransfer implements Externalizable {
         this.autoAP = chr.getAutoAP();
         this.autoToken = chr.getAutoToken();
         this.elf = chr.getElf();
-        this.clanId = chr.getClanId();
         /*End of Custom Feature*/
         this.skinColor = chr.getSkinColor();
         this.job = chr.getJob();

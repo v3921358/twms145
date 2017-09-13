@@ -22,7 +22,7 @@ public class ServerConstants {
     public static final int Currency = 4000999;
     public static final boolean MerchantsUseCurrency = false; // Log Packets = true | Allow people to connect = false
     public static boolean Use_Localhost = false; // Only allow accounted admins to connect pass login server
-    public static boolean USE_SECOND_PASSWORD_AUTH = true;
+    public static boolean USE_SECOND_PASSWORD_AUTH = false;
     public static boolean Admin_Only = false; 
     public static boolean release = true;
     public static int ERIC_ACC_ID = 2197;

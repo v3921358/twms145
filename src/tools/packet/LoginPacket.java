@@ -111,8 +111,8 @@ public class LoginPacket {
         mplew.write(1);
         mplew.writeLong(PacketHelper.getTime(System.currentTimeMillis())); //really create date
         mplew.writeInt(4); // Remove the "Select the world you want to play in" since it doesn't fit inside the loginscreen
-        mplew.write(1); //1 = pin disabled, 0 = pin enabled
-        mplew.write(client.getSecondPassword() == null ? 0 : (client.getSecondPassword().equals("") ? 2 : 1)); //2 = no pic at all
+        mplew.write(0); //1 = pin disabled, 0 = pin enabled
+        mplew.write(client.getSecondPassword().equals("") ? 2 : 1); //2 = no pic at all
         mplew.writeLong(Randomizer.nextLong());
 
         return mplew.getPacket();

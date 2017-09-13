@@ -2101,13 +2101,13 @@ public class GameConstants {
     public static int getNumSteal(int jobNum) {
         switch (jobNum) {
             case 1:
-                return 4;
+                return 6;
             case 2:
-                return 4;
+                return 5;
             case 3:
-                return 3;
+                return 4;
             case 4:
-                return 2;
+                return 3;
         }
         return 0;
     }

@@ -242,7 +242,6 @@ public class PacketHelper {
         mplew.write(chr.getSkinColor());
         mplew.writeInt(chr.getFace());
         mplew.writeInt(chr.getHair());
-        mplew.writeZeroBytes(24);
         mplew.write(chr.getLevel());
         mplew.writeShort(chr.getJob());
         chr.getStat().connectData(mplew);
@@ -280,7 +279,7 @@ public class PacketHelper {
         mplew.writeInt(chr.getStat().pvpExp);
         mplew.write(chr.getStat().pvpRank);
         mplew.writeInt(chr.getBattlePoints());
-        mplew.write(5);
+        mplew.write(6);
         mplew.writeInt(0);
         mplew.writeReversedLong(getTime(System.currentTimeMillis()));
         mplew.writeZeroBytes(25); // 台版以前到現在都有
@@ -335,11 +334,10 @@ public class PacketHelper {
         }
         mplew.write(0xFF); // end of totem
         // masked itens
-        for (final Entry<Byte, Integer> entry : maskedEquip.entrySet()) {
-            mplew.write(entry.getKey());
-            mplew.writeInt(entry.getValue());
-        }
-        mplew.write(0xFF); // ending markers
+
+        mplew.write(0xFF);
+        mplew.writeInt(0);
+        //TODO: 解包
 
         mplew.writeBool(chr.isElf(client.getPlayer()));
         mplew.writeZeroBytes(12); // pets
@@ -441,7 +439,7 @@ public class PacketHelper {
         }
 
         boolean v11 = false;
-        mplew.writeBoolean(v11);
+        mplew.writeBool(v11);
         if (v11) {
             mplew.write(0);
             int v12 = 0;
@@ -518,7 +516,6 @@ public class PacketHelper {
             boolean v54 = false;
             mplew.writeBool(v54);
 
-
             Iitem = getInventoryInfo(equipped, 1, 99).iterator(); // 普通裝備
             while (true) {
                 Item v52 = Iitem.hasNext() ? Iitem.next() : null;
@@ -580,8 +577,8 @@ public class PacketHelper {
                     GW_ItemSlotBase_Decode(mplew, item, chr);
                 }
             }
-            mplew.writeInt(-1);
         }
+        mplew.writeInt(-1);
 
 
         if ((mask & 0x1000000) != 0) {
@@ -694,8 +691,11 @@ public class PacketHelper {
             }
         }
 
-        if ((mask & 0x10000000) != 0) { // [16] Byte幻影複製技能選擇訊息
-            addChosenSkills(mplew, chr); // 16
+        if ((mask & 0x10000000) != 0) {
+            mplew.write(1);
+            int v216 = 0;
+            for(int i = 0; i < v216; i++)
+                mplew.writeInt(0);
         }
 
 

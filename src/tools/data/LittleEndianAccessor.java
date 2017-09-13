@@ -22,6 +22,8 @@ package tools.data;
 
 import java.awt.Point;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 
 /**
  * Provides a  interface to a Little Endian stream of bytes.
@@ -145,11 +147,16 @@ public class LittleEndianAccessor {
      * @return The string read.
      */
     public final String readAsciiString(final int n) {
-        final char ret[] = new char[n];
-        for (int x = 0; x < n; x++) {
-            ret[x] = (char) readByte();
+        try {
+            final byte ret[] = new byte[n];
+            for (int x = 0; x < n; x++) {
+                ret[x] = readByte();
+            }
+            return new String(ret, "BIG5");
+        } catch (UnsupportedEncodingException ex) {
+            System.err.println(ex);
         }
-        return new String(ret);
+        return "";
     }
 
     /**

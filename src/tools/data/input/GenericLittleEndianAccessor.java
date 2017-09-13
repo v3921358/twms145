@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package tools.data.input;
 
 import java.awt.Point;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Provides a generic interface to a Little Endian stream of bytes.
@@ -142,11 +143,16 @@ public class GenericLittleEndianAccessor implements LittleEndianAccessor {
      */
     @Override
     public final String readAsciiString(final int n) {
-        final char ret[] = new char[n];
-        for (int x = 0; x < n; x++) {
-            ret[x] = (char) readByte();
+        try {
+            final byte ret[] = new byte[n];
+            for (int x = 0; x < n; x++) {
+                ret[x] = readByte();
+            }
+            return new String(ret, "BIG5");
+        } catch (UnsupportedEncodingException ex) {
+            System.err.println(ex);
         }
-        return new String(ret);
+        return  "";
     }
 
     /**

@@ -3833,14 +3833,15 @@ public class CWvsContext {
         if (type == 4) {
             mplew.write(1);
         }
-        if (type != 23 && type != 24) {
+        if (type != 13 && type != 14) {
             mplew.writeMapleAsciiString(message);
         }
         switch (type) {
-            case 3: // Super Megaphone
-            case 22: // Skull Megaphone
-            case 25:
-            case 26:
+            case 3:
+            case 17:
+            case 18:
+            case 15:
+            case 16:
                 mplew.write(channel - 1);
                 mplew.write(megaEar ? 1 : 0);
                 break;
@@ -3855,10 +3856,6 @@ public class CWvsContext {
             case 20:
                 mplew.writeInt(channel >= 1000000 && channel < 6000000 ? channel : 0); // Item Id
                 //E.G. All new EXP coupon {Ruby EXP Coupon} is now available in the Cash Shop!
-                break;
-            case 16:
-                // v13 = CInPacket::DecodeStr(a2, (int)&v122);
-                // v2 = CInPacket::Decode1(a2);
                 break;
             case 24:
                 mplew.writeShort(0); // ?

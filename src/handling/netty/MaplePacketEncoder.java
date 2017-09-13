@@ -26,6 +26,7 @@ import handling.SendPacketOpcode;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import tools.HexTool;
 import tools.MapleAESOFB;
 import tools.StringUtil;
 
@@ -54,6 +55,8 @@ public class MaplePacketEncoder extends MessageToByteEncoder<Object> {
                 }
                 String t = packetLen >= 10 ? packetLen >= 100 ? packetLen >= 1000 ? "" : " " : "  " : "   ";
                 final StringBuilder sb = new StringBuilder("[Debug] Send: \t" + op + tab + "\t包頭:" + pHeaderStr + t + "[" + packetLen/* + "\r\nCaller: " + Thread.currentThread().getStackTrace()[2] */ + "字元]");
+                sb.append("\n        Hex : \t").append(HexTool.toString(input));
+                sb.append("\n        Ascii: \t").append(HexTool.toPaddedStringFromAscii(input));
                 System.out.println(sb.toString());
             }
 

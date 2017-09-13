@@ -22,6 +22,8 @@ package client;
 
 import constants.GameConstants;
 import database.DatabaseConnection;
+import tools.types.Triple;
+
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -29,7 +31,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.regex.Pattern;
-import tools.types.Triple;
 
 public class MapleCharacterUtil {
 
@@ -37,26 +38,27 @@ public class MapleCharacterUtil {
     private static final Pattern petPattern = Pattern.compile("[a-zA-Z0-9]{4,12}");
 
     public static boolean canCreateChar(final String name, final boolean gm) {
-	if (getIdByName(name) != -1 || !isEligibleCharName(name, gm)) {
-	    return false;
-	}
+        return true;
+//        if (getIdByName(name) != -1 || !isEligibleCharName(name, gm)) {
+//            return false;
+//        }
+//        return true;
+    }
+
+    public static boolean canpoop(final String name, final boolean gm) {
+        if (!isEligibleCharName(name, gm)) {
+            return false;
+        }
         return true;
     }
-    
-        public static boolean canpoop(final String name, final boolean gm) {
-	if (!isEligibleCharName(name, gm)) {
-	    return false;
-	}
-        return true;
-    }
-	
+
     public static boolean isEligibleCharName(final String name, final boolean gm) {
-	if (name.length() > 12) {
-	    return false;
-	}
-	if (gm) {
-	    return true;
-	}
+        if (name.length() > 12) {
+            return false;
+        }
+        if (gm) {
+            return true;
+        }
         if (name.length() < 3 || !namePattern.matcher(name).matches()) {
             return false;
         }
@@ -231,7 +233,7 @@ public class MapleCharacterUtil {
     }
 
     public static Triple<Boolean, Integer, Integer> getNXCodeInfo(String code) throws SQLException {
-	Triple<Boolean, Integer, Integer> ret = null;
+        Triple<Boolean, Integer, Integer> ret = null;
         Connection con = DatabaseConnection.getConnection();
         try (PreparedStatement ps = con.prepareStatement("SELECT `valid`, `type`, `item` FROM nxcode WHERE code LIKE ?")) {
             ps.setString(1, code);

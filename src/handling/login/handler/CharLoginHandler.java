@@ -93,7 +93,7 @@ public class CharLoginHandler {
 
             LoginResponse loginResponse = c.login(account, password);
 
-            if(ServerConstants.DEBUG) {
+            if (ServerConstants.DEBUG) {
                 System.out.printf("[Debug] Login: %s:%s MAC: %s IP: %s Response: %s\n", account, password, macData, c.getSessionIPAddress(), loginResponse.toString());
             }
 
@@ -214,7 +214,7 @@ public class CharLoginHandler {
     public static void CharlistRequest(final LittleEndianAccessor slea, final MapleClient c) {
         if (!c.isLoggedIn()) {
             c.getSession().close();
-            if(ServerConstants.DEBUG) {
+            if (ServerConstants.DEBUG) {
                 System.err.println("伺服器主動斷開用戶端連結,調用位置: " + new java.lang.Throwable().getStackTrace()[0]);
             }
             return;
@@ -242,7 +242,7 @@ public class CharLoginHandler {
     public static void CreateChar(final LittleEndianAccessor slea, final MapleClient c) {
         if (!c.isLoggedIn()) {
             c.getSession().close();
-            if(ServerConstants.DEBUG) {
+            if (ServerConstants.DEBUG) {
                 System.err.println("伺服器主動斷開用戶端連結,調用位置: " + new java.lang.Throwable().getStackTrace()[0]);
             }
             return;
@@ -252,25 +252,37 @@ public class CharLoginHandler {
         final boolean isJettPhantom = (jobType == LoginInformationProvider.JobType.Phantom);
         final boolean isMercedes = (jobType == JobType.Mercedes);
         final boolean isDemon = (jobType == JobType.Demon);
-        final short subCategory = slea.readShort();
+        final boolean isResist = (jobType == JobType.Resistance);
+        final byte pGender = slea.readByte();
         final byte gender = c.getGender();
         byte skinColor = slea.readByte(); // 01
         int hairColor = 0;
         int weapon3 = 0;
         final byte unk2 = slea.readByte(); // 08
+
         final int face = slea.readInt();
         final int hair = slea.readInt();
-        if (!isJettPhantom && !isMercedes && !isDemon) { //mercedes/demon dont need hair color since its already in the hair
-            hairColor = slea.readInt();
-            skinColor = (byte) slea.readInt();
-        }
+//        if (!isJettPhantom && !isMercedes && !isDemon) { //mercedes/demon dont need hair color since its already in the hair
+//            hairColor = slea.readInt();
+//            skinColor = (byte) slea.readInt();
+//        }
         int demonMark = 0;
-        if(isDemon) {
+        if (isDemon) {
             demonMark = slea.readInt();
         }
-        final int top = slea.readInt();
-        final int bottom = slea.readInt();
-        final int shoes = slea.readInt();
+
+
+        int top = 0;
+        int bottom = 0;
+
+        if(isResist) {
+            top = slea.readInt();
+        } else {
+            top = slea.readInt();
+            bottom = slea.readInt();
+        }
+
+        int shoes = slea.readInt();
         final int weapon = slea.readInt();
         if (isJettPhantom) {
             weapon3 = slea.readInt();
@@ -278,26 +290,32 @@ public class CharLoginHandler {
 
         int shield = jobType == LoginInformationProvider.JobType.Phantom ? 1352100 : isMercedes ? 1352000 : isDemon ? slea.readInt() : 0;
         if (jobType == JobType.Demon) {
-            if (!LoginInformationProvider.getInstance().isEligibleItem(gender, 0, jobType.type, face) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 1, jobType.type, hair)
-                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 2, jobType.type, demonMark) || (skinColor != 0 && skinColor != 13)
-                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 3, jobType.type, top) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 4, jobType.type, shoes)
-                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 5, jobType.type, weapon) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 6, jobType.type, shield)) {
+            if (!LoginInformationProvider.getInstance().isEligibleItem(gender, 0, jobType.id, face) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 1, jobType.id, hair)
+                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 2, jobType.id, demonMark) || (skinColor != 0 && skinColor != 13)
+                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 3, jobType.id, top) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 4, jobType.id, shoes)
+                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 5, jobType.id, weapon) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 6, jobType.id, shield)) {
                 return;
             }
         } else if (jobType == JobType.Mercedes) {
-            if (!LoginInformationProvider.getInstance().isEligibleItem(gender, 0, jobType.type, face) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 1, jobType.type, hair)
-                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 2, jobType.type, top) || (skinColor != 0 && skinColor != 12)
-                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 3, jobType.type, shoes) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 4, jobType.type, weapon)) {
+            if (!LoginInformationProvider.getInstance().isEligibleItem(gender, 0, jobType.id, face) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 1, jobType.id, hair)
+                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 2, jobType.id, top) || (skinColor != 0 && skinColor != 12)
+                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 3, jobType.id, shoes) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 4, jobType.id, weapon)) {
+                return;
+            }
+        } else if (isResist) {
+            if (!LoginInformationProvider.getInstance().isEligibleItem(gender, 0, jobType.id, face) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 1, jobType.id, hair)
+                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 2, jobType.id, top)
+                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 3, jobType.id, shoes) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 4, jobType.id, weapon)) {
                 return;
             }
         } else if (jobType != JobType.Phantom) {
-            if (!LoginInformationProvider.getInstance().isEligibleItem(gender, 0, jobType.type, face) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 1, jobType.type, hair)
-                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 2, jobType.type, hairColor) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 3, jobType.type, skinColor)
-                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 4, jobType.type, top) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 5, jobType.type, bottom)
-                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 6, jobType.type, shoes) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 7, jobType.type, weapon)) {
-                return;
+                if (!LoginInformationProvider.getInstance().isEligibleItem(gender, 0, jobType.id, face) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 1, jobType.id, hair)
+                        || !LoginInformationProvider.getInstance().isEligibleItem(gender, 2, jobType.id, top) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 3, jobType.id, bottom)
+                        || !LoginInformationProvider.getInstance().isEligibleItem(gender, 4, jobType.id, shoes)) {
+                    return;
+                }
             }
-        }
+
         MapleCharacter newChar = MapleCharacter.getDefault(c, jobType);
         newChar.setWorld((byte) c.getWorld());
         newChar.setFace(face);
@@ -375,14 +393,12 @@ public class CharLoginHandler {
         //    }
 
         if (MapleCharacterUtil.canCreateChar(name, c.isGm()) && (!LoginInformationProvider.getInstance().isForbiddenName(name) || c.isGm()) && (c.isGm() || c.canMakeCharacter(c.getWorld()))) {
-            MapleCharacter.saveNewCharToDB(newChar, jobType, subCategory);
+            MapleCharacter.saveNewCharToDB(newChar, jobType, jobType.sub);
             c.sendPacket(LoginPacket.addNewCharEntry(newChar, true));
             c.createdChar(newChar.getId());
         } else {
             c.sendPacket(LoginPacket.addNewCharEntry(newChar, false));
         }
-        c.changeSecondPassword();
-        c.updateSecondPassword();
     }
 
     public static void CreateUltimate(final LittleEndianAccessor slea, final MapleClient c) {
@@ -522,65 +538,41 @@ public class CharLoginHandler {
     }
 
     public static void DeleteChar(final LittleEndianAccessor slea, final MapleClient c) {
-        String Secondpw_Client = GameConstants.GMS ? slea.readMapleAsciiString() : null;
-        if (Secondpw_Client == null) {
-            if (slea.readByte() > 0) { // Specific if user have second password or not
-                Secondpw_Client = slea.readMapleAsciiString();
-            }
-            slea.readMapleAsciiString();
-        }
+        slea.readByte();
 
-        final int Character_ID = slea.readInt();
+        String secondPassword = slea.readMapleAsciiString();
 
-        if (!c.login_Auth(Character_ID) || !c.isLoggedIn() || loginFailCount(c)) {
-            c.getSession().close();
-            return; // Attempting to delete other character
+        final int characterId = slea.readInt();
+        if (!c.login_Auth(characterId)) {
+            c.sendPacket(LoginPacket.secondPwError((byte) 0x14));
+            return;
         }
         byte state = 0;
 
-        if (c.getSecondPassword() != null) { // On the server, there's a second password
-            if (Secondpw_Client == null) { // Client's hacking
-                c.getSession().close();
-                return;
-            } else {
-                if (!c.CheckSecondPassword(Secondpw_Client)) { // Wrong Password
-                    state = 20;
-                }
-            }
+        // On the server, there's a second password
+        if (secondPassword == null) { // Client's hacking
+            c.getSession().close();
+            return;
+        } else if (!c.check2ndPassword(secondPassword)) { // Wrong Password
+            state = 16;
         }
 
         if (state == 0) {
-            state = (byte) c.deleteCharacter(Character_ID);
+            state = (byte) c.deleteCharacter(characterId);
         }
-        c.sendPacket(LoginPacket.deleteCharResponse(Character_ID, state));
+
+        c.sendPacket(LoginPacket.deleteCharResponse(characterId, state));
     }
 
     public static final void Character_WithoutSecondPassword(final LittleEndianAccessor slea, final MapleClient c, final boolean haspic, final boolean view) {
-        slea.readByte(); // 1?
-        slea.readByte(); // 1?
+
         final int charId = slea.readInt();
         if (view) {
             c.setChannel(1);
             c.setWorld(slea.readInt());
         }
-        final String currentpw = c.getSecondPassword();
-        if (!c.isLoggedIn() || loginFailCount(c) || !currentpw.equals("") || haspic || !c.login_Auth(charId) || ChannelServer.getInstance(c.getWorld(), c.getChannel()) == null) { // TODOO: MULTI WORLDS
+        if (!c.isLoggedIn() || loginFailCount(c) || haspic || !c.login_Auth(charId) || ChannelServer.getInstance(c.getWorld(), c.getChannel()) == null) { // TODOO: MULTI WORLDS
             c.getSession().close();
-            return;
-        }
-        c.updateMacs(slea.readMapleAsciiString());
-        slea.readMapleAsciiString();
-        if (slea.available() != 0) {
-            final String setpassword = slea.readMapleAsciiString();
-
-            if (setpassword.length() >= 6 && setpassword.length() <= 16) {
-                c.setSecondPassword(setpassword);
-                c.updateSecondPassword();
-            } else {
-                c.sendPacket(LoginPacket.secondPwError((byte) 0x14));
-                return;
-            }
-        } else if (GameConstants.GMS && haspic) {
             return;
         }
         if (c.getIdleTask() != null) {

@@ -614,6 +614,25 @@ public class MapleClient implements Serializable {
         return !(this.gender == 10 || this.secondPassword == null || this.secondPassword.isEmpty());
     }
 
+    public boolean check2ndPassword(String secondPassword) {
+        boolean allow = false;
+        // Check if the passwords are correct here. :B
+        if (checkHash(this.secondPassword, "SHA-1", secondPassword)) {
+            allow = true;
+        }
+        return allow;
+    }
+
+    public static boolean checkHash(String hash, String type, String password) {
+        try {
+            MessageDigest digester = MessageDigest.getInstance(type);
+            digester.update(password.getBytes("UTF-8"), 0, password.length());
+            return HexTool.toString(digester.digest()).replace(" ", "").toLowerCase().equals(hash);
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            throw new RuntimeException("Encoding the string failed", e);
+        }
+    }
+
     public int getAccountIdByLogin(String name) {
         Connection con = DatabaseConnection.getConnection();
         int accid = 0;

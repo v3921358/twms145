@@ -41,14 +41,15 @@ public class LoginInformationProvider {
         UltimateAdventurer(-1, "終極冒險家", 0, 130000000),
         Resistance(0, "反抗軍", 3000, 931000000),
         Adventurer(1, "冒險家", 0, 10000),
-        DualBlade(1, "影武者", 0, 10000, 1),
+        DualBlade(1, "影武者", 0, 10000, (short)1),
         Cygnus(2, "皇家騎士團", 1000, 913040000),
         Aran(3, "狂狼勇士", 2000, 914000000),
         Evan(4, "龍魔導士", 2001, 900090000),
         Mercedes(5, "精靈遊俠", 2002, 910150000),
         Demon(6, "惡魔殺手", 3001, 931050310),
         Phantom(7, "捷諾", 2400, 915000000);
-        public int type, id, map, sub = 0;
+        public int type, id, map;
+        public short sub = 0;
         public String name;
 
         JobType(int type, String job, int id, int map) {
@@ -58,7 +59,7 @@ public class LoginInformationProvider {
             this.map = map;
         }
 
-        JobType(int type, String job, int id, int map, int sub) {
+        JobType(int type, String job, int id, int map, short sub) {
             this.type = type;
             this.name = job;
             this.id = id;

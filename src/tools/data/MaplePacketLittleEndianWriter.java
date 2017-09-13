@@ -37,7 +37,7 @@ import tools.HexTool;
 public class MaplePacketLittleEndianWriter {
 
     private final ByteArrayOutputStream baos;
-    private static final Charset ASCII = Charset.forName("big5"); // ISO-8859-1, UTF-8
+    private static final Charset ASCII = Charset.forName("BIG5");
 
     /**
      * Constructor - initializes this stream with a default size.
@@ -146,11 +146,11 @@ public class MaplePacketLittleEndianWriter {
     }
 
     public final void writeAsciiString(String s, final int max) {
-        if (s.length() > max) {
+        if (s.getBytes(ASCII).length > max) {
             s = s.substring(0, max);
         }
         write(s.getBytes(ASCII));
-        for (int i = s.length(); i < max; i++) {
+        for (int i = s.getBytes(ASCII).length; i < max; i++) {
             write(0);
         }
     }

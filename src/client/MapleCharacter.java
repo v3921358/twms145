@@ -220,7 +220,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     private int reactorCount = 0; // PQ Reactor click counting for various pq's
     /*End of Custom Feature*/
     private int MSIPoints;
-    private int clanId;
     private int dgm;
     private int toSteal;
     private List<InnerSkillValueHolder> innerSkills;
@@ -571,7 +570,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         ret.autoAP = ct.autoAP;
         ret.autoToken = ct.autoToken;
         ret.elf = ct.elf;
-        ret.clanId = ct.clanId;
         /*End of Custom Feature*/
         ret.makeMFC(ct.familyid, ct.seniorid, ct.junior1, ct.junior2);
         if (ret.guildid > 0) {
@@ -771,9 +769,8 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
             ret.reborns = rs.getInt("reborns");
             ret.apstorage = rs.getInt("apstorage");
             ret.MSIPoints = rs.getInt("msipoints");
-            ret.clanId = rs.getInt("clanid");
             ret.noacc = rs.getInt("noacc");
-            ret.muted = rs.getInt("muted") == 1 ? true : false;
+            ret.muted = rs.getInt("muted") == 1;
             Calendar c = Calendar.getInstance();
             c.setTime(new Date(rs.getLong("unmutetime")));
             ret.unmuteTime = c;
@@ -1341,6 +1338,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
 
             con.commit();
         } catch (SQLException | DatabaseException e) {
+            e.printStackTrace();
             FileoutputUtil.outputFileError(FileoutputUtil.PacketEx_Log, e);
             System.err.println("[charsave] Error saving character data");
             try {
@@ -1380,7 +1378,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
             con.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             con.setAutoCommit(false);
 
-            ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, demonMarking = ?, map = ?, meso = ?, hpApUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, pets = ?, subcategory = ?, marriageId = ?, currentrep = ?, totalrep = ?, gachexp = ?, fatigue = ?, charm = ?, charisma = ?, craft = ?, insight = ?, sense = ?, will = ?, totalwins = ?, totallosses = ?, pvpExp = ?, pvpPoints = ?, reborns = ?, apstorage = ?, msipoints = ?, muted = ?, unmutetime = ?, dgm = ?, honourExp = ?, honourLevel = ?, gml = ?, noacc = ?, location = ?, birthday = ?, found = ?, todo = ?, occupationId = ?, occupationExp = ?, occupationLevel = ?, charToggle = ?, jqlevel = ?, jqexp = ?, pvpKills = ?, pvpDeaths = ?, fametoggle = ?, dps = ?, autoap = ?, autotoken = ?, elf = ?, clanid = ?, name = ? WHERE id = ?", DatabaseConnection.RETURN_GENERATED_KEYS);
+            ps = con.prepareStatement("UPDATE characters SET level = ?, fame = ?, str = ?, dex = ?, luk = ?, `int` = ?, exp = ?, hp = ?, mp = ?, maxhp = ?, maxmp = ?, sp = ?, ap = ?, gm = ?, skincolor = ?, gender = ?, job = ?, hair = ?, face = ?, demonMarking = ?, map = ?, meso = ?, hpApUsed = ?, spawnpoint = ?, party = ?, buddyCapacity = ?, pets = ?, subcategory = ?, marriageId = ?, currentrep = ?, totalrep = ?, gachexp = ?, fatigue = ?, charm = ?, charisma = ?, craft = ?, insight = ?, sense = ?, will = ?, totalwins = ?, totallosses = ?, pvpExp = ?, pvpPoints = ?, reborns = ?, apstorage = ?, msipoints = ?, muted = ?, unmutetime = ?, dgm = ?, honourExp = ?, honourLevel = ?, gml = ?, noacc = ?, location = ?, birthday = ?, found = ?, todo = ?, occupationId = ?, occupationExp = ?, occupationLevel = ?, charToggle = ?, jqlevel = ?, jqexp = ?, pvpKills = ?, pvpDeaths = ?, fametoggle = ?, dps = ?, autoap = ?, autotoken = ?, elf = ?, name = ? WHERE id = ?", DatabaseConnection.RETURN_GENERATED_KEYS);
             ps.setInt(1, level);
             ps.setInt(2, fame);
             ps.setShort(3, stats.getStr());
@@ -1487,9 +1485,8 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
             ps.setInt(68, autoAP); // delete
             ps.setInt(69, autoToken ? 1 : 0); // delete
             ps.setInt(70, elf ? 1 : 0); // delete
-            ps.setInt(71, clanId);
-            ps.setString(72, name);
-            ps.setInt(73, id);
+            ps.setString(71, name);
+            ps.setInt(72, id);
             if (ps.executeUpdate() < 1) {
                 ps.close();
                 throw new DatabaseException("Character not in database (" + id + ")");
@@ -7193,43 +7190,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         ticklePower = state;
     }
 
-    public void joinClan(int id) {
-        setClanId(id);
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("UPDATE `clans` SET `members` = `members` + 1 WHERE name = ?");
-            ps.setString(1, NPCConversationManager.getClanName(id));
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println("Unable to add player to clan. Error: " + e.getMessage());
-        }
-        for (MapleCharacter clanmem : client.getChannelServer().getPlayerStorage().getAllCharacters()) {
-            if (clanmem.getClanId() == id) {
-                clanmem.dropMessage(5, "[" + NPCConversationManager.getClanName(id) + "] " + this.getName() + " has joined the clan.");
-            }
-        }
-        savePlayer(); // update the db = update the roster.
-    }
-
-    public int getClanId() {
-        return clanId;
-    }
-
-    public void setClanId(int id) {
-        clanId = id;
-    }
-
-    /* public void doEXPRB() {
-     setReborns(getReborns() + 1);
-     setLevel((short) 3);
-     setExp(0);
-     setJob(0);
-     updateSingleStat(MapleStat.LEVEL, 2);
-     updateSingleStat(MapleStat.JOB, 0);
-     updateSingleStat(MapleStat.EXP, 0);
-     }
-     *
-     */
     public int getMSIPoints() {
         return MSIPoints;
     }

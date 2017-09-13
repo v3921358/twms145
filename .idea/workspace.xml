@@ -5,119 +5,32 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="95334354-c97c-4486-8b36-b705a071ec72" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/client/MapleJob.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/client/inventory/ModifyInventory.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/tools/packet/JobPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/Weber.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/Weber.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/BuddyList.java" afterPath="$PROJECT_DIR$/src/client/BuddyList.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/MapleCharacter.java" afterPath="$PROJECT_DIR$/src/client/MapleCharacter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/MapleCharacterUtil.java" afterPath="$PROJECT_DIR$/src/client/MapleCharacterUtil.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/MapleClans.java" afterPath="$PROJECT_DIR$/src/client/MapleClans.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/MapleClient.java" afterPath="$PROJECT_DIR$/src/client/MapleClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/MapleLieDetector.java" afterPath="$PROJECT_DIR$/src/client/MapleLieDetector.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/MapleTrait.java" afterPath="$PROJECT_DIR$/src/client/MapleTrait.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/MonsterBook.java" afterPath="$PROJECT_DIR$/src/client/MonsterBook.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/MonsterFamiliar.java" afterPath="$PROJECT_DIR$/src/client/MonsterFamiliar.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/PlayerStats.java" afterPath="$PROJECT_DIR$/src/client/PlayerStats.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/RockPaperScissors.java" afterPath="$PROJECT_DIR$/src/client/RockPaperScissors.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/inventory/ItemLoader.java" afterPath="$PROJECT_DIR$/src/client/inventory/ItemLoader.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/messages/ServernoticeMapleClientMessageCallback.java" afterPath="$PROJECT_DIR$/src/client/messages/ServernoticeMapleClientMessageCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/messages/commands/AdminCommand.java" afterPath="$PROJECT_DIR$/src/client/messages/commands/AdminCommand.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/messages/commands/DonatorCommand.java" afterPath="$PROJECT_DIR$/src/client/messages/commands/DonatorCommand.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/messages/commands/GMCommand.java" afterPath="$PROJECT_DIR$/src/client/messages/commands/GMCommand.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/messages/commands/GodCommand.java" afterPath="$PROJECT_DIR$/src/client/messages/commands/GodCommand.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/messages/commands/InternCommand.java" afterPath="$PROJECT_DIR$/src/client/messages/commands/InternCommand.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/messages/commands/PlayerCommand.java" afterPath="$PROJECT_DIR$/src/client/messages/commands/PlayerCommand.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/client/messages/commands/SuperGMCommand.java" afterPath="$PROJECT_DIR$/src/client/messages/commands/SuperGMCommand.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/constants/GameConstants.java" afterPath="$PROJECT_DIR$/src/constants/GameConstants.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/constants/MapConstants.java" afterPath="$PROJECT_DIR$/src/constants/MapConstants.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/constants/ServerConstants.java" afterPath="$PROJECT_DIR$/src/constants/ServerConstants.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/MapleServerHandler.java" afterPath="$PROJECT_DIR$/src/handling/MapleServerHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/SendPacketOpcode.java" afterPath="$PROJECT_DIR$/src/handling/SendPacketOpcode.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/cashshop/handler/CashShopHandler.java" afterPath="$PROJECT_DIR$/src/handling/cashshop/handler/CashShopHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/cashshop/handler/MTSOperation.java" afterPath="$PROJECT_DIR$/src/handling/cashshop/handler/MTSOperation.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/ChannelServer.java" afterPath="$PROJECT_DIR$/src/handling/channel/ChannelServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/AllianceHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/AllianceHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/BBSHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/BBSHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/BuddyListHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/BuddyListHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/ChatHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/ChatHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/DamageParse.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/DamageParse.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/DueyHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/DueyHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/FamilyHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/FamilyHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/GuildHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/GuildHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/HiredMerchantHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/HiredMerchantHandler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/InterServerHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/InterServerHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/InventoryHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/InventoryHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/ItemMakerHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/ItemMakerHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/MobHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/MobHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/MonsterCarnivalHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/MonsterCarnivalHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/NPCHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/NPCHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/PartyHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/PartyHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/PetHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/PetHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/PlayerHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/PlayerHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/PlayerInteractionHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/PlayerInteractionHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/PlayersHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/PlayersHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/StatsHandling.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/StatsHandling.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/SummonHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/SummonHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/channel/handler/UserInterfaceHandler.java" afterPath="$PROJECT_DIR$/src/handling/channel/handler/UserInterfaceHandler.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/login/LoginInformationProvider.java" afterPath="$PROJECT_DIR$/src/handling/login/LoginInformationProvider.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/login/LoginWorker.java" afterPath="$PROJECT_DIR$/src/handling/login/LoginWorker.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/login/handler/CharLoginHandler.java" afterPath="$PROJECT_DIR$/src/handling/login/handler/CharLoginHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/netty/MaplePacketDecoder.java" afterPath="$PROJECT_DIR$/src/handling/netty/MaplePacketDecoder.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/netty/MaplePacketEncoder.java" afterPath="$PROJECT_DIR$/src/handling/netty/MaplePacketEncoder.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/world/CharacterTransfer.java" afterPath="$PROJECT_DIR$/src/handling/world/CharacterTransfer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/world/World.java" afterPath="$PROJECT_DIR$/src/handling/world/World.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/world/family/MapleFamilyBuff.java" afterPath="$PROJECT_DIR$/src/handling/world/family/MapleFamilyBuff.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/handling/world/guild/MapleGuild.java" afterPath="$PROJECT_DIR$/src/handling/world/guild/MapleGuild.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/properties/recv.properties" afterPath="$PROJECT_DIR$/src/properties/recv.properties" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/properties/send.properties" afterPath="$PROJECT_DIR$/src/properties/send.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/pvp/WizerDual.java" afterPath="$PROJECT_DIR$/src/pvp/WizerDual.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripting/AbstractPlayerInteraction.java" afterPath="$PROJECT_DIR$/src/scripting/AbstractPlayerInteraction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripting/EventInstanceManager.java" afterPath="$PROJECT_DIR$/src/scripting/EventInstanceManager.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripting/NPCConversationManager.java" afterPath="$PROJECT_DIR$/src/scripting/NPCConversationManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scripting/PortalScriptManager.java" afterPath="$PROJECT_DIR$/src/scripting/PortalScriptManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/CashShop.java" afterPath="$PROJECT_DIR$/src/server/CashShop.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/MapleCarnivalParty.java" afterPath="$PROJECT_DIR$/src/server/MapleCarnivalParty.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/MapleInventoryManipulator.java" afterPath="$PROJECT_DIR$/src/server/MapleInventoryManipulator.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/MapleItemInformationProvider.java" afterPath="$PROJECT_DIR$/src/server/MapleItemInformationProvider.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/MaplePortal.java" afterPath="$PROJECT_DIR$/src/server/MaplePortal.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/MapleShop.java" afterPath="$PROJECT_DIR$/src/server/MapleShop.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/MapleStatEffect.java" afterPath="$PROJECT_DIR$/src/server/MapleStatEffect.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/MapleStorage.java" afterPath="$PROJECT_DIR$/src/server/MapleStorage.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/MapleTrade.java" afterPath="$PROJECT_DIR$/src/server/MapleTrade.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/events/MapleCoconut.java" afterPath="$PROJECT_DIR$/src/server/events/MapleCoconut.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/events/MapleEvent.java" afterPath="$PROJECT_DIR$/src/server/events/MapleEvent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/events/MapleFitness.java" afterPath="$PROJECT_DIR$/src/server/events/MapleFitness.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/events/MapleSnowball.java" afterPath="$PROJECT_DIR$/src/server/events/MapleSnowball.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/events/MapleSurvival.java" afterPath="$PROJECT_DIR$/src/server/events/MapleSurvival.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/life/MapleMonster.java" afterPath="$PROJECT_DIR$/src/server/life/MapleMonster.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/life/MapleNPC.java" afterPath="$PROJECT_DIR$/src/server/life/MapleNPC.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/life/PlayerNPC.java" afterPath="$PROJECT_DIR$/src/server/life/PlayerNPC.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/Event_DojoAgent.java" afterPath="$PROJECT_DIR$/src/server/maps/Event_DojoAgent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/Event_PyramidSubway.java" afterPath="$PROJECT_DIR$/src/server/maps/Event_PyramidSubway.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapScriptMethods.java" afterPath="$PROJECT_DIR$/src/server/maps/MapScriptMethods.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapleDoor.java" afterPath="$PROJECT_DIR$/src/server/maps/MapleDoor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapleDragon.java" afterPath="$PROJECT_DIR$/src/server/maps/MapleDragon.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapleExtractor.java" afterPath="$PROJECT_DIR$/src/server/maps/MapleExtractor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapleMap.java" afterPath="$PROJECT_DIR$/src/server/maps/MapleMap.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapleMapEffect.java" afterPath="$PROJECT_DIR$/src/server/maps/MapleMapEffect.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapleMapItem.java" afterPath="$PROJECT_DIR$/src/server/maps/MapleMapItem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapleMist.java" afterPath="$PROJECT_DIR$/src/server/maps/MapleMist.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapleReactor.java" afterPath="$PROJECT_DIR$/src/server/maps/MapleReactor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MapleSummon.java" afterPath="$PROJECT_DIR$/src/server/maps/MapleSummon.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/maps/MechDoor.java" afterPath="$PROJECT_DIR$/src/server/maps/MechDoor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/quest/MapleQuest.java" afterPath="$PROJECT_DIR$/src/server/quest/MapleQuest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/quest/MapleQuestAction.java" afterPath="$PROJECT_DIR$/src/server/quest/MapleQuestAction.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/shops/AbstractPlayerStore.java" afterPath="$PROJECT_DIR$/src/server/shops/AbstractPlayerStore.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/shops/HiredMerchant.java" afterPath="$PROJECT_DIR$/src/server/shops/HiredMerchant.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/shops/MapleMiniGame.java" afterPath="$PROJECT_DIR$/src/server/shops/MapleMiniGame.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/server/shops/MaplePlayerShop.java" afterPath="$PROJECT_DIR$/src/server/shops/MaplePlayerShop.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/KoreanDateUtil.java" afterPath="$PROJECT_DIR$/src/tools/KoreanDateUtil.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/data/LittleEndianAccessor.java" afterPath="$PROJECT_DIR$/src/tools/data/LittleEndianAccessor.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/data/MaplePacketLittleEndianWriter.java" afterPath="$PROJECT_DIR$/src/tools/data/MaplePacketLittleEndianWriter.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/data/input/GenericLittleEndianAccessor.java" afterPath="$PROJECT_DIR$/src/tools/data/input/GenericLittleEndianAccessor.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/data/output/GenericLittleEndianWriter.java" afterPath="$PROJECT_DIR$/src/tools/data/output/GenericLittleEndianWriter.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/packet/CField.java" afterPath="$PROJECT_DIR$/src/tools/packet/CField.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/packet/CWvsContext.java" afterPath="$PROJECT_DIR$/src/tools/packet/CWvsContext.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/packet/LoginPacket.java" afterPath="$PROJECT_DIR$/src/tools/packet/LoginPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/packet/MTSCSPacket.java" afterPath="$PROJECT_DIR$/src/tools/packet/MTSCSPacket.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/packet/PacketHelper.java" afterPath="$PROJECT_DIR$/src/tools/packet/PacketHelper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/packet/PetPacket.java" afterPath="$PROJECT_DIR$/src/tools/packet/PetPacket.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/tools/packet/PlayerShopPacket.java" afterPath="$PROJECT_DIR$/src/tools/packet/PlayerShopPacket.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -143,8 +56,8 @@
       <file leaf-file-name="MapleServerHandler.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/handling/MapleServerHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="983" column="20" selection-start-line="983" selection-start-column="20" selection-end-line="983" selection-end-column="20" />
+            <state relative-caret-position="199">
+              <caret line="974" column="17" selection-start-line="974" selection-start-column="17" selection-end-line="974" selection-end-column="17" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -152,39 +65,36 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CField.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="InterServerHandler.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/handling/channel/handler/InterServerHandler.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="396">
+              <caret line="177" column="42" selection-start-line="177" selection-start-column="42" selection-end-line="177" selection-end-column="42" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CField.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/tools/packet/CField.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="313">
-              <caret line="1413" column="0" selection-start-line="1413" selection-start-column="0" selection-end-line="1413" selection-end-column="0" />
+            <state relative-caret-position="40">
+              <caret line="2023" column="45" selection-start-line="2023" selection-start-column="25" selection-end-line="2023" selection-end-column="45" />
               <folding>
-                <element signature="e#58597#58598#0" expanded="true" />
-                <element signature="e#58648#58649#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="PacketHelper.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/tools/packet/PacketHelper.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="515">
-              <caret line="1023" column="37" selection-start-line="1023" selection-start-column="37" selection-end-line="1023" selection-end-column="37" />
-              <folding>
-                <element signature="e#0#45868#0" expanded="true" />
+                <element signature="e#0#147755#0" expanded="true" />
                 <element signature="imports" expanded="true" />
-                <element signature="e#2006#2007#0" expanded="true" />
-                <element signature="e#2051#2052#0" expanded="true" />
+                <element signature="e#58170#58171#0" expanded="true" />
+                <element signature="e#58221#58222#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PlayerShopPacket.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/tools/packet/PlayerShopPacket.java">
+      <file leaf-file-name="MapleClient.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/client/MapleClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="218">
-              <caret line="151" column="66" selection-start-line="151" selection-start-column="66" selection-end-line="151" selection-end-column="66" />
+            <state relative-caret-position="-14">
+              <caret line="1146" column="17" selection-start-line="1146" selection-start-column="17" selection-end-line="1146" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -193,58 +103,38 @@
       <file leaf-file-name="MTSCSPacket.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/tools/packet/MTSCSPacket.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="71">
-              <caret line="554" column="57" selection-start-line="554" selection-start-column="57" selection-end-line="554" selection-end-column="57" />
+            <state relative-caret-position="266">
+              <caret line="879" column="48" selection-start-line="879" selection-start-column="42" selection-end-line="879" selection-end-column="48" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PlayersHandler.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/handling/channel/handler/PlayersHandler.java">
+      <file leaf-file-name="send.properties" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/properties/send.properties">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="120">
-              <caret line="426" column="47" selection-start-line="426" selection-start-column="47" selection-end-line="426" selection-end-column="47" />
+            <state relative-caret-position="549">
+              <caret line="39" column="21" selection-start-line="39" selection-start-column="21" selection-end-line="39" selection-end-column="21" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MapleStatEffect.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/server/MapleStatEffect.java">
+      <file leaf-file-name="MaplePacketEncoder.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/handling/netty/MaplePacketEncoder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="218">
-              <caret line="2844" column="10" selection-start-line="2844" selection-start-column="10" selection-end-line="2844" selection-end-column="10" />
+            <state relative-caret-position="429">
+              <caret line="58" column="93" selection-start-line="58" selection-start-column="93" selection-end-line="58" selection-end-column="93" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MapleJob.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/MapleJob.java">
+      <file leaf-file-name="ChannelServer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/handling/channel/ChannelServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="40">
-              <caret line="2" column="16" selection-start-line="2" selection-start-column="16" selection-end-line="2" selection-end-column="16" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Skill.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/client/Skill.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="72" column="75" selection-start-line="72" selection-start-column="75" selection-end-line="72" selection-end-column="75" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MapleInventoryManipulator.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/server/MapleInventoryManipulator.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="829">
-              <caret line="116" column="81" selection-start-line="116" selection-start-column="81" selection-end-line="116" selection-end-column="81" />
+            <state relative-caret-position="209">
+              <caret line="136" column="42" selection-start-line="136" selection-start-column="42" selection-end-line="136" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -317,57 +207,57 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/server/movement/MovementKind.java" />
-        <option value="$PROJECT_DIR$/src/handling/channel/handler/PetHandler.java" />
-        <option value="$PROJECT_DIR$/src/handling/channel/handler/SummonHandler.java" />
-        <option value="$PROJECT_DIR$/src/handling/channel/handler/MobHandler.java" />
-        <option value="$PROJECT_DIR$/src/handling/netty/ServerConnection.java" />
-        <option value="$PROJECT_DIR$/src/tools/FileoutputUtil.java" />
-        <option value="$PROJECT_DIR$/src/database/DatabaseConnection.java" />
         <option value="$PROJECT_DIR$/src/handling/RecvPacketOpcode.java" />
         <option value="$PROJECT_DIR$/PacketResearch.txt" />
         <option value="$PROJECT_DIR$/src/handling/login/LoginWorker.java" />
-        <option value="$PROJECT_DIR$/src/tools/data/LittleEndianAccessor.java" />
         <option value="$PROJECT_DIR$/src/constants/WorldConstants.java" />
         <option value="$PROJECT_DIR$/src/handling/login/LoginServer.java" />
         <option value="$PROJECT_DIR$/src/handling/netty/MaplePacketDecoder.java" />
         <option value="$PROJECT_DIR$/src/client/BuddyList.java" />
-        <option value="$PROJECT_DIR$/src/client/MapleClient.java" />
-        <option value="$PROJECT_DIR$/src/constants/ServerConstants.java" />
         <option value="$PROJECT_DIR$/src/client/PlayerStats.java" />
-        <option value="$PROJECT_DIR$/src/tools/packet/LoginPacket.java" />
-        <option value="$PROJECT_DIR$/src/handling/login/LoginInformationProvider.java" />
-        <option value="$PROJECT_DIR$/src/handling/login/handler/CharLoginHandler.java" />
-        <option value="$PROJECT_DIR$/src/server/MapleItemInformationProvider.java" />
-        <option value="$PROJECT_DIR$/src/client/inventory/ItemLoader.java" />
         <option value="$PROJECT_DIR$/src/handling/channel/handler/ChatHandler.java" />
-        <option value="$PROJECT_DIR$/src/scripting/NPCConversationManager.java" />
         <option value="$PROJECT_DIR$/src/constants/MapConstants.java" />
-        <option value="$PROJECT_DIR$/src/handling/channel/handler/InterServerHandler.java" />
-        <option value="$PROJECT_DIR$/src/properties/recv.properties" />
-        <option value="$PROJECT_DIR$/src/properties/send.properties" />
         <option value="$PROJECT_DIR$/src/handling/SendPacketOpcode.java" />
         <option value="$PROJECT_DIR$/src/tools/packet/PetPacket.java" />
         <option value="$PROJECT_DIR$/src/server/MapleShop.java" />
         <option value="$PROJECT_DIR$/src/client/inventory/MaplePet.java" />
         <option value="$PROJECT_DIR$/src/client/inventory/ModifyInventory.java" />
-        <option value="$PROJECT_DIR$/src/tools/packet/CWvsContext.java" />
         <option value="$PROJECT_DIR$/src/server/MapleInventoryManipulator.java" />
         <option value="$PROJECT_DIR$/src/handling/channel/handler/PlayerHandler.java" />
         <option value="$PROJECT_DIR$/src/handling/channel/handler/InventoryHandler.java" />
-        <option value="$PROJECT_DIR$/src/tools/data/MaplePacketLittleEndianWriter.java" />
         <option value="$PROJECT_DIR$/src/tools/packet/JobPacket.java" />
-        <option value="$PROJECT_DIR$/src/constants/GameConstants.java" />
         <option value="$PROJECT_DIR$/src/client/MapleJob.java" />
         <option value="$PROJECT_DIR$/src/server/MapleStatEffect.java" />
-        <option value="$PROJECT_DIR$/src/tools/packet/CField.java" />
-        <option value="$PROJECT_DIR$/src/client/MapleCharacter.java" />
         <option value="$PROJECT_DIR$/src/tools/KoreanDateUtil.java" />
-        <option value="$PROJECT_DIR$/src/tools/packet/PacketHelper.java" />
         <option value="$PROJECT_DIR$/src/tools/packet/PlayerShopPacket.java" />
         <option value="$PROJECT_DIR$/src/tools/packet/MTSCSPacket.java" />
-        <option value="$PROJECT_DIR$/src/handling/MapleServerHandler.java" />
         <option value="$PROJECT_DIR$/src/handling/channel/handler/PlayersHandler.java" />
+        <option value="$PROJECT_DIR$/src/client/MapleCharacterUtil.java" />
+        <option value="$PROJECT_DIR$/src/server/MapleItemInformationProvider.java" />
+        <option value="$PROJECT_DIR$/src/handling/login/LoginInformationProvider.java" />
+        <option value="$PROJECT_DIR$/src/client/MapleCharacter.java" />
+        <option value="$PROJECT_DIR$/src/client/MapleClans.java" />
+        <option value="$PROJECT_DIR$/src/handling/world/CharacterTransfer.java" />
+        <option value="$PROJECT_DIR$/src/scripting/NPCConversationManager.java" />
+        <option value="$PROJECT_DIR$/src/client/inventory/ItemLoader.java" />
+        <option value="$PROJECT_DIR$/src/tools/data/output/GenericLittleEndianWriter.java" />
+        <option value="$PROJECT_DIR$/src/tools/data/MaplePacketLittleEndianWriter.java" />
+        <option value="$PROJECT_DIR$/src/client/MapleClient.java" />
+        <option value="$PROJECT_DIR$/src/tools/data/LittleEndianAccessor.java" />
+        <option value="$PROJECT_DIR$/src/tools/data/input/GenericLittleEndianAccessor.java" />
+        <option value="$PROJECT_DIR$/src/constants/ServerConstants.java" />
+        <option value="$PROJECT_DIR$/src/handling/MapleServerHandler.java" />
+        <option value="$PROJECT_DIR$/src/tools/packet/LoginPacket.java" />
+        <option value="$PROJECT_DIR$/src/handling/login/handler/CharLoginHandler.java" />
+        <option value="$PROJECT_DIR$/src/properties/recv.properties" />
+        <option value="$PROJECT_DIR$/src/handling/world/World.java" />
+        <option value="$PROJECT_DIR$/src/handling/channel/handler/InterServerHandler.java" />
+        <option value="$PROJECT_DIR$/src/tools/packet/CWvsContext.java" />
+        <option value="$PROJECT_DIR$/src/tools/packet/PacketHelper.java" />
+        <option value="$PROJECT_DIR$/src/constants/GameConstants.java" />
+        <option value="$PROJECT_DIR$/src/handling/netty/MaplePacketEncoder.java" />
+        <option value="$PROJECT_DIR$/src/properties/send.properties" />
+        <option value="$PROJECT_DIR$/src/tools/packet/CField.java" />
       </list>
     </option>
   </component>
@@ -402,6 +292,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -434,8 +326,22 @@
               <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+          </PATH>
+          <PATH>
             <PATH_ELEMENT>
-              <option name="myItemId" value="tools" />
+              <option name="myItemId" value="twms145" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="twms145" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="provider" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -453,116 +359,12 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="tools" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="packet" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="handling" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="handling" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="channel" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="handling" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="channel" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="handler" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="twms145" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="client" />
+              <option name="myItemId" value="properties" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -894,26 +696,26 @@
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.4978678" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25893825" sideWeight="0.45735607" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.48294243" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25893825" sideWeight="0.43816632" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22968581" sideWeight="0.2563966" order="10" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.4978678" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28710726" sideWeight="0.61727077" order="10" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.49573562" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32827735" sideWeight="0.6977612" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936078" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21801706" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22318527" sideWeight="0.4488273" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22654584" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28710726" sideWeight="0.3827292" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24964234" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22968581" sideWeight="0.7436034" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2979415" sideWeight="0.78411514" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
@@ -935,343 +737,19 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="44" />
+      <option name="time" value="70" />
     </breakpoint-manager>
-    <watches-manager>
-      <configuration name="Application">
-        <watch expression="rs.getTimestamp(&quot;tempban&quot;)" language="JAVA" custom="" />
-      </configuration>
-    </watches-manager>
+    <watches-manager />
   </component>
   <component name="antWorkspaceConfiguration">
     <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/server/Start.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="37" column="79" selection-start-line="37" selection-start-column="79" selection-end-line="37" selection-end-column="79" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tools/data/LittleEndianAccessor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="331">
-          <caret line="151" column="0" selection-start-line="151" selection-start-column="0" selection-end-line="151" selection-end-column="0" />
-          <folding>
-            <element signature="e#4804#4805#0" expanded="false" />
-            <element signature="e#4855#4856#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/netty/MaplePacketEncoder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="47" column="40" selection-start-line="47" selection-start-column="40" selection-end-line="47" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/netty/MaplePacketDecoder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="461">
-          <caret line="76" column="40" selection-start-line="76" selection-start-column="40" selection-end-line="76" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/constants/WorldConfig.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="213">
-          <caret line="52" column="30" selection-start-line="52" selection-start-column="30" selection-end-line="52" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/BuddyList.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1561">
-          <caret line="138" column="30" selection-start-line="138" selection-start-column="30" selection-end-line="138" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://C:/Program Files/Java/jdk1.8.0_60/src.zip!/java/util/function/Consumer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="48" column="9" selection-start-line="48" selection-start-column="9" selection-end-line="48" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/MapleTrait.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/MapleCharacterCards.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="123" column="22" selection-start-line="123" selection-start-column="22" selection-end-line="123" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/inventory/MapleInventory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="227">
-          <caret line="146" column="17" selection-start-line="146" selection-start-column="17" selection-end-line="146" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/MapleClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="144" column="16" selection-start-line="144" selection-start-column="16" selection-end-line="144" selection-end-column="16" />
-          <folding>
-            <element signature="e#5026#5027#0" expanded="false" />
-            <element signature="e#5061#5062#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/constants/ServerConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="233">
-          <caret line="24" column="50" selection-start-line="24" selection-start-column="26" selection-end-line="24" selection-end-column="50" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/channel/handler/ChatHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="49" column="85" selection-start-line="49" selection-start-column="85" selection-end-line="49" selection-end-column="85" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/scripting/NPCConversationManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="2059" column="39" selection-start-line="2059" selection-start-column="39" selection-end-line="2059" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/inventory/ItemLoader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="134" column="78" selection-start-line="134" selection-start-column="78" selection-end-line="134" selection-end-column="78" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/login/handler/CharLoginHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="302">
-          <caret line="250" column="48" selection-start-line="250" selection-start-column="48" selection-end-line="250" selection-end-column="48" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/constants/MapConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="19" column="21" selection-start-line="19" selection-start-column="21" selection-end-line="19" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/channel/handler/InterServerHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="286" column="79" selection-start-line="286" selection-start-column="79" selection-end-line="286" selection-end-column="79" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/properties/send.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="16" column="21" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/login/LoginInformationProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="49" column="40" selection-start-line="49" selection-start-column="31" selection-end-line="49" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/inventory/MapleRing.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="100">
-          <caret line="33" column="13" selection-start-line="33" selection-start-column="13" selection-end-line="33" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/inventory/Item.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="147" column="15" selection-start-line="147" selection-start-column="15" selection-end-line="147" selection-end-column="15" />
-          <folding>
-            <element signature="e#3739#3740#0" expanded="false" />
-            <element signature="e#3770#3771#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/properties/recv.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="66" column="13" selection-start-line="66" selection-start-column="13" selection-end-line="66" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tools/packet/PetPacket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="40" column="23" selection-start-line="40" selection-start-column="23" selection-end-line="40" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/inventory/MaplePet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="376">
-          <caret line="311" column="5" selection-start-line="311" selection-start-column="5" selection-end-line="311" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/server/MapleShop.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="232" column="50" selection-start-line="232" selection-start-column="50" selection-end-line="232" selection-end-column="50" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/SendPacketOpcode.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="144" column="25" selection-start-line="144" selection-start-column="25" selection-end-line="144" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/PlayerStats.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="351">
-          <caret line="520" column="22" selection-start-line="520" selection-start-column="22" selection-end-line="520" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/inventory/Equip.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="645" column="17" selection-start-line="645" selection-start-column="17" selection-end-line="645" selection-end-column="17" />
-          <folding>
-            <element signature="e#19098#19099#0" expanded="false" />
-            <element signature="e#19128#19129#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/inventory/ModifyInventory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="22" column="11" selection-start-line="22" selection-start-column="11" selection-end-line="22" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/server/MapleItemInformationProvider.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="493" column="63" selection-start-line="493" selection-start-column="59" selection-end-line="493" selection-end-column="63" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tools/packet/CWvsContext.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="301">
-          <caret line="398" column="0" selection-start-line="398" selection-start-column="0" selection-end-line="398" selection-end-column="0" />
-          <folding>
-            <element signature="e#12686#12687#0" expanded="true" />
-            <element signature="e#12758#12759#0" expanded="true" />
-            <element signature="e#12809#12810#0" expanded="true" />
-            <element signature="e#12880#12881#0" expanded="true" />
-            <element signature="e#12940#12941#0" expanded="true" />
-            <element signature="e#13000#13001#0" expanded="true" />
-            <element signature="e#22194#22195#0" expanded="true" />
-            <element signature="e#22263#22264#0" expanded="true" />
-            <element signature="e#22317#22318#0" expanded="true" />
-            <element signature="e#22386#22387#0" expanded="true" />
-            <element signature="e#22419#22477#0" expanded="true" />
-            <element signature="e#43179#43237#0" expanded="true" />
-            <element signature="e#54917#54976#0" expanded="true" />
-            <element signature="e#72546#72605#0" expanded="true" />
-            <element signature="e#87097#87161#0" expanded="true" />
-            <element signature="e#92995#93058#0" expanded="true" />
-            <element signature="e#96383#96443#0" expanded="true" />
-            <element signature="e#110176#110177#0" expanded="true" />
-            <element signature="e#110229#110230#0" expanded="true" />
-            <element signature="e#110655#110717#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/channel/handler/PlayerHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="990" column="57" selection-start-line="990" selection-start-column="57" selection-end-line="990" selection-end-column="57" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/handling/channel/handler/InventoryHandler.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="190">
           <caret line="659" column="29" selection-start-line="659" selection-start-column="29" selection-end-line="659" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tools/data/MaplePacketLittleEndianWriter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="492">
-          <caret line="158" column="23" selection-start-line="158" selection-start-column="23" selection-end-line="158" selection-end-column="23" />
-          <folding>
-            <element signature="e#3242#3243#0" expanded="false" />
-            <element signature="e#3278#3279#0" expanded="false" />
-            <element signature="e#4398#4399#0" expanded="false" />
-            <element signature="e#4430#4431#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tools/packet/LoginPacket.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="229">
-          <caret line="363" column="21" selection-start-line="363" selection-start-column="21" selection-end-line="363" selection-end-column="21" />
           <folding />
         </state>
       </provider>
@@ -1281,7 +759,7 @@
         <state relative-caret-position="220">
           <caret line="11" column="17" selection-start-line="11" selection-start-column="17" selection-end-line="11" selection-end-column="17" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1326,62 +804,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/tools/packet/CField.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="313">
-          <caret line="1413" column="0" selection-start-line="1413" selection-start-column="0" selection-end-line="1413" selection-end-column="0" />
-          <folding>
-            <element signature="e#58597#58598#0" expanded="true" />
-            <element signature="e#58648#58649#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/tools/KoreanDateUtil.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
           <caret line="34" column="4" selection-start-line="34" selection-start-column="4" selection-end-line="34" selection-end-column="4" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/client/MapleCharacter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
-          <caret line="9993" column="15" selection-start-line="9993" selection-start-column="15" selection-end-line="9993" selection-end-column="15" />
-          <folding>
-            <element signature="e#0#404384#0" expanded="true" />
-            <element signature="imports" expanded="true" />
-            <element signature="e#140196#140202#0" expanded="true" />
-            <element signature="e#140792#140798#0" expanded="true" />
-            <element signature="e#141376#141382#0" expanded="true" />
-            <element signature="e#301639#301666#0" expanded="true" />
-            <element signature="e#305034#305042#0" expanded="true" />
-            <element signature="e#324628#324636#0" expanded="true" />
-            <element signature="e#325106#325114#0" expanded="true" />
-            <element signature="e#332252#332268#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/constants/GameConstants.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="218">
-          <caret line="10414" column="22" selection-start-line="10414" selection-start-column="22" selection-end-line="10414" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/tools/packet/PacketHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="515">
-          <caret line="1023" column="37" selection-start-line="1023" selection-start-column="37" selection-end-line="1023" selection-end-column="37" />
-          <folding>
-            <element signature="e#0#45868#0" expanded="true" />
-            <element signature="imports" expanded="true" />
-            <element signature="e#2006#2007#0" expanded="true" />
-            <element signature="e#2051#2052#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1393,29 +820,366 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/tools/packet/MTSCSPacket.java">
+    <entry file="file://$PROJECT_DIR$/src/handling/channel/handler/PlayersHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="71">
-          <caret line="554" column="57" selection-start-line="554" selection-start-column="57" selection-end-line="554" selection-end-column="57" />
+        <state relative-caret-position="340">
+          <caret line="476" column="54" selection-start-line="476" selection-start-column="54" selection-end-line="476" selection-end-column="54" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/MapleServerHandler.java">
+    <entry file="file://$PROJECT_DIR$/src/tools/data/ByteArrayByteStream.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="983" column="20" selection-start-line="983" selection-start-column="20" selection-end-line="983" selection-end-column="20" />
+        <state relative-caret-position="247">
+          <caret line="89" column="0" selection-start-line="89" selection-start-column="0" selection-end-line="89" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/server/quest/MapleQuestRequirementType.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="24" column="19" selection-start-line="24" selection-start-column="19" selection-end-line="24" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/server/MapleItemInformationProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-697">
+          <caret line="86" column="25" selection-start-line="86" selection-start-column="25" selection-end-line="86" selection-end-column="25" />
+          <folding>
+            <element signature="e#929#930#0" expanded="false" />
+            <element signature="e#971#972#0" expanded="false" />
+            <element signature="e#1004#1005#0" expanded="false" />
+            <element signature="e#1040#1041#0" expanded="false" />
+            <element signature="e#1079#1080#0" expanded="false" />
+            <element signature="e#1126#1127#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/MapleCharacterUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="44" column="22" selection-start-line="41" selection-start-column="10" selection-end-line="44" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/login/LoginInformationProvider.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="178" column="0" selection-start-line="178" selection-start-column="0" selection-end-line="178" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#6886#0" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#5824#5851#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/FileoutputUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="229">
+          <caret line="41" column="12" selection-start-line="41" selection-start-column="12" selection-end-line="41" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/BuddyList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="615">
+          <caret line="138" column="30" selection-start-line="138" selection-start-column="30" selection-end-line="138" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/PlayerStats.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="229">
+          <caret line="3091" column="16" selection-start-line="3091" selection-start-column="16" selection-end-line="3091" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/MapleTrait.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/MapleClans.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/world/CharacterTransfer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="458">
+          <caret line="150" column="0" selection-start-line="150" selection-start-column="0" selection-end-line="150" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/scripting/NPCConversationManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="354">
+          <caret line="2441" column="16" selection-start-line="2441" selection-start-column="16" selection-end-line="2441" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/cashshop/handler/MTSOperation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="840">
+          <caret line="53" column="36" selection-start-line="53" selection-start-column="36" selection-end-line="53" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/inventory/ItemLoader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="219">
+          <caret line="149" column="133" selection-start-line="149" selection-start-column="133" selection-end-line="149" selection-end-column="133" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/data/output/GenericLittleEndianWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="318">
+          <caret line="180" column="47" selection-start-line="180" selection-start-column="47" selection-end-line="180" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/data/MaplePacketLittleEndianWriter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="329">
+          <caret line="152" column="45" selection-start-line="152" selection-start-column="45" selection-end-line="152" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files/Java/jdk1.8.0_60/src.zip!/java/lang/String.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1">
+          <caret line="156" column="40" selection-start-line="156" selection-start-column="40" selection-end-line="156" selection-end-column="40" />
+          <folding>
+            <element signature="e#4677#4678#0" expanded="false" />
+            <element signature="e#4714#4715#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/data/LittleEndianAccessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="148" column="24" selection-start-line="148" selection-start-column="24" selection-end-line="148" selection-end-column="24" />
+          <folding>
+            <element signature="e#5034#5035#0" expanded="false" />
+            <element signature="e#5085#5086#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/data/input/LittleEndianAccessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="449">
+          <caret line="116" column="33" selection-start-line="116" selection-start-column="33" selection-end-line="116" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/data/input/GenericLittleEndianAccessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="80">
+          <caret line="23" column="20" selection-start-line="23" selection-start-column="18" selection-end-line="23" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/login/LoginWorker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="348">
+          <caret line="61" column="61" selection-start-line="61" selection-start-column="61" selection-end-line="61" selection-end-column="61" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/constants/ServerConstants.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="386">
+          <caret line="24" column="26" selection-start-line="24" selection-start-column="26" selection-end-line="24" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/packet/LoginPacket.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="366">
+          <caret line="332" column="50" selection-start-line="332" selection-start-column="50" selection-end-line="332" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/properties/recv.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="9" column="29" selection-start-line="9" selection-start-column="29" selection-end-line="9" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/world/World.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="44" column="25" selection-start-line="44" selection-start-column="25" selection-end-line="44" selection-end-column="25" />
+          <folding>
+            <element signature="e#3128#3129#0" expanded="true" />
+            <element signature="e#3158#3159#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/login/handler/CharLoginHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="614" column="39" selection-start-line="614" selection-start-column="39" selection-end-line="614" selection-end-column="39" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/handling/channel/handler/PlayersHandler.java">
+    <entry file="file://$PROJECT_DIR$/src/handling/SendPacketOpcode.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="426" column="47" selection-start-line="426" selection-start-column="47" selection-end-line="426" selection-end-column="47" />
+        <state relative-caret-position="206">
+          <caret line="464" column="29" selection-start-line="464" selection-start-column="29" selection-end-line="464" selection-end-column="29" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/packet/MTSCSPacket.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="266">
+          <caret line="879" column="48" selection-start-line="879" selection-start-column="42" selection-end-line="879" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/MapleCharacter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="1991" column="37" selection-start-line="1991" selection-start-column="22" selection-end-line="1991" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/channel/ChannelServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="136" column="42" selection-start-line="136" selection-start-column="42" selection-end-line="136" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/MapleServerHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="199">
+          <caret line="974" column="17" selection-start-line="974" selection-start-column="17" selection-end-line="974" selection-end-column="17" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/packet/PacketHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="1028" column="23" selection-start-line="1028" selection-start-column="23" selection-end-line="1028" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/netty/MaplePacketDecoder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="77" column="110" selection-start-line="76" selection-start-column="19" selection-end-line="77" selection-end-column="110" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/netty/MaplePacketEncoder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="429">
+          <caret line="58" column="93" selection-start-line="58" selection-start-column="93" selection-end-line="58" selection-end-column="93" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/packet/CWvsContext.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="329">
+          <caret line="225" column="26" selection-start-line="225" selection-start-column="26" selection-end-line="225" selection-end-column="26" />
+          <folding>
+            <element signature="e#147174#147175#0" expanded="true" />
+            <element signature="e#147232#147233#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/MapleClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-14">
+          <caret line="1146" column="17" selection-start-line="1146" selection-start-column="17" selection-end-line="1146" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/properties/send.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="549">
+          <caret line="39" column="21" selection-start-line="39" selection-start-column="21" selection-end-line="39" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/handling/channel/handler/InterServerHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="177" column="42" selection-start-line="177" selection-start-column="42" selection-end-line="177" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/client/MapleBuffStat.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/constants/GameConstants.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="1162" column="33" selection-start-line="1162" selection-start-column="33" selection-end-line="1162" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/tools/packet/CField.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="40">
+          <caret line="2023" column="45" selection-start-line="2023" selection-start-column="25" selection-end-line="2023" selection-end-column="45" />
+          <folding>
+            <element signature="e#0#147755#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#58170#58171#0" expanded="true" />
+            <element signature="e#58221#58222#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

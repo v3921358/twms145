@@ -33,7 +33,7 @@ import java.nio.charset.Charset;
 public class GenericLittleEndianWriter implements LittleEndianWriter {
 
     // See http://java.sun.com/j2se/1.4.2/docs/api/java/nio/charset/Charset.html
-    private static final Charset ASCII = Charset.forName("big5"); // ISO-8859-1, UTF-8
+    private static final Charset ASCII = Charset.forName("BIG5"); // ISO-8859-1, UTF-8
     private ByteOutputStream bos;
 
     /**
@@ -158,7 +158,7 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
      */
     @Override
     public final void writeMapleAsciiString(final String s) {
-        writeShort((short) s.length());
+        writeShort((short) s.getBytes(ASCII).length);
         writeAsciiString(s);
     }
 

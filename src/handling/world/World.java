@@ -42,7 +42,7 @@ public class World {
     private int cashRate = 3, traitRate = 3, flags = 0;
     private List<ChannelServer> channels = new ArrayList<>();
 
-    private static PlayerStorage players = new PlayerStorage();
+    private static final PlayerStorage players = new PlayerStorage();
     private static final HashMap magicWheelCache = new HashMap();
     // AutoJQ and Event Maps
     public static int eventMap = 0;

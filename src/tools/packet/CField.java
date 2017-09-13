@@ -99,16 +99,10 @@ public class CField {
         mplew.writeShort(SendPacketOpcode.SERVER_IP.getValue());
         mplew.writeShort(0);
         byte[] addr = inetAddr.getAddress();
-        if (c.getTempIP().length() > 0) {
-            for (String s : c.getTempIP().split(",")) {
-                mplew.write(Integer.parseInt(s));
-            }
-        } else {
-            mplew.write(ServerConstants.NEXON_IP);
-        }
+        mplew.write(addr);
         mplew.writeShort(port);
         mplew.writeInt(clientId);
-        mplew.writeZeroBytes(10);
+        mplew.writeZeroBytes(5);
         return mplew.getPacket();
     }
     
@@ -117,13 +111,7 @@ public class CField {
         mplew.writeShort(SendPacketOpcode.CHANGE_CHANNEL.getValue());
         mplew.write(1);
         byte[] addr = inetAddr.getAddress();
-        if (c.getTempIP().length() > 0) {
-            for (String s : c.getTempIP().split(",")) {
-                mplew.write(Integer.parseInt(s));
-            }
-        } else {
-            mplew.write(ServerConstants.NEXON_IP);
-        }
+        mplew.write(addr);
         mplew.writeShort(port);
         mplew.write(0);
         return mplew.getPacket();
@@ -2040,19 +2028,34 @@ public class CField {
         mplew.writeInt(chr.getId());
         mplew.write(chr.getLevel());
         mplew.writeMapleAsciiString(chr.getName());
-        final MapleQuestStatus ultExplorer = chr.getQuestNoAdd(MapleQuest.getInstance(GameConstants.ULT_EXPLORER));
-        if (ultExplorer != null && ultExplorer.getCustomData() != null) {
-            mplew.writeMapleAsciiString(ultExplorer.getCustomData());
+        String prefixGuild = null;
+        //TODO: PREFIX
+        if (chr.getGuildId() <= 0) {
+            final MapleGuild gs = World.Guild.getGuild(chr.getGuildId());
+            if (prefixGuild != null) {
+                mplew.writeMapleAsciiString(prefixGuild);
+            } else {
+                mplew.writeMapleAsciiString("");
+            }
+            mplew.writeShort(0);
+            mplew.write(0);
+            mplew.writeShort(0);
+            mplew.write(0);
         } else {
-            mplew.writeMapleAsciiString("");
+            final MapleGuild gs = World.Guild.getGuild(chr.getGuildId());
+            if (gs != null) {
+                mplew.writeMapleAsciiString(prefixGuild + gs.getName());
+                mplew.writeShort(gs.getLogoBG());
+                mplew.write(gs.getLogoBGColor());
+                mplew.writeShort(gs.getLogo());
+                mplew.write(gs.getLogoColor());
+            } else {
+                mplew.writeInt(0);
+                mplew.writeInt(0);
+            }
         }
-        /*if (chr.getMap().isAriantPQMap()) {
-            mplew.writeMapleAsciiString("1st"); // TODO: 1st, 2nd, 3rd, and 4th. 
-            mplew.writeShort(0);
-            mplew.write(0);
-            mplew.writeShort(0);
-            mplew.write(0);
-        } else*/ if (chr.getGuildId() <= 0) {
+
+        if (chr.getGuildId() <= 0) {
             mplew.writeInt(0);
             mplew.writeInt(0);
         } else {
@@ -2068,195 +2071,7 @@ public class CField {
                 mplew.writeInt(0);
             }
         }
-        // SecondaryStat::DecodeForRemote
-        final List<Pair<Integer, Integer>> buffvalue = new ArrayList<>();
-        final int[] mask = new int[GameConstants.MAX_BUFFSTAT];
-        mask[0] |= DEFAULT_BUFFMASK;
-        mask[1] |= 0xA00000; // 0x200000 + 0x800000
-        //NOT SURE: SPARK
-        if (chr.getBuffedValue(MapleBuffStat.DARKSIGHT) != null || chr.isHidden()) {
-            mask[MapleBuffStat.DARKSIGHT.getPosition(true)] |= MapleBuffStat.DARKSIGHT.getValue();
-        }
-        if (chr.getBuffedValue(MapleBuffStat.SOULARROW) != null) { // maybe this?
-            mask[MapleBuffStat.SOULARROW.getPosition(true)] |= MapleBuffStat.SOULARROW.getValue();
-        }
-      /*  if (chr.getBuffedValue(MapleBuffStat.COMBO) != null) {
-            mask[MapleBuffStat.COMBO.getPosition(true)] |= MapleBuffStat.COMBO.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.COMBO).intValue()), 1));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.WK_CHARGE) != null) {
-            mask[MapleBuffStat.WK_CHARGE.getPosition(true)] |= MapleBuffStat.WK_CHARGE.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.WK_CHARGE).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffSource(MapleBuffStat.WK_CHARGE)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.SHADOWPARTNER) != null) {
-            mask[MapleBuffStat.SHADOWPARTNER.getPosition(true)] |= MapleBuffStat.SHADOWPARTNER.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.SHADOWPARTNER).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffSource(MapleBuffStat.SHADOWPARTNER)), 3));
-        }
-        //---------------------------------------------------------------
-        if (chr.getBuffedValue(MapleBuffStat.MORPH) != null) {
-            mask[MapleBuffStat.MORPH.getPosition(true)] |= MapleBuffStat.MORPH.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getStatForBuff(MapleBuffStat.MORPH).getMorph(chr)), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffSource(MapleBuffStat.MORPH)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.BERSERK_FURY) != null) {
-            mask[MapleBuffStat.BERSERK_FURY.getPosition(true)] |= MapleBuffStat.BERSERK_FURY.getValue();
-        }
-        if (chr.getBuffedValue(MapleBuffStat.DIVINE_BODY) != null) {
-            mask[MapleBuffStat.DIVINE_BODY.getPosition(true)] |= MapleBuffStat.DIVINE_BODY.getValue();
-        }
-        //---------------------------------------------------------------
-        if (chr.getBuffedValue(MapleBuffStat.WIND_WALK) != null) {
-            mask[MapleBuffStat.WIND_WALK.getPosition(true)] |= MapleBuffStat.WIND_WALK.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.WIND_WALK).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.WIND_WALK)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.PYRAMID_PQ) != null) {
-            mask[MapleBuffStat.PYRAMID_PQ.getPosition(true)] |= MapleBuffStat.PYRAMID_PQ.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.PYRAMID_PQ).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.PYRAMID_PQ)), 3));
-        }
-      /*  if (chr.getBuffedValue(MapleBuffStat.SOARING) != null) {
-            mask[MapleBuffStat.SOARING.getPosition(true)] |= MapleBuffStat.SOARING.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.SOARING).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.SOARING)), 3));
-        }
-        * 
-        */
-      /*  if (chr.getBuffedValue(MapleBuffStat.OWL_SPIRIT) != null) {
-            mask[MapleBuffStat.OWL_SPIRIT.getPosition(true)] |= MapleBuffStat.OWL_SPIRIT.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.OWL_SPIRIT).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.OWL_SPIRIT)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.FINAL_CUT) != null) {
-            mask[MapleBuffStat.FINAL_CUT.getPosition(true)] |= MapleBuffStat.FINAL_CUT.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.FINAL_CUT).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.FINAL_CUT)), 3));
-        }
-        //---------------------------------------------------------------
-        if (chr.getBuffedValue(MapleBuffStat.TORNADO) != null) {
-            mask[MapleBuffStat.TORNADO.getPosition(true)] |= MapleBuffStat.TORNADO.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.TORNADO).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.TORNADO)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.INFILTRATE) != null) {
-            mask[MapleBuffStat.INFILTRATE.getPosition(true)] |= MapleBuffStat.INFILTRATE.getValue();
-        }
-        if (chr.getBuffedValue(MapleBuffStat.MECH_CHANGE) != null) {
-            mask[MapleBuffStat.MECH_CHANGE.getPosition(true)] |= MapleBuffStat.MECH_CHANGE.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.MECH_CHANGE).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.MECH_CHANGE)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.DARK_AURA) != null) {
-            mask[MapleBuffStat.DARK_AURA.getPosition(true)] |= MapleBuffStat.DARK_AURA.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.DARK_AURA).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.DARK_AURA)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.BLUE_AURA) != null) {
-            mask[MapleBuffStat.BLUE_AURA.getPosition(true)] |= MapleBuffStat.BLUE_AURA.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.BLUE_AURA).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.BLUE_AURA)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.YELLOW_AURA) != null) {
-            mask[MapleBuffStat.YELLOW_AURA.getPosition(true)] |= MapleBuffStat.YELLOW_AURA.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.YELLOW_AURA).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.YELLOW_AURA)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.DIVINE_SHIELD) != null) {
-            mask[MapleBuffStat.DIVINE_SHIELD.getPosition(true)] |= MapleBuffStat.DIVINE_SHIELD.getValue();
-        }
-        //---------------------------------------------------------------
-        if (chr.getBuffedValue(MapleBuffStat.WATER_SHIELD) != null) {
-            mask[MapleBuffStat.WATER_SHIELD.getPosition(true)] |= MapleBuffStat.WATER_SHIELD.getValue();
-        }
-        if (chr.getBuffedValue(MapleBuffStat.DARK_METAMORPHOSIS) != null) {
-            mask[MapleBuffStat.DARK_METAMORPHOSIS.getPosition(true)] |= MapleBuffStat.DARK_METAMORPHOSIS.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.DARK_METAMORPHOSIS).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffSource(MapleBuffStat.DARK_METAMORPHOSIS)), 3));
-        }
-        if (chr.getBuffedValue(MapleBuffStat.SPIRIT_SURGE) != null) {
-            mask[MapleBuffStat.SPIRIT_SURGE.getPosition(true)] |= MapleBuffStat.SPIRIT_SURGE.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.SPIRIT_SURGE).intValue()), 2));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffSource(MapleBuffStat.SPIRIT_SURGE)), 3));
-        }
-        //if (chr.getBuffedValue(MapleBuffStat.SPIRIT_LINK) != null) { // or this?
-        //    mask[MapleBuffStat.SPIRIT_LINK.getPosition(true)] |= MapleBuffStat.SPIRIT_LINK.getValue();
-        //    buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.SPIRIT_LINK).intValue()), 2));
-        //    buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.SPIRIT_LINK)), 3));
-        //}
-        if (chr.getBuffedValue(MapleBuffStat.FAMILIAR_SHADOW) != null) {
-            mask[MapleBuffStat.FAMILIAR_SHADOW.getPosition(true)] |= MapleBuffStat.FAMILIAR_SHADOW.getValue();
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.FAMILIAR_SHADOW).intValue()), 3));
-            buffvalue.add(new Pair<Integer, Integer>(Integer.valueOf(chr.getStatForBuff(MapleBuffStat.FAMILIAR_SHADOW).getCharColor()), 3));
-        }*/
-        if (chr.getBuffedValue(MapleBuffStat.GIANT_POTION) != null) {
-            mask[MapleBuffStat.GIANT_POTION.getPosition(true)] |= MapleBuffStat.GIANT_POTION.getValue();
-            buffvalue.add(new Pair(Integer.valueOf(chr.getBuffedValue(MapleBuffStat.GIANT_POTION).intValue()), Integer.valueOf(2)));
-            buffvalue.add(new Pair(Integer.valueOf(chr.getTrueBuffSource(MapleBuffStat.GIANT_POTION)), Integer.valueOf(3)));
-        }
-        for (int i = 0; i < mask.length; i++) {
-            mplew.writeInt(mask[i]);
-        }
-        for (Pair<Integer, Integer> i : buffvalue) {
-            if (i.right == 3) {
-                mplew.writeInt(i.left.intValue());
-            } else if (i.right == 2) {
-                mplew.writeShort(i.left.shortValue());
-            } else if (i.right == 1) {
-                mplew.write(i.left.byteValue());
-            }
-        }
-        mplew.writeInt(-1);// ??
-        final int CHAR_MAGIC_SPAWN = Randomizer.nextInt();
-        //CHAR_MAGIC_SPAWN is really just tickCount
-        //this is here as it explains the 7 "dummy" buffstats which are placed into every character
-        //these 7 buffstats are placed because they have irregular packet structure.
-        //they ALL have writeShort(0); first, then a long as their variables, then server tick count
-        mplew.writeInt(0); //start of energy charge
-        mplew.writeLong(0);
-        mplew.write(1);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.writeShort(0); //start of dash_speed
-        mplew.writeLong(0);
-        mplew.write(1);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.writeShort(0); //start of dash_jump
-        mplew.writeLong(0);
-        mplew.write(1);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.writeShort(0);
-        int buffSrc = chr.getBuffSource(MapleBuffStat.MONSTER_RIDING);
-        if (buffSrc > 0) {
-            final Item c_mount = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -118);
-            final Item mount = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18);
-            if (GameConstants.getMountItem(buffSrc, chr) == 0 && c_mount != null && chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -119) != null) {
-                mplew.writeInt(c_mount.getItemId());
-            } else if (GameConstants.getMountItem(buffSrc, chr) == 0 && mount != null && chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -19) != null) {
-                mplew.writeInt(mount.getItemId());
-            } else {
-                mplew.writeInt(GameConstants.getMountItem(buffSrc, chr));
-            }
-            mplew.writeInt(buffSrc);
-        } else {
-            mplew.writeLong(0);
-        }
-        mplew.write(1);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.writeLong(0); //speed infusion behaves differently here
-        mplew.write(1);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.writeInt(1);
-        mplew.writeLong(0); //homing beacon
-        mplew.write(0); //random
-        mplew.writeShort(0);
-        mplew.write(1);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        mplew.writeZeroBytes(16); //and finally, something ive no idea
-        mplew.write(1);
-        mplew.writeInt(CHAR_MAGIC_SPAWN);
-        /////////////////////////////
-        mplew.writeShort(0);
+
         mplew.writeShort(chr.getJob());
         mplew.writeShort(0);
         PacketHelper.addCharLook(mplew, chr, true, chr.getClient());
