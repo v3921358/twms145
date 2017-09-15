@@ -184,7 +184,7 @@ public class SuperGMCommand {
                     return true;
                 case "1337bob":
                     player.dropMessage(1, "Bob is sexy ok\r\nhe is 1337 yep");
-                    player.dropMessage(1, "Some facts about bob:\r\nBob's MAXHP: 9223372036854775807\r\nHow much HP is that?: Over a quintillion.\r\nCan I hit max damage?: Your damage is fixed at 1337.\r\nHow long will it take to kill bob?: About 3.449279e+15 days.");
+                    player.dropMessage(1, "Some facts about bob:\r\nBob's MAX_HP: 9223372036854775807\r\nHow much HP is that?: Over a quintillion.\r\nCan I hit max damage?: Your damage is fixed at 1337.\r\nHow long will it take to kill bob?: About 3.449279e+15 days.");
                     MapleMonster npcmob = MapleLifeFactory.getMonster(100100);
                     MapleMonsterStats stats = new MapleMonsterStats(100100);
                     OverrideMonsterStats newStats = new OverrideMonsterStats();

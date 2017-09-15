@@ -56,6 +56,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * @author AlphaEta
@@ -2878,28 +2880,51 @@ public class CWvsContext {
         mplew.writeShort(SendPacketOpcode.UPDATE_STATS.getValue());
         mplew.write(itemReaction ? 1 : 0);
         long updateMask = 0;
-        for (MapleStat statupdate : mystats.keySet()) {
-            updateMask |= statupdate.getValue();
+        for (MapleStat statUpdate : mystats.keySet()) {
+            updateMask |= statUpdate.getValue();
         }
         mplew.writeLong(updateMask);
-        for (final Entry<MapleStat, Integer> statupdate : mystats.entrySet()) {
-            switch (statupdate.getKey()) {
+
+        Map<MapleStat, Integer> sorted = mystats.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,(oldVal, newVal) -> oldVal, LinkedHashMap::new));
+
+
+        for (final Entry<MapleStat, Integer> statUpdate : sorted.entrySet()) {
+            switch (statUpdate.getKey()) {
                 case SKIN:
                 case LEVEL:
                 case FATIGUE:
                 case BATTLE_RANK:
                 case ICE_GAGE: // not sure..
-                    mplew.write(statupdate.getValue().byteValue());
+                case GENDER:
+                    mplew.write(statUpdate.getValue().byteValue());
+                    break;
+                case HP:
+                case MAX_HP:
+                case MP:
+                case MAX_MP:
+                case FACE:
+                case HAIR:
+                case VIRTUE:
+                case TRAIT_CHARISMA:
+                case TRAIT_CRAFT:
+                case TRAIT_SENSE:
+                case TRAIT_WILL:
+                case TRAIT_INSIGHT:
+                case TRAIT_CHARM:
+                case MESO:
+                    mplew.writeInt(statUpdate.getValue());
                     break;
                 case JOB:
                 case STR:
                 case DEX:
                 case INT:
                 case LUK:
-                    //case AVAILABLEAP:
-                    mplew.writeShort(statupdate.getValue().shortValue());
+                case AVAILABLE_AP:
+                    mplew.writeShort(statUpdate.getValue().shortValue());
                     break;
-                case AVAILABLESP:
+                case AVAILABLE_SP:
                     if (GameConstants.isEvan(chr.getJob()) || GameConstants.isResist(chr.getJob()) || GameConstants.isMercedes(chr.getJob()) || GameConstants.isJett(chr.getJob()) || GameConstants.isPhantom(chr.getJob()) || GameConstants.isMihile(chr.getJob())) {
                         mplew.write(chr.getRemainingSpSize());
                         for (int i = 0; i < chr.getRemainingSps().length; i++) {
@@ -2912,28 +2937,21 @@ public class CWvsContext {
                         mplew.writeShort(chr.getRemainingSp());
                     }
                     break;
+
                 case TRAIT_LIMIT:
-                    mplew.writeInt(statupdate.getValue().intValue()); //actually 6 shorts.
-                    mplew.writeInt(statupdate.getValue().intValue());
-                    mplew.writeInt(statupdate.getValue().intValue());
+                    mplew.writeInt(statUpdate.getValue()); //actually 6 shorts.
+                    mplew.writeInt(statUpdate.getValue());
+                    mplew.writeInt(statUpdate.getValue());
                     break;
                 case PET:
-                    mplew.writeLong(statupdate.getValue().intValue()); //uniqueID of 3 pets
-                    mplew.writeLong(statupdate.getValue().intValue());
-                    mplew.writeLong(statupdate.getValue().intValue());
-                    break;
-                default:
-                    mplew.writeInt(statupdate.getValue().intValue());
+                    mplew.writeLong(statUpdate.getValue()); //uniqueID of 3 pets
+                    mplew.writeLong(statUpdate.getValue());
+                    mplew.writeLong(statUpdate.getValue());
                     break;
             }
         }
-        if (updateMask == 0 && !itemReaction) {
-            mplew.write(1); //O_o
-        }
         mplew.write(0); // SetSecondaryStatChangedPoint [byte]
         mplew.write(0); // SetBattleRecoveryInfo [int][int]
-        mplew.writeZeroBytes(100);
-
         return mplew.getPacket();
     }
 

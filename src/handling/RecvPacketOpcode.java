@@ -278,7 +278,8 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
     ENTER_AZWAN,
     ENTER_AZWAN_EVENT,
     LEAVE_AZWAN,
-    MTS_TAB, MCAUGHTEFF;
+    MTS_TAB, MCAUGHTEFF,
+    UNKNOWN;
 
     static {
         reloadValues();
@@ -331,6 +332,17 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
             }
         }
         return "UNKNOWN";
+    }
+
+    public static boolean isSkipLog(RecvPacketOpcode opcode) {
+
+        switch (opcode) {
+            case NPC_ACTION:
+            case MOVE_PLAYER:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override

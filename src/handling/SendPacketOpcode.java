@@ -439,7 +439,8 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
     CHANGE_HOUR,
     ANTI_MACRO_RESULT,
     GAME_PATCHES,
-    SEND_EULA;
+    SEND_EULA,
+    UNKNOWN;
     private short code = -2;
 
     @Override
@@ -455,16 +456,6 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
 
     public short getValue() {
         return code;
-    }
-
-
-    public static String getOpcodeName(int value) {
-        for (SendPacketOpcode opcode : SendPacketOpcode.values()) {
-            if (opcode.get() == value) {
-                return opcode.name();
-            }
-        }
-        return "UNKNOWN";
     }
 
     public static final void reloadValues() {
@@ -487,6 +478,18 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
         }
         ExternalCodeShortTableGetter.populateValues(props, values());
     }
+
+    public static boolean isSkipLog(SendPacketOpcode opcode) {
+
+        switch (opcode) {
+            case NPC_ACTION:
+            case YELLOW_CHAT:
+                return true;
+            default:
+                return false;
+        }
+    }
+
 
     public static String nameOf(int value) {
         for (SendPacketOpcode opcode : SendPacketOpcode.values()) {

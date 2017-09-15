@@ -1167,18 +1167,22 @@ return;
         if (chr == null) {
             return;
         }
+
         slea.readInt();
-        if (slea.available() >= 8) {
-            slea.skip(slea.available() >= 12 && GameConstants.GMS ? 8 : 4);
+
+        if (slea.available() >= 8L) {
+            slea.skip(slea.available() >= 12L ? 8 : 4);
         }
+
         int healHP = slea.readShort();
         int healMP = slea.readShort();
 
         final PlayerStats stats = chr.getStat();
 
-        if (stats.getHp() <= 0) {
+        if(stats.getHp() <= 0) {
             return;
         }
+
         final long now = System.currentTimeMillis();
         if (healHP != 0 && chr.canHP(now + 1000)) {
             if (healHP > stats.getHealHP()) {
@@ -1201,7 +1205,7 @@ return;
         slea.skip(1); // portal count
         slea.skip(4); // crc?
         slea.skip(4); // tickcount
-        slea.skip(4); // position
+        final Point startPos = slea.readPos();
         slea.skip(4);
         if (chr == null) {
             return;
@@ -1214,6 +1218,21 @@ return;
             System.out.println("AIOBE Type1:\n" + slea.toString(true));
             return;
         }
+
+        int unk = slea.readByte();
+        for (int i = 0;; i += 2) {
+            if (i >= unk) {
+                break;
+            }
+            slea.readByte();
+        }
+
+        slea.readShort();
+        slea.readShort();
+        slea.readShort();
+        slea.readShort();
+
+
 
         if (res != null && c.getPlayer().getMap() != null) {
             if (slea.available() < 11 || slea.available() > 26) { // estimation, should be exact 18

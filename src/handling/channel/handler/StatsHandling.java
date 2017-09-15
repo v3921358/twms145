@@ -95,7 +95,7 @@ slea.readInt();
                     maxhp = Math.min(99999, Math.abs(maxhp));
                     chr.setHpApUsed((short) (chr.getHpApUsed() + 1));
                     stat.setMaxHp(maxhp, chr);
-                    statupdate.put(MapleStat.MAXHP, (int) maxhp);
+                    statupdate.put(MapleStat.MAX_HP, (int) maxhp);
                     break;
                 case 8192: // MP
                     int maxmp = stat.getMaxMp();
@@ -118,14 +118,14 @@ slea.readInt();
                     maxmp = Math.min(99999, Math.abs(maxmp));
                     chr.setHpApUsed((short) (chr.getHpApUsed() + 1));
                     stat.setMaxMp(maxmp, chr);
-                    statupdate.put(MapleStat.MAXMP, (int) maxmp);
+                    statupdate.put(MapleStat.MAX_MP, (int) maxmp);
                     break;
                 default:
                     c.sendPacket(CWvsContext.enableActions());
                     return;
             }
             chr.setRemainingAp((chr.getRemainingAp() - 1));
-          //  statupdate.put(MapleStat.AVAILABLEAP, (int) chr.getRemainingAp());
+          //  statupdate.put(MapleStat.AVAILABLE_AP, (int) chr.getRemainingAp());
             c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
         }
     }
@@ -170,7 +170,7 @@ slea.readInt();
                 final int skillbook = GameConstants.getSkillBookForSkill(skillid);
                 chr.setRemainingSp(chr.getRemainingSp(skillbook) - 1, skillbook);
             }
-            chr.updateSingleStat(MapleStat.AVAILABLESP, 0); // we don't care the value here
+            chr.updateSingleStat(MapleStat.AVAILABLE_SP, 0); // we don't care the value here
             chr.changeSingleSkillLevel(skill, (byte) (curLevel + 1), chr.getMasterLevel(skill));
             //} else if (!skill.canBeLearnedBy(chr.getJob())) {
             //    AutobanManager.getInstance().addPoints(c, 1000, 0, "Trying to learn a skill for a different job (" + skillid + ")");
@@ -266,7 +266,7 @@ slea.readInt();
                     return;
             }
             chr.setRemainingAp((chr.getRemainingAp() - (amount + amount2)));
-           // statupdate.put(MapleStat.AVAILABLEAP, (int) chr.getRemainingAp());
+           // statupdate.put(MapleStat.AVAILABLE_AP, (int) chr.getRemainingAp());
             c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
         }
     }

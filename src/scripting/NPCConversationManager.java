@@ -46,7 +46,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.NumberFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -1886,9 +1885,9 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         statup.put(MapleStat.LUK, Integer.valueOf(32767));
         statup.put(MapleStat.INT, Integer.valueOf(32767));
         statup.put(MapleStat.HP, Integer.valueOf(99999));
-        statup.put(MapleStat.MAXHP, Integer.valueOf(99999));
+        statup.put(MapleStat.MAX_HP, Integer.valueOf(99999));
         statup.put(MapleStat.MP, Integer.valueOf(overrDemon));
-        statup.put(MapleStat.MAXMP, Integer.valueOf(overrDemon));
+        statup.put(MapleStat.MAX_MP, Integer.valueOf(overrDemon));
         c.getPlayer().getStat().recalcLocalStats(c.getPlayer());
         c.sendPacket(CWvsContext.updatePlayerStats(statup, c.getPlayer()));
     }

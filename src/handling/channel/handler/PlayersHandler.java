@@ -548,7 +548,7 @@ public class PlayersHandler {
         }
         c.getPlayer().setGachExp(c.getPlayer().getGachExp() + MapleItemInformationProvider.getInstance().getItemEffect(item.getItemId()).getEXP());
         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, item.getPosition(), (short) 1, false);
-        c.getPlayer().updateSingleStat(MapleStat.GACHAPONEXP, c.getPlayer().getGachExp());
+        c.getPlayer().updateSingleStat(MapleStat.GACHAPON_EXP, c.getPlayer().getGachExp());
     }
 
     public static void GachExp(final LittleEndianAccessor slea, final MapleClient c) {
@@ -559,7 +559,7 @@ public class PlayersHandler {
         }
         c.getPlayer().gainExp(c.getPlayer().getGachExp() * GameConstants.getExpRate_Quest(c.getPlayer().getLevel()), true, true, false);
         c.getPlayer().setGachExp(0);
-        c.getPlayer().updateSingleStat(MapleStat.GACHAPONEXP, 0);
+        c.getPlayer().updateSingleStat(MapleStat.GACHAPON_EXP, 0);
     }
 
    public static void Report(final LittleEndianAccessor slea, final MapleClient c) {

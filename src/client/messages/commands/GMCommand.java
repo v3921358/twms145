@@ -894,7 +894,7 @@ public class GMCommand {
                     return true;
                 case "ap":
                     player.setRemainingAp(Integer.parseInt(splitted[1]));
-                    player.updateSingleStat(MapleStat.AVAILABLEAP, player.getRemainingAp());
+                    player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
                     return true;
                 case "spyinv":
                     sb = new StringBuilder();
@@ -911,7 +911,7 @@ public class GMCommand {
                     return true;
                 case "sp":
                     c.getPlayer().setRemainingSp(CommandProcessorUtil.getOptionalIntArg(splitted, 1, 1));
-                    c.getPlayer().updateSingleStat(MapleStat.AVAILABLESP, 0); // we don't care the value here
+                    c.getPlayer().updateSingleStat(MapleStat.AVAILABLE_SP, 0); // we don't care the value here
                     return true;
                 case "warpportal":
                     player.changeMap(Integer.parseInt(splitted[1]), Integer.parseInt(splitted[2]));

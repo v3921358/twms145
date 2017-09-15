@@ -101,14 +101,13 @@ public class LoginPacket {
         mplew.writeInt(client.getAccID());
         mplew.write(client.getGender());
         mplew.writeBool(client.isGm());
-
         // GM flag , SuperGM(1<<4)  GM(1<<5)
         mplew.write(client.isGm() ? 0x10 : 0x00);
         mplew.writeInt(0);
         mplew.writeMapleAsciiString(client.getAccountName());
         mplew.writeInt(1);
-        mplew.write(1);
-        mplew.write(1);
+        mplew.write(0);
+        mplew.write(0);
         mplew.write(0); // 1 = 帳號禁止說話
         mplew.writeLong(PacketHelper.getTime(System.currentTimeMillis()));// 禁止說話期限
         mplew.write(0);

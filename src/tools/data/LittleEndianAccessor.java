@@ -84,7 +84,7 @@ public class LittleEndianAccessor {
 	
 	public final int readUShort() {
 		int quest = readShort();
-        if (quest < 0) { //questid 50000 and above, WILL cast to negative, this was tested.
+        if (quest < 0) { //questid 50000 and above, TRAIT_WILL cast to negative, this was tested.
             quest += 65536; //probably not the best fix, but whatever
         }
 		return quest;

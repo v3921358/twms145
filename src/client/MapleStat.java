@@ -12,29 +12,34 @@ public enum MapleStat {
     INT(0x100), // short
     LUK(0x200), // short
     HP(0x400), // int
-    MAXHP(0x800), // int
+    MAX_HP(0x800), // int
     MP(0x1000), // int
-    MAXMP(0x2000), // int
-    AVAILABLEAP(0x4000), // short
-    AVAILABLESP(0x8000), // short (depends)
+    MAX_MP(0x2000), // int
+    AVAILABLE_AP(0x4000), // short
+    AVAILABLE_SP(0x8000), // short (depends)
     EXP(0x10000), // int
     FAME(0x20000), // int
     MESO(0x40000), // int
+
     PET(0x180008), // Pets: 0x8 + 0x80000 + 0x100000  [3 longs]
-    GACHAPONEXP(0x200000), // int
-    FATIGUE(0x400000), // byte
-    CHARISMA(0x800000), // ambition int
-    INSIGHT(0x1000000),
-    WILL(0x2000000), // int
-    CRAFT(0x4000000), // dilligence, int
-    SENSE(0x8000000), // empathy, int
-    CHARM(0x10000000), // int
-    TRAIT_LIMIT(0x20000000), // 12 bytes
-	BATTLE_EXP(0x40000000), // int
-	BATTLE_RANK(0x80000000L), // byte
-	BATTLE_POINTS(0x100000000L),
-	ICE_GAGE(0x200000000L),
-	VIRTUE(0x400000000L);
+
+    FATIGUE(0x80000), // byte
+    TRAIT_CHARISMA(0x100000), // int
+    TRAIT_INSIGHT(0x200000), // int
+    TRAIT_WILL(0x400000), // int
+    TRAIT_CRAFT(0x800000), // int
+    TRAIT_SENSE(0x1000000), //  int
+    TRAIT_CHARM(0x2000000), // int
+
+    TRAIT_LIMIT(0x4000000), // 12 bytes
+
+	BATTLE_EXP(0x8000000), // int
+	BATTLE_RANK(0x10000000), // byte
+	BATTLE_POINTS(0x20000000),
+    ICE_GAGE(0x40000000), // byte byte
+    VIRTUE(0x80000000), // int
+    GACHAPON_EXP(0x100000000L), // 4 byte
+    GENDER(0x200000000L); // int
 
     private final long i;
 

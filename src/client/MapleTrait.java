@@ -7,12 +7,12 @@ public class MapleTrait {
 
     public static enum MapleTraitType { //in order
 
-        charisma(500, MapleStat.CHARISMA), //ambition
-        insight(500, MapleStat.INSIGHT),
-        will(500, MapleStat.WILL), //willpower
-        craft(500, MapleStat.CRAFT), //diligence
-        sense(500, MapleStat.SENSE), //empathy
-        charm(5000, MapleStat.CHARM);
+        charisma(500, MapleStat.TRAIT_CHARISMA), //ambition
+        insight(500, MapleStat.TRAIT_INSIGHT),
+        will(500, MapleStat.TRAIT_WILL), //willpower
+        craft(500, MapleStat.TRAIT_CRAFT), //diligence
+        sense(500, MapleStat.TRAIT_SENSE), //empathy
+        charm(5000, MapleStat.TRAIT_CHARM);
         final int limit;
         final MapleStat stat;
 

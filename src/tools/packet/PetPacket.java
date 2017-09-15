@@ -169,12 +169,7 @@ public class PetPacket {
 
         mplew.writeShort(SendPacketOpcode.UPDATE_STATS.getValue());
         mplew.write(0);
-        if (GameConstants.GMS) {
-            mplew.writeLong(MapleStat.PET.getValue());
-        } else {
-            mplew.writeInt((int) MapleStat.PET.getValue());
-        }
-
+        mplew.writeLong(MapleStat.PET.getValue());
 
         byte count = 0;
         for (final MaplePet pet : chr.getPets()) {
@@ -188,8 +183,8 @@ public class PetPacket {
             count++;
         }
         mplew.write(0);
-        mplew.writeShort(0);
-
+        mplew.write(0);
+        mplew.write(0);
         return mplew.getPacket();
     }
 }

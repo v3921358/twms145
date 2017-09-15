@@ -22,6 +22,7 @@ package handling.netty;
 
 import client.MapleClient;
 import constants.ServerConstants;
+import handling.RecvPacketOpcode;
 import handling.SendPacketOpcode;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -43,21 +44,23 @@ public class MaplePacketEncoder extends MessageToByteEncoder<Object> {
 
             byte[] input = ((byte[]) message);
 
-            if(ServerConstants.DEBUG) {
+            if (ServerConstants.DEBUG) {
                 int packetLen = input.length;
                 int pHeader = ((input[0]) & 0xFF) + (((input[1]) & 0xFF) << 8);
                 String op = SendPacketOpcode.nameOf(pHeader);
-                String pHeaderStr = Integer.toHexString(pHeader).toUpperCase();
-                pHeaderStr = "0x" + StringUtil.getLeftPaddedStr(pHeaderStr, '0', 4);
-                String tab = "";
-                for (int i = 4; i > op.length() / 8; i--) {
-                    tab += "\t";
+                if (!SendPacketOpcode.isSkipLog(SendPacketOpcode.valueOf(op))) {
+                    String pHeaderStr = Integer.toHexString(pHeader).toUpperCase();
+                    pHeaderStr = "0x" + StringUtil.getLeftPaddedStr(pHeaderStr, '0', 4);
+                    String tab = "";
+                    for (int i = 4; i > op.length() / 8; i--) {
+                        tab += "\t";
+                    }
+                    String t = packetLen >= 10 ? packetLen >= 100 ? packetLen >= 1000 ? "" : " " : "  " : "   ";
+                    final StringBuilder sb = new StringBuilder("[Debug] Send: \t" + op + tab + "\t包頭:" + pHeaderStr + t + "[" + packetLen/* + "\r\nCaller: " + Thread.currentThread().getStackTrace()[2] */ + "字元]");
+                    sb.append("\n        Hex : \t").append(HexTool.toString(input));
+                    sb.append("\n        Ascii: \t").append(HexTool.toPaddedStringFromAscii(input));
+                    System.out.println(sb.toString());
                 }
-                String t = packetLen >= 10 ? packetLen >= 100 ? packetLen >= 1000 ? "" : " " : "  " : "   ";
-                final StringBuilder sb = new StringBuilder("[Debug] Send: \t" + op + tab + "\t包頭:" + pHeaderStr + t + "[" + packetLen/* + "\r\nCaller: " + Thread.currentThread().getStackTrace()[2] */ + "字元]");
-                sb.append("\n        Hex : \t").append(HexTool.toString(input));
-                sb.append("\n        Ascii: \t").append(HexTool.toPaddedStringFromAscii(input));
-                System.out.println(sb.toString());
             }
 
 

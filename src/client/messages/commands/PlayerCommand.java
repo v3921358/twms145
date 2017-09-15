@@ -4,9 +4,7 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.MapleStat;
 import client.inventory.Equip;
-import client.inventory.Item;
 import client.inventory.MapleInventoryIdentifier;
-import client.inventory.MapleInventoryType;
 import client.inventory.MapleRing;
 import client.messages.MessageCallback;
 import client.messages.ServernoticeMapleClientMessageCallback;
@@ -319,22 +317,22 @@ public class PlayerCommand {
             player.getStat().setStr((short)(player.getStat().getStr() + amount), player);
             player.updateSingleStat(MapleStat.STR, player.getStat().getStr());
             player.setRemainingAp(player.getRemainingAp() - amount);
-            player.updateSingleStat(MapleStat.AVAILABLEAP, player.getRemainingAp());
+            player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
           } else if ((Int) && (amount + player.getStat().getInt() <= 32767) && (amount + player.getStat().getInt() >= 4)) {
             player.getStat().setInt((short)(player.getStat().getInt() + amount), player);
             player.updateSingleStat(MapleStat.INT, player.getStat().getInt());
             player.setRemainingAp(player.getRemainingAp() - amount);
-            player.updateSingleStat(MapleStat.AVAILABLEAP, player.getRemainingAp());
+            player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
           } else if ((luk) && (amount + player.getStat().getLuk() <= 32767) && (amount + player.getStat().getLuk() >= 4)) {
             player.getStat().setLuk((short)(player.getStat().getLuk() + amount), player);
             player.updateSingleStat(MapleStat.LUK, player.getStat().getLuk());
             player.setRemainingAp(player.getRemainingAp() - amount);
-            player.updateSingleStat(MapleStat.AVAILABLEAP, player.getRemainingAp());
+            player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
           } else if ((dex) && (amount + player.getStat().getDex() <= 32767) && (amount + player.getStat().getDex() >= 4)) {
             player.getStat().setDex((short)(player.getStat().getDex() + amount), player);
             player.updateSingleStat(MapleStat.DEX, player.getStat().getDex());
             player.setRemainingAp(player.getRemainingAp() - amount);
-            player.updateSingleStat(MapleStat.AVAILABLEAP, player.getRemainingAp());
+            player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
           } else {
             player.dropMessage("Please make sure the stat you are trying to raise is not over 32,767 or under 4.");
           }

@@ -64,10 +64,11 @@ public class MaplePacketDecoder extends ByteToMessageDecoder {
             client.getReceiveCrypto().crypt(decryptedPacket);
             message.add(decryptedPacket);
 
-            if(ServerConstants.DEBUG) {
+            if (ServerConstants.DEBUG) {
                 int packetLen = decryptedPacket.length;
                 short pHeader = new LittleEndianAccessor(new ByteArrayByteStream(decryptedPacket)).readShort();
                 String op = RecvPacketOpcode.nameOf(pHeader);
+                if (!RecvPacketOpcode.isSkipLog(RecvPacketOpcode.valueOf(op))) {
                     String tab = "";
                     for (int i = 4; i > op.length() / 8; i--) {
                         tab += "\t";
@@ -77,6 +78,7 @@ public class MaplePacketDecoder extends ByteToMessageDecoder {
                     sb.append("\n        Hex : \t").append(HexTool.toString(decryptedPacket));
                     sb.append("\n        Ascii: \t").append(HexTool.toPaddedStringFromAscii(decryptedPacket));
                     System.out.println(sb.toString());
+                }
             }
         }
     }

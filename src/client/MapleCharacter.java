@@ -3543,7 +3543,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     public void setRemainingAp(int remainingAp) {
         updateAP();
         this.remainingAp = remainingAp;
-        updateSingleStat(MapleStat.AVAILABLEAP, this.remainingAp);
+        updateSingleStat(MapleStat.AVAILABLE_AP, this.remainingAp);
     }
 
     public void setRemainingSp(int remainingSp) {
@@ -3763,7 +3763,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                  }
                  if (newJob % 10 >= 1 && level >= 70) { //3rd job or higher. lucky for evans who get 80, 100, 120, 160 ap...
                  remainingAp += 5;
-                 //   updateSingleStat(MapleStat.AVAILABLEAP, remainingAp);
+                 //   updateSingleStat(MapleStat.AVAILABLE_AP, remainingAp);
                  //MAKER STILL EXISTS
                  final Skill skil = SkillFactory.getSkill(stats.getSkillByJob(1007, getJob()));
                  if (skil != null && getSkillLevel(skil) <= 0) {
@@ -3788,7 +3788,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                  dropMessage(5, "The baby Dragon hatched and appears to have something to tell you. Click the baby Dragon to start a conversation.");
                  }
                  }
-                 updateSingleStat(MapleStat.AVAILABLESP, 0); // we don't care the value here
+                 updateSingleStat(MapleStat.AVAILABLE_SP, 0); // we don't care the value here
                  }
                  *
                  */
@@ -3868,8 +3868,8 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                 }
                 stats.setInfo(maxhp, maxmp, maxhp, maxmp);
                 Map<MapleStat, Integer> statup = new EnumMap<>(MapleStat.class);
-                statup.put(MapleStat.MAXHP, Integer.valueOf(maxhp));
-                statup.put(MapleStat.MAXMP, Integer.valueOf(maxmp));
+                statup.put(MapleStat.MAX_HP, Integer.valueOf(maxhp));
+                statup.put(MapleStat.MAX_MP, Integer.valueOf(maxmp));
                 statup.put(MapleStat.HP, Integer.valueOf(maxhp));
                 statup.put(MapleStat.MP, Integer.valueOf(maxmp));
                 characterCard.recalcLocalStats(this);
@@ -4046,18 +4046,18 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     public void gainAp(int ap) {
         updateAP();
         this.remainingAp += ap;
-        updateSingleStat(MapleStat.AVAILABLEAP, this.remainingAp);
+        updateSingleStat(MapleStat.AVAILABLE_AP, this.remainingAp);
     }
 
     public void gainSP(int sp) {
         this.remainingSp[GameConstants.getSkillBook(job)] += sp; //default
-        updateSingleStat(MapleStat.AVAILABLESP, 0); // we don't care the value here
+        updateSingleStat(MapleStat.AVAILABLE_SP, 0); // we don't care the value here
         client.sendPacket(InfoPacket.getSPMsg((byte) sp, (short) job));
     }
 
     public void gainSP(int sp, final int skillbook) {
         this.remainingSp[skillbook] += sp; //default
-        updateSingleStat(MapleStat.AVAILABLESP, 0); // we don't care the value here
+        updateSingleStat(MapleStat.AVAILABLE_SP, 0); // we don't care the value here
         client.sendPacket(InfoPacket.getSPMsg((byte) sp, (short) 0));
     }
 
@@ -4065,7 +4065,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         for (int i = 0; i < remainingSp.length; i++) {
             this.remainingSp[i] = sp;
         }
-        updateSingleStat(MapleStat.AVAILABLESP, 0); // we don't care the value here
+        updateSingleStat(MapleStat.AVAILABLE_SP, 0); // we don't care the value here
     }
 
     public List<Integer> getProfessions() {
@@ -4354,11 +4354,11 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         Map<MapleStat, Integer> statups = new EnumMap<>(MapleStat.class);
 
         if (stats.setHp(stats.getHp() + hpDiff, this)) {
-            statups.put(MapleStat.HP, Integer.valueOf(stats.getHp()));
+            statups.put(MapleStat.HP, stats.getHp());
         }
         if ((mpDiff < 0 && GameConstants.isDemon(getJob())) || !GameConstants.isDemon(getJob())) {
             if (stats.setMp(stats.getMp() + mpDiff, this)) {
-                statups.put(MapleStat.MP, Integer.valueOf(stats.getMp()));
+                statups.put(MapleStat.MP, stats.getMp());
             }
         }
         if (statups.size() > 0) {
@@ -5637,7 +5637,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         } else {
             remainingAp += 5; // all 5
         }
-        updateSingleStat(MapleStat.AVAILABLEAP, getRemainingAp());
+        updateSingleStat(MapleStat.AVAILABLE_AP, getRemainingAp());
 
         int maxhp = stats.getMaxHp();
         int maxmp = stats.getMaxMp();
@@ -5700,8 +5700,8 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         }
         final Map<MapleStat, Integer> statup = new EnumMap<>(MapleStat.class);
 
-        statup.put(MapleStat.MAXHP, maxhp);
-        statup.put(MapleStat.MAXMP, maxmp);
+        statup.put(MapleStat.MAX_HP, maxhp);
+        statup.put(MapleStat.MAX_MP, maxmp);
         statup.put(MapleStat.HP, stats.getCurrentMaxHp());
         statup.put(MapleStat.MP, stats.getCurrentMaxMp(getJob()));
         statup.put(MapleStat.EXP, exp.get());
@@ -5712,9 +5712,9 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
             } else {
                 remainingSp[GameConstants.getSkillBook(this.job)] += 3;
             }
-            updateSingleStat(MapleStat.AVAILABLESP, 0); // we don't care the value here
+            updateSingleStat(MapleStat.AVAILABLE_SP, 0); // we don't care the value here
         }
-        // statup.put(MapleStat.AVAILABLEAP, (int) remainingAp);
+        // statup.put(MapleStat.AVAILABLE_AP, (int) remainingAp);
         stats.setInfo(maxhp, maxmp, stats.getCurrentMaxHp(), stats.getCurrentMaxMp(getJob()));
         client.sendPacket(CWvsContext.updatePlayerStats(statup, this));
         map.broadcastMessage(this, EffectPacket.showForeignEffect(getId(), 0), false);
@@ -9269,7 +9269,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         stat.put(MapleStat.DEX, dex);
         stat.put(MapleStat.INT, int_);
         stat.put(MapleStat.LUK, luk);
-        //     stat.put(MapleStat.AVAILABLEAP, total);
+        //     stat.put(MapleStat.AVAILABLE_AP, total);
         client.sendPacket(CWvsContext.updatePlayerStats(stat, false, this));
     }
 

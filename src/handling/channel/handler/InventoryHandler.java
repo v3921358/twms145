@@ -2306,7 +2306,7 @@ public class InventoryHandler {
                                 maxhp = Math.min(99999, Math.abs(maxhp));
                                 c.getPlayer().setHpApUsed((short) (c.getPlayer().getHpApUsed() + 1));
                                 playerst.setMaxHp(maxhp, c.getPlayer());
-                                statupdate.put(MapleStat.MAXHP, (int) maxhp);
+                                statupdate.put(MapleStat.MAX_HP, (int) maxhp);
                                 break;
 
                             case 8192: // mp
@@ -2328,7 +2328,7 @@ public class InventoryHandler {
                                 maxmp = Math.min(99999, Math.abs(maxmp));
                                 c.getPlayer().setHpApUsed((short) (c.getPlayer().getHpApUsed() + 1));
                                 playerst.setMaxMp(maxmp, c.getPlayer());
-                                statupdate.put(MapleStat.MAXMP, (int) maxmp);
+                                statupdate.put(MapleStat.MAX_MP, (int) maxmp);
                                 break;
                         }
                         switch (apfrom) { // AP from
@@ -2375,7 +2375,7 @@ public class InventoryHandler {
                                 }
                                 c.getPlayer().setHpApUsed((short) (c.getPlayer().getHpApUsed() - 1));
                                 playerst.setMaxHp(maxhp, c.getPlayer());
-                                statupdate.put(MapleStat.MAXHP, (int) maxhp);
+                                statupdate.put(MapleStat.MAX_HP, (int) maxhp);
                                 break;
                             case 8192: // MP
                                 int maxmp = playerst.getMaxMp();
@@ -2396,7 +2396,7 @@ public class InventoryHandler {
                                 }
                                 c.getPlayer().setHpApUsed((short) (c.getPlayer().getHpApUsed() - 1));
                                 playerst.setMaxMp(maxmp, c.getPlayer());
-                                statupdate.put(MapleStat.MAXMP, (int) maxmp);
+                                statupdate.put(MapleStat.MAX_MP, (int) maxmp);
                                 break;
                         }
                         c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, c.getPlayer()));
