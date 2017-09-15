@@ -65,7 +65,7 @@ public class CharLoginHandler {
         byte local = slea.readByte();
         short version = slea.readShort();
         String patch = String.valueOf(slea.readShort());
-        if (local != ServerConstants.MAPLE_LOCLE ||
+        if (local != ServerConstants.MAPLE_LOCALE ||
                 version != ServerConstants.MAPLE_VERSION ||
                 !Objects.equals(patch, ServerConstants.MAPLE_PATCH)) {
             c.getSession().close();

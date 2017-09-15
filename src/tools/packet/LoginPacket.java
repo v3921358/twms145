@@ -43,7 +43,7 @@ public class LoginPacket {
         mplew.writeMapleAsciiString(ServerConstants.MAPLE_PATCH);
         mplew.write(recvIv);
         mplew.write(sendIv);
-        mplew.write(ServerConstants.MAPLE_LOCLE);
+        mplew.write(ServerConstants.MAPLE_LOCALE);
         return mplew.getPacket();
     }
 

@@ -59,7 +59,7 @@ public class InterServerHandler {
             c.sendPacket(CWvsContext.enableActions());
             return;
         }
-        if (ServerConstants.BlockCS) {
+        if (ServerConstants.BLOCK_CASH_SHOP) {
             chr.dropMessage(1, "The Cash Shop has been temporarily disabled due to the amount of bugged players.");
             c.sendPacket(CWvsContext.enableActions());
             return;

@@ -370,7 +370,7 @@ public class PlayerCommand {
                 player.dropMessage(-1, "Welcome home, " + player.getName() + "!");
                 return true;
             case "serverinfo":
-                player.dropNPC("Version: 117.2\r\nRates: " + c.getWorldServer().getExpRate() + "x EXP | " + c.getWorldServer().getMesoRate() + "x MESO | " + c.getWorldServer().getDropRate() + "x DROP\r\nAIO Commands: @" + ServerConstants.SERVER_NAME.substring(0, 3).toLowerCase() + "\r\nWZ Revision: " + ServerConstants.WzRevision + "\r\nSource Revision: " + ServerConstants.SourceRev + "\r\nWebsite: http://maple.development.net/\r\n\r\n#bHave fun in " + ServerConstants.SERVER_NAME + "!#k");
+                //player.dropNPC("Version: 117.2\r\nRates: " + c.getWorldServer().getExpRate() + "x EXP | " + c.getWorldServer().getMesoRate() + "x MESO | " + c.getWorldServer().getDropRate() + "x DROP\r\nAIO Commands: @" + ServerConstants.SERVER_NAME.substring(0, 3).toLowerCase() + "\r\nWZ Revision: " + ServerConstants.WzRevision + "\r\nSource Revision: " + ServerConstants.SourceRev + "\r\nWebsite: http://maple.development.net/\r\n\r\n#bHave fun in " + ServerConstants.SERVER_NAME + "!#k");
                 return true;
             case "expfix":
                 player.setExp(0);

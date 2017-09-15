@@ -1679,7 +1679,7 @@ public class MapleClient implements Serializable {
     }
 
     public boolean isLocalhost() {
-        return ServerConstants.Use_Localhost;
+        return ServerConstants.ONLY_LOCALHOST;
     }
 
     protected static final class CharNameAndId {
