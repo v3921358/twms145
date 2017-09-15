@@ -122,17 +122,17 @@ public class SuperGMCommand {
                         victim.fly(victim);
                     /*if (victim.isFlying() == false) {
                         SkillFactory.getSkill(80001069).getEffect(1).applyTo(victim);
-                      if (victim.getBuffedValue(MapleBuffStat.MONSTER_RIDING) != null) {
+                      if (victim.getBuffedValue(MapleBuffStatus.MONSTER_RIDING) != null) {
                         victim.setFlying(true);
                         SkillFactory.getSkill(80001089).getEffect(1).applyTo(victim);
-                        victim.cancelBuffStats(MapleBuffStat.MONSTER_RIDING);
-                        victim.cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
+                        victim.cancelBuffStats(MapleBuffStatus.MONSTER_RIDING);
+                        victim.cancelEffectFromBuffStat(MapleBuffStatus.MONSTER_RIDING);
                         victim.dropMessage(5, "Fly Mode : Active.");
                         victim.dropMessage(5, "To fly, simply jump and then use the arrow keys to control your flight.");
                    }
                  } else if (victim.isFlying() == true) {
-                     victim.cancelBuffStats(MapleBuffStat.SOARING);
-                     victim.cancelEffectFromBuffStat(MapleBuffStat.SOARING);
+                     victim.cancelBuffStats(MapleBuffStatus.SOARING);
+                     victim.cancelEffectFromBuffStat(MapleBuffStatus.SOARING);
                      victim.setFlying(false);
                      victim.dropMessage(5, "Fly Mode : Inactive.");
                  }*/

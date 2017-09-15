@@ -205,10 +205,14 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                     handlePacket(recv, slea, c, channel == CASH_SHOP_SERVER);
                 } catch (NegativeArraySizeException | ArrayIndexOutOfBoundsException e) {
                     if (ServerConstants.DEBUG) {
+                        e.printStackTrace();
                         FileoutputUtil.outputFileError(FileoutputUtil.PacketEx_Log, e);
                         FileoutputUtil.log(FileoutputUtil.PacketEx_Log, "Packet: " + opcode + "\n" + slea.toString(true));
                     }
                 } catch (Exception e) {
+                    if(ServerConstants.DEBUG) {
+                        e.printStackTrace();
+                    }
                     FileoutputUtil.outputFileError(FileoutputUtil.PacketEx_Log, e);
                     FileoutputUtil.log(FileoutputUtil.PacketEx_Log, "Packet: " + opcode + "\n" + slea.toString(true));
                 }

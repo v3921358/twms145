@@ -345,7 +345,7 @@ public class GMCommand {
                     victim.setChair(0);
                     victim.getClient().sendPacket(CField.cancelChair(-1));
                     victim.getMap().broadcastMessage(victim, CField.showChair(victim.getId(), 0), false);
-                    victim.giveDebuff(MapleDisease.SEDUCE, MobSkillFactory.getMobSkill(128, level_));
+                    victim.getDiseaseBuff(MapleBuffStatus.SEDUCE, MobSkillFactory.getMobSkill(128, level_));
                     return true;
                 case "zakum":
                     player.getMap().spawnFakeMonsterOnGroundBelow(MapleLifeFactory.getMonster(8800000), player.getPosition());
@@ -403,44 +403,40 @@ public class GMCommand {
                     return true;
                 case "spy":
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
-                    String sendText = new StringBuilder().append("Stats for ").append(victim.getName()).append(":\r\n").toString();
-                    if (victim != null) {
-                        sendText = new StringBuilder().append(sendText).append("Account Date Created: ").append(MapleCharacter.getAccountDateById(victim.getAccountID())).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("Character Date Created: ").append(MapleCharacter.getCharDateById(victim.getId())).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("Username: ").append(victim.getClient().getAccountName()).append("\r\n").toString();
-                        //sendText = new StringBuilder().append(sendText).append("Password: ").append(victim.isGM() ? "<null>" : victim.getClient().getAccountPass()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("STR: ").append(victim.getStat().getStr()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("DEX: ").append(victim.getStat().getDex()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("LUK: ").append(victim.getStat().getLuk()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("INT : ").append(victim.getStat().getInt()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("HP: ").append(victim.getStat().getHp()).append("/").append(victim.getStat().getMaxHp()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("MP: ").append(victim.getStat().getMp()).append("/").append(victim.getStat().getMaxMp()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("AP: ").append(victim.getRemainingAp()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("SP: ").append(victim.getRemainingSp()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("MapID: ").append(victim.getMapId()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("Level: ").append(victim.getLevel()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("Reborns: ").append(victim.getReborns()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("Account ID:").append(victim.getClient().getAccID()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("Player ID:").append(victim.getId()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("Vote Points: ").append(victim.getVPoints()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("Wiz Coins: ").append(victim.getItemQuantity(ServerConstants.Currency, false)).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("Mesos: ").append(victim.getMeso()).append("\r\n").toString();
-                        sendText = new StringBuilder().append(sendText).append("NX: ").append(victim.getCSPoints(1)).append("\r\n").toString();
-                        if (victim.getGMLevel() > player.getGMLevel()) {
-                            sendText = new StringBuilder().append(sendText).append("IP Adress: ").append("#rUnavailable#k because player is higher #bGM Level#k.").append("\r\n").toString();
-                        } else {
-                            sendText = new StringBuilder().append(sendText).append("IP Adress: ").append(victim.getClient().getLiteralIP()).append("\r\n").toString();
-                        }
-                        short watk = 0;
-                        for (Item e : victim.getInventory(MapleInventoryType.EQUIPPED)) {
-                            Equip eq = (Equip) e;
-                            watk = (short) (watk + eq.getWatk());
-                        }
-                        sendText = new StringBuilder().append(sendText).append("WATK: ").append(watk).append("\r\n").toString();
-                        player.getClient().sendPacket(CField.getNPCTalk(9010000, (byte) 0, sendText, "00 00"));
+                    String sendText = "Stats for " + victim.getName() + ":\r\n";
+                    sendText = sendText + "Account Date Created: " + MapleCharacter.getAccountDateById(victim.getAccountID()) + "\r\n";
+                    sendText = sendText + "Character Date Created: " + MapleCharacter.getCharDateById(victim.getId()) + "\r\n";
+                    sendText = sendText + "Username: " + victim.getClient().getAccountName() + "\r\n";
+                    //sendText = new StringBuilder().append(sendText).append("Password: ").append(victim.isGM() ? "<null>" : victim.getClient().getAccountPass()).append("\r\n").toString();
+                    sendText = sendText + "STR: " + victim.getStat().getStr() + "\r\n";
+                    sendText = sendText + "DEX: " + victim.getStat().getDex() + "\r\n";
+                    sendText = sendText + "LUK: " + victim.getStat().getLuk() + "\r\n";
+                    sendText = sendText + "INT : " + victim.getStat().getInt() + "\r\n";
+                    sendText = sendText + "HP: " + victim.getStat().getHp() + "/" + victim.getStat().getMaxHp() + "\r\n";
+                    sendText = sendText + "MP: " + victim.getStat().getMp() + "/" + victim.getStat().getMaxMp() + "\r\n";
+                    sendText = sendText + "AP: " + victim.getRemainingAp() + "\r\n";
+                    sendText = sendText + "SP: " + victim.getRemainingSp() + "\r\n";
+                    sendText = sendText + "MapID: " + victim.getMapId() + "\r\n";
+                    sendText = sendText + "Level: " + victim.getLevel() + "\r\n";
+                    sendText = sendText + "Reborns: " + victim.getReborns() + "\r\n";
+                    sendText = sendText + "Account ID:" + victim.getClient().getAccID() + "\r\n";
+                    sendText = sendText + "Player ID:" + victim.getId() + "\r\n";
+                    sendText = sendText + "Vote Points: " + victim.getVPoints() + "\r\n";
+                    sendText = sendText + "Wiz Coins: " + victim.getItemQuantity(ServerConstants.Currency, false) + "\r\n";
+                    sendText = sendText + "Mesos: " + victim.getMeso() + "\r\n";
+                    sendText = sendText + "NX: " + victim.getCSPoints(1) + "\r\n";
+                    if (victim.getGMLevel() > player.getGMLevel()) {
+                        sendText = sendText + "IP Adress: " + "#rUnavailable#k because player is higher #bGM Level#k." + "\r\n";
                     } else {
-                        player.dropMessage(6, " The username you entered doesn't exist or is not on your channel.");
+                        sendText = sendText + "IP Adress: " + victim.getClient().getLiteralIP() + "\r\n";
                     }
+                    short watk = 0;
+                    for (Item e : victim.getInventory(MapleInventoryType.EQUIPPED)) {
+                        Equip eq = (Equip) e;
+                        watk = (short) (watk + eq.getWatk());
+                    }
+                    sendText = sendText + "WATK: " + watk + "\r\n";
+                    player.getClient().sendPacket(CField.getNPCTalk(9010000, (byte) 0, sendText, "00 00"));
                     return true;
                 case "reloadmap":
                     c.getChannelServer().getMapFactory().disposeMap(player.getMapId());
@@ -449,7 +445,7 @@ public class GMCommand {
                 case "sealmap":
                     for (MapleCharacter chr_ : player.getMap().getCharacters()) {
                         if (!chr_.isGM()) {
-                            chr_.giveDebuff(MapleDisease.getType(120), MobSkillFactory.getMobSkill(120, 1));
+                            chr_.getDiseaseBuff(MapleBuffStatus.SEAL, MobSkillFactory.getMobSkill(120, 1));
                         }
                     }
                     return true;

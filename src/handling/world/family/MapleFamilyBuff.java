@@ -22,7 +22,7 @@
 
 package handling.world.family;
 
-import client.MapleBuffStat;
+import client.MapleBuffStatus;
 import client.MapleCharacter;
 import java.util.EnumMap;
 import java.util.concurrent.ScheduledFuture;
@@ -49,7 +49,7 @@ public enum MapleFamilyBuff {
 
 	public String name, desc;
 	public int rep, type, questID, duration, effect;
-	public EnumMap<MapleBuffStat, Integer> effects;
+	public EnumMap<MapleBuffStatus, Integer> effects;
 	private MapleFamilyBuff(String name, String desc, int type, int duration, int effect, int rep, int questID) {
 	    this.name = name;
 	    this.desc = desc;
@@ -73,19 +73,19 @@ public enum MapleFamilyBuff {
 
 	public final void setEffects() {
 		//custom
-		this.effects = new EnumMap<>(MapleBuffStat.class);
+		this.effects = new EnumMap<>(MapleBuffStatus.class);
 		switch(type) {
 			case 2: //drop
-				effects.put(MapleBuffStat.DROP_RATE, effect);
-				effects.put(MapleBuffStat.MESO_RATE, effect);
+				effects.put(MapleBuffStatus.DROP_RATE, effect);
+				effects.put(MapleBuffStatus.MESO_RATE, effect);
 				break;
 			case 3: //exp
-				effects.put(MapleBuffStat.EXPRATE, effect);
+				effects.put(MapleBuffStatus.EXPRATE, effect);
 				break;
 			case 4: //both
-				effects.put(MapleBuffStat.EXPRATE, effect);
-				effects.put(MapleBuffStat.DROP_RATE, effect);
-				effects.put(MapleBuffStat.MESO_RATE, effect);
+				effects.put(MapleBuffStatus.EXPRATE, effect);
+				effects.put(MapleBuffStatus.DROP_RATE, effect);
+				effects.put(MapleBuffStatus.MESO_RATE, effect);
 				break;
 		}
 	}

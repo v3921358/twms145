@@ -20,7 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client.status;
 
-import client.MapleDisease;
+
+import client.MapleBuffStatus;
 import constants.GameConstants;
 
 import java.io.Serializable;
@@ -100,23 +101,23 @@ public enum MonsterStatus implements Serializable, IBuffStat {
     }
 
 
-    public static MapleDisease getLinkedDisease(final MonsterStatus skill) {
+    public static MapleBuffStatus getLinkedDisease(final MonsterStatus skill) {
         switch (skill) {
             case STUN:
             case SHADOW_WEB:
-                return MapleDisease.STUN;
+                return MapleBuffStatus.STUN;
             case POISON:
             case BURN:
-                return MapleDisease.POISON;
+                return MapleBuffStatus.POISON;
             case SEAL:
             case MAGIC_CRASH:
-                return MapleDisease.SEAL;
+                return MapleBuffStatus.SEAL;
             case FREEZE:
-                return MapleDisease.FREEZE;
+                return MapleBuffStatus.FREEZE;
             case DARKNESS:
-                return MapleDisease.DARKNESS;
+                return MapleBuffStatus.DARKNESS;
             case SPEED:
-                return MapleDisease.SLOW;
+                return MapleBuffStatus.SLOW;
         }
         return null;
     }

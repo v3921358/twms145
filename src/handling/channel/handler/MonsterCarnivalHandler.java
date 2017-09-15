@@ -1,8 +1,9 @@
 package handling.channel.handler;
 
+import client.MapleBuffStatus;
 import client.MapleCharacter;
 import client.MapleClient;
-import client.MapleDisease;
+
 import client.SkillFactory;
 import handling.world.MaplePartyCharacter;
 import java.util.List;
@@ -61,22 +62,19 @@ public class MonsterCarnivalHandler {
             if (rand < 10) {
             SkillFactory.getSkill(80001079).getEffect(SkillFactory.getSkill(80001079).getMaxLevel()).applyTo(c.getPlayer());
             c.sendPacket(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, 0));
-            for (MaplePartyCharacter mpc : c.getPlayer().getParty().getMembers()) {
-                if (mpc.getId() != c.getPlayer().getId() && mpc.getChannel() == c.getChannel() && mpc.getMapid() == c.getPlayer().getMapId() && mpc.isOnline()) {
+                c.getPlayer().getParty().getMembers().stream().filter(mpc -> mpc.getId() != c.getPlayer().getId() && mpc.getChannel() == c.getChannel() && mpc.getMapid() == c.getPlayer().getMapId() && mpc.isOnline()).forEach(mpc -> {
                     MapleCharacter mc = c.getPlayer().getMap().getCharacterById(mpc.getId());
                     if (mc != null) {
                         SkillFactory.getSkill(80001079).getEffect(SkillFactory.getSkill(80001079).getMaxLevel()).applyTo(mc);
                         mc.getClient().sendPacket(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, 0));
                     }
-                }
-            }
+                });
             } else {
-                for (MapleCharacter chr : c.getPlayer().getMap().getCharactersThreadsafe()) { // should check for null partys but whatever
-                    if (chr.getParty() != c.getPlayer().getParty()) {
-                        chr.giveDebuff(MapleDisease.BLIND, MobSkillFactory.getMobSkill(136, 1));
-                        c.getPlayer().getMap().broadcastMessage(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, 1));
-                    }
-                }
+                // should check for null partys but whatever
+                c.getPlayer().getMap().getCharactersThreadsafe().stream().filter(chr -> chr.getParty() != c.getPlayer().getParty()).forEach(chr -> {
+                    chr.getDiseaseBuff(MapleBuffStatus.BLIND, MobSkillFactory.getMobSkill(136, 1));
+                    c.getPlayer().getMap().broadcastMessage(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, 1));
+                });
             }
                 c.getPlayer().getCarnivalParty().useCP(c.getPlayer(), 200);
                 c.getPlayer().CPUpdate(false, c.getPlayer().getAvailableCP(), c.getPlayer().getTotalCP(), 0);
@@ -104,12 +102,10 @@ public class MonsterCarnivalHandler {
                 }
             }
             } else {
-                for (MapleCharacter chr : c.getPlayer().getMap().getCharactersThreadsafe()) {
-                    if (chr.getParty() != c.getPlayer().getParty()) {
-                        chr.giveDebuff(MapleDisease.SLOW, MobSkillFactory.getMobSkill(126, 10));
-                        c.getPlayer().getMap().broadcastMessage(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, 3));
-                    }
-                }
+                c.getPlayer().getMap().getCharactersThreadsafe().stream().filter(chr -> chr.getParty() != c.getPlayer().getParty()).forEach(chr -> {
+                    chr.getDiseaseBuff(MapleBuffStatus.SLOW, MobSkillFactory.getMobSkill(126, 10));
+                    c.getPlayer().getMap().broadcastMessage(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, 3));
+                });
             }
                 c.getPlayer().getCarnivalParty().useCP(c.getPlayer(), 300);
                 c.getPlayer().CPUpdate(false, c.getPlayer().getAvailableCP(), c.getPlayer().getTotalCP(), 0);
@@ -137,12 +133,10 @@ public class MonsterCarnivalHandler {
                 }
             }
             } else {
-                for (MapleCharacter chr : c.getPlayer().getMap().getCharactersThreadsafe()) {
-                    if (chr.getParty() != c.getPlayer().getParty()) {
-                        chr.giveDebuff(MapleDisease.SEAL, MobSkillFactory.getMobSkill(120, 10));
-                        c.getPlayer().getMap().broadcastMessage(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, 5));
-                    }
-                }
+                c.getPlayer().getMap().getCharactersThreadsafe().stream().filter(chr -> chr.getParty() != c.getPlayer().getParty()).forEach(chr -> {
+                    chr.getDiseaseBuff(MapleBuffStatus.SEAL, MobSkillFactory.getMobSkill(120, 10));
+                    c.getPlayer().getMap().broadcastMessage(MonsterCarnivalPacket.playerSummoned(c.getPlayer().getName(), tab, 5));
+                });
             }
                 c.getPlayer().getCarnivalParty().useCP(c.getPlayer(), 400);
                 c.getPlayer().CPUpdate(false, c.getPlayer().getAvailableCP(), c.getPlayer().getTotalCP(), 0);

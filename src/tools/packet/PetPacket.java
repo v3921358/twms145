@@ -78,18 +78,15 @@ public class PetPacket {
     
     
     public static void addPetInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr, MaplePet pet, boolean showpet) {
-       // System.out.println("ID: " + pet.getPetItemId() + " Name: " + pet.getName() + " UniqueID: " + pet.getUniqueId() + " Pos: " + pet.getPos() + " Stance: " + pet.getStance() + " FH: " + pet.getFh());
         if (showpet) {
             mplew.write(0);
         }
         mplew.writeInt(pet.getPetItemId());
         mplew.writeMapleAsciiString(pet.getName());
-        mplew.writeInt(pet.getUniqueId());
-        mplew.writeInt(0);
+        mplew.writeLong(pet.getUniqueId());
         mplew.writePos(pet.getPos());
         mplew.write(pet.getStance());
-        mplew.writeInt(pet.getFh());
-        
+        mplew.writeShort(pet.getFh());
   }
 
     public static byte[] removePet(final int cid, final int index) {

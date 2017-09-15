@@ -48,6 +48,7 @@ import server.events.MapleCoconut;
 import server.events.MapleCoconut.MapleCoconuts;
 import server.events.MapleEventType;
 import server.life.MapleMonsterInformationProvider;
+import server.life.MobSkill;
 import server.life.MonsterDropEntry;
 import server.life.MonsterGlobalDropEntry;
 import server.maps.*;
@@ -734,7 +735,7 @@ public class PlayersHandler {
         }
         c.getPlayer().cancelAllBuffs();
         c.getPlayer().changeRemoval();
-        c.getPlayer().dispelDebuffs();
+        c.getPlayer().cancelAllDiseaseBuff();
         c.getPlayer().clearAllCooldowns();
         c.sendPacket(CWvsContext.clearMidMsg());
         c.getPlayer().changeMap(c.getChannelServer().getMapFactory().getMap(262000200));
@@ -808,7 +809,7 @@ public class PlayersHandler {
         }
         c.getPlayer().getStat().heal(c.getPlayer());
         c.getPlayer().cancelAllBuffs();
-        c.getPlayer().dispelDebuffs();
+        c.getPlayer().cancelAllDiseaseBuff();
         c.getPlayer().changeRemoval();
         c.getPlayer().clearAllCooldowns();
         c.getPlayer().unequipAllPets();
@@ -919,7 +920,7 @@ public class PlayersHandler {
         c.getPlayer().setBattlePoints(c.getPlayer().getBattlePoints() + ((x / 10) * 3 / 2)); //PVP 1.5 EVENT!
         c.getPlayer().cancelAllBuffs();
         c.getPlayer().changeRemoval();
-        c.getPlayer().dispelDebuffs();
+        c.getPlayer().cancelAllDiseaseBuff();
         c.getPlayer().clearAllCooldowns();
         slea.readInt();
         c.sendPacket(CWvsContext.clearMidMsg());
@@ -979,7 +980,7 @@ public class PlayersHandler {
                     c.getSession().close();
                     return;
                 }
-                if (GameConstants.isIceKnightSkill(skillid) && chr.getBuffSource(MapleBuffStat.MORPH) % 10000 != 1105) {
+                if (GameConstants.isIceKnightSkill(skillid) && chr.getBuffSource(MapleBuffStatus.MORPH) % 10000 != 1105) {
                     return;
                 }
             }
@@ -1028,7 +1029,7 @@ public class PlayersHandler {
                     c.sendPacket(CWvsContext.enableActions());
                     return;
                 }
-                if ((skillid != 35111004 && skillid != 35121013) || chr.getBuffSource(MapleBuffStat.MECH_CHANGE) != skillid) { // Battleship
+                if ((skillid != 35111004 && skillid != 35121013) || chr.getBuffSource(MapleBuffStatus.MECH_CHANGE) != skillid) { // Battleship
                     c.sendPacket(CField.skillCooldown(skillid, effect.getCooldown(chr)));
                     chr.addCooldown(skillid, System.currentTimeMillis(), effect.getCooldown(chr) * 1000);
                 }
@@ -1039,11 +1040,11 @@ public class PlayersHandler {
                 case 1111:
                 case 1112:
                     if (PlayerHandler.isFinisher(skillid) > 0) { // finisher
-                        if (chr.getBuffedValue(MapleBuffStat.COMBO) == null || chr.getBuffedValue(MapleBuffStat.COMBO) <= 2) {
+                        if (chr.getBuffedValue(MapleBuffStatus.COMBO) == null || chr.getBuffedValue(MapleBuffStatus.COMBO) <= 2) {
                             return;
                         }
                         if (!GameConstants.GMS) {
-                            skillDamage *= (chr.getBuffedValue(MapleBuffStat.COMBO) - 1) / 2;
+                            skillDamage *= (chr.getBuffedValue(MapleBuffStatus.COMBO) - 1) / 2;
                         }
                         chr.handleOrbconsume(PlayerHandler.isFinisher(skillid));
                     }
@@ -1078,7 +1079,7 @@ public class PlayersHandler {
             }
             box = MapleStatEffect.calculateBoundingBox(chr.getTruePosition(), facingLeft, lt, rb, chr.getStat().defRange);
         }
-        final MapleStatEffect shad = chr.getStatForBuff(MapleBuffStat.SHADOWPARTNER);
+        final MapleStatEffect shad = chr.getStatForBuff(MapleBuffStatus.SHADOWPARTNER);
         final int originalAttackCount = attackCount;
         attackCount *= (shad != null ? 2 : 1);
 
@@ -1091,7 +1092,7 @@ public class PlayersHandler {
             visProjectile = 2333000;
         } else if (GameConstants.isCannon(chr.getJob())) {
             visProjectile = 2333001;
-        } else if (!GameConstants.isMercedes(chr.getJob()) && chr.getBuffedValue(MapleBuffStat.SOULARROW) == null && slot > 0) {
+        } else if (!GameConstants.isMercedes(chr.getJob()) && chr.getBuffedValue(MapleBuffStatus.SOULARROW) == null && slot > 0) {
             Item ipp = chr.getInventory(MapleInventoryType.USE).getItem((short) slot);
             if (ipp == null) {
                 return;
@@ -1114,7 +1115,7 @@ public class PlayersHandler {
             for (MapleCharacter attacked : chr.getMap().getCharactersIntersect(box)) {
                 if (attacked.getId() != chr.getId() && attacked.isAlive() && !attacked.isHidden() && (type == 0 || attacked.getTeam() != chr.getTeam())) {
                     double rawDamage = maxdamage / Math.max(1, ((magic ? attacked.getStat().mdef : attacked.getStat().wdef) * Math.max(1.0, 100.0 - ignoreDEF) / 100.0) * (type == 3 ? 0.2 : 0.5));
-                    if (attacked.getBuffedValue(MapleBuffStat.INVINCIBILITY) != null || inArea(attacked)) {
+                    if (attacked.getBuffedValue(MapleBuffStatus.INVINCIBILITY) != null || inArea(attacked)) {
                         rawDamage = 0;
                     }
                     rawDamage *= attacked.getStat().mesoGuard / 100.0;
@@ -1131,7 +1132,7 @@ public class PlayersHandler {
                             double ourDamage = Randomizer.nextInt((int) Math.abs(Math.round(rawDamage - min)) + 2) + min;
                             if (attacked.getStat().dodgeChance > 0 && Randomizer.nextInt(100) < attacked.getStat().dodgeChance) {
                                 ourDamage = 0;
-                            } else if (attacked.hasDisease(MapleDisease.DARKNESS) && Randomizer.nextInt(100) < 50) {
+                            } else if (attacked.hasDisease(MapleBuffStatus.DARKNESS) && Randomizer.nextInt(100) < 50) {
                                 ourDamage = 0;
                                 //i dont think level actually matters or it'd be too op
                                 //} else if (attacked.getLevel() > chr.getLevel() && Randomizer.nextInt(100) < (attacked.getLevel() - chr.getLevel())) {
@@ -1158,11 +1159,11 @@ public class PlayersHandler {
                                 ourDamage *= (100.0 + (Randomizer.nextInt(Math.max(2, chr.getStat().passive_sharpeye_percent() - chr.getStat().passive_sharpeye_min_percent())) + chr.getStat().passive_sharpeye_min_percent())) / 100.0;
                                 critical_ = true;
                             }
-                            if (attacked.getBuffedValue(MapleBuffStat.MAGIC_GUARD) != null) {
-                                mploss = (int) Math.min(attacked.getStat().getMp(), (ourDamage * attacked.getBuffedValue(MapleBuffStat.MAGIC_GUARD).doubleValue() / 100.0));
+                            if (attacked.getBuffedValue(MapleBuffStatus.MAGIC_GUARD) != null) {
+                                mploss = (int) Math.min(attacked.getStat().getMp(), (ourDamage * attacked.getBuffedValue(MapleBuffStatus.MAGIC_GUARD).doubleValue() / 100.0));
                             }
                             ourDamage -= mploss;
-                            if (attacked.getBuffedValue(MapleBuffStat.INFINITY) != null) {
+                            if (attacked.getBuffedValue(MapleBuffStatus.INFINITY) != null) {
                                 mploss = 0;
                             }
                             attacks.add(new Pair<Integer, Boolean>((int) Math.floor(ourDamage), critical_));
@@ -1192,9 +1193,9 @@ public class PlayersHandler {
                             ThreadLock.lock();
                             try {
                                 for (Map.Entry<MonsterStatus, Integer> z : effect.getMonsterStati().entrySet()) {
-                                    MapleDisease d = MonsterStatus.getLinkedDisease(z.getKey());
+                                    MapleBuffStatus d = MonsterStatus.getLinkedDisease(z.getKey());
                                     if (d != null) {
-                                        attacked.giveDebuff(d, z.getValue(), effect.getDuration(), d.getDisease(), 1);
+                                        attacked.getDiseaseBuff(d, z.getValue(), effect.getDuration(), MobSkill.getMobSkillByBuffStatus(d), 1);
                                     }
                                 }
                             } finally {
@@ -1204,21 +1205,21 @@ public class PlayersHandler {
                         effect.handleExtraPVP(chr, attacked);
                     }
                     if (chr.getJob() == 121 || chr.getJob() == 122 || chr.getJob() == 2110 || chr.getJob() == 2111 || chr.getJob() == 2112) { // WHITEKNIGHT
-                        if (chr.getBuffSource(MapleBuffStat.WK_CHARGE) == 1211006 || chr.getBuffSource(MapleBuffStat.WK_CHARGE) == 21101006) {
-                            final MapleStatEffect eff = chr.getStatForBuff(MapleBuffStat.WK_CHARGE);
+                        if (chr.getBuffSource(MapleBuffStatus.WK_CHARGE) == 1211006 || chr.getBuffSource(MapleBuffStatus.WK_CHARGE) == 21101006) {
+                            final MapleStatEffect eff = chr.getStatForBuff(MapleBuffStatus.WK_CHARGE);
                             if (eff.makeChanceResult()) {
-                                attacked.giveDebuff(MapleDisease.FREEZE, 1, eff.getDuration(), MapleDisease.FREEZE.getDisease(), 1);
+                                attacked.getDiseaseBuff(MapleBuffStatus.FREEZE, 1, eff.getDuration(), MobSkill.getMobSkillByBuffStatus(MapleBuffStatus.FREEZE), 1);
                             }
                         }
-                    } else if (chr.getBuffedValue(MapleBuffStat.HAMSTRING) != null) {
-                        final MapleStatEffect eff = chr.getStatForBuff(MapleBuffStat.HAMSTRING);
+                    } else if (chr.getBuffedValue(MapleBuffStatus.HAMSTRING) != null) {
+                        final MapleStatEffect eff = chr.getStatForBuff(MapleBuffStatus.HAMSTRING);
                         if (eff != null && eff.makeChanceResult()) {
-                            attacked.giveDebuff(MapleDisease.SLOW, 100 - Math.abs(eff.getX()), eff.getDuration(), MapleDisease.SLOW.getDisease(), 1);
+                            attacked.getDiseaseBuff(MapleBuffStatus.SLOW, 100 - Math.abs(eff.getX()), eff.getDuration(), MobSkill.getMobSkillByBuffStatus(MapleBuffStatus.SLOW), 1);
                         }
-                    } else if (chr.getBuffedValue(MapleBuffStat.SLOW) != null) {
-                        final MapleStatEffect eff = chr.getStatForBuff(MapleBuffStat.SLOW);
+                    } else if (chr.getBuffedValue(MapleBuffStatus.SLOW) != null) {
+                        final MapleStatEffect eff = chr.getStatForBuff(MapleBuffStatus.SLOW);
                         if (eff != null && eff.makeChanceResult()) {
-                            attacked.giveDebuff(MapleDisease.SLOW, 100 - Math.abs(eff.getX()), eff.getDuration(), MapleDisease.SLOW.getDisease(), 1);
+                            attacked.getDiseaseBuff(MapleBuffStatus.SLOW, 100 - Math.abs(eff.getX()), eff.getDuration(), MobSkill.getMobSkillByBuffStatus(MapleBuffStatus.SLOW), 1);
                         }
                     } else if (chr.getJob() == 412 || chr.getJob() == 422 || chr.getJob() == 434 || chr.getJob() == 1411 || chr.getJob() == 1412) {
                         int[] skills = {4120005, 4220005, 4340001, 14110004};
@@ -1229,7 +1230,7 @@ public class PlayersHandler {
                                 if (chr.getTotalSkillLevel(skill) > 0) {
                                     final MapleStatEffect venomEffect = skill.getEffect(chr.getTotalSkillLevel(skill));
                                     if (venomEffect.makeChanceResult()) {// THIS MIGHT ACTUALLY BE THE DOT
-                                        attacked.giveDebuff(MapleDisease.POISON, 1, venomEffect.getDuration(), MapleDisease.POISON.getDisease(), 1);
+                                        attacked.getDiseaseBuff(MapleBuffStatus.POISON, 1, venomEffect.getDuration(), MobSkill.getMobSkillByBuffStatus(MapleBuffStatus.POISON), 1);
                                     }
                                     break;
                                 }

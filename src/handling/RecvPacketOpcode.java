@@ -326,7 +326,7 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
 
     public static String nameOf(short value) {
         for (RecvPacketOpcode header : RecvPacketOpcode.values()) {
-            if (header.getValue() == value) {
+            if (header.get() == value) {
                 return header.name();
             }
         }
@@ -334,12 +334,16 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
     }
 
     @Override
-    public final short getValue() {
+    public final short get() {
+        return code;
+    }
+
+    public short getValue() {
         return code;
     }
 
     @Override
-    public void setValue(short code) {
+    public void set(short code) {
         this.code = code;
     }
 

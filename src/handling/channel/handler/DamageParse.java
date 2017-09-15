@@ -59,7 +59,7 @@ public class DamageParse {
         }
         if (attack.skill == 5221007) {
             player.cancelAllBuffs2();
-        } else if (attack.skill == 1311003 && player.getBuffedValue(MapleBuffStat.MORPH) != null) {
+        } else if (attack.skill == 1311003 && player.getBuffedValue(MapleBuffStatus.MORPH) != null) {
             player.cancelAllBuffs3();
             player.cancelAllBuffs4();
             player.cancelAllBuffs5();
@@ -91,7 +91,7 @@ public class DamageParse {
                     }
                 }
             } else if (GameConstants.isInflationSkill(attack.skill)) {
-                if (player.getBuffedValue(MapleBuffStat.GIANT_POTION) == null) {
+                if (player.getBuffedValue(MapleBuffStatus.GIANT_POTION) == null) {
                     return;
                 }
             } else if (attack.targets > effect.getMobCount() && attack.skill != 1211002 && attack.skill != 1220010) { // Must be done here, since NPE with normal atk
@@ -159,7 +159,7 @@ public class DamageParse {
         int CriticalDamage = stats.passive_sharpeye_percent();
         int ShdowPartnerAttackPercentage = 0;
         if (attack_type == AttackType.RANGED_WITH_SHADOWPARTNER || attack_type == AttackType.NON_RANGED_WITH_MIRROR) {
-            final MapleStatEffect shadowPartnerEffect = player.getStatForBuff(MapleBuffStat.SHADOWPARTNER);
+            final MapleStatEffect shadowPartnerEffect = player.getStatForBuff(MapleBuffStatus.SHADOWPARTNER);
             if (shadowPartnerEffect != null) {
                 ShdowPartnerAttackPercentage += shadowPartnerEffect.getX();
             }
@@ -252,7 +252,7 @@ public class DamageParse {
                     //player.getCheatTracker().registerOffense(CheatingOffense.ATTACK_FARAWAY_MONSTER, "[Distance: " + player.getTruePosition().distanceSq(monster.getTruePosition()) + ", Expected Distance: " + GameConstants.getAttackRange(effect, player.getStat().defRange) + " Job: " + player.getJob() + "]"); // , Double.toString(Math.sqrt(distance))
                 }
                 // pickpocket
-                if (player.getBuffedValue(MapleBuffStat.PICKPOCKET) != null) {
+                if (player.getBuffedValue(MapleBuffStatus.PICKPOCKET) != null) {
                     switch (attack.skill) {
                         case 0:
                         case 4001334:
@@ -346,14 +346,14 @@ public class DamageParse {
                         case 21120006: // Tempest
                         case 21120009: // (hidden) Overswing - Double Attack
                         case 21120010: { // (hidden) Overswing - Triple Attack
-                            if (player.getBuffedValue(MapleBuffStat.WK_CHARGE) != null && !monster.getStats().isBoss()) {
-                                final MapleStatEffect eff = player.getStatForBuff(MapleBuffStat.WK_CHARGE);
+                            if (player.getBuffedValue(MapleBuffStatus.WK_CHARGE) != null && !monster.getStats().isBoss()) {
+                                final MapleStatEffect eff = player.getStatForBuff(MapleBuffStatus.WK_CHARGE);
                                 if (eff != null) {
                                     monster.applyStatus(player, new MonsterStatusEffect(MonsterStatus.SPEED, eff.getX(), eff.getSourceId(), null, false), false, eff.getY() * 1000, true, eff);
                                 }
                             }
-                            if (player.getBuffedValue(MapleBuffStat.BODY_PRESSURE) != null && !monster.getStats().isBoss()) {
-                                final MapleStatEffect eff = player.getStatForBuff(MapleBuffStat.BODY_PRESSURE);
+                            if (player.getBuffedValue(MapleBuffStatus.BODY_PRESSURE) != null && !monster.getStats().isBoss()) {
+                                final MapleStatEffect eff = player.getStatForBuff(MapleBuffStatus.BODY_PRESSURE);
 
                                 if (eff != null && eff.makeChanceResult() && !monster.isBuffed(MonsterStatus.NEUTRALISE)) {
                                     monster.applyStatus(player, new MonsterStatusEffect(MonsterStatus.NEUTRALISE, 1, eff.getSourceId(), null, false), false, eff.getX() * 1000, true, eff);
@@ -373,8 +373,8 @@ public class DamageParse {
                                 monster.applyStatus(player, monsterStatusEffect, false, 10000, false, null);
                             }
                         }
-                        if (player.getBuffedValue(MapleBuffStat.BLIND) != null) {
-                            final MapleStatEffect eff = player.getStatForBuff(MapleBuffStat.BLIND);
+                        if (player.getBuffedValue(MapleBuffStatus.BLIND) != null) {
+                            final MapleStatEffect eff = player.getStatForBuff(MapleBuffStatus.BLIND);
 
                             if (eff != null && eff.makeChanceResult()) {
                                 final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(MonsterStatus.ACC, eff.getX(), eff.getSourceId(), null, false);
@@ -382,8 +382,8 @@ public class DamageParse {
                             }
 
                         }
-                        if (player.getBuffedValue(MapleBuffStat.HAMSTRING) != null) {
-                            final MapleStatEffect eff = player.getStatForBuff(MapleBuffStat.HAMSTRING);
+                        if (player.getBuffedValue(MapleBuffStatus.HAMSTRING) != null) {
+                            final MapleStatEffect eff = player.getStatForBuff(MapleBuffStatus.HAMSTRING);
 
                             if (eff != null && eff.makeChanceResult()) {
                                 final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(MonsterStatus.SPEED, eff.getX(), 3121007, null, false);
@@ -392,7 +392,7 @@ public class DamageParse {
                         }
                         /*  if (player.getJob() == 121 || player.getJob() == 122) { // WHITEKNIGHT
                          final Skill skill = SkillFactory.getSkill(1211006);
-                         if (player.isBuffFrom(MapleBuffStat.WK_CHARGE, skill)) {
+                         if (player.isBuffFrom(MapleBuffStatus.WK_CHARGE, skill)) {
                          final MapleStatEffect eff = skill.getEffect(player.getTotalSkillLevel(skill));
                          final MonsterStatusEffect monsterStatusEffect = new MonsterStatusEffect(MonsterStatus.FREEZE, 1, skill.getWorldId(), null, false);
                          monster.applyStatus(player, monsterStatusEffect, false, eff.getY() * 2000, true, eff);
@@ -488,14 +488,14 @@ public class DamageParse {
                     return;
                 }
             }
-        } else if (GameConstants.isInflationSkill(attack.skill) && (player.getBuffedValue(MapleBuffStat.GIANT_POTION) == null)) {
+        } else if (GameConstants.isInflationSkill(attack.skill) && (player.getBuffedValue(MapleBuffStatus.GIANT_POTION) == null)) {
             return;
         }
         if (LoginServer.isAdminOnly()) {
             player.dropMessage(-1, "Animation: " + Integer.toHexString(((attack.display & 0x8000) != 0 ? (attack.display - 0x8000) : attack.display)));
         }
         final PlayerStats stats = player.getStat();
-        final Element element = player.getBuffedValue(MapleBuffStat.ELEMENT_RESET) != null ? Element.NEUTRAL : theSkill.getElement();
+        final Element element = player.getBuffedValue(MapleBuffStatus.ELEMENT_RESET) != null ? Element.NEUTRAL : theSkill.getElement();
 
         double MaxDamagePerHit = 0;
         long totDamageToOneMonster, totDamage = 0, fixeddmg;
@@ -587,8 +587,8 @@ public class DamageParse {
                     //  if (monster.isBuffed(MonsterStatus.MAGIC_DAMAGE_REFLECT)) { //test
                     //    player.addHP(-(7000 + Randomizer.nextInt(8000))); //this is what it seems to be?
                     // }
-                    if (player.getBuffedValue(MapleBuffStat.SLOW) != null) {
-                        final MapleStatEffect eff = player.getStatForBuff(MapleBuffStat.SLOW);
+                    if (player.getBuffedValue(MapleBuffStatus.SLOW) != null) {
+                        final MapleStatEffect eff = player.getStatForBuff(MapleBuffStatus.SLOW);
 
                         if (eff != null && eff.makeChanceResult() && !monster.isBuffed(MonsterStatus.SPEED)) {
                             monster.applyStatus(player, new MonsterStatusEffect(MonsterStatus.SPEED, eff.getX(), eff.getSourceId(), null, false), false, eff.getY() * 1000, true, eff);
@@ -740,7 +740,7 @@ public class DamageParse {
     }
 
     private static void handlePickPocket(final MapleCharacter player, final MapleMonster mob, AttackPair oned) {
-        final int maxmeso = player.getBuffedValue(MapleBuffStat.PICKPOCKET).intValue();
+        final int maxmeso = player.getBuffedValue(MapleBuffStatus.PICKPOCKET).intValue();
 
         for (final Pair<Integer, Boolean> eachde : oned.attack) {
             final Integer eachd = eachde.left;
@@ -855,8 +855,8 @@ public class DamageParse {
             }
         }
         if (!defined || (theSkill != null && (theSkill.getId() == 33101001 || theSkill.getId() == 3221001))) {
-            if (player.getBuffedValue(MapleBuffStat.WK_CHARGE) != null) {
-                int chargeSkillId = player.getBuffSource(MapleBuffStat.WK_CHARGE);
+            if (player.getBuffedValue(MapleBuffStatus.WK_CHARGE) != null) {
+                int chargeSkillId = player.getBuffSource(MapleBuffStatus.WK_CHARGE);
 
                 switch (chargeSkillId) {
                     case 1211003:
@@ -883,10 +883,10 @@ public class DamageParse {
                         break;
                 }
             }
-            if (player.getBuffedValue(MapleBuffStat.LIGHTNING_CHARGE) != null) {
+            if (player.getBuffedValue(MapleBuffStatus.LIGHTNING_CHARGE) != null) {
                 elements.add(Element.LIGHTING);
             }
-            if (player.getBuffedValue(MapleBuffStat.ELEMENT_RESET) != null) {
+            if (player.getBuffedValue(MapleBuffStatus.ELEMENT_RESET) != null) {
                 elements.clear();
             }
             if (elements.size() > 0) {
@@ -961,7 +961,7 @@ public class DamageParse {
         List damage;
         if ((attack.skill != 4211006) && (attack.skill != 3211003) && (attack.skill != 4111004)) {
             CriticalRate = chr.getStat().passive_sharpeye_rate() + (effect == null ? 0 : effect.getCr());
-            shadow = (chr.getBuffedValue(MapleBuffStat.SHADOWPARTNER) != null) && ((type == 1) || (type == 2));
+            shadow = (chr.getBuffedValue(MapleBuffStatus.SHADOWPARTNER) != null) && ((type == 1) || (type == 2));
             damages = new ArrayList();
             damage = new ArrayList();
 
@@ -1240,10 +1240,10 @@ public class DamageParse {
                 if (OHKORanged.contains(ret.skill) && damage > GameConstants.OHKODamage) {
                     damage = GameConstants.OHKODamage;
                 }
-                if (chr.getBuffSource(MapleBuffStat.WATK) == 5211009) { //cross cut blast
+                if (chr.getBuffSource(MapleBuffStatus.WATK) == 5211009) { //cross cut blast
                     int attacksLeft = chr.getCData(chr, 5211009);
                     if (attacksLeft <= 0) {
-                        chr.cancelEffectFromBuffStat(MapleBuffStat.WATK);
+                        chr.cancelEffectFromBuffStat(MapleBuffStatus.WATK);
                     } else {
                         chr.setCData(5211009, -1);
                     }

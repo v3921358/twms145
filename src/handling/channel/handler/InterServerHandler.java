@@ -22,20 +22,17 @@ package handling.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
+import client.MapleDiseaseValueHolder;
 import client.SkillFactory;
 import constants.GameConstants;
 import constants.MapConstants;
 import constants.ServerConstants;
-import handling.MapleServerHandler;
 import handling.cashshop.CashShopServer;
 import handling.channel.ChannelServer;
 import handling.login.LoginServer;
 import handling.world.*;
 import handling.world.exped.MapleExpedition;
 import handling.world.guild.MapleGuild;
-
-import java.sql.Timestamp;
-import java.util.List;
 import server.maps.FieldLimitType;
 import server.maps.MapleMap;
 import tools.FileoutputUtil;
@@ -48,6 +45,9 @@ import tools.packet.CWvsContext.FamilyPacket;
 import tools.packet.CWvsContext.GuildPacket;
 import tools.packet.LoginPacket;
 import tools.packet.MTSCSPacket;
+
+import java.sql.Timestamp;
+import java.util.List;
 
 public class InterServerHandler {
 
@@ -85,7 +85,7 @@ public class InterServerHandler {
         World.ChannelChange_Data(new CharacterTransfer(c.getPlayer()), c.getPlayer().getId(), c.getWorld(), 30);
         final String s = c.getSessionIPAddress();
         LoginServer.addIPAuth(s.substring(s.indexOf('/') + 1, s.length()));
-        
+
         if (c.getPlayer().getMessenger() != null) {
             World.Messenger.silentLeaveMessenger(c.getPlayer().getMessenger().getId(), new MapleMessengerCharacter(c.getPlayer()));
         }
@@ -101,7 +101,7 @@ public class InterServerHandler {
         c.setPlayer(null);
         c.setReceiving(false);
     }
-        
+
     public static final void Loggedin(final int playerid, final MapleClient client) {
         MapleCharacter player;
         CharacterTransfer transfer = client.getWorldServer().getPlayerStorage().getPendingCharacter(playerid);
@@ -153,8 +153,6 @@ public class InterServerHandler {
 //        }
 
 
-
-
         if (!client.CheckIPAddress()) { // Remote hack
             System.out.println(client.getAccountName() + " BUG?3");
             client.getSession().close();
@@ -164,7 +162,7 @@ public class InterServerHandler {
         final ChannelServer channelServer = client.getChannelServer();
         World world = LoginServer.getWorld(client.getWorld());
 
-        if(world == null ) {
+        if (world == null) {
             client.getSession().close();
         }
 
@@ -174,18 +172,20 @@ public class InterServerHandler {
         channelServer.addPlayer(player);
         player.giveCoolDowns(PlayerBuffStorage.getCooldownsFromStorage(player.getId()));
         player.silentGiveBuffs(PlayerBuffStorage.getBuffsFromStorage(player.getId()));
-        player.giveSilentDebuff(PlayerBuffStorage.getDiseaseFromStorage(player.getId()));
+        final List<MapleDiseaseValueHolder> ld = PlayerBuffStorage.getDiseaseFromStorage(player.getId());
+        if (ld != null)
+            player.giveSilentDebuff(ld);
         client.sendPacket(CField.getCharInfo(player));
         player.getMap().addPlayer(player);
         world.getPlayerStorage().addPlayer(player);
         client.sendPacket(MTSCSPacket.enableCSUse());
         client.sendPacket(CWvsContext.temporaryStats_Reset()); //?
-        
+
         if (player.inCS()) {
             player.setInCS(false); // exit them from CS enabling
         } else {
             client.sendPacket(CWvsContext.yellowChat("[Welcome] Welcome to " + ServerConstants.SERVER_NAME + " v117.2!"));
-            client.sendPacket(CField.sendHint("" + ServerConstants.WELCOME_MESSAGE + "", 350, 5));
+            //client.sendPacket(CField.sendHint("" + ServerConstants.WELCOME_MESSAGE + "", 350, 5));
         }
         // GM Hide is a skill now, and auto-applies super hide. 
         if (player.isGM()) {
@@ -281,10 +281,10 @@ public class InterServerHandler {
             player.dropMessage(6, "Welcome to " + ServerConstants.SERVER_NAME + ", Player #" + player.getId() + "!");
         }
         if (player.haveItem(ServerConstants.Currency, 1000, false, true) && !player.isDonator() && player.getReborns() < 50 && !player.isSuperDonor() && !player.isGM()) {
-            player.sendGMMessage(6, "[GM Notification]: " + player.getName() + " has more then 1000 Munny, and less then 50 rebirths.");  
+            player.sendGMMessage(6, "[GM Notification]: " + player.getName() + " has more then 1000 Munny, and less then 50 rebirths.");
         }
         if (player.haveItem(ServerConstants.Currency, 50000, false, true) && !player.isGM()) {
-            player.sendGMMessage(6, "[GM Notification]: " + player.getName() + " has over 50,000 Munny. Check to see if they're hacking!");  
+            player.sendGMMessage(6, "[GM Notification]: " + player.getName() + " has over 50,000 Munny. Check to see if they're hacking!");
         }
         player.saveToDB(false, false);
         //final List<Pair<Integer, String>> ii = new LinkedList<>();

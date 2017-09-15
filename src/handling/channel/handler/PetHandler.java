@@ -20,9 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling.channel.handler;
 
+import client.MapleBuffStatus;
 import client.MapleCharacter;
 import client.MapleClient;
-import client.MapleDisease;
+
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import client.inventory.MaplePet;
@@ -57,7 +58,7 @@ public class PetHandler {
         slea.skip(GameConstants.GMS ? 9 : 1);
         slea.readInt();
         final short slot = slea.readShort();
-        if (chr == null || !chr.isAlive() || chr.getMapId() == 749040100 || chr.getMap() == null || chr.hasDisease(MapleDisease.POTION)) {
+        if (chr == null || !chr.isAlive() || chr.getMapId() == 749040100 || chr.getMap() == null || chr.hasDisease(MapleBuffStatus.POTION)) {
             return;
         }
         final Item toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);

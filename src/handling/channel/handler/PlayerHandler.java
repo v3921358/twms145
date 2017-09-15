@@ -377,7 +377,7 @@ return;
         damage = modify.left.intValue();
         if (damage > 0) {
 
-            if (chr.getBuffedValue(MapleBuffStat.MORPH) != null) {
+            if (chr.getBuffedValue(MapleBuffStatus.MORPH) != null) {
                 chr.cancelMorphs();
             }
             // if (slea.available() == 3 || slea.available() == 4) {
@@ -389,8 +389,8 @@ return;
             //         }
             //      }
             //  }
-            boolean mpAttack = chr.getBuffedValue(MapleBuffStat.MECH_CHANGE) != null && chr.getBuffSource(MapleBuffStat.MECH_CHANGE) != 35121005;
-            if (chr.getBuffedValue(MapleBuffStat.MAGIC_GUARD) != null) {
+            boolean mpAttack = chr.getBuffedValue(MapleBuffStatus.MECH_CHANGE) != null && chr.getBuffSource(MapleBuffStatus.MECH_CHANGE) != 35121005;
+            if (chr.getBuffedValue(MapleBuffStatus.MAGIC_GUARD) != null) {
                 int hploss = 0, mploss = 0;
                 if (isDeadlyAttack) {
                     if (stats.getHp() > 1) {
@@ -399,16 +399,16 @@ return;
                     if (stats.getMp() > 1) {
                         mploss = stats.getMp() - 1;
                     }
-                    if (chr.getBuffedValue(MapleBuffStat.INFINITY) != null) {
+                    if (chr.getBuffedValue(MapleBuffStatus.INFINITY) != null) {
                         mploss = 0;
                     }
                     chr.addMPHP(-hploss, -mploss);
                     //} else if (mpattack > 0) {
                     //    chr.addMPHP(-damage, -mpattack);
                 } else {
-                    mploss = (int) (damage * (chr.getBuffedValue(MapleBuffStat.MAGIC_GUARD).doubleValue() / 100.0)) + mpattack;
+                    mploss = (int) (damage * (chr.getBuffedValue(MapleBuffStatus.MAGIC_GUARD).doubleValue() / 100.0)) + mpattack;
                     hploss = damage - mploss;
-                    if (chr.getBuffedValue(MapleBuffStat.INFINITY) != null) {
+                    if (chr.getBuffedValue(MapleBuffStatus.INFINITY) != null) {
                         mploss = 0;
                     } else if (mploss > stats.getMp()) {
                         mploss = stats.getMp();
@@ -423,7 +423,7 @@ return;
                 final int mesoloss = (int) (damage * (chr.getStat().mesoGuardMeso / 100.0));
                 if (chr.getMeso() < mesoloss) {
                     chr.gainMeso(-chr.getMeso(), false);
-                    chr.cancelBuffStats(MapleBuffStat.MESOGUARD);
+                    chr.cancelBuffStats(MapleBuffStatus.MESOGUARD);
                 } else {
                     chr.gainMeso(-mesoloss, false);
                 }
@@ -696,7 +696,7 @@ return;
                     if (success) {
                         chr.getQuestNAdd(MapleQuest.getInstance(GameConstants.JAGUAR)).setCustomData(String.valueOf((mob.getId() - 9303999) * 10));
                         chr.getMap().killMonster(mob, chr, true, false, (byte) 1);
-                        chr.cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
+                        chr.cancelEffectFromBuffStat(MapleBuffStatus.MONSTER_RIDING);
                         c.sendPacket(CWvsContext.updateJaguar(chr));
                     } else {
                         chr.dropMessage(5, "The monster has too much physical strength, so you cannot catch it.");
@@ -743,7 +743,7 @@ return;
                     }
                 } else {
                     final int mountid = MapleStatEffect.parseMountInfo(c.getPlayer(), skill.getId());
-                    if (mountid != 0 && mountid != GameConstants.getMountItem(skill.getId(), c.getPlayer()) && !c.getPlayer().isIntern() && c.getPlayer().getBuffedValue(MapleBuffStat.MONSTER_RIDING) == null && c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -122) == null) {
+                    if (mountid != 0 && mountid != GameConstants.getMountItem(skill.getId(), c.getPlayer()) && !c.getPlayer().isIntern() && c.getPlayer().getBuffedValue(MapleBuffStatus.MONSTER_RIDING) == null && c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -122) == null) {
                         if (!GameConstants.isMountItemAvailable(mountid, c.getPlayer().getJob())) {
                             c.sendPacket(CWvsContext.enableActions());
                             return;
@@ -756,7 +756,7 @@ return;
     }
 
     public static void closeRangeAttack(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr, final boolean energy) {
-        if (chr == null || (energy && chr.getBuffedValue(MapleBuffStat.ENERGY_CHARGE) == null && chr.getBuffedValue(MapleBuffStat.BODY_PRESSURE) == null && chr.getBuffedValue(MapleBuffStat.DARK_AURA) == null && chr.getBuffedValue(MapleBuffStat.TORNADO) == null && chr.getBuffedValue(MapleBuffStat.SUMMON) == null && chr.getBuffedValue(MapleBuffStat.RAINING_MINES) == null && chr.getBuffedValue(MapleBuffStat.TELEPORT_MASTERY) == null)) {
+        if (chr == null || (energy && chr.getBuffedValue(MapleBuffStatus.ENERGY_CHARGE) == null && chr.getBuffedValue(MapleBuffStatus.BODY_PRESSURE) == null && chr.getBuffedValue(MapleBuffStatus.DARK_AURA) == null && chr.getBuffedValue(MapleBuffStatus.TORNADO) == null && chr.getBuffedValue(MapleBuffStatus.SUMMON) == null && chr.getBuffedValue(MapleBuffStatus.RAINING_MINES) == null && chr.getBuffedValue(MapleBuffStatus.TELEPORT_MASTERY) == null)) {
             return;
         }
         if (chr.hasBlockedInventory() || chr.getMap() == null) {
@@ -767,7 +767,7 @@ return;
             c.sendPacket(CWvsContext.enableActions());
             return;
         }
-        final boolean mirror = chr.getBuffedValue(MapleBuffStat.SHADOWPARTNER) != null;
+        final boolean mirror = chr.getBuffedValue(MapleBuffStatus.SHADOWPARTNER) != null;
         double maxdamage = chr.getStat().getCurrentMaxBaseDamage();
         final Item shield = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((short) -10);
         int attackCount = (shield != null && shield.getItemId() / 10000 == 134 ? 2 : 1);
@@ -819,7 +819,7 @@ return;
             }
             // handle combo orbconsume
             int numFinisherOrbs = 0;
-            final Integer comboBuff = chr.getBuffedValue(MapleBuffStat.COMBO);
+            final Integer comboBuff = chr.getBuffedValue(MapleBuffStatus.COMBO);
 
             if (isFinisher(attack.skill) > 0) { // finisher
                 if (comboBuff != null) {
@@ -944,7 +944,7 @@ return;
             if (noBullet && effect.getBulletCount() < effect.getAttackCount()) {
                 bulletCount = effect.getAttackCount();
             }
-            if (effect.getCooldown(chr) > 0 && !chr.isGM() && ((attack.skill != 35111004 && attack.skill != 35121013) || chr.getBuffSource(MapleBuffStat.MECH_CHANGE) != attack.skill)) {
+            if (effect.getCooldown(chr) > 0 && !chr.isGM() && ((attack.skill != 35111004 && attack.skill != 35121013) || chr.getBuffSource(MapleBuffStatus.MECH_CHANGE) != attack.skill)) {
                 if (chr.skillisCooling(attack.skill)) {
                     c.sendPacket(CWvsContext.enableActions());
                     return;
@@ -954,12 +954,12 @@ return;
             }
         }
         attack = DamageParse.Modify_AttackCrit(attack, chr, 2, effect);
-        final Integer ShadowPartner = chr.getBuffedValue(MapleBuffStat.SHADOWPARTNER);
+        final Integer ShadowPartner = chr.getBuffedValue(MapleBuffStatus.SHADOWPARTNER);
         if (ShadowPartner != null) {
             bulletCount *= 2;
         }
         int projectile = 0, visProjectile = 0;
-        if (!AOE && chr.getBuffedValue(MapleBuffStat.SOULARROW) == null && !noBullet) {
+        if (!AOE && chr.getBuffedValue(MapleBuffStatus.SOULARROW) == null && !noBullet) {
             Item ipp = chr.getInventory(MapleInventoryType.USE).getItem(attack.slot);
             if (ipp == null) {
                 return;
@@ -975,7 +975,7 @@ return;
                 visProjectile = projectile;
             }
             // Handle bulletcount
-            if (chr.getBuffedValue(MapleBuffStat.SPIRIT_CLAW) == null) {
+            if (chr.getBuffedValue(MapleBuffStatus.SPIRIT_CLAW) == null) {
                 int bulletConsume = bulletCount;
                 if (effect != null && effect.getBulletConsume() != 0) {
                     bulletConsume = effect.getBulletConsume() * (ShadowPartner != null ? 2 : 1);
@@ -1243,7 +1243,7 @@ return;
                         fol.setChair(0);
                         fol.getClient().sendPacket(CField.cancelChair(-1));
                         fol.getMap().broadcastMessage(fol, CField.showChair(fol.getId(), 0), false);
-                        fol.giveDebuff(MapleDisease.SEDUCE,MobSkillFactory.getMobSkill(128, 10));
+                        fol.getDiseaseBuff(MapleBuffStatus.SEDUCE,MobSkillFactory.getMobSkill(128, 10));
                     }
                 } else {
                     chr.checkFollow();
@@ -1268,10 +1268,10 @@ return;
             }
             c.getPlayer().setOldPosition(pos);
                  
-            if (!samepos && c.getPlayer().getBuffSource(MapleBuffStat.DARK_AURA) == 32120000) { //dark aura
-                c.getPlayer().getStatForBuff(MapleBuffStat.DARK_AURA).applyMonsterBuff(c.getPlayer());
-            } else if (!samepos && c.getPlayer().getBuffSource(MapleBuffStat.YELLOW_AURA) == 32120001) { //yellow aura
-                c.getPlayer().getStatForBuff(MapleBuffStat.YELLOW_AURA).applyMonsterBuff(c.getPlayer());
+            if (!samepos && c.getPlayer().getBuffSource(MapleBuffStatus.DARK_AURA) == 32120000) { //dark aura
+                c.getPlayer().getStatForBuff(MapleBuffStatus.DARK_AURA).applyMonsterBuff(c.getPlayer());
+            } else if (!samepos && c.getPlayer().getBuffSource(MapleBuffStatus.YELLOW_AURA) == 32120001) { //yellow aura
+                c.getPlayer().getStatForBuff(MapleBuffStatus.YELLOW_AURA).applyMonsterBuff(c.getPlayer());
             }
         }
     }

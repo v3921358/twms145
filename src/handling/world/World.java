@@ -4,9 +4,7 @@ import client.*;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
 import client.inventory.MapleInventoryType;
-import client.status.MonsterStatusEffect;
 import constants.WorldConfig;
-import constants.WorldConstants;
 import database.DatabaseConnection;
 import handling.cashshop.CashShopServer;
 import handling.channel.ChannelServer;
@@ -2116,7 +2114,7 @@ public class World {
 
         if (chr.getDiseaseSize() > 0) {
             chr.getAllDiseases().stream().filter(m -> m != null && m.startTime + m.length < now).forEach(m -> {
-                chr.dispelDebuff(m.disease);
+                chr.cancelDeiseaseBuff(m.disease);
             });
         }
         if (numTimes % 7 == 0 && chr.getMount() != null && chr.getMount().canTire(now)) {
@@ -2147,7 +2145,7 @@ public class World {
                 if (chr.getMapId() == 749040100 && chr.getInventory(MapleInventoryType.CASH).findById(5451000) == null) { //minidungeon
                     chr.addHP(-chr.getMap().getHPDec());
                 } else if (chr.getMapId() != 749040100) {
-                    chr.addHP(-(chr.getMap().getHPDec() - (chr.getBuffedValue(MapleBuffStat.HP_LOSS_GUARD) == null ? 0 : chr.getBuffedValue(MapleBuffStat.HP_LOSS_GUARD).intValue())));
+                    chr.addHP(-(chr.getMap().getHPDec() - (chr.getBuffedValue(MapleBuffStatus.WEAKEN) == null ? 0 : chr.getBuffedValue(MapleBuffStatus.WEAKEN))));
                 }
             }
         }

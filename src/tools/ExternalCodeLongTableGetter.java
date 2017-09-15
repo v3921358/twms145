@@ -33,7 +33,7 @@ public class ExternalCodeLongTableGetter {
             long base = 0;
             String offset;
             if (args.length == 2) {
-                base = valueOf(args[0], values).getValue();
+                base = valueOf(args[0], values).get();
                 if (base == def) {
                     base = getValue(args[0], values, def);
                 }
@@ -57,16 +57,16 @@ public class ExternalCodeLongTableGetter {
         Collections.sort(all, new Comparator<WritableLongValueHolder>() {
             @Override
             public int compare(WritableLongValueHolder o1, WritableLongValueHolder o2) {
-                return Long.valueOf(o1.getValue()).compareTo(o2.getValue());
+                return Long.valueOf(o1.get()).compareTo(o2.get());
             }
         });
         for (T code : all) {
             enumVals.append(code.name());
             enumVals.append(" = ");
             enumVals.append("0x");
-            enumVals.append(HexTool.toString(code.getValue()));
+            enumVals.append(HexTool.toString(code.get()));
             enumVals.append(" (");
-            enumVals.append(code.getValue());
+            enumVals.append(code.get());
             enumVals.append(")\n");
         }
         return enumVals.toString();
@@ -75,7 +75,7 @@ public class ExternalCodeLongTableGetter {
     public final static <T extends Enum<? extends WritableLongValueHolder> & WritableLongValueHolder> void populateValues(Properties properties, T[] values) {
         ExternalCodeLongTableGetter exc = new ExternalCodeLongTableGetter(properties);
         for (T code : values) {
-            code.setValue(exc.getValue(code.name(), values, (long) -2));
+            code.set(exc.getValue(code.name(), values, (long) -2));
         }
     }
 }

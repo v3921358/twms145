@@ -24,14 +24,11 @@ import client.MapleCharacter;
 import client.MapleCharacterUtil;
 import handling.world.CharacterTransfer;
 import handling.world.World;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import server.Timer.PingTimer;
+
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import server.Timer.PingTimer;
 
 public class PlayerStorage {
 
@@ -47,7 +44,7 @@ public class PlayerStorage {
     public PlayerStorage() {
         PingTimer.getInstance().register(new PersistingTask(), 60000);
     }
-    
+
     public void addPlayer(MapleCharacter chr) {
         wlock.lock();
         try {
@@ -55,8 +52,8 @@ public class PlayerStorage {
             nameToChar.put(chr.getName(), chr);
             storage.put(chr.getId(), chr);
         } finally {
-	    wlock.unlock();
-	}
+            wlock.unlock();
+        }
     }
 
     public MapleCharacter removePlayer(int chr) {
@@ -70,7 +67,7 @@ public class PlayerStorage {
             wlock.unlock();
         }
     }
-    
+
     public final void deregisterPlayer(final MapleCharacter chr) {
         wL.lock();
         try {
@@ -83,9 +80,9 @@ public class PlayerStorage {
     }
 
     public MapleCharacter getCharacterByName(String name) {
-        rlock.lock();    
+        rlock.lock();
         try {
-            for (MapleCharacter chr : storage.values()) {            
+            for (MapleCharacter chr : storage.values()) {
                 if (chr.getName().toLowerCase().equals(name.toLowerCase()))
                     return chr;
             }
@@ -95,8 +92,8 @@ public class PlayerStorage {
         }
     }
 
-    public MapleCharacter getCharacterById(int id) { 
-        rlock.lock();    
+    public MapleCharacter getCharacterById(int id) {
+        rlock.lock();
         try {
             return storage.get(id);
         } finally {
@@ -105,7 +102,7 @@ public class PlayerStorage {
     }
 
     public Collection<MapleCharacter> getAllCharacters() {
-        rlock.lock();    
+        rlock.lock();
         try {
             return storage.values();
         } finally {
@@ -121,9 +118,9 @@ public class PlayerStorage {
             wL.unlock();
         }
     }
-    
+
     public final int pendingCharacterSize() {
-	return pendingChars.size();
+        return pendingChars.size();
     }
 
     public final void deregisterPendingPlayer(final int charid) {
@@ -162,7 +159,7 @@ public class PlayerStorage {
                 if (!chr.isGM() || !checkGM) {
                     chr.getClient().disconnect(false, false, true);
                     chr.getClient().getSession().close();
-		    World.Find.forceDeregister(chr.getId(), chr.getName());
+                    World.Find.forceDeregister(chr.getId(), chr.getName());
                     itr.remove();
                 }
             }

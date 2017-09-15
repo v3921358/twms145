@@ -684,12 +684,12 @@ public class PlayerStats implements Serializable {
         this.accuracy += Math.floor((accuracy * percent_acc) / 100.0f);
         Skill bx;
         int bof;
-        MapleStatEffect eff = chra.getStatForBuff(MapleBuffStat.MONSTER_RIDING);
+        MapleStatEffect eff = chra.getStatForBuff(MapleBuffStatus.MONSTER_RIDING);
         if (eff != null && eff.getSourceId() == 33001001) { //jaguar
             passive_sharpeye_rate += eff.getW();
             percent_hp += eff.getZ();
         }
-        Integer buff = chra.getBuffedValue(MapleBuffStat.DICE_ROLL);
+        Integer buff = chra.getBuffedValue(MapleBuffStatus.DICE_ROLL);
         if (buff != null) {
             percent_wdef += GameConstants.getDiceStat(buff.intValue(), 2);
             percent_mdef += GameConstants.getDiceStat(buff.intValue(), 2);
@@ -700,71 +700,71 @@ public class PlayerStats implements Serializable {
             bossdam_r *= (GameConstants.getDiceStat(buff.intValue(), 5) + 100.0) / 100.0;
             expBuff *= (GameConstants.getDiceStat(buff.intValue(), 6) + 100.0) / 100.0;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.HP_BOOST_PERCENT);
-        if (buff != null) {
-            percent_hp += buff.intValue();
-        }
-        buff = chra.getBuffedValue(MapleBuffStat.MP_BOOST_PERCENT);
-        if (buff != null) {
-            percent_mp += buff.intValue();
-        }
-        buff = chra.getBuffedValue(MapleBuffStat.DEFENCE_BOOST_R);
-        if (buff != null) {
-            percent_wdef += buff.intValue();
-            percent_mdef += buff.intValue();
-        }
-        buff = chra.getBuffedValue(MapleBuffStat.ABNORMAL_STATUS_R);
+//        buff = chra.getBuffedValue(MapleBuffStatus.HP_BOOST_PERCENT);
+//        if (buff != null) {
+//            percent_hp += buff.intValue();
+//        }
+//        buff = chra.getBuffedValue(MapleBuffStatus.MP_BOOST_PERCENT);
+//        if (buff != null) {
+//            percent_mp += buff.intValue();
+//        }
+//        buff = chra.getBuffedValue(MapleBuffStatus.DEFENCE_BOOST_R);
+//        if (buff != null) {
+//            percent_wdef += buff.intValue();
+//            percent_mdef += buff.intValue();
+//        }
+        buff = chra.getBuffedValue(MapleBuffStatus.ABNORMAL_STATUS_R);
         if (buff != null) {
             ASR += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ELEMENTAL_STATUS_R);
+        buff = chra.getBuffedValue(MapleBuffStatus.ELEMENTAL_STATUS_R);
         if (buff != null) {
             TER += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.INFINITY);
+        buff = chra.getBuffedValue(MapleBuffStatus.INFINITY);
         if (buff != null) {
             percent_matk += buff.intValue() - 1;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ONYX_SHROUD);
+        buff = chra.getBuffedValue(MapleBuffStatus.ONYX_SHROUD);
         if (buff != null) {
             dodgeChance += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.PVP_DAMAGE);
+        buff = chra.getBuffedValue(MapleBuffStatus.PVP_DAMAGE);
         if (buff != null) {
             pvpDamage += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.PVP_ATTACK);
+        buff = chra.getBuffedValue(MapleBuffStatus.PVP_ATTACK);
         if (buff != null) {
             pvpDamage += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.FELINE_BERSERK);
+        buff = chra.getBuffedValue(MapleBuffStatus.FELINE_BERSERK);
         if (buff != null) {
             percent_hp += buff.intValue();
         }
-        eff = chra.getStatForBuff(MapleBuffStat.BLUE_AURA);
+        eff = chra.getStatForBuff(MapleBuffStatus.BLUE_AURA);
         if (eff != null) {
             percent_wdef += eff.getZ() + eff.getY();
             percent_mdef += eff.getZ() + eff.getY();
 
         }
-        buff = chra.getBuffedValue(MapleBuffStat.CONVERSION);
+        buff = chra.getBuffedValue(MapleBuffStatus.CONVERSION);
         if (buff != null) {
             percent_hp += buff.intValue();
         } else {
-            buff = chra.getBuffedValue(MapleBuffStat.MAXHP);
+            buff = chra.getBuffedValue(MapleBuffStatus.MAXHP);
             if (buff != null) {
                 percent_hp += buff.intValue();
             }
         }
-        buff = chra.getBuffedValue(MapleBuffStat.MAXMP);
+        buff = chra.getBuffedValue(MapleBuffStatus.MAXMP);
         if (buff != null) {
             percent_mp += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.MP_BUFF);
+        buff = chra.getBuffedValue(MapleBuffStatus.MP_BUFF);
         if (buff != null) {
             percent_mp += buff.intValue();
         }
-        buff = chra.getBuffedSkill_X(MapleBuffStat.BUFF_MASTERY);
+        buff = chra.getBuffedSkill_X(MapleBuffStatus.BUFF_MASTERY);
         if (buff != null) {
             BuffUP_Skill += buff.intValue();
         }
@@ -1179,7 +1179,7 @@ public class PlayerStats implements Serializable {
                 }
                 bx = SkillFactory.getSkill(3220005);
                 bof = chra.getTotalSkillLevel(bx);
-                if (bof > 0 && chra.getBuffedValue(MapleBuffStat.SPIRIT_LINK) != null) {
+                if (bof > 0 && chra.getBuffedValue(MapleBuffStatus.SPIRIT_LINK) != null) {
                     eff = bx.getEffect(bof);
                     percent_hp += eff.getX();
                     dam_r *= (eff.getDamage() + 100.0) / 100.0;
@@ -1202,7 +1202,7 @@ public class PlayerStats implements Serializable {
                 }
                 bx = SkillFactory.getSkill(3120006);
                 bof = chra.getTotalSkillLevel(bx);
-                if (bof > 0 && chra.getBuffedValue(MapleBuffStat.SPIRIT_LINK) != null) {
+                if (bof > 0 && chra.getBuffedValue(MapleBuffStatus.SPIRIT_LINK) != null) {
                     eff = bx.getEffect(bof);
                     percent_hp += eff.getX();
                     dam_r *= (eff.getDamage() + 100.0) / 100.0;
@@ -1439,63 +1439,63 @@ public class PlayerStats implements Serializable {
         wdef += Math.min(30000, Math.floor((wdef * percent_wdef) / 100.0f));
         mdef += Math.min(30000, Math.floor((wdef * percent_mdef) / 100.0f));
         //magic = Math.min(magic, 1999); //buffs can make it higher
-        buff = chra.getBuffedValue(MapleBuffStat.STR);
+        buff = chra.getBuffedValue(MapleBuffStatus.STR);
         if (buff != null) {
             localstr += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.DEX);
+        buff = chra.getBuffedValue(MapleBuffStatus.DEX);
         if (buff != null) {
             localdex += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.INT);
+        buff = chra.getBuffedValue(MapleBuffStatus.INT);
         if (buff != null) {
             localint_ += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.LUK);
+        buff = chra.getBuffedValue(MapleBuffStatus.LUK);
         if (buff != null) {
             localluk += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ANGEL_STAT);
+        buff = chra.getBuffedValue(MapleBuffStatus.ANGEL_STAT);
         if (buff != null) {
             localstr += buff.intValue();
             localdex += buff.intValue();
             localint_ += buff.intValue();
             localluk += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ENHANCED_MAXHP);
+        buff = chra.getBuffedValue(MapleBuffStatus.ENHANCED_MAXHP);
         if (buff != null) {
             localmaxhp_ += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ENHANCED_MAXMP);
+        buff = chra.getBuffedValue(MapleBuffStatus.ENHANCED_MAXMP);
         if (buff != null) {
             localmaxmp_ += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ENHANCED_WDEF);
+        buff = chra.getBuffedValue(MapleBuffStatus.ENHANCED_WDEF);
         if (buff != null) {
             wdef += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ENHANCED_MDEF);
+        buff = chra.getBuffedValue(MapleBuffStatus.ENHANCED_MDEF);
         if (buff != null) {
             mdef += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.WDEF);
+        buff = chra.getBuffedValue(MapleBuffStatus.WDEF);
         if (buff != null) {
             wdef += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.WDEF);
+        buff = chra.getBuffedValue(MapleBuffStatus.WDEF);
         if (buff != null) {
             mdef += buff.intValue();
         }
 
-        buff = chra.getBuffedValue(MapleBuffStat.HP_BOOST);
+        buff = chra.getBuffedValue(MapleBuffStatus.HP_BOOST);
         if (buff != null) {
             localmaxhp_ += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.MP_BOOST);
+        buff = chra.getBuffedValue(MapleBuffStatus.MP_BOOST);
         if (buff != null) {
             localmaxmp_ += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.MAPLE_WARRIOR);
+        buff = chra.getBuffedValue(MapleBuffStatus.MAPLE_WARRIOR);
         if (buff != null) {
             double d = buff.doubleValue() / 100.0;
             localstr += d * str; //base only
@@ -1503,17 +1503,17 @@ public class PlayerStats implements Serializable {
             localluk += d * luk;
             localint_ += d * int_;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ECHO_OF_HERO);
+        buff = chra.getBuffedValue(MapleBuffStatus.ECHO_OF_HERO);
         if (buff != null) {
             double d = buff.doubleValue() / 100.0;
             watk += (int) (watk * d);
             magic += (int) (magic * d);
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ARAN_COMBO);
+        buff = chra.getBuffedValue(MapleBuffStatus.ARAN_COMBO);
         if (buff != null) {
             watk += buff.intValue() / 10;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.MESOGUARD);
+        buff = chra.getBuffedValue(MapleBuffStatus.MESOGUARD);
         if (buff != null) {
             mesoGuardMeso += buff.doubleValue();
         }
@@ -1535,82 +1535,82 @@ public class PlayerStats implements Serializable {
             accuracy += eff.getZ();
         }
 
-        buff = chra.getBuffedValue(MapleBuffStat.EXPRATE);
+        buff = chra.getBuffedValue(MapleBuffStatus.EXPRATE);
         if (buff != null) {
             expBuff *= buff.doubleValue() / 100.0;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.DROP_RATE);
+        buff = chra.getBuffedValue(MapleBuffStatus.DROP_RATE);
         if (buff != null) {
             dropBuff *= buff.doubleValue() / 100.0;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ACASH_RATE);
+        buff = chra.getBuffedValue(MapleBuffStatus.ACASH_RATE);
         if (buff != null) {
             cashBuff *= buff.doubleValue() / 100.0;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.MESO_RATE);
+        buff = chra.getBuffedValue(MapleBuffStatus.MESO_RATE);
         if (buff != null) {
             mesoBuff *= buff.doubleValue() / 100.0;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.MESOUP);
+        buff = chra.getBuffedValue(MapleBuffStatus.MESOUP);
         if (buff != null) {
             mesoBuff *= buff.doubleValue() / 100.0;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ACC);
+        buff = chra.getBuffedValue(MapleBuffStatus.ACC);
         if (buff != null) {
             accuracy += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ANGEL_ACC);
+        buff = chra.getBuffedValue(MapleBuffStatus.ANGEL_ACC);
         if (buff != null) {
             accuracy += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ANGEL_ATK);
+        buff = chra.getBuffedValue(MapleBuffStatus.ANGEL_ATK);
         if (buff != null) {
             watk += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ANGEL_MATK);
+        buff = chra.getBuffedValue(MapleBuffStatus.ANGEL_MATK);
         if (buff != null) {
             magic += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.WATK);
+        buff = chra.getBuffedValue(MapleBuffStatus.WATK);
         if (buff != null) {
             watk += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.SPIRIT_SURGE);
+        buff = chra.getBuffedValue(MapleBuffStatus.SPIRIT_SURGE);
         if (buff != null) {
             passive_sharpeye_rate += buff.intValue();
             dam_r *= (buff.intValue() + 100.0) / 100.0;
             bossdam_r *= (buff.intValue() + 100.0) / 100.0;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.ENHANCED_WATK);
+        buff = chra.getBuffedValue(MapleBuffStatus.ENHANCED_WATK);
         if (buff != null) {
             watk += buff.intValue();
         }
-        eff = chra.getStatForBuff(MapleBuffStat.ENERGY_CHARGE);
+        eff = chra.getStatForBuff(MapleBuffStatus.ENERGY_CHARGE);
         if (eff != null) {
             watk += eff.getWatk();
             accuracy += eff.getAcc();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.MATK);
+        buff = chra.getBuffedValue(MapleBuffStatus.MATK);
         if (buff != null) {
             magic += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.SPEED);
+        buff = chra.getBuffedValue(MapleBuffStatus.SPEED);
         if (buff != null) {
             speed += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.JUMP);
+        buff = chra.getBuffedValue(MapleBuffStatus.JUMP);
         if (buff != null) {
             jump += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.DASH_SPEED);
+        buff = chra.getBuffedValue(MapleBuffStatus.DASH_SPEED);
         if (buff != null) {
             speed += buff.intValue();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.DASH_JUMP);
+        buff = chra.getBuffedValue(MapleBuffStatus.DASH_JUMP);
         if (buff != null) {
             jump += buff.intValue();
         }
-        eff = chra.getStatForBuff(MapleBuffStat.HIDDEN_POTENTIAL);
+        eff = chra.getStatForBuff(MapleBuffStatus.HIDDEN_POTENTIAL);
         if (eff != null) {
             passive_sharpeye_rate = 100; //INTENSE
             ASR = 100; //INTENSE
@@ -1620,132 +1620,132 @@ public class PlayerStats implements Serializable {
             watk += eff.getX();
             magic += eff.getX();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.DAMAGE_BUFF);
+        buff = chra.getBuffedValue(MapleBuffStatus.DAMAGE_BUFF);
         if (buff != null) {
             dam_r *= (buff.doubleValue() + 100.0) / 100.0;
             bossdam_r *= (buff.doubleValue() + 100.0) / 100.0;
         }
-        buff = chra.getBuffedSkill_Y(MapleBuffStat.FINAL_CUT);
+        buff = chra.getBuffedSkill_Y(MapleBuffStatus.FINAL_CUT);
         if (buff != null) {
             dam_r *= buff.doubleValue() / 100.0;
             bossdam_r *= buff.doubleValue() / 100.0;
         }
-        buff = chra.getBuffedSkill_Y(MapleBuffStat.OWL_SPIRIT);
+        buff = chra.getBuffedSkill_Y(MapleBuffStatus.OWL_SPIRIT);
         if (buff != null) {
             dam_r *= buff.doubleValue() / 100.0;
             bossdam_r *= buff.doubleValue() / 100.0;
         }
-        buff = chra.getBuffedSkill_X(MapleBuffStat.BERSERK_FURY);
+        buff = chra.getBuffedSkill_X(MapleBuffStatus.BERSERK_FURY);
         if (buff != null) {
             dam_r *= buff.doubleValue() / 100.0;
             bossdam_r *= buff.doubleValue() / 100.0;
         }
-        eff = chra.getStatForBuff(MapleBuffStat.BLESS);
+        eff = chra.getStatForBuff(MapleBuffStatus.BLESS);
         if (eff != null) {
             watk += eff.getX();
             magic += eff.getY();
             accuracy += eff.getV();
         }
-        buff = chra.getBuffedSkill_X(MapleBuffStat.CONCENTRATE);
+        buff = chra.getBuffedSkill_X(MapleBuffStatus.CONCENTRATE);
         if (buff != null) {
             mpconReduce += buff.intValue();
         }
-        eff = chra.getStatForBuff(MapleBuffStat.HOLY_SHIELD);
+        eff = chra.getStatForBuff(MapleBuffStatus.HOLY_SHIELD);
         if (eff != null) {
             watk += eff.getX();
             magic += eff.getY();
             accuracy += eff.getV();
             mpconReduce += eff.getMPConReduce();
         }
-        eff = chra.getStatForBuff(MapleBuffStat.MAGIC_RESISTANCE);
+        eff = chra.getStatForBuff(MapleBuffStatus.MAGIC_RESISTANCE);
         if (eff != null) {
             ASR += eff.getX();
         }
 
-        eff = chra.getStatForBuff(MapleBuffStat.COMBO);
-        buff = chra.getBuffedValue(MapleBuffStat.COMBO);
+        eff = chra.getStatForBuff(MapleBuffStatus.COMBO);
+        buff = chra.getBuffedValue(MapleBuffStatus.COMBO);
         if (eff != null && buff != null) {
             dam_r *= ((100.0 + ((eff.getV() + eff.getDAMRate()) * (buff.intValue() - 1))) / 100.0);
             bossdam_r *= ((100.0 + ((eff.getV() + eff.getDAMRate()) * (buff.intValue() - 1))) / 100.0);
         }
-        eff = chra.getStatForBuff(MapleBuffStat.SUMMON);
+        eff = chra.getStatForBuff(MapleBuffStatus.SUMMON);
         if (eff != null) {
             if (eff.getSourceId() == 35121010) { //amp
                 dam_r *= (eff.getX() + 100.0) / 100.0;
                 bossdam_r *= (eff.getX() + 100.0) / 100.0;
             }
         }
-        eff = chra.getStatForBuff(MapleBuffStat.DARK_AURA);
+        eff = chra.getStatForBuff(MapleBuffStatus.DARK_AURA);
         if (eff != null) {
             dam_r *= (eff.getX() + 100.0) / 100.0;
             bossdam_r *= (eff.getX() + 100.0) / 100.0;
         }
-        eff = chra.getStatForBuff(MapleBuffStat.BODY_BOOST);
+        eff = chra.getStatForBuff(MapleBuffStatus.BODY_BOOST);
         if (eff != null) {
             dam_r *= (eff.getV() + 100.0) / 100.0;
             bossdam_r *= (eff.getV() + 100.0) / 100.0;
         }
-        eff = chra.getStatForBuff(MapleBuffStat.BEHOLDER);
+        eff = chra.getStatForBuff(MapleBuffStatus.BEHOLDER);
         if (eff != null) {
             trueMastery += eff.getMastery();
         }
-        eff = chra.getStatForBuff(MapleBuffStat.MECH_CHANGE);
+        eff = chra.getStatForBuff(MapleBuffStatus.MECH_CHANGE);
         if (eff != null) {
             passive_sharpeye_rate += eff.getCr();
         }
-        eff = chra.getStatForBuff(MapleBuffStat.PYRAMID_PQ);
+        eff = chra.getStatForBuff(MapleBuffStatus.PYRAMID_PQ);
         if (eff != null && eff.getBerserk() > 0) {
             dam_r *= eff.getBerserk() / 100.0;
             bossdam_r *= eff.getBerserk() / 100.0;
         }
-        eff = chra.getStatForBuff(MapleBuffStat.WK_CHARGE);
+        eff = chra.getStatForBuff(MapleBuffStatus.WK_CHARGE);
         if (eff != null) {
             dam_r *= eff.getDamage() / 100.0;
             bossdam_r *= eff.getDamage() / 100.0;
         }
-        eff = chra.getStatForBuff(MapleBuffStat.PICKPOCKET);
+        eff = chra.getStatForBuff(MapleBuffStatus.PICKPOCKET);
         if (eff != null) {
             pickRate = eff.getProb();
         }
-        eff = chra.getStatForBuff(MapleBuffStat.PIRATES_REVENGE);
+        eff = chra.getStatForBuff(MapleBuffStatus.PIRATES_REVENGE);
         if (eff != null) {
             dam_r *= (eff.getDAMRate() + 100.0) / 100.0;
             bossdam_r *= (eff.getDAMRate() + 100.0) / 100.0;
         }
-        eff = chra.getStatForBuff(MapleBuffStat.LIGHTNING_CHARGE);
+        eff = chra.getStatForBuff(MapleBuffStatus.LIGHTNING_CHARGE);
         if (eff != null) {
             dam_r *= eff.getDamage() / 100.0;
             bossdam_r *= eff.getDamage() / 100.0;
         }
-        eff = chra.getStatForBuff(MapleBuffStat.WIND_WALK);
+        eff = chra.getStatForBuff(MapleBuffStatus.WIND_WALK);
         if (eff != null) {
             dam_r *= eff.getDamage() / 100.0;
             bossdam_r *= eff.getDamage() / 100.0;
         }
-        eff = chra.getStatForBuff(MapleBuffStat.DIVINE_SHIELD);
+        eff = chra.getStatForBuff(MapleBuffStatus.DIVINE_SHIELD);
         if (eff != null) {
             watk += eff.getEnhancedWatk();
         }
-        buff = chra.getBuffedSkill_Y(MapleBuffStat.DARKSIGHT);
+        buff = chra.getBuffedSkill_Y(MapleBuffStatus.DARK_SIGHT);
         if (buff != null) {
             dam_r *= (buff.intValue() + 100.0) / 100.0;
             bossdam_r *= (buff.intValue() + 100.0) / 100.0;
         }
-        buff = chra.getBuffedSkill_X(MapleBuffStat.ENRAGE);
-        if (buff != null) {
-            dam_r *= (buff.intValue() + 100.0) / 100.0;
-            bossdam_r *= (buff.intValue() + 100.0) / 100.0;
-        }
-        buff = chra.getBuffedSkill_X(MapleBuffStat.COMBAT_ORDERS);
+//        buff = chra.getBuffedSkill_X(MapleBuffStatus.ENRAGE);
+//        if (buff != null) {
+//            dam_r *= (buff.intValue() + 100.0) / 100.0;
+//            bossdam_r *= (buff.intValue() + 100.0) / 100.0;
+//        }
+        buff = chra.getBuffedSkill_X(MapleBuffStatus.COMBAT_ORDERS);
         if (buff != null) {
             combatOrders += buff.intValue();
         }
-        eff = chra.getStatForBuff(MapleBuffStat.SHARP_EYES);
+        eff = chra.getStatForBuff(MapleBuffStatus.SHARP_EYES);
         if (eff != null) {
             passive_sharpeye_rate += eff.getX();
             passive_sharpeye_percent += eff.getCriticalMax();
         }
-        buff = chra.getBuffedValue(MapleBuffStat.CRITICAL_RATE_BUFF);
+        buff = chra.getBuffedValue(MapleBuffStatus.CRITICAL_RATE_BUFF);
         if (buff != null) {
             passive_sharpeye_rate += buff.intValue();
         }
@@ -1755,7 +1755,7 @@ public class PlayerStats implements Serializable {
         if (jump > 123) {
             jump = 123;
         }
-        buff = chra.getBuffedValue(MapleBuffStat.MONSTER_RIDING);
+        buff = chra.getBuffedValue(MapleBuffStatus.MONSTER_RIDING);
         if (buff != null) {
             jump = 120;
             switch (buff.intValue()) {
@@ -1818,7 +1818,7 @@ public class PlayerStats implements Serializable {
                     break;
                 }
             }
-            eff = chra.getStatForBuff(MapleBuffStat.MORPH);
+            eff = chra.getStatForBuff(MapleBuffStatus.MORPH);
             if (eff != null && eff.getSourceId() % 10000 == 1105) { //ice knight
                 localmaxhp = 99999;
                 localmaxmp = 99999;

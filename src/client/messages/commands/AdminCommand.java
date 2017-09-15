@@ -1,10 +1,7 @@
 package client.messages.commands;
 
-import client.MapleCharacter;
-import client.MapleCharacterUtil;
-import client.MapleClient;
-import client.MapleDisease;
-import client.MapleStat;
+import client.*;
+
 import client.inventory.Equip;
 import client.inventory.Item;
 import client.inventory.MapleInventory;
@@ -123,10 +120,10 @@ public class AdminCommand {
                     if (seconds > 1) {
                         for (int i = 0; i < seconds; i++) { 
                             // should timer this or something, the skill itself is more then 1 seconds
-                            victim.giveDebuff(MapleDisease.BLIND, MobSkillFactory.getMobSkill(136, seconds));
+                            victim.getDiseaseBuff(MapleBuffStatus.BLIND, MobSkillFactory.getMobSkill(136, seconds));
                         }
                     } else {
-                        victim.giveDebuff(MapleDisease.BLIND, MobSkillFactory.getMobSkill(136, 1));
+                        victim.getDiseaseBuff(MapleBuffStatus.BLIND, MobSkillFactory.getMobSkill(136, 1));
                     }
                     return true;
                 case "blindmap":
@@ -134,10 +131,10 @@ public class AdminCommand {
                         for (MapleCharacter blind_vics : player.getMap().getCharacters()) {
                     if (!blind_vics.isGM() && seconds > 1) {
                         for (int i = 0; i < seconds / 20; i++) // skill value = 10 seconds or 20 seconds.. 
-                            blind_vics.giveDebuff(MapleDisease.BLIND, MobSkillFactory.getMobSkill(136, seconds));
+                            blind_vics.getDiseaseBuff(MapleBuffStatus.BLIND, MobSkillFactory.getMobSkill(136, seconds));
                     } else {
                         if (!blind_vics.isGM())
-                            blind_vics.giveDebuff(MapleDisease.BLIND, MobSkillFactory.getMobSkill(136, 1));
+                            blind_vics.getDiseaseBuff(MapleBuffStatus.BLIND, MobSkillFactory.getMobSkill(136, 1));
                     }
               }
                     return true;
@@ -530,7 +527,7 @@ public class AdminCommand {
                             map.setChair(0);
                             map.getClient().sendPacket(CField.cancelChair(-1));
                             map.getMap().broadcastMessage(map, CField.showChair(map.getId(), 0), false);
-                            map.giveDebuff(MapleDisease.SEDUCE,MobSkillFactory.getMobSkill(128,level));
+                            map.getDiseaseBuff(MapleBuffStatus.SEDUCE,MobSkillFactory.getMobSkill(128,level));
                         }
                     }
                 return true;

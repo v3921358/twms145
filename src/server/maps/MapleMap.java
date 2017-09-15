@@ -20,12 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
-import client.MapleBuffStat;
-import client.MapleCharacter;
+import client.*;
+import client.MapleBuffStatus;
 import client.MapleCharacter.DojoMode;
-import client.MapleClient;
-import client.MapleStat;
-import client.MonsterFamiliar;
 import client.inventory.Equip;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
@@ -2281,9 +2278,9 @@ public final class MapleMap {
         if (timeLimit > 0 && getForcedReturnMap() != null) {
             chr.startMapTimeLimitTask(timeLimit, getForcedReturnMap());
         }
-        if (chr.getBuffedValue(MapleBuffStat.MONSTER_RIDING) != null && !GameConstants.isResist(chr.getJob())) {
+        if (chr.getBuffedValue(MapleBuffStatus.MONSTER_RIDING) != null && !GameConstants.isResist(chr.getJob())) {
             if (FieldLimitType.Mount.check(fieldLimit)) {
-                chr.cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
+                chr.cancelEffectFromBuffStat(MapleBuffStatus.MONSTER_RIDING);
             }
         }
             if (chr.getEventInstance() != null && chr.getEventInstance().isTimerStarted()) {
@@ -2383,13 +2380,13 @@ public final class MapleMap {
             chr.dropMessage(-1, "You've entered the party play zone.");
         }
         if (isTown()) {
-            chr.cancelEffectFromBuffStat(MapleBuffStat.RAINING_MINES);
+            chr.cancelEffectFromBuffStat(MapleBuffStatus.RAINING_MINES);
         }
         if (!canSoar() || mapid == 240080700) {
-            chr.cancelEffectFromBuffStat(MapleBuffStat.SOARING);
+            chr.cancelEffectFromBuffStat(MapleBuffStatus.SOARING);
         }
         if (chr.getJob() < 3200 || chr.getJob() > 3212) {
-            chr.cancelEffectFromBuffStat(MapleBuffStat.AURA);
+            chr.cancelEffectFromBuffStat(MapleBuffStatus.AURA);
         }
         if (GameConstants.isPhantom(chr.getJob())) {
             chr.fixSkillsByJob(); // because masteries reset upon cc, relog, or even cs exit. when we add to map we fix this issue.

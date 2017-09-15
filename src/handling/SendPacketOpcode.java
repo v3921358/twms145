@@ -443,11 +443,16 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
     private short code = -2;
 
     @Override
-    public void setValue(short code) {
+    public void set(short code) {
         this.code = code;
     }
 
     @Override
+    public short get() {
+        return code;
+    }
+
+
     public short getValue() {
         return code;
     }
@@ -455,7 +460,7 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
 
     public static String getOpcodeName(int value) {
         for (SendPacketOpcode opcode : SendPacketOpcode.values()) {
-            if (opcode.getValue() == value) {
+            if (opcode.get() == value) {
                 return opcode.name();
             }
         }
@@ -485,7 +490,7 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
 
     public static String nameOf(int value) {
         for (SendPacketOpcode opcode : SendPacketOpcode.values()) {
-            if (opcode.getValue() == value) {
+            if (opcode.get() == value) {
                 return opcode.name();
             }
         }

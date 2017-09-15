@@ -49,7 +49,7 @@ public class MobSkillFactory {
     }
 
     public static MobSkill getMobSkill(int skillId, int level) {
-	return instance.mobSkillCache.get(new Pair<Integer, Integer>(Integer.valueOf(skillId), Integer.valueOf(level)));
+	return instance.mobSkillCache.get(new Pair<>(skillId, level));
     }
 
     private void initialize() {

@@ -48,7 +48,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.sql.Date;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.locks.Lock;
@@ -889,7 +888,7 @@ public class MapleClient implements Serializable {
     public final void removalTask(boolean shutdown) {
         try {
             player.cancelAllBuffs_();
-            player.cancelAllDebuffs();
+            player.silenClearAllDiseaseBuffs();
             if (player.getMarriageId() > 0) {
                 final MapleQuestStatus stat1 = player.getQuestNoAdd(MapleQuest.getInstance(160001));
                 final MapleQuestStatus stat2 = player.getQuestNoAdd(MapleQuest.getInstance(160002));

@@ -51,14 +51,14 @@ public abstract class MapleEvent {
     }
 
     public void incrementPlayerCount() {
-	playerCount++;
-	if (playerCount == 250) {
-	    setEvent(ChannelServer.getInstance(world, channel), true);
-	}
+        playerCount++;
+        if (playerCount == 250) {
+            setEvent(ChannelServer.getInstance(world, channel), true);
+        }
     }
 
     public MapleEventType getType() {
-	return type;
+        return type;
     }
 
     public boolean isRunning() {
@@ -95,8 +95,8 @@ public abstract class MapleEvent {
         } else if (reward == 3) {
             chr.addFame(10);
             chr.dropMessage(5, "You gained 10 Fame.");
-	} else if (reward == 4) {
-	    chr.dropMessage(5, "There was no reward.");
+        } else if (reward == 4) {
+            chr.dropMessage(5, "There was no reward.");
         } else {
             int max_quantity = 1;
             switch (reward) {
@@ -133,9 +133,9 @@ public abstract class MapleEvent {
     public abstract void startEvent();
 
     public void onMapLoad(MapleCharacter chr) { //most dont do shit here
-	if (GameConstants.isEventMap(chr.getMapId()) && FieldLimitType.Event.check(chr.getMap().getFieldLimit()) && FieldLimitType.Event2.check(chr.getMap().getFieldLimit())) {
-	    chr.getClient().sendPacket(CField.showEventInstructions());
-	}
+        if (GameConstants.isEventMap(chr.getMapId()) && FieldLimitType.Event.check(chr.getMap().getFieldLimit()) && FieldLimitType.Event2.check(chr.getMap().getFieldLimit())) {
+            chr.getClient().sendPacket(CField.showEventInstructions());
+        }
     }
 
     public void warpBack(MapleCharacter chr) {
@@ -149,12 +149,12 @@ public abstract class MapleEvent {
 
     public void reset() {
         isRunning = true;
-	playerCount = 0;
+        playerCount = 0;
     }
 
     public void unreset() {
         isRunning = false;
-	playerCount = 0;
+        playerCount = 0;
     }
 
     public static void setEvent(final ChannelServer cserv, final boolean auto) {
@@ -164,7 +164,7 @@ public abstract class MapleEvent {
                 if (e.isRunning) {
                     for (int i : e.type.mapids) {
                         if (cserv.getEvent() == i) {
-			    World.Broadcast.broadcastMessage(worldSt, CWvsContext.serverNotice(0, "Entries for the event are now closed!"));
+                            World.Broadcast.broadcastMessage(worldSt, CWvsContext.serverNotice(0, "Entries for the event are now closed!"));
                             e.broadcast(CWvsContext.serverNotice(0, "The event will start in 30 seconds!"));
                             e.broadcast(CField.getClock(30));
                             EventTimer.getInstance().schedule(new Runnable() {
@@ -184,11 +184,11 @@ public abstract class MapleEvent {
     }
 
     public static void mapLoad(final MapleCharacter chr, final int channel) {
-	if (chr == null) {
-	    return;
-	} //o_o
+        if (chr == null) {
+            return;
+        }
         for (MapleEventType t : MapleEventType.values()) {
-            final MapleEvent e = ChannelServer.getInstance(1, channel).getEvent(t);
+            final MapleEvent e = ChannelServer.getInstance(chr.getWorld(), channel).getEvent(t);
             if (e.isRunning) {
                 if (chr.getMapId() == 109050000) { //finished map
                     e.finished(chr);
@@ -196,9 +196,9 @@ public abstract class MapleEvent {
                 for (int i = 0; i < e.type.mapids.length; i++) {
                     if (chr.getMapId() == e.type.mapids[i]) {
                         e.onMapLoad(chr);
-			if (i == 0) { //first map
-			    e.incrementPlayerCount();
-			}
+                        if (i == 0) { //first map
+                            e.incrementPlayerCount();
+                        }
                     }
                 }
             }
@@ -212,7 +212,7 @@ public abstract class MapleEvent {
                 for (int i : e.type.mapids) {
                     if (chr.getMapId() == i) {
                         e.startEvent();
-			setEvent(chr.getClient().getChannelServer(), false);
+                        setEvent(chr.getClient().getChannelServer(), false);
                         chr.dropMessage(5, String.valueOf(t) + " has been started.");
                     }
                 }

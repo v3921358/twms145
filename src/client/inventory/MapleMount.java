@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client.inventory;
 
-import client.MapleBuffStat;
+import client.MapleBuffStatus;
 import client.MapleCharacter;
 import database.DatabaseConnection;
 import java.io.Serializable;
@@ -110,7 +110,7 @@ public class MapleMount implements Serializable {
         changed = true;
         this.fatigue++;
         if (fatigue > 100 && owner.get() != null) {
-            owner.get().cancelEffectFromBuffStat(MapleBuffStat.MONSTER_RIDING);
+            owner.get().cancelEffectFromBuffStat(MapleBuffStatus.MONSTER_RIDING);
         }
         update();
     }

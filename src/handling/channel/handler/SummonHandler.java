@@ -28,6 +28,7 @@ import server.MapleItemInformationProvider;
 import server.MapleStatEffect;
 import server.Randomizer;
 import server.life.MapleMonster;
+import server.life.MobSkill;
 import server.maps.*;
 import server.movement.ILifeMovementFragment;
 import server.movement.MovementKind;
@@ -113,7 +114,7 @@ public class SummonHandler {
             chr.unlockSummonsReadLock();
         }
         if (remove) {
-            chr.cancelEffectFromBuffStat(MapleBuffStat.PUPPET);
+            chr.cancelEffectFromBuffStat(MapleBuffStatus.PUPPET);
         }
     }
 
@@ -274,7 +275,7 @@ public class SummonHandler {
             chr.removeSummon(summon);
 /* 255 */
             if (summon.getSkill() != 35121011)
-/* 256 */ chr.cancelEffectFromBuffStat(MapleBuffStat.SUMMON);
+/* 256 */ chr.cancelEffectFromBuffStat(MapleBuffStatus.SUMMON);
 /*     */
         }
 /*     */
@@ -367,7 +368,7 @@ public class SummonHandler {
                chr.removeVisibleMapObject(summon);
                chr.removeSummon(summon);
                if (summon.getSkill() != 35121011) {
-                   chr.cancelEffectFromBuffStat(MapleBuffStat.SUMMON);
+                   chr.cancelEffectFromBuffStat(MapleBuffStatus.SUMMON);
                }
            }
        }
@@ -391,7 +392,7 @@ public class SummonHandler {
         c.getPlayer().removeVisibleMapObject(summon);
         c.getPlayer().removeSummon(summon);
         if (summon.getSkill() != 35121011) {
-            c.getPlayer().cancelEffectFromBuffStat(MapleBuffStat.SUMMON);
+            c.getPlayer().cancelEffectFromBuffStat(MapleBuffStatus.SUMMON);
             //TODO: Multi Summoning, must do something about hack buffstat
         }
     }
@@ -526,7 +527,7 @@ public class SummonHandler {
             final MapleCharacter attacked = (MapleCharacter) mo;
             if (attacked.getId() != chr.getId() && attacked.isAlive() && !attacked.isHidden() && (type == 0 || attacked.getTeam() != chr.getTeam())) {
                 double rawDamage = maxdamage / Math.max(0, ((magic ? attacked.getStat().mdef : attacked.getStat().wdef) * Math.max(1.0, 100.0 - ignoreDEF) / 100.0) * (type == 3 ? 0.1 : 0.25));
-                if (attacked.getBuffedValue(MapleBuffStat.INVINCIBILITY) != null || PlayersHandler.inArea(attacked)) {
+                if (attacked.getBuffedValue(MapleBuffStatus.INVINCIBILITY) != null || PlayersHandler.inArea(attacked)) {
                     rawDamage = 0;
                 }
                 rawDamage += (rawDamage * chr.getDamageIncrease(attacked.getId()) / 100.0);
@@ -544,11 +545,11 @@ public class SummonHandler {
                         //} else if (attacked.getLevel() > chr.getLevel() && Randomizer.nextInt(100) < (attacked.getLevel() - chr.getLevel())) {
                         //	ourDamage = 0;
                     }
-                    if (attacked.getBuffedValue(MapleBuffStat.MAGIC_GUARD) != null) {
-                        mploss = (int) Math.min(attacked.getStat().getMp(), (ourDamage * attacked.getBuffedValue(MapleBuffStat.MAGIC_GUARD).doubleValue() / 100.0));
+                    if (attacked.getBuffedValue(MapleBuffStatus.MAGIC_GUARD) != null) {
+                        mploss = (int) Math.min(attacked.getStat().getMp(), (ourDamage * attacked.getBuffedValue(MapleBuffStatus.MAGIC_GUARD).doubleValue() / 100.0));
                     }
                     ourDamage -= mploss;
-                    if (attacked.getBuffedValue(MapleBuffStat.INFINITY) != null) {
+                    if (attacked.getBuffedValue(MapleBuffStatus.INFINITY) != null) {
                         mploss = 0;
                     }
                     attacks.add(new Pair<>((int) Math.floor(ourDamage), false));
@@ -567,9 +568,9 @@ public class SummonHandler {
                 if (effect != null) {
                     if (effect.getMonsterStati().size() > 0 && effect.makeChanceResult()) {
                         for (Map.Entry<MonsterStatus, Integer> z : effect.getMonsterStati().entrySet()) {
-                            MapleDisease d = MonsterStatus.getLinkedDisease(z.getKey());
+                            MapleBuffStatus d = MonsterStatus.getLinkedDisease(z.getKey());
                             if (d != null) {
-                                attacked.giveDebuff(d, z.getValue(), effect.getDuration(), d.getDisease(), 1);
+                                attacked.getDiseaseBuff(d, z.getValue(), effect.getDuration(), MobSkill.getMobSkillByBuffStatus(d), 1);
                             }
                         }
                     }
@@ -598,7 +599,7 @@ public class SummonHandler {
                 chr.removeVisibleMapObject(summon);
                 chr.removeSummon(summon);
                 if (summon.getSkill() != 35121011) {
-                    chr.cancelEffectFromBuffStat(MapleBuffStat.SUMMON);
+                    chr.cancelEffectFromBuffStat(MapleBuffStatus.SUMMON);
                 }
             }
         }

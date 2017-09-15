@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
+import client.*;
 import client.inventory.Equip;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -32,15 +33,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import constants.GameConstants;
-import client.Skill;
 import client.inventory.Item;
-import client.MapleDisease;
-import client.MapleBuffStat;
-import client.MapleCharacter;
+import client.MapleBuffStatus;
 import client.inventory.MapleInventoryType;
-import client.MapleClient;
 import client.MapleTrait.MapleTraitType;
-import client.SkillFactory;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.Occupations;
@@ -447,11 +443,11 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             if (ms != null) {
                 exp += (int) (exp * (ms.getX() / 100.0));
             }
-            final Integer holySymbol = attacker.getBuffedValue(MapleBuffStat.HOLY_SYMBOL);
+            final Integer holySymbol = attacker.getBuffedValue(MapleBuffStatus.HOLY_SYMBOL);
             if (holySymbol != null) {
                 exp *= 1.0 + (holySymbol.doubleValue() / 100.0);
             }
-            if (attacker.hasDisease(MapleDisease.CURSE)) {
+            if (attacker.hasDisease(MapleBuffStatus.CURSE)) {
                 exp /= 2;
             }
             exp = (int) Math.min(Integer.MAX_VALUE, exp * attacker.getEXPMod() * attacker.getStat().expBuff / 100.0 * (GameConstants.getExpRate(attacker.getJob(), attacker.getClient().getWorldServer().getExpRate())));

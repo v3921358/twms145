@@ -2,7 +2,7 @@ package tools;
 
 public interface WritableLongValueHolder {
 
-    long getValue();
+    long get();
 
-    void setValue(long newval);
+    void set(long newval);
 }

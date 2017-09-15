@@ -96,25 +96,24 @@ public class LoginPacket {
     public static byte[] getAuthSuccessRequest(final MapleClient client) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendPacketOpcode.LOGIN_STATUS.getValue());
-        mplew.write(0);
-        mplew.write(0);
-        mplew.writeInt(0);
+        mplew.write(0); // status
+
         mplew.writeInt(client.getAccID());
         mplew.write(client.getGender());
-        mplew.write(0); // Admin byte - Find, Trade, etc.
-        mplew.writeShort(0/*2*/); //0 for new accounts
-        mplew.write(0/*client.isGm() ? 1 : 0*/); // Admin byte - Commands
-        mplew.writeMapleAsciiString(client.getAccountName());
-        mplew.write(3); //0 for new accounts
-        mplew.write(0); // quiet ban
-        mplew.writeLong(0); // quiet ban time
-        mplew.write(1);
-        mplew.writeLong(PacketHelper.getTime(System.currentTimeMillis())); //really create date
-        mplew.writeInt(4); // Remove the "Select the world you want to play in" since it doesn't fit inside the loginscreen
-        mplew.write(0); //1 = pin disabled, 0 = pin enabled
-        mplew.write(client.getSecondPassword().equals("") ? 2 : 1); //2 = no pic at all
-        mplew.writeLong(Randomizer.nextLong());
+        mplew.writeBool(client.isGm());
 
+        // GM flag , SuperGM(1<<4)  GM(1<<5)
+        mplew.write(client.isGm() ? 0x10 : 0x00);
+        mplew.writeInt(0);
+        mplew.writeMapleAsciiString(client.getAccountName());
+        mplew.writeInt(1);
+        mplew.write(1);
+        mplew.write(1);
+        mplew.write(0); // 1 = 帳號禁止說話
+        mplew.writeLong(PacketHelper.getTime(System.currentTimeMillis()));// 禁止說話期限
+        mplew.write(0);
+        mplew.writeLong(0x64);
+        mplew.write(1);
         return mplew.getPacket();
     }
 

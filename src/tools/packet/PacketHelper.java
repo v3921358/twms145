@@ -26,14 +26,17 @@ import client.inventory.*;
 import client.status.IBuffStat;
 import constants.GameConstants;
 import handling.world.MapleCharacterLook;
+import handling.world.PlayerBuffValueHolder;
 import server.MapleItemInformationProvider;
 import server.MapleShop;
 import server.MapleShopItem;
+import server.Randomizer;
 import server.movement.ILifeMovementFragment;
 import server.quest.MapleQuest;
 import server.shops.AbstractPlayerStore;
 import server.shops.IMaplePlayerShop;
 import tools.BitTools;
+import tools.HexTool;
 import tools.KoreanDateUtil;
 import tools.StringUtil;
 import tools.data.MaplePacketLittleEndianWriter;
@@ -394,12 +397,16 @@ public class PacketHelper {
         mplew.writeMapleAsciiString(shop.getDescription());
         if (shop.getShopType() != 1) {
             mplew.write(shop.getPassword().length() > 0 ? 1 : 0); //password = false
+        } else {
+            mplew.write(0);
         }
         mplew.write(shop.getItemId() % 10);
         mplew.write(shop.getSize()); //current size
         mplew.write(shop.getMaxSize()); //full slots... 4 = 4-1=3 = has slots, 1-1=0 = no slots
         if (shop.getShopType() != 1) {
             mplew.write(shop.isOpen() ? 0 : 1);
+        } else {
+            mplew.write(0);
         }
     }
 
@@ -485,7 +492,7 @@ public class PacketHelper {
         if ((mask & 8) != 0 || (mask & 8 | 0x2000000 & mask) != 0) {
             int v20 = 0;
             mplew.writeInt(v20);
-            for (int i = 0; i > v20; i++) {
+            for (int i = 0; i < v20; i++) {
                 mplew.writeInt(0);
                 mplew.writeInt(0);
                 mplew.writeInt(0);
@@ -513,15 +520,23 @@ public class PacketHelper {
 
         if ((mask & 4) != 0) {
 
-            boolean v54 = false;
-            mplew.writeBool(v54);
-
             Iitem = getInventoryInfo(equipped, 1, 99).iterator(); // 普通裝備
             while (true) {
                 Item v52 = Iitem.hasNext() ? Iitem.next() : null;
                 mplew.writeShort(getItemPosition(v52, false, false));
                 if (v52 != null) {
                     GW_ItemSlotBase_Decode(mplew, v52, chr);
+                } else {
+                    break;
+                }
+            }
+
+            Iitem = getInventoryInfo(equipped, 100, 900).iterator();// 現金裝備
+            while (true) {
+                Item v58 = Iitem.hasNext() ? Iitem.next() : null;
+                mplew.writeShort(getItemPosition(v58, false, false));
+                if (v58 != null) {
+                    GW_ItemSlotBase_Decode(mplew, v58, chr);
                 } else {
                     break;
                 }
@@ -538,16 +553,7 @@ public class PacketHelper {
                 }
             }
 
-            Iitem = getInventoryInfo(equipped, -1000, 100).iterator(); // 龍魔導
-            while (true) {
-                Item v52 = Iitem.hasNext() ? Iitem.next() : null;
-                mplew.writeShort(getItemPosition(v52, false, false));
-                if (v52 != null) {
-                    GW_ItemSlotBase_Decode(mplew, v52, chr);
-                } else {
-                    break;
-                }
-            }
+            addInventoryInfo1(mplew, chr, equipped); // 龍魔導裝備欄..等等
 
         }
 
@@ -648,6 +654,7 @@ public class PacketHelper {
             addRocksInfo(mplew, chr);
         }
 
+
         if ((mask & 0x40000) != 0) {
             chr.QuestInfoPacket(mplew);//任務數據
         }
@@ -694,7 +701,8 @@ public class PacketHelper {
         if ((mask & 0x10000000) != 0) {
             mplew.write(1);
             int v216 = 0;
-            for(int i = 0; i < v216; i++)
+            mplew.writeShort(v216);
+            for (int i = 0; i < v216; i++)
                 mplew.writeInt(0);
         }
 
@@ -704,8 +712,42 @@ public class PacketHelper {
         }
 
         if ((mask & 1) != 0) {
-            addHonorInfo(mplew, chr);//內在能力聲望訊息
+            // 經驗椅子的經驗
+            int i8 = 0;
+            mplew.writeShort(i8); // 個數
+            for (int i = 0; i < i8; i++) {
+                mplew.writeInt(0);
+                mplew.write(0);
+                mplew.writeShort(0);
+                mplew.write(0);
+                mplew.writeInt(0); // 道具ID
+                mplew.writeLong(0); // 0
+            }
         }
+    }
+
+    public static void addInventoryInfo1(MaplePacketLittleEndianWriter mplew, MapleCharacter chr, List<Item> equipped) {
+        Iterator<Item> Iitem;
+        int v4 = 0;
+        do {
+            // 龍魔龍裝備(1000) + 機甲裝備(1100) + 機器人的現金裝備(1200)
+            // 天使破壞者裝備(1300) + 拼圖(1400) + 未知[未確認](1500)
+            // 獸魔裝備(5100) + 花狐裝備(5200) + 圖騰(5000)
+            // 未知[未確認](6000)
+            int[] startRang = {1000, 1100, 1200, 1300, 1400, 1500, 5100, 5200, 5000, 6000};
+            int[] endRang = {1004, 1105, 1207, 1305, 1425, 1512, 5106, 5201, 5003, 6025};
+            Iitem = getInventoryInfo(equipped, startRang[v4], endRang[v4]).iterator();
+            while (true) {
+                Item item = Iitem.hasNext() ? Iitem.next() : null;
+                mplew.writeShort(getItemPosition(item, false, false));
+                if (item != null) {
+                    GW_ItemSlotBase_Decode(mplew, item, chr);
+                } else {
+                    break;
+                }
+            }
+            ++v4;
+        } while (v4 < 4);
     }
 
     public static void addMiniGameInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
@@ -1033,43 +1075,6 @@ public class PacketHelper {
         }
     }
 
-    public static <E extends IBuffStat> void writeSingleMask(MaplePacketLittleEndianWriter mplew, E statup) {
-        for (int i = GameConstants.MAX_BUFFSTAT; i >= 1; i--) {
-            mplew.writeInt(i == statup.getPosition() ? statup.getValue() : 0);
-        }
-    }
-
-    public static <E extends IBuffStat> void writeMask(MaplePacketLittleEndianWriter mplew, Collection<E> statups) {
-        int[] mask = new int[GameConstants.MAX_BUFFSTAT];
-        for (E statup : statups) {
-            mask[statup.getPosition() - 1] |= statup.getValue();
-        }
-        for (int i = mask.length; i >= 1; i--) {
-            mplew.writeInt(mask[i - 1]);
-        }
-    }
-
-    public static <E extends IBuffStat> void writeBuffMask(MaplePacketLittleEndianWriter mplew, Collection<Pair<E, Integer>> statups) {
-        int[] mask = new int[GameConstants.MAX_BUFFSTAT];
-        for (Pair<E, Integer> statup : statups) {
-            mask[statup.left.getPosition() - 1] |= statup.left.getValue();
-        }
-        for (int i = mask.length; i >= 1; i--) {
-            mplew.writeInt(mask[i - 1]);
-        }
-    }
-
-    public static <E extends IBuffStat> void writeBuffMask(MaplePacketLittleEndianWriter mplew, Map<E, Integer> statups) {
-        int[] mask = new int[GameConstants.MAX_BUFFSTAT];
-        for (E statup : statups.keySet()) {
-            mask[statup.getPosition() - 1] |= statup.getValue();
-        }
-        for (int i = mask.length; i >= 1; i--) {
-            mplew.writeInt(mask[i - 1]);
-        }
-    }
-
-
     public static void GW_ItemSlotBase_Decode(MaplePacketLittleEndianWriter mplew, Item item) {
         GW_ItemSlotBase_Decode(mplew, item, null);
     }
@@ -1178,4 +1183,483 @@ public class PacketHelper {
     }
 
 
+    public static void addSpawnPlayerBuffStatus(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
+        Map<MapleBuffStatus, Integer> statups = new LinkedHashMap();
+
+        chr.getAllBuffs().stream().forEach((PlayerBuffValueHolder pbvh) -> {
+            pbvh.statup.keySet().stream().forEach((bu) -> {
+                statups.put(bu, pbvh.statup.get(bu));
+            });
+        });
+
+        // 寫入預設Buff
+        List<MapleBuffStatus> defaultBuff = new ArrayList<>();
+
+        defaultBuff.add(MapleBuffStatus.ENERGY_CHARGE);
+        defaultBuff.add(MapleBuffStatus.DASH_SPEED);
+        defaultBuff.add(MapleBuffStatus.DASH_JUMP);
+        defaultBuff.add(MapleBuffStatus.MONSTER_RIDING);
+        defaultBuff.add(MapleBuffStatus.SPEED_INFUSION);
+        defaultBuff.add(MapleBuffStatus.HOMING_BEACON);
+        defaultBuff.add(MapleBuffStatus.DEFAULTBUFF1);
+        defaultBuff.add(MapleBuffStatus.DEFAULTBUFF2);
+
+        for (MapleBuffStatus buff : defaultBuff) {
+            if (!statups.containsKey(buff)) {
+                statups.put(buff, 0);
+            }
+        }
+        addForeignBuffState(mplew, statups, chr, null);
+    }
+
+    public static void addForeignBuffState(MaplePacketLittleEndianWriter mplew, Map<MapleBuffStatus, Integer> statups, MapleCharacter chr, MapleBuffStatus effect) {
+        writeBuffMask(mplew, statups);
+
+        if (statups.containsKey(MapleBuffStatus.SPEED)) {
+            mplew.write(statups.get(MapleBuffStatus.SPEED));
+        }
+        if (statups.containsKey(MapleBuffStatus.SUMMON)) {
+            mplew.write(statups.get(MapleBuffStatus.SUMMON).byteValue());
+        } else if (statups.containsKey(MapleBuffStatus.COMBO)) {
+            mplew.write(statups.get(MapleBuffStatus.COMBO).byteValue());
+        }
+        if (statups.containsKey(MapleBuffStatus.WK_CHARGE)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.WK_CHARGE));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.WK_CHARGE));
+        }
+        if (statups.containsKey(MapleBuffStatus.STUN)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.STUN));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.STUN));
+        }
+        if (statups.containsKey(MapleBuffStatus.BUFF_156)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_156));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_156));
+        }
+        if (statups.containsKey(MapleBuffStatus.DARKNESS)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.DARKNESS));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.DARKNESS));
+        }
+        if (statups.containsKey(MapleBuffStatus.SEAL)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.SEAL));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.SEAL));
+        }
+        if (statups.containsKey(MapleBuffStatus.WEAKEN)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.WEAKEN));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.WEAKEN));
+        }
+        if (statups.containsKey(MapleBuffStatus.INVINCIBILITY)) {  // 151
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.INVINCIBILITY));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.INVINCIBILITY));
+        }
+        if (statups.containsKey(MapleBuffStatus.CURSE)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.CURSE));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.CURSE));
+        }
+
+        if (statups.containsKey(MapleBuffStatus.SLOW)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.SLOW));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.SLOW));
+        }
+
+        if (statups.containsKey(MapleBuffStatus.PVP_ATTACK)) {  // 150
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.PVP_ATTACK));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.PVP_ATTACK));
+        }
+        if (statups.containsKey(MapleBuffStatus.FROZEN)) {  // 155
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.FROZEN));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.FROZEN));
+        }
+
+        if (statups.containsKey(MapleBuffStatus.BLESS)) {  // 126
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BLESS));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BLESS));
+        }
+        if (statups.containsKey(MapleBuffStatus.THREATEN_PVP)) {  // 129
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.THREATEN_PVP));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.THREATEN_PVP));
+        }
+        if (statups.containsKey(MapleBuffStatus.BUFF_127)) {  // 127
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_127));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_127));
+        }
+
+        if (statups.containsKey(MapleBuffStatus.BUFF_128)) {  // 128
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_128));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_128));
+        }
+
+
+        if (statups.containsKey(MapleBuffStatus.POISON)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.POISON));
+        }
+        if (statups.containsKey(MapleBuffStatus.POISON)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.POISON));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.POISON));
+        }
+        if (statups.containsKey(MapleBuffStatus.SHADOWPARTNER)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.SHADOWPARTNER));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.SHADOWPARTNER));
+        }
+
+        //Buff_83 0 byte
+        if (statups.containsKey(MapleBuffStatus.DARK_SIGHT)) {
+        }
+
+        if (statups.containsKey(MapleBuffStatus.SOULARROW)) {
+        }
+
+        if (statups.containsKey(MapleBuffStatus.MORPH)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.MORPH));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.MORPH));
+        }
+        if (statups.containsKey(MapleBuffStatus.GHOST_MORPH)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.GHOST_MORPH));
+        }
+        if (statups.containsKey(MapleBuffStatus.SEDUCE)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.SEDUCE));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.SEDUCE));
+        }
+        if (statups.containsKey(MapleBuffStatus.SPIRIT_CLAW)) {
+            mplew.writeInt(statups.get(MapleBuffStatus.SPIRIT_CLAW));
+        }
+        if (statups.containsKey(MapleBuffStatus.ZOMBIFY)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.ZOMBIFY));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.ZOMBIFY));
+        }
+        if (statups.containsKey(MapleBuffStatus.ARIANT_COSS_IMU)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.ARIANT_COSS_IMU));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.ARIANT_COSS_IMU));
+        }
+        if (statups.containsKey(MapleBuffStatus.DIVINE_BODY)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.DIVINE_BODY));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.DIVINE_BODY));
+        }
+
+        if (statups.containsKey(MapleBuffStatus.REVERSE_DIRECTION)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.REVERSE_DIRECTION));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.REVERSE_DIRECTION));
+        }
+
+        if (statups.containsKey(MapleBuffStatus.MESO_RATE)) {
+            mplew.writeInt(statups.get(MapleBuffStatus.MESO_RATE));
+        }
+        if (statups.containsKey(MapleBuffStatus.EXPRATE)) {
+            mplew.writeInt(statups.get(MapleBuffStatus.EXPRATE));
+        }
+        if (statups.containsKey(MapleBuffStatus.ACASH_RATE)) {
+            mplew.writeInt(statups.get(MapleBuffStatus.ACASH_RATE));
+        }
+        if (statups.containsKey(MapleBuffStatus.GM_HIDE)) {
+            mplew.writeInt(statups.get(MapleBuffStatus.GM_HIDE));
+        }
+        if (statups.containsKey(MapleBuffStatus.BERSERK_FURY)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BERSERK_FURY));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BERSERK_FURY));
+        }
+        if (statups.containsKey(MapleBuffStatus.ILLUSION)) {
+        }
+        if (statups.containsKey(MapleBuffStatus.WIND_WALK)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.WIND_WALK));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.WIND_WALK));
+        }
+        if (statups.containsKey(MapleBuffStatus.PYRAMID_PQ)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.PYRAMID_PQ));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.PYRAMID_PQ));
+        }
+        if (statups.containsKey(MapleBuffStatus.POTION)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.POTION));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.POTION));
+        }
+        if (statups.containsKey(MapleBuffStatus.SHADOW)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.SHADOW));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.SHADOW));
+        }
+        if (statups.containsKey(MapleBuffStatus.BUFF_75)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_75));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_75));
+        }
+        if (statups.containsKey(MapleBuffStatus.MAGIC_SHIELD)) {
+            mplew.writeInt(statups.get(MapleBuffStatus.MAGIC_SHIELD));
+        }
+        if (statups.containsKey(MapleBuffStatus.SOARING)) {
+        }
+        if (statups.containsKey(MapleBuffStatus.BUFF_81)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_81));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_81));
+        }
+        if (statups.containsKey(MapleBuffStatus.HIDDEN_POTENTIAL)) { // 152
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.HIDDEN_POTENTIAL));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.HIDDEN_POTENTIAL));
+        }
+
+        if (statups.containsKey(MapleBuffStatus.ONYX_WILL)) { // 124
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.ONYX_WILL));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.ONYX_WILL));
+        }
+
+        if (statups.containsKey(MapleBuffStatus.BUFF_84)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_84));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_84));
+        }
+
+        if (statups.containsKey(MapleBuffStatus.FINAL_CUT)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.FINAL_CUT));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.FINAL_CUT));
+        }
+
+        //99
+        if (statups.containsKey(MapleBuffStatus.SATELLITESAFE_ABSORB)) {
+            mplew.write(chr.getBuffedValue(MapleBuffStatus.SATELLITESAFE_ABSORB));
+        }
+        //106
+        if (statups.containsKey(MapleBuffStatus.REAPER)) {
+        }
+        //88
+        if (statups.containsKey(MapleBuffStatus.DAMAGE_BUFF)) {
+        }
+        //107
+        if (statups.containsKey(MapleBuffStatus.INFILTRATE)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.INFILTRATE));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.INFILTRATE));
+        }
+        //109
+        if (statups.containsKey(MapleBuffStatus.AURA)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.AURA));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.AURA));
+        }
+        //110
+        if (statups.containsKey(MapleBuffStatus.DARK_AURA)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.DARK_AURA));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.DARK_AURA));
+        }
+        //111
+        if (statups.containsKey(MapleBuffStatus.BLUE_AURA)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BLUE_AURA));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BLUE_AURA));
+        }
+        //115
+        if (statups.containsKey(MapleBuffStatus.DICE_ROLL)) {
+        }
+        //121
+        if (statups.containsKey(MapleBuffStatus.BUFF_121)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_121));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_121));
+        }
+        //130
+        if (statups.containsKey(MapleBuffStatus.ICE_KNIGHT)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.ICE_KNIGHT));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.ICE_KNIGHT));
+        }
+        //137
+        if (statups.containsKey(MapleBuffStatus.BUFF_137)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_137));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_137));
+        }
+        //154
+        if (statups.containsKey(MapleBuffStatus.SNATCH)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.SNATCH));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.SNATCH));
+        }
+        //160
+        if (statups.containsKey(MapleBuffStatus.BUFF_160)) {
+
+        }
+        //166
+        if (statups.containsKey(MapleBuffStatus.ARCANE_AIM)) {
+
+        }
+        //167
+        if (statups.containsKey(MapleBuffStatus.BUFF_MASTERY)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_MASTERY));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_MASTERY));
+        }
+        //169
+        if (statups.containsKey(MapleBuffStatus.ELEMENTAL_STATUS_R)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.ELEMENTAL_STATUS_R));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.ELEMENTAL_STATUS_R));
+        }
+        //172
+        if (statups.containsKey(MapleBuffStatus.BUFF_172)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_172));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_172));
+        }
+        //184
+        if (statups.containsKey(MapleBuffStatus.BUFF_184)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_184));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_184));
+        }
+        //191
+        if (statups.containsKey(MapleBuffStatus.BUFF_191)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_191));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_191));
+        }
+        //193
+        if (statups.containsKey(MapleBuffStatus.BUFF_193)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_193));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_193));
+        }
+        //194
+        if (statups.containsKey(MapleBuffStatus.BUFF_194)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_194));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_194));
+        }
+        //207
+        if (statups.containsKey(MapleBuffStatus.BUFF_207)) {
+            mplew.writeInt(chr.getBuffedValue(MapleBuffStatus.BUFF_207));
+        }
+        //209
+        if (statups.containsKey(MapleBuffStatus.BUFF_209)) {
+            mplew.write(chr.getBuffedValue(MapleBuffStatus.BUFF_209));
+        }
+        //217
+        if (statups.containsKey(MapleBuffStatus.BUFF_217)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_217));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_217));
+        }
+        //224
+        if (statups.containsKey(MapleBuffStatus.BUFF_224)) {
+            mplew.writeShort(chr.getBuffedValue(MapleBuffStatus.BUFF_224));
+            mplew.writeInt(chr.getTrueBuffSource(MapleBuffStatus.BUFF_224));
+        }
+
+        mplew.write(0);
+        mplew.write(0);
+        mplew.write(0);
+
+        /* 預設BUFF */
+        int CHAR_MAGIC_SPAWN = Randomizer.nextInt();
+//        for (int i = 0; i < 8; ++i) {
+        if (statups.containsKey(MapleBuffStatus.ENERGY_CHARGE)) {
+            mplew.writeInt(0); // Value
+            mplew.writeInt(0); // SkillID
+            mplew.write(1);
+            mplew.writeInt(CHAR_MAGIC_SPAWN);//1
+            mplew.writeShort(0);
+        }
+
+        if (statups.containsKey(MapleBuffStatus.DASH_SPEED)) {
+            mplew.writeInt(0); // Value
+            mplew.writeInt(0); // SkillID
+            mplew.write(1);
+            mplew.writeInt(CHAR_MAGIC_SPAWN);//2
+            mplew.writeShort(0);
+
+        }
+
+        if (statups.containsKey(MapleBuffStatus.DASH_JUMP)) {
+            mplew.writeInt(0); // Value
+            mplew.writeInt(0); // SkillID
+            mplew.write(1);
+            mplew.writeInt(CHAR_MAGIC_SPAWN);//2
+            mplew.writeShort(0);
+        }
+
+        if (statups.containsKey(MapleBuffStatus.MONSTER_RIDING)) {
+            int buffSrc = chr.getBuffSource(MapleBuffStatus.MONSTER_RIDING);
+            if (buffSrc > 0) {
+                Item c_mount = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short) -118);
+                Item mount = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short) -18);
+                if ((GameConstants.getMountItem(buffSrc, chr) == 0) && (c_mount != null) && (chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short) -119) != null)) {
+                    mplew.writeInt(c_mount.getItemId());
+                } else if ((GameConstants.getMountItem(buffSrc, chr) == 0) && (mount != null) && (chr.getInventory(MapleInventoryType.EQUIPPED).getItem((short) -19) != null)) {
+                    mplew.writeInt(mount.getItemId());
+                } else {
+                    mplew.writeInt(GameConstants.getMountItem(buffSrc, chr));
+                }
+                mplew.writeInt(buffSrc);
+            } else {
+                mplew.writeInt(0);
+                mplew.writeInt(0);
+            }
+            mplew.write(1);
+            mplew.writeInt(CHAR_MAGIC_SPAWN);//4
+        }
+
+        if (statups.containsKey(MapleBuffStatus.SPEED_INFUSION)) {
+            mplew.writeInt(0); // Value
+            mplew.writeInt(0); // SkillID
+            mplew.write(1);
+            mplew.writeInt(CHAR_MAGIC_SPAWN);//5
+            mplew.write(1);
+            mplew.writeInt(0);
+            mplew.writeShort(0); // Value
+        }
+
+        if (statups.containsKey(MapleBuffStatus.HOMING_BEACON)) {
+            mplew.writeInt(0); // Value
+            mplew.writeInt(0); // SkillID
+            mplew.write(1);
+            mplew.writeInt(CHAR_MAGIC_SPAWN);//6
+            mplew.writeInt(0); // 怪物OID
+        }
+
+        if (statups.containsKey(MapleBuffStatus.DEFAULTBUFF1)) {
+            mplew.writeInt(0); // Value
+            mplew.writeInt(0); // SkillID
+            mplew.write(1);
+            mplew.writeInt(CHAR_MAGIC_SPAWN);//7
+            mplew.writeShort(0);
+        }
+
+        if (statups.containsKey(MapleBuffStatus.DEFAULTBUFF2)) {
+            mplew.writeInt(0); // Value
+            mplew.writeInt(0); // SkillID
+            mplew.write(1);
+            mplew.writeInt(CHAR_MAGIC_SPAWN);//8
+        }
+
+//        }
+    }
+
+    public static <E extends IBuffStat> void writeSingleMask(MaplePacketLittleEndianWriter mplew, E statup) {
+        writeSingleMask(mplew, statup, GameConstants.MAX_BUFFSTAT);
+    }
+
+    public static <E extends IBuffStat> void writeSingleMobMask(MaplePacketLittleEndianWriter mplew, E statup) {
+        writeSingleMask(mplew, statup, GameConstants.MAX_BUFFSTAT);
+    }
+
+    public static <E extends IBuffStat> void writeSingleMask(MaplePacketLittleEndianWriter mplew, E statup, int maxMask) {
+        for (int i = 0; i < maxMask; i++) {
+            mplew.writeInt(i == statup.getPosition() ? (int) statup.getValue() : 0);
+        }
+    }
+
+    public static <E extends IBuffStat> void writeMask(MaplePacketLittleEndianWriter mplew, Collection<E> statups) {
+        writeMask(mplew, statups, GameConstants.MAX_BUFFSTAT);
+    }
+
+    public static <E extends IBuffStat> void writeMobMask(MaplePacketLittleEndianWriter mplew, Collection<E> statups) {
+        writeMask(mplew, statups, GameConstants.MAX_BUFFSTAT);
+    }
+
+    public static <E extends IBuffStat> void writeMask(MaplePacketLittleEndianWriter mplew, Collection<E> statups, int maxMask) {
+        int[] mask = new int[maxMask];
+        for (IBuffStat statup : statups) {
+            mask[(statup.getPosition())] |= statup.getValue();
+        }
+        for (int i = 0; i < mask.length; i++) {
+            mplew.writeInt(mask[i]);
+        }
+    }
+
+    public static <E extends IBuffStat> void writeBuffMask(MaplePacketLittleEndianWriter mplew, Collection<Pair<E, Integer>> statups) {
+        int[] mask = new int[GameConstants.MAX_BUFFSTAT];
+        for (Pair statup : statups) {
+            mask[(((IBuffStat) statup.left).getPosition())] |= ((IBuffStat) statup.left).getValue();
+        }
+        for (int i = 0; i < mask.length; i++) {
+            mplew.writeInt(mask[i]);
+        }
+    }
+
+    public static <E extends MapleBuffStatus, F extends Object> void writeBuffMask(MaplePacketLittleEndianWriter mplew, Map<E, F> statups) {
+        int[] mask = new int[GameConstants.MAX_BUFFSTAT];
+        for (MapleBuffStatus statup : statups.keySet()) {
+            mask[(statup.getPosition())] |= statup.getValue();
+        }
+        for (int i = 0; i < mask.length; i++) {
+            mplew.writeInt(mask[i]);
+        }
+    }
 }

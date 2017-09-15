@@ -1,7 +1,7 @@
 package server;
 
-import client.MapleTrait.MapleTraitType;
 import client.*;
+import client.MapleTrait.MapleTraitType;
 import client.inventory.Item;
 import client.inventory.MapleInventory;
 import client.inventory.MapleInventoryType;
@@ -11,13 +11,6 @@ import constants.GameConstants;
 import handling.channel.ChannelServer;
 import handling.world.MaplePartyCharacter;
 import handling.world.World;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.io.Serializable;
-import java.lang.ref.WeakReference;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ScheduledFuture;
 import provider.MapleData;
 import provider.MapleDataTool;
 import provider.MapleDataType;
@@ -25,15 +18,24 @@ import server.MapleCarnivalFactory.MCSkill;
 import server.Timer.BuffTimer;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
+import server.life.MobSkill;
 import server.maps.*;
 import tools.CaltechEval;
 import tools.FileoutputUtil;
-import tools.types.Pair;
-import tools.types.Triple;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
 import tools.packet.CWvsContext;
 import tools.packet.CWvsContext.BuffPacket;
+import tools.types.Pair;
+import tools.types.Triple;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.ScheduledFuture;
 
 public class MapleStatEffect implements Serializable {
 
@@ -51,14 +53,14 @@ public class MapleStatEffect implements Serializable {
     private int duration, subTime, sourceid, recipe, moveTo, t, u, v, w, x, y, z, cr, itemCon, itemConNo, bulletConsume, moneyCon,
             cooldown, morphId = 0, expinc, exp, consumeOnPickup, range, price, extendPrice, charColor, interval, rewardMeso, totalprob, cosmetic;
     private boolean overTime, skill, partyBuff = true;
-    private EnumMap<MapleBuffStat, Integer> statups;
+    private EnumMap<MapleBuffStatus, Integer> statups;
     private ArrayList<Pair<Integer, Integer>> availableMap;
     private EnumMap<MonsterStatus, Integer> monsterStatus;
     private Point lt, rb;
     private int expBuff, itemup, mesoup, cashup, berserk, illusion, booster, berserk2, cp, nuffSkill;
     private byte level;
-//    private List<Pair<Integer, Integer>> randomMorph;
-    private List<MapleDisease> cureDebuffs;
+    //    private List<Pair<Integer, Integer>> randomMorph;
+    private List<MapleBuffStatus> cureDebuffs;
     private List<Integer> petsCanConsume, familiars, randomPickup;
     private List<Triple<Integer, Integer, Integer>> rewardItem;
 
@@ -70,12 +72,12 @@ public class MapleStatEffect implements Serializable {
         return loadFromData(source, itemid, false, false, 1, null);
     }
 
-    private static void addBuffStatPairToListIfNotZero(final EnumMap<MapleBuffStat, Integer> list, final MapleBuffStat buffstat, final Integer val) {
-        if (val.intValue() != 0) {
+    private static void addBuffStatPairToListIfNotZero(final EnumMap<MapleBuffStatus, Integer> list, final MapleBuffStatus buffstat, final Integer val) {
+        if (val != 0) {
             list.put(buffstat, val);
         }
     }
-    
+
     public static int parseEval(String data, int level) {
         String variables = "x";
         String dddd = data.replace(variables, String.valueOf(level));
@@ -203,8 +205,8 @@ public class MapleStatEffect implements Serializable {
                 case 2211007:
                 case 2311007:
                 case 32111010:
-                    case 22161005:
-case 12111007:
+                case 22161005:
+                case 12111007:
                 case 33100009:
                 case 22150004:
                 case 22181004: //All Final Attack
@@ -212,7 +214,7 @@ case 12111007:
                 case 3120008:
                 case 23100006:
                 case 23120012:
-		case 24100003: // TODO: for now, or could it be card stack? (1 count)
+                case 24100003: // TODO: for now, or could it be card stack? (1 count)
                     ret.mobCount = 6;
                     break;
                 case 35121005:
@@ -236,7 +238,7 @@ case 12111007:
             ret.duration = Integer.MAX_VALUE; // items have their times stored in ms, of course
             ret.overTime = overTime || ret.isMorph() || ret.isPirateMorph() || ret.isFinalAttack() || ret.isAngel();
         }
-        ret.statups = new EnumMap<>(MapleBuffStat.class);
+        ret.statups = new EnumMap<>(MapleBuffStatus.class);
         ret.mastery = (byte) parseEval("mastery", source, 0, variables, level);
         ret.watk = (short) parseEval("pad", source, 0, variables, level);
         ret.wdef = (short) parseEval("pdd", source, 0, variables, level);
@@ -295,19 +297,19 @@ case 12111007:
         ret.charColor = 0;
         String cColor = MapleDataTool.getString("charColor", source, null);
         if (cColor != null) {
-            
-try {
-           ret.charColor |= Integer.parseInt("0x" + cColor.substring(0, 2));
-            ret.charColor |= Integer.parseInt("0x" + cColor.substring(2, 4) + "00");
-            ret.charColor |= Integer.parseInt("0x" + cColor.substring(4, 6) + "0000");
-            ret.charColor |= Integer.parseInt("0x" + cColor.substring(6, 8) + "000000");
-            
-        } catch (NumberFormatException e) {
-         //  System.out.println("This is not a number");
-           //System.out.println(e.getMessage());
-                
-    
-        }
+
+            try {
+                ret.charColor |= Integer.parseInt("0x" + cColor.substring(0, 2));
+                ret.charColor |= Integer.parseInt("0x" + cColor.substring(2, 4) + "00");
+                ret.charColor |= Integer.parseInt("0x" + cColor.substring(4, 6) + "0000");
+                ret.charColor |= Integer.parseInt("0x" + cColor.substring(6, 8) + "000000");
+
+            } catch (NumberFormatException e) {
+                //  System.out.println("This is not a number");
+                //System.out.println(e.getMessage());
+
+
+            }
         }
         ret.traits = new EnumMap<>(MapleTraitType.class);
         for (MapleTraitType t : MapleTraitType.values()) {
@@ -325,21 +327,21 @@ try {
         ret.effectedOnAlly = (byte) parseEval("effectedOnAlly", source, 0, variables, level);
         ret.effectedOnEnemy = (byte) parseEval("effectedOnEnemy", source, 0, variables, level);
 
-        List<MapleDisease> cure = new ArrayList<>(5);
+        List<MapleBuffStatus> cure = new ArrayList<>(5);
         if (parseEval("poison", source, 0, variables, level) > 0) {
-            cure.add(MapleDisease.POISON);
+            cure.add(MapleBuffStatus.POISON);
         }
         if (parseEval("seal", source, 0, variables, level) > 0) {
-            cure.add(MapleDisease.SEAL);
+            cure.add(MapleBuffStatus.SEAL);
         }
         if (parseEval("darkness", source, 0, variables, level) > 0) {
-            cure.add(MapleDisease.DARKNESS);
+            cure.add(MapleBuffStatus.DARKNESS);
         }
         if (parseEval("weakness", source, 0, variables, level) > 0) {
-            cure.add(MapleDisease.WEAKEN);
+            cure.add(MapleBuffStatus.WEAKEN);
         }
         if (parseEval("curse", source, 0, variables, level) > 0) {
-            cure.add(MapleDisease.CURSE);
+            cure.add(MapleBuffStatus.CURSE);
         }
         ret.cureDebuffs = cure;
 
@@ -430,152 +432,152 @@ try {
         ret.moveTo = parseEval("moveTo", source, -1, variables, level);
         ret.monsterStatus = new EnumMap<>(MonsterStatus.class);
         if (ret.overTime && ret.getSummonMovementType() == null && !ret.isEnergyCharge()) {
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.WATK, Integer.valueOf(ret.watk));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.WDEF, Integer.valueOf(ret.wdef));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.MATK, Integer.valueOf(ret.matk));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.MDEF, Integer.valueOf(ret.mdef));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ACC, Integer.valueOf(ret.acc));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.AVOID, Integer.valueOf(ret.avoid));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.SPEED, sourceid == 32120001 || sourceid == 32101003 ? Integer.valueOf(ret.x) : Integer.valueOf(ret.speed));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.JUMP, Integer.valueOf(ret.jump));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.MAXHP, (int) ret.mhpR);
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.MAXMP, (int) ret.mmpR);
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.BOOSTER, Integer.valueOf(ret.booster));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.HP_LOSS_GUARD, Integer.valueOf(ret.thaw));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.EXPRATE, Integer.valueOf(ret.expBuff)); // EXP
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ACASH_RATE, Integer.valueOf(ret.cashup)); // custom
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.DROP_RATE, Integer.valueOf(GameConstants.getModifier(ret.sourceid, ret.itemup))); // defaults to 2x
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.MESO_RATE, Integer.valueOf(GameConstants.getModifier(ret.sourceid, ret.mesoup))); // defaults to 2x
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.BERSERK_FURY, Integer.valueOf(ret.berserk2));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ILLUSION, Integer.valueOf(ret.illusion));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.PYRAMID_PQ, Integer.valueOf(ret.berserk));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ENHANCED_MAXHP, Integer.valueOf(ret.ehp));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ENHANCED_MAXMP, Integer.valueOf(ret.emp));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ENHANCED_WATK, Integer.valueOf(ret.ewatk));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ENHANCED_WDEF, Integer.valueOf(ret.ewdef));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ENHANCED_MDEF, Integer.valueOf(ret.emdef));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.GIANT_POTION, Integer.valueOf(ret.inflation));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.STR, Integer.valueOf(ret.str));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.DEX, Integer.valueOf(ret.dex));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.INT, Integer.valueOf(ret.int_));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.LUK, Integer.valueOf(ret.luk));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ANGEL_ATK, Integer.valueOf(ret.indiePad));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ANGEL_MATK, Integer.valueOf(ret.indieMad));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.HP_BOOST, Integer.valueOf(ret.imhp));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.MP_BOOST, Integer.valueOf(ret.immp)); //same one? lol
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.HP_BOOST_PERCENT, Integer.valueOf(ret.indieMhpR));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.MP_BOOST_PERCENT, Integer.valueOf(ret.indieMmpR));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.HP_BOOST, Integer.valueOf(ret.indieMhp));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.MP_BOOST, Integer.valueOf(ret.indieMmp));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.PVP_DAMAGE, Integer.valueOf(ret.incPVPdamage));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ANGEL_JUMP, Integer.valueOf(ret.indieJump));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ANGEL_SPEED, Integer.valueOf(ret.indieSpeed));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ANGEL_ACC, Integer.valueOf(ret.indieAcc));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ANGEL_AVOID, Integer.valueOf(ret.indieEva));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.ANGEL_STAT, Integer.valueOf(ret.indieAllStat));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.PVP_ATTACK, Integer.valueOf(ret.PVPdamage));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.INVINCIBILITY, Integer.valueOf(ret.immortal));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.NO_SLIP, Integer.valueOf(ret.preventslip));
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.FAMILIAR_SHADOW, Integer.valueOf(ret.charColor > 0 ? 1 : 0));
-            //addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStat.DARKSIGHT, Integer.valueOf(ret.x));
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.WATK, (int) ret.watk);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.WDEF, (int) ret.wdef);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MATK, (int) ret.matk);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MDEF, (int) ret.mdef);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ACC, (int) ret.acc);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.AVOID, (int) ret.avoid);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.SPEED, sourceid == 32120001 || sourceid == 32101003 ? Integer.valueOf(ret.x) : Integer.valueOf(ret.speed));
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.JUMP, (int) ret.jump);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MAXHP, (int) ret.mhpR);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MAXMP, (int) ret.mmpR);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.BOOSTER, ret.booster);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.WEAKEN, (int) ret.thaw);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.EXPRATE, ret.expBuff); // EXP
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ACASH_RATE, ret.cashup); // custom
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.DROP_RATE, GameConstants.getModifier(ret.sourceid, ret.itemup)); // defaults to 2x
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MESO_RATE, GameConstants.getModifier(ret.sourceid, ret.mesoup)); // defaults to 2x
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.BERSERK_FURY, ret.berserk2);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ILLUSION, ret.illusion);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.PYRAMID_PQ, ret.berserk);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ENHANCED_MAXHP, (int) ret.ehp);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ENHANCED_MAXMP, (int) ret.emp);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ENHANCED_WATK, (int) ret.ewatk);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ENHANCED_WDEF, (int) ret.ewdef);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ENHANCED_MDEF, (int) ret.emdef);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.GIANT_POTION, (int) ret.inflation);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.STR, (int) ret.str);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.DEX, (int) ret.dex);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.INT, (int) ret.int_);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.LUK, (int) ret.luk);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ANGEL_ATK, (int) ret.indiePad);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ANGEL_MATK, (int) ret.indieMad);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.HP_BOOST, (int) ret.imhp);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MP_BOOST, Integer.valueOf(ret.immp)); //same one? lol
+//            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.HP_BOOST_PERCENT, Integer.valueOf(ret.indieMhpR));
+//            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MP_BOOST_PERCENT, Integer.valueOf(ret.indieMmpR));
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.HP_BOOST, (int) ret.indieMhp);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MP_BOOST, (int) ret.indieMmp);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.PVP_DAMAGE, (int) ret.incPVPdamage);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ANGEL_JUMP, (int) ret.indieJump);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ANGEL_SPEED, (int) ret.indieSpeed);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ANGEL_ACC, (int) ret.indieAcc);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ANGEL_AVOID, (int) ret.indieEva);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ANGEL_STAT, (int) ret.indieAllStat);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.PVP_ATTACK, (int) ret.PVPdamage);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.INVINCIBILITY, (int) ret.immortal);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.NO_SLIP, (int) ret.preventslip);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.FAMILIAR_SHADOW, ret.charColor > 0 ? 1 : 0);
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.DARK_SIGHT, ret.x);
             if (sourceid == 5221006 || ret.isPirateMorph()) { //HACK: add stance :D and also this buffstat has to be the first one..
-                ret.statups.put(MapleBuffStat.STANCE, 100); //100% :D:D:D
+                ret.statups.put(MapleBuffStatus.STANCE, 100); //100% :D:D:D
             }
         }
         if (ret.skill) { // hack because we can't get from the datafile...
             switch (sourceid) {
                 case 80001079:
-                    ret.statups.put(MapleBuffStat.WATK, Integer.valueOf(ret.damage));
-                    ret.statups.put(MapleBuffStat.MATK, Integer.valueOf(ret.damage));
+                    ret.statups.put(MapleBuffStatus.WATK, (int) ret.damage);
+                    ret.statups.put(MapleBuffStatus.MATK, (int) ret.damage);
                     ret.duration = 30 * 1000;
                     break;
                 case 80001080:
-                    ret.statups.put(MapleBuffStat.WDEF, ret.x);
-                    ret.statups.put(MapleBuffStat.MDEF, ret.y);
+                    ret.statups.put(MapleBuffStatus.WDEF, ret.x);
+                    ret.statups.put(MapleBuffStatus.MDEF, ret.y);
                     ret.duration = 30 * 1000;
                     break;
                 case 80001081:
-                    ret.statups.put(MapleBuffStat.EXPRATE, ret.x);
+                    ret.statups.put(MapleBuffStatus.EXPRATE, ret.x);
                     ret.duration = 30 * 1000;
                     break;
                 case 2001002: // magic guard
                 case 12001001:
                 case 22111001:
-                    ret.statups.put(MapleBuffStat.MAGIC_GUARD, ret.x);
+                    ret.statups.put(MapleBuffStatus.MAGIC_GUARD, ret.x);
                     break;
                 case 2301003: // invincible
-                    ret.statups.put(MapleBuffStat.INVINCIBLE, ret.x);
+                    ret.statups.put(MapleBuffStatus.INVINCIBLE, ret.x);
                     break;
                 case 35120000:
                 case 35001002:
                     ret.duration = 2100000000;
                     break;
                 case 13101006: // Wind Walk
-                    ret.statups.put(MapleBuffStat.WIND_WALK, ret.x);
+                    ret.statups.put(MapleBuffStatus.WIND_WALK, ret.x);
                     break;
                 case 4330001:
-                    ret.statups.put(MapleBuffStat.DARKSIGHT, (int) ret.level);
+                    ret.statups.put(MapleBuffStatus.DARK_SIGHT, (int) ret.level);
                     break;
                 case 4001003: // darksight
                 case 14001003: // cygnus ds
-                    ret.statups.put(MapleBuffStat.DARKSIGHT, ret.x);
+                    ret.statups.put(MapleBuffStatus.DARK_SIGHT, ret.x);
                     break;
                 case 4211003: // pickpocket
-                    ret.statups.put(MapleBuffStat.PICKPOCKET, ret.x);
+                    ret.statups.put(MapleBuffStatus.PICKPOCKET, ret.x);
                     break;
                 case 4211005: // mesoguard
-                    ret.statups.put(MapleBuffStat.MESOGUARD, ret.x);
+                    ret.statups.put(MapleBuffStatus.MESOGUARD, ret.x);
                     break;
                 case 4111001: // mesoup
-                    ret.statups.put(MapleBuffStat.MESOUP, ret.x);
+                    ret.statups.put(MapleBuffStatus.MESOUP, ret.x);
                     break;
                 case 4111002: // shadowpartner
                 case 14111000: // cygnus
                 case 4331002:
-                    ret.statups.put(MapleBuffStat.SHADOWPARTNER, ret.x);
+                    ret.statups.put(MapleBuffStatus.SHADOWPARTNER, ret.x);
                     break;
                 case 5211009:
-                case 4221013: 
+                case 4221013:
                 case 51101004:
-                              ret.statups.put(MapleBuffStat.ENHANCED_WATK, 20);
-                          
-          //          ret.statups.put(MapleBuffStat., 30);
-                    break;          
-                
+                    ret.statups.put(MapleBuffStatus.ENHANCED_WATK, 20);
+
+                    //          ret.statups.put(MapleBuffStatus., 30);
+                    break;
+
                 case 24121004:
-                    ret.statups.put(MapleBuffStat.ENHANCED_WATK, 30);
-          //          ret.statups.put(MapleBuffStat., 30);
+                    ret.statups.put(MapleBuffStatus.ENHANCED_WATK, 30);
+                    //          ret.statups.put(MapleBuffStatus., 30);
                     break;
                 case 5121015:
-                                       ret.statups.put(MapleBuffStat.ENHANCED_WATK, 15);
-                                       ret.statups.put(MapleBuffStat.ABNORMAL_STATUS_R, 30);
-          //          ret.statups.put(MapleBuffStat., 30);
-                    break; 
-                    
-                                    case 51111004:
-                                        ret.statups.put(MapleBuffStat.DEFENCE_BOOST_R, 100);
-                                       ret.statups.put(MapleBuffStat.ELEMENTAL_STATUS_R, 60);
-                                       ret.statups.put(MapleBuffStat.ABNORMAL_STATUS_R, 60);
-          //          ret.statups.put(MapleBuffStat., 30);
-                    break; 
-                case 51121006:
-                                                           ret.statups.put(MapleBuffStat.ENHANCED_WATK, 60);
-                                       ret.statups.put(MapleBuffStat.CRITICAL_RATE_BUFF, 30);
-          //          ret.statups.put(MapleBuffStat., 30);
-                    break; 
-                case 5111010:
-                      ret.statups.put(MapleBuffStat.DEFENCE_BOOST_R, 15);
-          //          ret.statups.put(MapleBuffStat., 30);
-                    break; 
+                    ret.statups.put(MapleBuffStatus.ENHANCED_WATK, 15);
+                    ret.statups.put(MapleBuffStatus.ABNORMAL_STATUS_R, 30);
+                    //          ret.statups.put(MapleBuffStatus., 30);
+                    break;
+
+//                case 51111004:
+//                    ret.statups.put(MapleBuffStatus.DEFENCE_BOOST_R, 100);
+//                    ret.statups.put(MapleBuffStatus.ELEMENTAL_STATUS_R, 60);
+//                    ret.statups.put(MapleBuffStatus.ABNORMAL_STATUS_R, 60);
+//                    //          ret.statups.put(MapleBuffStatus., 30);
+//                    break;
+//                case 51121006:
+//                    ret.statups.put(MapleBuffStatus.ENHANCED_WATK, 60);
+//                    ret.statups.put(MapleBuffStatus.CRITICAL_RATE_BUFF, 30);
+//                    //          ret.statups.put(MapleBuffStatus., 30);
+//                    break;
+//                case 5111010:
+//                    ret.statups.put(MapleBuffStatus.DEFENCE_BOOST_R, 15);
+//                    //          ret.statups.put(MapleBuffStatus., 30);
+//                    break;
                 case 4211008:
-                    ret.statups.put(MapleBuffStat.SHADOWPARTNER, (int) ret.level);
+                    ret.statups.put(MapleBuffStatus.SHADOWPARTNER, (int) ret.level);
                     break;
                 case 11101002: // All Final attack
                 case 13101002:
-                    ret.statups.put(MapleBuffStat.FINALATTACK, ret.x);
+                    ret.statups.put(MapleBuffStatus.FINAL_SHOOT_ATTACK, ret.x);
                     break;
                 case 22161004:
-                    ret.statups.put(MapleBuffStat.ONYX_SHROUD, ret.x);
+                    ret.statups.put(MapleBuffStatus.ONYX_SHROUD, ret.x);
                     break;
                 case 3101004: // soul arrow
                 case 3201004:
@@ -583,19 +585,19 @@ try {
                 case 35101005:
                 case 13101003:
                 case 33101003:
-                    ret.statups.put(MapleBuffStat.SOULARROW, ret.x);
+                    ret.statups.put(MapleBuffStatus.SOULARROW, ret.x);
                     break;
                 case 2321010:
                 case 2221009:
                 case 2121009:
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.BUFF_MASTERY, ret.x);
+                    ret.statups.put(MapleBuffStatus.BUFF_MASTERY, ret.x);
                     break;
                 case 2320011:
                 case 2220010:
                 case 2120010:
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.ARCANE_AIM, ret.x);
+                    ret.statups.put(MapleBuffStatus.ARCANE_AIM, ret.x);
                     break;
                 case 1211006: // wk charges
                 case 1211004:
@@ -606,22 +608,22 @@ try {
                 case 21101006:
                 case 21111005:
                 case 15101006:
-                    ret.statups.put(MapleBuffStat.WK_CHARGE, ret.x);
+                    ret.statups.put(MapleBuffStatus.WK_CHARGE, ret.x);
                     break;
                 case 2111008:
                 case 2211008:
                 case 12101005:
                 case 22121001: // Elemental Reset
-                    ret.statups.put(MapleBuffStat.ELEMENT_RESET, ret.x);
+                    ret.statups.put(MapleBuffStatus.ELEMENT_RESET, ret.x);
                     break;
                 case 3111000:
                 case 3121008:
                 case 13111001:
-                    ret.statups.put(MapleBuffStat.CONCENTRATE, ret.x);
+                    ret.statups.put(MapleBuffStatus.CONCENTRATE, ret.x);
                     break;
                 case 5110001: // Energy Charge
                 case 15100004:
-                    ret.statups.put(MapleBuffStat.ENERGY_CHARGE, 0);
+                    ret.statups.put(MapleBuffStatus.ENERGY_CHARGE, 0);
                     break;
                 case 1101004:
                 case 1201004:
@@ -651,11 +653,11 @@ try {
                 case 5701005:
                 case 35101006:
                 case 5301002:
-				case 24101005:
-                    ret.statups.put(MapleBuffStat.BOOSTER, ret.x);
+                case 24101005:
+                    ret.statups.put(MapleBuffStatus.BOOSTER, ret.x);
                     break;
                 case 21001003: // Aran - Pole Arm Booster
-                    ret.statups.put(MapleBuffStat.BOOSTER, -ret.y);
+                    ret.statups.put(MapleBuffStatus.BOOSTER, -ret.y);
                     break;
                 case 35111013:
                 case 5111007:
@@ -665,55 +667,55 @@ try {
                 case 5311004:
                 case 5711011:
                 case 5320007:
-                    ret.statups.put(MapleBuffStat.DICE_ROLL, 0);
+                    ret.statups.put(MapleBuffStatus.DICE_ROLL, 0);
                     break;
                 case 5120011:
                 case 5220012:
                     ret.cooldown = ret.x;
-                    ret.statups.put(MapleBuffStat.PIRATES_REVENGE, (int) ret.damR); //i think
+                    ret.statups.put(MapleBuffStatus.PIRATES_REVENGE, (int) ret.damR); //i think
                     break;
                 case 5121009:
                 case 15111005:
-                    ret.statups.put(MapleBuffStat.SPEED_INFUSION, ret.x);
+                    ret.statups.put(MapleBuffStatus.SPEED_INFUSION, ret.x);
                     break;
                 case 4321000: //tornado spin uses same buffstats
                     ret.duration = 1000;
-                    ret.statups.put(MapleBuffStat.DASH_SPEED, 100 + ret.x);
-                    ret.statups.put(MapleBuffStat.DASH_JUMP, ret.y); //always 0 but its there
+                    ret.statups.put(MapleBuffStatus.DASH_SPEED, 100 + ret.x);
+                    ret.statups.put(MapleBuffStatus.DASH_JUMP, ret.y); //always 0 but its there
                     break;
                 case 5001005: // Dash
                 case 15001003:
-                    ret.statups.put(MapleBuffStat.DASH_SPEED, ret.x);
-                    ret.statups.put(MapleBuffStat.DASH_JUMP, ret.y);
+                    ret.statups.put(MapleBuffStatus.DASH_SPEED, ret.x);
+                    ret.statups.put(MapleBuffStatus.DASH_JUMP, ret.y);
                     break;
                 case 1101007: // pguard
                 case 1201007:
-                    ret.statups.put(MapleBuffStat.POWERGUARD, ret.x);
+                    ret.statups.put(MapleBuffStatus.POWERGUARD, ret.x);
                     break;
                 case 32111004: //conversion
-                    ret.statups.put(MapleBuffStat.CONVERSION, ret.x);
+                    ret.statups.put(MapleBuffStatus.CONVERSION, ret.x);
                     break;
                 case 1301007: // hyper body
                 case 9001008:
                 case 9101008:
-                    ret.statups.put(MapleBuffStat.MAXHP, ret.x);
-                    ret.statups.put(MapleBuffStat.MAXMP, ret.x);
+                    ret.statups.put(MapleBuffStatus.MAXHP, ret.x);
+                    ret.statups.put(MapleBuffStatus.MAXMP, ret.x);
                     break;
                 case 1111002: // combo
                 case 11111001: // combo
-                    ret.statups.put(MapleBuffStat.COMBO, 1);
+                    ret.statups.put(MapleBuffStatus.COMBO, 1);
                     break;
                 case 21120007: //combo barrier
-                    ret.statups.put(MapleBuffStat.COMBO_BARRIER, ret.x);
+                    ret.statups.put(MapleBuffStatus.COMBO_BARRIER, ret.x);
                     break;
                 case 5211006: // Homing Beacon
                 case 5220011: // Bullseye
                 case 22151002: //killer wings
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.HOMING_BEACON, ret.x);
+                    ret.statups.put(MapleBuffStatus.HOMING_BEACON, ret.x);
                     break;
                 case 4341007:
-                    ret.statups.put(MapleBuffStat.STANCE, (int) ret.prop);
+                    ret.statups.put(MapleBuffStatus.STANCE, (int) ret.prop);
                     break;
                 case 21111009: //combo recharge
                 case 1311006: //dragon roar
@@ -726,27 +728,27 @@ try {
                 case 4341002:
                     ret.duration = 60 * 1000;
                     ret.hpR = -ret.x / 100.0;
-                    ret.statups.put(MapleBuffStat.FINAL_CUT, ret.y);
+                    ret.statups.put(MapleBuffStatus.FINAL_CUT, ret.y);
                     break;
                 case 2111007:
                 case 2211007:
                 case 2311007:
                 case 32111010:
-                    case 22161005:
-case 12111007:
+                case 22161005:
+                case 12111007:
                     ret.mpCon = (short) ret.y;
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.TELEPORT_MASTERY, ret.x);
-             //       ret.monsterStatus.put(MonsterStatus.STUN, Integer.valueOf(1));
+                    ret.statups.put(MapleBuffStatus.TELEPORT_MASTERY, ret.x);
+                    //       ret.monsterStatus.put(MonsterStatus.STUN, Integer.valueOf(1));
                     break;
 
                 case 4331003:
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.OWL_SPIRIT, ret.y);
+                    ret.statups.put(MapleBuffStatus.OWL_SPIRIT, ret.y);
                     break;
                 case 1311008: // dragon blood
                     if (!GameConstants.GMS) { //TODO JUMP
-                        ret.statups.put(MapleBuffStat.DRAGONBLOOD, ret.x);
+                        ret.statups.put(MapleBuffStatus.DRAGONBLOOD, ret.x);
                     }
                     break;
                 case 5321005:
@@ -772,84 +774,84 @@ case 12111007:
                 case 35121007:
                 case 23121005:
                 case 31121004:
-				case 24121008: // phantom
-                    ret.statups.put(MapleBuffStat.MAPLE_WARRIOR, ret.x);
+                case 24121008: // phantom
+                    ret.statups.put(MapleBuffStatus.MAPLE_WARRIOR, ret.x);
                     break;
                 case 15111006: //spark
-                    ret.statups.put(MapleBuffStat.SPARK, ret.x);
+                    ret.statups.put(MapleBuffStatus.SPARK, ret.x);
                     break;
                 case 3121002: // sharp eyes bow master
                 case 3221002: // sharp eyes marksmen
                 case 33121004:
-                    ret.statups.put(MapleBuffStat.SHARP_EYES, (ret.x << 8) + ret.criticaldamageMax);
+                    ret.statups.put(MapleBuffStatus.SHARP_EYES, (ret.x << 8) + ret.criticaldamageMax);
                     break;
                 case 22151003: //magic resistance
-                    ret.statups.put(MapleBuffStat.MAGIC_RESISTANCE, ret.x);
+                    ret.statups.put(MapleBuffStatus.MAGIC_RESISTANCE, ret.x);
                     break;
                 case 2000007:
                 case 12000006:
                 case 22000002:
                 case 32000012:
-                    ret.statups.put(MapleBuffStat.ELEMENT_WEAKEN, ret.x);
+                    ret.statups.put(MapleBuffStatus.ELEMENT_WEAKEN, ret.x);
                     break;
                 case 21101003: // Body Pressure
-                    ret.statups.put(MapleBuffStat.BODY_PRESSURE, ret.x);
+                    ret.statups.put(MapleBuffStatus.BODY_PRESSURE, ret.x);
                     break;
                 case 21000000: // Aran Combo
-                    ret.statups.put(MapleBuffStat.ARAN_COMBO, 100);
+                    ret.statups.put(MapleBuffStatus.ARAN_COMBO, 100);
                     break;
                 case 23101003:
-                    ret.statups.put(MapleBuffStat.SPIRIT_SURGE, ret.x);
+                    ret.statups.put(MapleBuffStatus.SPIRIT_SURGE, ret.x);
                     break;
                 case 21100005: // Combo Drain
                 case 32101004:
                 case 31121002:
-                    ret.statups.put(MapleBuffStat.COMBO_DRAIN, ret.x);
+                    ret.statups.put(MapleBuffStatus.COMBO_DRAIN, ret.x);
                     break;
                 case 21111001: // Smart Knockback
-                    ret.statups.put(MapleBuffStat.SMART_KNOCKBACK, ret.x);
+                    ret.statups.put(MapleBuffStatus.SMART_KNOCKBACK, ret.x);
                     break;
                 case 23121004://TODO LEGEND
-                    ret.statups.put(MapleBuffStat.PIRATES_REVENGE, (int) ret.damR);
+                    ret.statups.put(MapleBuffStatus.PIRATES_REVENGE, (int) ret.damR);
                     break;
                 case 1211009:
                 case 1111007:
                 case 1311007: //magic crash
                 case 51111005:
-                    ret.monsterStatus.put(MonsterStatus.MAGIC_CRASH, Integer.valueOf(1));
+                    ret.monsterStatus.put(MonsterStatus.MAGIC_CRASH, 1);
                     break;
                 case 1220013:
-                    ret.statups.put(MapleBuffStat.DIVINE_SHIELD, ret.x + 1);
+                    ret.statups.put(MapleBuffStatus.DIVINE_SHIELD, ret.x + 1);
                     break;
                 case 1211011:
-                    ret.statups.put(MapleBuffStat.COMBAT_ORDERS, ret.x);
+                    ret.statups.put(MapleBuffStatus.COMBAT_ORDERS, ret.x);
                     break;
                 case 23111005:
-                    ret.statups.put(MapleBuffStat.ABNORMAL_STATUS_R, (int) ret.terR);
-                    ret.statups.put(MapleBuffStat.ELEMENTAL_STATUS_R, (int) ret.terR);
-                    ret.statups.put(MapleBuffStat.WATER_SHIELD, ret.x);
+                    ret.statups.put(MapleBuffStatus.ABNORMAL_STATUS_R, (int) ret.terR);
+                    ret.statups.put(MapleBuffStatus.ELEMENTAL_STATUS_R, (int) ret.terR);
+                    ret.statups.put(MapleBuffStatus.WATER_SHIELD, ret.x);
                     break;
                 case 22131001: //magic shield
-                    ret.statups.put(MapleBuffStat.MAGIC_SHIELD, ret.x);
+                    ret.statups.put(MapleBuffStatus.MAGIC_SHIELD, ret.x);
                     break;
                 case 22181003: //soul stone
-                    ret.statups.put(MapleBuffStat.SOUL_STONE, 1);
+                    ret.statups.put(MapleBuffStatus.SOUL_STONE, 1);
                     break;
                 case 32121003: //twister
-                    ret.statups.put(MapleBuffStat.TORNADO, ret.x);
+                    ret.statups.put(MapleBuffStatus.TORNADO, ret.x);
                     break;
                 case 2311009: //holy magic
-                    ret.statups.put(MapleBuffStat.HOLY_MAGIC_SHELL, ret.x);
+                    ret.statups.put(MapleBuffStatus.HOLY_MAGIC_SHELL, ret.x);
                     ret.cooldown = ret.y;
                     ret.hpR = ret.z / 100.0;
                     break;
                 case 32111005: //body boost
                     ret.duration = 60000;
-                    ret.statups.put(MapleBuffStat.BODY_BOOST, (int) ret.level); //lots of variables
+                    ret.statups.put(MapleBuffStatus.BODY_BOOST, (int) ret.level); //lots of variables
                     break;
                 case 22131002:
                 case 22141003: // Slow
-                    ret.statups.put(MapleBuffStat.SLOW, ret.x);
+                    ret.statups.put(MapleBuffStatus.SLOW, ret.x);
                     break;
                 case 4001002: // disorder
                 case 14001002: // cygnus disorder
@@ -878,7 +880,7 @@ case 12111007:
                 case 5101003: // Double Uppercut
                 case 5121004: // Demolition
                 case 5121005: // Snatch
-           //     case 5121007: // Barrage
+                    //     case 5121007: // Barrage
                 case 5201004: // pirate blank shot
                 case 4121008: // Ninja Storm
                 case 22151001:
@@ -962,13 +964,13 @@ case 12111007:
                     break;
                 case 4121015:
                     ret.monsterStatus.put(MonsterStatus.SPEED, ret.x);
-                     ret.monsterStatus.put(MonsterStatus.WDEF, ret.x);
+                    ret.monsterStatus.put(MonsterStatus.WDEF, ret.x);
                     break;
                 case 5011002:
                     ret.monsterStatus.put(MonsterStatus.SPEED, ret.z);
                     break;
                 case 1121010: //enrage
-                    ret.statups.put(MapleBuffStat.ENRAGE, ret.x * 100 + ret.mobCount);
+                    ret.statups.put(MapleBuffStatus.ENRAGE, ret.x * 100 + ret.mobCount);
                     break;
                 case 23111002: //TODO LEGEND: damage increase?
                 case 22161002: //phantom imprint
@@ -985,21 +987,21 @@ case 12111007:
                     ret.monsterStatus.put(MonsterStatus.DOOM, 1);
                     break;
                 case 32111006:
-                    ret.statups.put(MapleBuffStat.REAPER, 1);
+                    ret.statups.put(MapleBuffStatus.REAPER, 1);
                     break;
                 case 35121003:
                 case 5211011:
                 case 5211015:
                 case 5211016:
-                     case 33111003:
+                case 33111003:
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.SUMMON, 1);
+                    ret.statups.put(MapleBuffStatus.SUMMON, 1);
                     break;
                 case 35111001:
                 case 35111010:
                 case 35111009:
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.PUPPET, 1);
+                    ret.statups.put(MapleBuffStatus.PUPPET, 1);
                     break;
                 case 4341006:
                 case 3120012:
@@ -1009,14 +1011,14 @@ case 12111007:
                 case 13111004: // puppet cygnus
                 case 5211014: // Pirate octopus summon
                 case 5220002: // wrath of the octopi
-               
+
                 case 5321003:
-                    ret.statups.put(MapleBuffStat.PUPPET, 1);
+                    ret.statups.put(MapleBuffStatus.PUPPET, 1);
                     break;
                 case 3120006:
                 case 3220005:
-                    ret.statups.put(MapleBuffStat.ELEMENTAL_STATUS_R, (int) ret.terR);
-                    ret.statups.put(MapleBuffStat.SPIRIT_LINK, 1);
+                    ret.statups.put(MapleBuffStatus.ELEMENTAL_STATUS_R, (int) ret.terR);
+                    ret.statups.put(MapleBuffStatus.SPIRIT_LINK, 1);
                     break;
                 case 2121005: // elquines
                 case 3201007:
@@ -1030,26 +1032,25 @@ case 12111007:
                 case 23111008:
                 case 23111009:
                 case 23111010:
-                    ret.statups.put(MapleBuffStat.SUMMON, 1);
-                    ret.monsterStatus.put(MonsterStatus.STUN, Integer.valueOf(1));
+                    ret.statups.put(MapleBuffStatus.SUMMON, 1);
+                    ret.monsterStatus.put(MonsterStatus.STUN, 1);
                     break;
-                    
-                    /*      */       case 4111009:
-                    case 5201008:
-/*  785 */         ret.statups.put(MapleBuffStat.SPIRIT_CLAW, Integer.valueOf(0));
-/*  786 */         break;
+                case 4111009:
+                case 5201008:
+                    ret.statups.put(MapleBuffStatus.SPIRIT_CLAW, 0);
+                    break;
                 case 3221005: // frostprey
                 case 2221005: // ifrit
-                    ret.statups.put(MapleBuffStat.SUMMON, 1);
-                    ret.monsterStatus.put(MonsterStatus.FREEZE, Integer.valueOf(1));
+                    ret.statups.put(MapleBuffStatus.SUMMON, 1);
+                    ret.monsterStatus.put(MonsterStatus.FREEZE, 1);
                     break;
                 case 35111005:
-                    ret.statups.put(MapleBuffStat.SUMMON, 1);
+                    ret.statups.put(MapleBuffStatus.SUMMON, 1);
                     ret.monsterStatus.put(MonsterStatus.SPEED, ret.x);
                     ret.monsterStatus.put(MonsterStatus.WDEF, ret.y);
                     break;
                 case 1321007: // Beholder
-                    ret.statups.put(MapleBuffStat.BEHOLDER, (int) ret.level);
+                    ret.statups.put(MapleBuffStatus.BEHOLDER, (int) ret.level);
                     break;
                 case 2321003: // bahamut
                 case 5211002: // Pirate bird summon
@@ -1066,25 +1067,25 @@ case 12111007:
                 case 4111007: //dark flare
                 case 4211007: //dark flare
                 case 5321004:
-                    ret.statups.put(MapleBuffStat.SUMMON, 1);
+                    ret.statups.put(MapleBuffStatus.SUMMON, 1);
                     break;
                 case 35121010:
                     ret.duration = 60000;
-                    ret.statups.put(MapleBuffStat.DAMAGE_BUFF, ret.x);
+                    ret.statups.put(MapleBuffStatus.DAMAGE_BUFF, ret.x);
                     break;
                 case 31121005:
-                    ret.statups.put(MapleBuffStat.PIRATES_REVENGE, (int) ret.damR);
-					ret.statups.put(MapleBuffStat.DARK_METAMORPHOSIS, 6); // mob count
+                    ret.statups.put(MapleBuffStatus.PIRATES_REVENGE, (int) ret.damR);
+                    ret.statups.put(MapleBuffStatus.DARK_METAMORPHOSIS, 6); // mob count
                     break;
                 case 2311003: // hs
                 case 9001002: // GM hs
                 case 9101002:
-                    ret.statups.put(MapleBuffStat.HOLY_SYMBOL, ret.x);
+                    ret.statups.put(MapleBuffStatus.HOLY_SYMBOL, ret.x);
                     break;
                 case 80001034: //virtue
                 case 80001035: //virtue
                 case 80001036: //virtue
-                    ret.statups.put(MapleBuffStat.VIRTUE_EFFECT, 1);
+                    ret.statups.put(MapleBuffStatus.VIRTUE_EFFECT, 1);
                     break;
                 case 2211004: // il seal
                 case 2111004: // fp seal
@@ -1097,21 +1098,21 @@ case 12111007:
                     ret.monsterStatus.put(MonsterStatus.SHADOW_WEB, 1);
                     break;
                 case 4121006: // spirit claw
-                    ret.statups.put(MapleBuffStat.SPIRIT_CLAW, 0);
+                    ret.statups.put(MapleBuffStatus.SPIRIT_CLAW, 0);
                     break;
                 case 2121004:
                 case 2221004:
                 case 2321004: // Infinity
                     ret.hpR = ret.y / 100.0;
                     ret.mpR = ret.y / 100.0;
-                    ret.statups.put(MapleBuffStat.INFINITY, ret.x);
+                    ret.statups.put(MapleBuffStatus.INFINITY, ret.x);
                     if (GameConstants.GMS) { //TODO JUMP
-                        ret.statups.put(MapleBuffStat.STANCE, (int) ret.prop);
+                        ret.statups.put(MapleBuffStatus.STANCE, (int) ret.prop);
                     }
                     break;
                 case 22181004:
-                    ret.statups.put(MapleBuffStat.ONYX_WILL, (int) ret.damage); //is this the right order
-                    ret.statups.put(MapleBuffStat.STANCE, (int) ret.prop);
+                    ret.statups.put(MapleBuffStatus.ONYX_WILL, (int) ret.damage); //is this the right order
+                    ret.statups.put(MapleBuffStatus.STANCE, (int) ret.prop);
                     break;
                 case 1121002:
                 case 32111014:
@@ -1121,34 +1122,34 @@ case 12111007:
                 case 21121003: // Aran - Freezing Posture
                 case 32121005:
                 case 5321010:
-                    ret.statups.put(MapleBuffStat.STANCE, (int) ret.prop);
+                    ret.statups.put(MapleBuffStatus.STANCE, (int) ret.prop);
                     break;
                 case 2121002: // mana reflection
                 case 2221002:
                 case 2321002:
-                    ret.statups.put(MapleBuffStat.MANA_REFLECTION, 1);
+                    ret.statups.put(MapleBuffStatus.MANA_REFLECTION, 1);
                     break;
                 case 2321005: // holy shield, TODO JUMP
-                    ret.statups.put(MapleBuffStat.HOLY_SHIELD, GameConstants.GMS ? (int) ret.level : ret.x);
+                    ret.statups.put(MapleBuffStatus.HOLY_SHIELD, GameConstants.GMS ? (int) ret.level : ret.x);
                     break;
                 case 3121007: // Hamstring
-                    ret.statups.put(MapleBuffStat.HAMSTRING, ret.x);
+                    ret.statups.put(MapleBuffStatus.HAMSTRING, ret.x);
                     ret.monsterStatus.put(MonsterStatus.SPEED, ret.x);
                     break;
                 case 3221006: // Blind
                 case 33111004:
-                    ret.statups.put(MapleBuffStat.BLIND, ret.x);
+                    ret.statups.put(MapleBuffStatus.BLIND, ret.x);
                     ret.monsterStatus.put(MonsterStatus.ACC, ret.x);
                     break;
                 case 33111007: //feline berserk
-                    ret.statups.put(MapleBuffStat.SPEED, ret.z);
-                    ret.statups.put(MapleBuffStat.ATTACK_BUFF, ret.y);
-                    ret.statups.put(MapleBuffStat.FELINE_BERSERK, ret.x);
+                    ret.statups.put(MapleBuffStatus.SPEED, ret.z);
+                    ret.statups.put(MapleBuffStatus.ATTACK_BUFF, ret.y);
+                    ret.statups.put(MapleBuffStatus.FELINE_BERSERK, ret.x);
                     break;
                 case 2301004:
                 case 9001003:
                 case 9101003:
-                    ret.statups.put(MapleBuffStat.BLESS, (int) ret.level);
+                    ret.statups.put(MapleBuffStatus.BLESS, (int) ret.level);
                     break;
                 case 32120000:
                     ret.dot = ret.damage;
@@ -1156,38 +1157,38 @@ case 12111007:
                 case 32001003: //dark aura
                 case 32110007:
                     ret.duration = (sourceid == 32110007 ? 60000 : 2100000000);
-                    ret.statups.put(MapleBuffStat.AURA, (int) ret.level);
-                    ret.statups.put(MapleBuffStat.DARK_AURA, ret.x);
+                    ret.statups.put(MapleBuffStatus.AURA, (int) ret.level);
+                    ret.statups.put(MapleBuffStatus.DARK_AURA, ret.x);
                     break;
                 case 32111012: //blue aura
                 case 32110000:
                 case 32110008:
                     ret.duration = (sourceid == 32110008 ? 60000 : 2100000000);
-                    ret.statups.put(MapleBuffStat.AURA, (int) ret.level);
-                    ret.statups.put(MapleBuffStat.BLUE_AURA, (int) ret.level);
+                    ret.statups.put(MapleBuffStatus.AURA, (int) ret.level);
+                    ret.statups.put(MapleBuffStatus.BLUE_AURA, (int) ret.level);
                     break;
                 case 32120001:
                     ret.monsterStatus.put(MonsterStatus.SPEED, (int) ret.speed);
                 case 32101003: //yellow aura
                 case 32110009:
                     ret.duration = (sourceid == 32110009 ? 60000 : 2100000000);
-                    ret.statups.put(MapleBuffStat.AURA, (int) ret.level);
-                    ret.statups.put(MapleBuffStat.YELLOW_AURA, (int) ret.level);
+                    ret.statups.put(MapleBuffStatus.AURA, (int) ret.level);
+                    ret.statups.put(MapleBuffStatus.YELLOW_AURA, (int) ret.level);
                     break;
                 case 33101004: //it's raining mines
-                    ret.statups.put(MapleBuffStat.RAINING_MINES, ret.x); //x?
+                    ret.statups.put(MapleBuffStatus.RAINING_MINES, ret.x); //x?
                     break;
                 case 35101007: //perfect armor
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.PERFECT_ARMOR, ret.x);
+                    ret.statups.put(MapleBuffStatus.PERFECT_ARMOR, ret.x);
                     break;
                 case 31101003:
-                    ret.statups.put(MapleBuffStat.PERFECT_ARMOR, ret.y);
+                    ret.statups.put(MapleBuffStatus.PERFECT_ARMOR, ret.y);
                     break;
                 case 35121006: //satellite safety
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.SATELLITESAFE_PROC, ret.x);
-                    ret.statups.put(MapleBuffStat.SATELLITESAFE_ABSORB, ret.y);
+                    ret.statups.put(MapleBuffStatus.SATELLITESAFE_PROC, ret.x);
+                    ret.statups.put(MapleBuffStatus.SATELLITESAFE_ABSORB, ret.y);
                     break;
                 case 80001040:
                 case 20021110:
@@ -1195,40 +1196,33 @@ case 12111007:
                     break;
                 case 80001089: // Soaring
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.SOARING, ret.x);
+                    ret.statups.put(MapleBuffStatus.SOARING, ret.x);
                     break;
                 case 35001001: //flame
                 case 35101009:
                     ret.duration = 1000;
-                    ret.statups.put(MapleBuffStat.MECH_CHANGE, (int) level); //ya wtf
+                    ret.statups.put(MapleBuffStatus.MECH_CHANGE, (int) level); //ya wtf
                     break;
                 case 35121013:
                 case 35111004: //siege
                     ret.duration = 5000;
-                    ret.statups.put(MapleBuffStat.MECH_CHANGE, (int) level); //ya wtf
+                    ret.statups.put(MapleBuffStatus.MECH_CHANGE, (int) level); //ya wtf
                     break;
                 case 35121005: //missile
                     ret.duration = 2100000000;
-                    ret.statups.put(MapleBuffStat.MECH_CHANGE, (int) level); //ya wtf
+                    ret.statups.put(MapleBuffStatus.MECH_CHANGE, (int) level); //ya wtf
                     break;
                 case 10001075: // Cygnus Echo
-                    ret.statups.put(MapleBuffStat.ECHO_OF_HERO, ret.x);
+                    ret.statups.put(MapleBuffStatus.ECHO_OF_HERO, ret.x);
                     break;
-				case 31121007: // boundless rage
-					ret.statups.put(MapleBuffStat.BOUNDLESS_RAGE, 1); // for now
+                case 31121007: // boundless rage
+                    ret.statups.put(MapleBuffStatus.BOUNDLESS_RAGE, 1); // for now
                     break;
-				case 31111004: // black hearted strength					
-					ret.statups.put(MapleBuffStat.ABNORMAL_STATUS_R, ret.y);
-					ret.statups.put(MapleBuffStat.ELEMENTAL_STATUS_R, ret.z);
-					ret.statups.put(MapleBuffStat.DEFENCE_BOOST_R, ret.x);
+                case 31111004: // black hearted strength
+                    ret.statups.put(MapleBuffStatus.ABNORMAL_STATUS_R, ret.y);
+                    ret.statups.put(MapleBuffStatus.ELEMENTAL_STATUS_R, ret.z);
+                    ret.statups.put(MapleBuffStatus.DEFENCE_BOOST_R, ret.x);
                     break;
-                                          case 24111002:
-        ret.statups.put(MapleBuffStat.FINAL_FEINT, ret.x);
-      break;
-                                                    case 20031205:
-        ret.statups.put(MapleBuffStat.SHROUD_WALK, 999);
-        break;
-                                    
                 default:
                     break;
             }
@@ -1237,58 +1231,58 @@ case 12111007:
                     //angelic blessing: HACK, we're actually supposed to use the passives for atk/matk buff
                     case 1087:
                         ret.duration = 2100000000;
-                        ret.statups.put(MapleBuffStat.ANGEL_ATK, 10);
-                        ret.statups.put(MapleBuffStat.ANGEL_MATK, 10);
+                        ret.statups.put(MapleBuffStatus.ANGEL_ATK, 10);
+                        ret.statups.put(MapleBuffStatus.ANGEL_MATK, 10);
                         break;
                     case 1085:
                     case 1090:
                         ret.duration = 2100000000;
-                        ret.statups.put(MapleBuffStat.ANGEL_ATK, 5);
-                        ret.statups.put(MapleBuffStat.ANGEL_MATK, 5);
+                        ret.statups.put(MapleBuffStatus.ANGEL_ATK, 5);
+                        ret.statups.put(MapleBuffStatus.ANGEL_MATK, 5);
                         break;
                     case 1179:
                         ret.duration = 2100000000;
-                        ret.statups.put(MapleBuffStat.ANGEL_ATK, 12);
-                        ret.statups.put(MapleBuffStat.ANGEL_MATK, 12);
+                        ret.statups.put(MapleBuffStatus.ANGEL_ATK, 12);
+                        ret.statups.put(MapleBuffStatus.ANGEL_MATK, 12);
                         break;
                     case 1105:
-                        ret.statups.put(MapleBuffStat.ICE_SKILL, 1);
+                        ret.statups.put(MapleBuffStatus.ICE_SKILL, 1);
                         ret.duration = 2100000000;
                         break;
                     case 93:
-                        ret.statups.put(MapleBuffStat.HIDDEN_POTENTIAL, 1);
+                        ret.statups.put(MapleBuffStatus.HIDDEN_POTENTIAL, 1);
                         break;
                     case 8001:
-                        ret.statups.put(MapleBuffStat.SOULARROW, ret.x);
+                        ret.statups.put(MapleBuffStatus.SOULARROW, ret.x);
                         break;
                     case 1005: // Echo of Hero
-                        ret.statups.put(MapleBuffStat.ECHO_OF_HERO, ret.x);
+                        ret.statups.put(MapleBuffStatus.ECHO_OF_HERO, ret.x);
                         break;
                     case 1011: // Berserk fury
-                        ret.statups.put(MapleBuffStat.BERSERK_FURY, ret.x);
+                        ret.statups.put(MapleBuffStatus.BERSERK_FURY, ret.x);
                         break;
                     case 1010:
-                        ret.statups.put(MapleBuffStat.DIVINE_BODY, 1);
+                        ret.statups.put(MapleBuffStatus.DIVINE_BODY, 1);
                         break;
                     case 1001:
                         if (sourceid / 10000 == 3001 || sourceid / 10000 == 3000) { //resistance is diff
-                            ret.statups.put(MapleBuffStat.INFILTRATE, ret.x);
+                            ret.statups.put(MapleBuffStatus.INFILTRATE, ret.x);
                         } else {
-                            ret.statups.put(MapleBuffStat.RECOVERY, ret.x);
+                            ret.statups.put(MapleBuffStatus.RECOVERY, ret.x);
                         }
                         break;
                     case 8003:
-                        ret.statups.put(MapleBuffStat.MAXHP, ret.x);
-                        ret.statups.put(MapleBuffStat.MAXMP, ret.x);
+                        ret.statups.put(MapleBuffStatus.MAXHP, ret.x);
+                        ret.statups.put(MapleBuffStatus.MAXMP, ret.x);
                         break;
                     case 8004:
-                        ret.statups.put(MapleBuffStat.COMBAT_ORDERS, ret.x);
+                        ret.statups.put(MapleBuffStatus.COMBAT_ORDERS, ret.x);
                         break;
                     case 8005:
-                        ret.statups.put(MapleBuffStat.HOLY_SHIELD, 1);
+                        ret.statups.put(MapleBuffStatus.HOLY_SHIELD, 1);
                         break;
                     case 8006:
-                        ret.statups.put(MapleBuffStat.SPEED_INFUSION, ret.x);
+                        ret.statups.put(MapleBuffStatus.SPEED_INFUSION, ret.x);
                         break;
                     case 103:
                         ret.monsterStatus.put(MonsterStatus.STUN, 1);
@@ -1299,12 +1293,12 @@ case 12111007:
                         ret.duration *= 2; // freezing skills are a little strange
                         break;
                     case 8002:
-                        ret.statups.put(MapleBuffStat.SHARP_EYES, (ret.x << 8) + ret.criticaldamageMax);
+                        ret.statups.put(MapleBuffStatus.SHARP_EYES, (ret.x << 8) + ret.criticaldamageMax);
                         break;
                     case 1026: // Soaring
                     case 1142: // Soaring
-                    //    ret.duration = 2100000000;
-                     //   ret.statups.put(MapleBuffStat.SOARING, 1);
+                        //    ret.duration = 2100000000;
+                        //   ret.statups.put(MapleBuffStatus.SOARING, 1);
                         break;
                 }
             }
@@ -1315,7 +1309,7 @@ case 12111007:
                 case 2022823:
                 case 2022764:
                     ret.statups.clear(); //no atk/matk
-                    ret.statups.put(MapleBuffStat.PYRAMID_PQ, 1); //ITEM_EFFECT buff
+                    ret.statups.put(MapleBuffStatus.PYRAMID_PQ, 1); //ITEM_EFFECT buff
                     break;
             }
         }
@@ -1323,9 +1317,9 @@ case 12111007:
             ret.monsterStatus.put(MonsterStatus.POISON, 1);
         }
         if (ret.isMorph() || ret.isPirateMorph()) {
-            ret.statups.put(MapleBuffStat.MORPH, ret.getMorph());
+            ret.statups.put(MapleBuffStatus.MORPH, ret.getMorph());
         }
-       
+
 
         return ret;
     }
@@ -1333,7 +1327,7 @@ case 12111007:
     /**
      * @param applyto
      * @param obj
-     * @param attack damage done by the skill
+     * @param   damage done by the skill
      */
     public final void applyPassive(final MapleCharacter applyto, final MapleMapObject obj) {
         if (makeChanceResult() && !GameConstants.isDemon(applyto.getJob())) { // demon can't heal mp
@@ -1376,13 +1370,13 @@ case 12111007:
             applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
         }
-        if ((isSoaring_Mount() && applyfrom.getBuffedValue(MapleBuffStat.MONSTER_RIDING) == null) || (isSoaring_Normal() && !applyfrom.getMap().canSoar())) {
+        if ((isSoaring_Mount() && applyfrom.getBuffedValue(MapleBuffStatus.MONSTER_RIDING) == null) || (isSoaring_Normal() && !applyfrom.getMap().canSoar())) {
             applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
-        } else if (sourceid == 4341006 && applyfrom.getBuffedValue(MapleBuffStat.SHADOWPARTNER) == null) {
+        } else if (sourceid == 4341006 && applyfrom.getBuffedValue(MapleBuffStatus.SHADOWPARTNER) == null) {
             applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
-        } else if (sourceid == 33101008 && (applyfrom.getBuffedValue(MapleBuffStat.RAINING_MINES) == null || applyfrom.getBuffedValue(MapleBuffStat.SUMMON) != null || !applyfrom.canSummon())) {
+        } else if (sourceid == 33101008 && (applyfrom.getBuffedValue(MapleBuffStatus.RAINING_MINES) == null || applyfrom.getBuffedValue(MapleBuffStatus.SUMMON) != null || !applyfrom.canSummon())) {
             applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
         } else if (isShadow() && applyfrom.getJob() != 412 && applyfrom.getJob() != 422) { //pirate/shadow = dc
@@ -1424,12 +1418,12 @@ case 12111007:
             applyto.setStance(0); //TODO fix death bug, player doesnt spawn on other screen
         }
         if (isDispel() && makeChanceResult()) {
-            applyto.dispelDebuffs();
+            applyto.cancelAllDiseaseBuff();
         } else if (isHeroWill()) {
-            applyto.dispelDebuffs();
+            applyto.cancelAllDiseaseBuff();
         } else if (cureDebuffs.size() > 0) {
-            for (final MapleDisease debuff : cureDebuffs) {
-                applyfrom.dispelDebuff(debuff);
+            for (final MapleBuffStatus debuff : cureDebuffs) {
+                applyfrom.cancelDeiseaseBuff(debuff);
             }
         } else if (isMPRecovery()) {
             final int toDecreaseHP = ((stat.getMaxHp() / 100) * 10);
@@ -1442,7 +1436,7 @@ case 12111007:
         }
         final Map<MapleStat, Integer> hpmpupdate = new EnumMap<>(MapleStat.class);
         if (hpchange != 0) {
-            if (hpchange < 0 && (-hpchange) > stat.getHp() && !applyto.hasDisease(MapleDisease.ZOMBIFY)) {
+            if (hpchange < 0 && (-hpchange) > stat.getHp() && !applyto.hasDisease(MapleBuffStatus.ZOMBIFY)) {
                 applyto.getClient().sendPacket(CWvsContext.enableActions());
                 return false;
             }
@@ -1454,9 +1448,9 @@ case 12111007:
                 return false;
             }
             //short converting needs math.min cuz of overflow
-			if ((mpchange < 0 && GameConstants.isDemon(applyto.getJob())) || !GameConstants.isDemon(applyto.getJob())) { // heal
-				stat.setMp(stat.getMp() + mpchange, applyto);
-			}
+            if ((mpchange < 0 && GameConstants.isDemon(applyto.getJob())) || !GameConstants.isDemon(applyto.getJob())) { // heal
+                stat.setMp(stat.getMp() + mpchange, applyto);
+            }
             hpmpupdate.put(MapleStat.MP, Integer.valueOf(stat.getMp()));
         }
         hpmpupdate.put(MapleStat.HP, Integer.valueOf(stat.getHp()));
@@ -1583,16 +1577,16 @@ case 12111007:
         } else if (nuffSkill != 0 && applyto.getParty() != null) {
             final MCSkill skil = MapleCarnivalFactory.getInstance().getSkill(nuffSkill);
             if (skil != null) {
-                final MapleDisease dis = skil.getDisease();
+                final MapleBuffStatus dis = skil.getDisease();
                 for (MapleCharacter chr : applyto.getMap().getCharactersThreadsafe()) {
                     if (applyto.getParty() == null || chr.getParty() == null || (chr.getParty().getId() != applyto.getParty().getId())) {
                         if (skil.targetsAll || Randomizer.nextBoolean()) {
                             if (dis == null) {
                                 chr.dispel();
                             } else if (skil.getSkill() == null) {
-                                chr.giveDebuff(dis, 1, 30000, dis.getDisease(), 1);
+                                chr.getDiseaseBuff(dis, 1, 30000, MobSkill.getMobSkillByBuffStatus(dis), 1);
                             } else {
-                                chr.giveDebuff(dis, skil.getSkill());
+                                chr.getDiseaseBuff(dis, skil.getSkill());
                             }
                             if (!skil.targetsAll) {
                                 break;
@@ -1657,7 +1651,7 @@ case 12111007:
             applyto.getTrait(tt.getKey()).addExp(tt.getValue(), applyto);
         }
         final SummonMovementType summonMovementType = getSummonMovementType();
-        if (summonMovementType != null && (sourceid != 32111006 || (applyfrom.getBuffedValue(MapleBuffStat.REAPER) != null && !primary))) {
+        if (summonMovementType != null && (sourceid != 32111006 || (applyfrom.getBuffedValue(MapleBuffStatus.REAPER) != null && !primary))) {
             int summId = sourceid;
             if (sourceid == 3111002) {
                 final Skill elite = SkillFactory.getSkill(3120012);
@@ -1678,7 +1672,7 @@ case 12111007:
             if (isBeholder()) {
                 tosummon.addHP((short) 1);
             } else if (sourceid == 4341006) {
-                applyfrom.cancelEffectFromBuffStat(MapleBuffStat.SHADOWPARTNER);
+                applyfrom.cancelEffectFromBuffStat(MapleBuffStatus.SHADOWPARTNER);
             } else if (sourceid == 32111006) {
                 return true; //no buff
             } else if (sourceid == 35111002) {
@@ -1700,7 +1694,7 @@ case 12111007:
                 applyfrom.addCooldown(sourceid, System.currentTimeMillis(), getCooldown(applyfrom) * 1000);
                 applyfrom.getMap().broadcastMessage(CField.teslaTriangle(applyfrom.getId(), count.get(0), count.get(1), count.get(2)));
             } else if (sourceid == 35121003) {
-				applyfrom.getClient().sendPacket(CWvsContext.enableActions()); //doubt we need this at all
+                applyfrom.getClient().sendPacket(CWvsContext.enableActions()); //doubt we need this at all
             }
         } else if (isMechDoor()) {
             int newId = 0;
@@ -1766,10 +1760,10 @@ case 12111007:
             } else {
                 applyto.dropMessage(5, "You may not spawn a door because all doors in the town are taken.");
             }
-        //} else if (isMist()) {
-          //  final Rectangle bounds = calculateBoundingBox(pos != null ? pos : applyfrom.getPosition(), applyfrom.isFacingLeft());
+            //} else if (isMist()) {
+            //  final Rectangle bounds = calculateBoundingBox(pos != null ? pos : applyfrom.getPosition(), applyfrom.isFacingLeft());
             //final MapleMist mist = new MapleMist(bounds, applyfrom, this);
-           // applyfrom.getMap().spawnMist(mist, 3000, false); // 3seconds for EventTimer instance
+            // applyfrom.getMap().spawnMist(mist, 3000, false); // 3seconds for EventTimer instance
         } else if (isTimeLeap()) { // Time Leap
             for (MapleCoolDownValueHolder i : applyto.getCooldowns()) {
                 if (i.skillId != 5121010) {
@@ -1813,10 +1807,10 @@ case 12111007:
                     applyTo(applyfrom, mc, false, null, newDuration);
                 }
             }
-        
-        
-    } 
-            return true;
+
+
+        }
+        return true;
     }
 
     public final boolean applyReturnScroll(final MapleCharacter applyto) {
@@ -1875,7 +1869,7 @@ case 12111007:
 
             for (final MapleMapObject affectedmo : affecteds) {
                 final MapleCharacter affected = (MapleCharacter) affectedmo;
-                if (affected.getId() != applyfrom.getId()  && (isGmBuff() || (applyfrom.inPVP() && affected.getTeam() == applyfrom.getTeam() && Integer.parseInt(applyfrom.getEventInstance().getProperty("type")) != 0) || (applyfrom.getParty() != null && affected.getParty() != null && applyfrom.getParty().getId() == affected.getParty().getId()))) {
+                if (affected.getId() != applyfrom.getId() && (isGmBuff() || (applyfrom.inPVP() && affected.getTeam() == applyfrom.getTeam() && Integer.parseInt(applyfrom.getEventInstance().getProperty("type")) != 0) || (applyfrom.getParty() != null && affected.getParty() != null && applyfrom.getParty().getId() == affected.getParty().getId()))) {
                     if ((isResurrection() && !affected.isAlive()) || (!isResurrection() && affected.isAlive())) {
                         applyTo(applyfrom, affected, false, null, newDuration);
                         affected.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sourceid, 2, applyfrom.getLevel(), level));
@@ -1938,9 +1932,9 @@ case 12111007:
                 for (Map.Entry<MonsterStatus, Integer> stat : getMonsterStati().entrySet()) {
                     if (pvp) {
                         MapleCharacter chr = (MapleCharacter) mo;
-                        MapleDisease d = MonsterStatus.getLinkedDisease(stat.getKey());
+                        MapleBuffStatus d = MonsterStatus.getLinkedDisease(stat.getKey());
                         if (d != null) {
-                            chr.giveDebuff(d, stat.getValue(), getDuration(), d.getDisease(), 1);
+                            chr.getDiseaseBuff(d, stat.getValue(), getDuration(), MobSkill.getMobSkillByBuffStatus(d), 1);
                         }
                     } else {
                         MapleMonster mons = (MapleMonster) mo;
@@ -1961,35 +1955,35 @@ case 12111007:
             }
         }
     }
-	
-	public final boolean isSubTime(final int source) {
-		switch (source) {
-			case 1201006: // threaten
-			case 23111008: // spirits
-			case 23111009: 
-			case 23111010:
-			case 31101003:
-			case 31121003:
-			case 31121005:
-				return true;
-		}
-		return false;
-	}
+
+    public final boolean isSubTime(final int source) {
+        switch (source) {
+            case 1201006: // threaten
+            case 23111008: // spirits
+            case 23111009:
+            case 23111010:
+            case 31101003:
+            case 31121003:
+            case 31121005:
+                return true;
+        }
+        return false;
+    }
 
     public final void handleExtraPVP(MapleCharacter applyfrom, MapleCharacter chr) {
         if (sourceid == 2311005 || sourceid == 5121005 || sourceid == 1201006 || (GameConstants.isBeginnerJob(sourceid / 10000) && sourceid % 10000 == 104)) { //doom, threaten, snatch
             final long starttime = System.currentTimeMillis();
 
             final int localsourceid = sourceid == 5121005 ? 90002000 : sourceid;
-            final Map<MapleBuffStat, Integer> localstatups = new EnumMap<>(MapleBuffStat.class);
+            final Map<MapleBuffStatus, Integer> localstatups = new EnumMap<>(MapleBuffStatus.class);
             if (sourceid == 2311005) {
-                localstatups.put(MapleBuffStat.MORPH, 7);
+                localstatups.put(MapleBuffStatus.MORPH, 7);
             } else if (sourceid == 1201006) {
-                localstatups.put(MapleBuffStat.THREATEN_PVP, (int) level);
+                localstatups.put(MapleBuffStatus.THREATEN_PVP, (int) level);
             } else if (sourceid == 5121005) {
-                localstatups.put(MapleBuffStat.SNATCH, 1);
+                localstatups.put(MapleBuffStatus.SNATCH, 1);
             } else {
-                localstatups.put(MapleBuffStat.MORPH, x);
+                localstatups.put(MapleBuffStatus.MORPH, x);
             }
             chr.getClient().sendPacket(BuffPacket.giveBuff(localsourceid, getDuration(), localstatups, this));
             chr.registerEffect(this, starttime, BuffTimer.getInstance().schedule(new CancelEffectAction(chr, this, starttime, localstatups), isSubTime(sourceid) ? getSubTime() : getDuration()), localstatups, false, getDuration(), applyfrom.getId());
@@ -2030,7 +2024,7 @@ case 12111007:
         this.duration = d;
     }
 
-    public final void silentApplyBuff(final MapleCharacter chr, final long starttime, final int localDuration, final Map<MapleBuffStat, Integer> statup, final int cid) {
+    public final void silentApplyBuff(final MapleCharacter chr, final long starttime, final int localDuration, final Map<MapleBuffStatus, Integer> statup, final int cid) {
         chr.registerEffect(this, starttime, BuffTimer.getInstance().schedule(new CancelEffectAction(chr, this, starttime, statup),
                 ((starttime + localDuration) - System.currentTimeMillis())), statup, true, localDuration, cid);
 
@@ -2049,8 +2043,8 @@ case 12111007:
     }
 
     public final void applyComboBuff(final MapleCharacter applyto, short combo) {
-        final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-        stat.put(MapleBuffStat.ARAN_COMBO, (int) combo);
+        final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+        stat.put(MapleBuffStatus.ARAN_COMBO, (int) combo);
         applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, 99999, stat, this)); // Hackish timing, todo find out
 
         final long starttime = System.currentTimeMillis();
@@ -2065,8 +2059,8 @@ case 12111007:
             applyto.getClient().sendPacket(BuffPacket.giveEnergyChargeTest(0, duration / 1000));
             applyto.registerEffect(this, starttime, null, applyto.getId());
         } else {
-            final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-            stat.put(MapleBuffStat.ENERGY_CHARGE, 10000);
+            final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+            stat.put(MapleBuffStatus.ENERGY_CHARGE, 10000);
             applyto.cancelEffect(this, true, -1, stat);
             applyto.getMap().broadcastMessage(applyto, BuffPacket.giveEnergyChargeTest(applyto.getId(), 10000, duration / 1000), false);
             final CancelEffectAction cancelAction = new CancelEffectAction(applyto, this, starttime, stat);
@@ -2078,10 +2072,10 @@ case 12111007:
 
     private void applyBuffEffect(final MapleCharacter applyfrom, final MapleCharacter applyto, final boolean primary, final int newDuration) {
         int localDuration = newDuration;
-		if (primary) {
+        if (primary) {
             localDuration = Math.max(newDuration, alchemistModifyVal(applyfrom, localDuration, false));
         }
-		Map<MapleBuffStat, Integer> localstatups = statups, maskedStatups = null;
+        Map<MapleBuffStatus, Integer> localstatups = statups, maskedStatups = null;
         boolean normal = true, showEffect = primary;
         int maskedDuration = 0;
         switch (sourceid) {
@@ -2103,15 +2097,15 @@ case 12111007:
             case 5211007:
             case 15111011: //dice  
             case 5711011:
-            case 5311004:{//dice
+            case 5311004: {//dice
                 final int zz = Randomizer.nextInt(6) + 1;
                 applyto.getMap().broadcastMessage(applyto, EffectPacket.showDiceEffect(applyto.getId(), sourceid, zz, -1, level), false);
                 applyto.getClient().sendPacket(EffectPacket.showOwnDiceEffect(sourceid, zz, -1, level));
                 if (zz <= 1) {
                     return;
                 }
-                localstatups = new EnumMap<>(MapleBuffStat.class);
-                localstatups.put(MapleBuffStat.DICE_ROLL, zz);
+                localstatups = new EnumMap<>(MapleBuffStatus.class);
+                localstatups.put(MapleBuffStatus.DICE_ROLL, zz);
                 applyto.getClient().sendPacket(BuffPacket.giveDice(zz, sourceid, localDuration, localstatups));
                 normal = false;
                 showEffect = false;
@@ -2131,8 +2125,8 @@ case 12111007:
                 } else if (buffid >= 10) {
                     applyto.dropMessage(-6, "[Double Lucky Dice] You have rolled two dice. (" + (buffid / 10) + " and " + (buffid % 10) + ")");
                 }
-                localstatups = new EnumMap<>(MapleBuffStat.class);
-                localstatups.put(MapleBuffStat.DICE_ROLL, buffid);
+                localstatups = new EnumMap<>(MapleBuffStatus.class);
+                localstatups.put(MapleBuffStatus.DICE_ROLL, buffid);
                 applyto.getClient().sendPacket(BuffPacket.giveDice(zz, sourceid, localDuration, localstatups));
                 normal = false;
                 showEffect = false;
@@ -2140,31 +2134,31 @@ case 12111007:
             }
             case 33101006: {//jaguar oshi
                 applyto.clearLinkMid();
-                MapleBuffStat theBuff = null;
+                MapleBuffStatus theBuff = null;
                 int theStat = y;
                 switch (Randomizer.nextInt(6)) {
                     case 0:
-                        theBuff = MapleBuffStat.CRITICAL_RATE_BUFF;
+                        theBuff = MapleBuffStatus.CRITICAL_RATE_BUFF;
                         break;
                     case 1:
-                        theBuff = MapleBuffStat.MP_BUFF;
+                        theBuff = MapleBuffStatus.MP_BUFF;
                         break;
                     case 2:
-                        theBuff = MapleBuffStat.DAMAGE_TAKEN_BUFF;
+                        theBuff = MapleBuffStatus.DAMAGE_TAKEN_BUFF;
                         theStat = x;
                         break;
                     case 3:
-                        theBuff = MapleBuffStat.DODGE_CHANGE_BUFF;
+                        theBuff = MapleBuffStatus.DODGE_CHANGE_BUFF;
                         theStat = x;
                         break;
                     case 4:
-                        theBuff = MapleBuffStat.DAMAGE_BUFF;
+                        theBuff = MapleBuffStatus.DAMAGE_BUFF;
                         break;
                     case 5:
-                        theBuff = MapleBuffStat.ATTACK_BUFF;
+                        theBuff = MapleBuffStatus.ATTACK_BUFF;
                         break;
                 }
-                localstatups = new EnumMap<>(MapleBuffStat.class);
+                localstatups = new EnumMap<>(MapleBuffStatus.class);
                 localstatups.put(theBuff, theStat);
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 normal = false;
@@ -2189,29 +2183,6 @@ case 12111007:
                 normal = false;
                 break;
             }
-                
-                /*      */     case 20031209:
-/*      */     case 20031210: {
-/* 2008 */       int zz = Randomizer.nextInt(this.sourceid == 20031209 ? 2 : 5) + 1;
-/* 2009 */       int skillid = 24100003;
-/* 2010 */       if (applyto.getSkillLevel(24120002) > 0) {
-/* 2011 */         skillid = 24120002;
-/*      */       }
-/* 2013 */       applyto.setCardStack(0);
-/* 2014 */       applyto.addRunningStack(skillid == 24100003 ? 5 : 10);
-/* 2015 */       applyto.getMap().broadcastMessage(applyto, CField.gainCardStack(applyto.getId(), applyto.getRunningStack(), skillid == 24120002 ? 2 : 1, skillid, 0, skillid == 24100003 ? 5 : 10), true);
-/* 2016 */       applyto.getMap().broadcastMessage(applyto, CField.EffectPacket.showDiceEffect(applyto.getId(), this.sourceid, zz, -1, this.level), false);
-/* 2017 */       applyto.getClient().sendPacket(CField.EffectPacket.showOwnDiceEffect(this.sourceid, zz, -1, this.level));
-/* 2018 */       localstatups = new EnumMap<>(MapleBuffStat.class);
-/* 2019 */       localstatups.put(MapleBuffStat.JUDGMENT_DRAW, Integer.valueOf(zz));
-/* 2020 */       if (zz == 5) {
-/* 2021 */         localstatups.put(MapleBuffStat.ABSORB_DAMAGE_HP, z);
-/*      */       }
-/* 2023 */       applyto.getClient().sendPacket(CWvsContext.BuffPacket.giveBuff(this.sourceid, localDuration, localstatups, this));
-/* 2024 */       normal = false;
-/* 2025 */       showEffect = false;
-/* 2026 */       break;
-}
             case 5211006: // Homing Beacon
             case 22151002: //killer wings
             case 5220011: {// Bullseye
@@ -2239,8 +2210,8 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.INFILTRATE, 0);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.INFILTRATE, 0);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
@@ -2248,8 +2219,8 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.DARKSIGHT, 1); // HACK..
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.DARK_SIGHT, 1); // HACK..
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
@@ -2259,75 +2230,69 @@ case 12111007:
                     return;
                 } //fallthrough intended
             }
-            //case 9101004:
-           // {
-               // if (applyto.isGM()) {
-                 //   applyto.toggleHide(false, applyto.isHidden() ? false : true);
-               // }
-             //   break;
-           // }
             case 4330001:
             case 14001003: { // Dark Sight
                 if (applyto.isHidden()) {
                     return; //don't even apply the buff
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.DARKSIGHT, 0);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.DARK_SIGHT, 0);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
             case 23111005: {
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.WATER_SHIELD, x);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.WATER_SHIELD, x);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
             case 23101003: {
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.SPIRIT_SURGE, x);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.SPIRIT_SURGE, x);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
-            //case 22131001: {//magic shield
-            //final List<Pair<MapleBuffStat, Integer>> stat = Collections.singletonList(new Pair<MapleBuffStat, Integer>(MapleBuffStat.MAGIC_SHIELD, x));
-            //applyto.getMap().broadcastMessage(applyto, CField.giveForeignBuff(applyto.getWorldId(), stat, this), false);
-            //break;
-            //}
+            case 22131001: {//magic shield
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.MAGIC_SHIELD, x);
+                applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
+                break;
+            }
             case 32121003: { //twister
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.TORNADO, x);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.TORNADO, x);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
             case 32111005: { //body boost
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.BODY_BOOST);
-                Pair<MapleBuffStat, Integer> statt;
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.BODY_BOOST);
+                Pair<MapleBuffStatus, Integer> statt;
                 int sourcez;
-                if (applyfrom.getStatForBuff(MapleBuffStat.DARK_AURA) != null) {
+                if (applyfrom.getStatForBuff(MapleBuffStatus.DARK_AURA) != null) {
                     sourcez = 32001003;
-                    statt = new Pair<>(MapleBuffStat.DARK_AURA, (int) (level + 10 + applyto.getTotalSkillLevel(32001003))); //i think
-                } else if (applyfrom.getStatForBuff(MapleBuffStat.YELLOW_AURA) != null) {
+                    statt = new Pair<>(MapleBuffStatus.DARK_AURA, (int) (level + 10 + applyto.getTotalSkillLevel(32001003))); //i think
+                } else if (applyfrom.getStatForBuff(MapleBuffStatus.YELLOW_AURA) != null) {
                     sourcez = 32101003;
-                    statt = new Pair<>(MapleBuffStat.YELLOW_AURA, (int) applyto.getTotalSkillLevel(32101003));
-                } else if (applyfrom.getStatForBuff(MapleBuffStat.BLUE_AURA) != null) {
+                    statt = new Pair<>(MapleBuffStatus.YELLOW_AURA, (int) applyto.getTotalSkillLevel(32101003));
+                } else if (applyfrom.getStatForBuff(MapleBuffStatus.BLUE_AURA) != null) {
                     sourcez = 32111012;
                     localDuration = 10000;
-                    statt = new Pair<>(MapleBuffStat.BLUE_AURA, (int) applyto.getTotalSkillLevel(32111012));
+                    statt = new Pair<>(MapleBuffStatus.BLUE_AURA, (int) applyto.getTotalSkillLevel(32111012));
                 } else {
                     return;
                 }
-                localstatups = new EnumMap<>(MapleBuffStat.class);
-                localstatups.put(MapleBuffStat.BODY_BOOST, (int) level);
+                localstatups = new EnumMap<>(MapleBuffStatus.class);
+                localstatups.put(MapleBuffStatus.BODY_BOOST, (int) level);
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 localstatups.put(statt.left, statt.right);
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
                 stat.put(statt.left, statt.right);
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.BLUE_AURA, applyfrom.getId());
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.YELLOW_AURA, applyfrom.getId());
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.DARK_AURA, applyfrom.getId());
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.BLUE_AURA, applyfrom.getId());
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.YELLOW_AURA, applyfrom.getId());
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.DARK_AURA, applyfrom.getId());
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourcez, localDuration, stat, this));
                 normal = false;
                 break;
@@ -2340,15 +2305,15 @@ case 12111007:
             }
             case 32110007:
             case 32120000: { // adv dark aura
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.DARK_AURA);
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.BLUE_AURA, applyfrom.getId());
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.YELLOW_AURA, applyfrom.getId());
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.BODY_BOOST);
-                final EnumMap<MapleBuffStat, Integer> statt = new EnumMap<>(MapleBuffStat.class);
-				statt.put(sourceid == 32110007 ? MapleBuffStat.BODY_BOOST : MapleBuffStat.AURA, (int) (sourceid == 32120000 ? applyfrom.getTotalSkillLevel(32001003) : level));
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.DARK_AURA);
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.BLUE_AURA, applyfrom.getId());
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.YELLOW_AURA, applyfrom.getId());
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.BODY_BOOST);
+                final EnumMap<MapleBuffStatus, Integer> statt = new EnumMap<>(MapleBuffStatus.class);
+                statt.put(sourceid == 32110007 ? MapleBuffStatus.BODY_BOOST : MapleBuffStatus.AURA, (int) (sourceid == 32120000 ? applyfrom.getTotalSkillLevel(32001003) : level));
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid == 32120000 ? 32001003 : sourceid, localDuration, statt, this));
                 statt.clear();
-                statt.put(MapleBuffStat.DARK_AURA, x);
+                statt.put(MapleBuffStatus.DARK_AURA, x);
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, statt, this));
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), statt, this), false);
                 normal = false;
@@ -2364,15 +2329,15 @@ case 12111007:
                 localDuration = 10000;
             }
             case 32110000: { // advanced blue aura
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.BLUE_AURA);
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.DARK_AURA, applyfrom.getId());
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.YELLOW_AURA, applyfrom.getId());
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.BODY_BOOST);
-                final EnumMap<MapleBuffStat, Integer> statt = new EnumMap<>(MapleBuffStat.class);
-                statt.put(sourceid == 32110008 ? MapleBuffStat.BODY_BOOST : MapleBuffStat.AURA, (int) (sourceid == 32110000 ? applyfrom.getTotalSkillLevel(32111012) : level));
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.BLUE_AURA);
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.DARK_AURA, applyfrom.getId());
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.YELLOW_AURA, applyfrom.getId());
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.BODY_BOOST);
+                final EnumMap<MapleBuffStatus, Integer> statt = new EnumMap<>(MapleBuffStatus.class);
+                statt.put(sourceid == 32110008 ? MapleBuffStatus.BODY_BOOST : MapleBuffStatus.AURA, (int) (sourceid == 32110000 ? applyfrom.getTotalSkillLevel(32111012) : level));
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid == 32110000 ? 32111012 : sourceid, localDuration, statt, this));
                 statt.clear();
-                statt.put(MapleBuffStat.BLUE_AURA, (int) level);
+                statt.put(MapleBuffStatus.BLUE_AURA, (int) level);
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, statt, this));
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), statt, this), false);
                 normal = false;
@@ -2386,27 +2351,27 @@ case 12111007:
             }
             case 32110009:
             case 32120001: { // advanced yellow aura
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.YELLOW_AURA);
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.BLUE_AURA, applyfrom.getId());
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.DARK_AURA, applyfrom.getId());
-                applyto.cancelEffectFromBuffStat(MapleBuffStat.BODY_BOOST);
-                final EnumMap<MapleBuffStat, Integer> statt = new EnumMap<>(MapleBuffStat.class);
-                statt.put(sourceid == 32110009 ? MapleBuffStat.BODY_BOOST : MapleBuffStat.AURA, (int) (sourceid == 32120001 ? applyfrom.getTotalSkillLevel(32101003) : level));
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.YELLOW_AURA);
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.BLUE_AURA, applyfrom.getId());
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.DARK_AURA, applyfrom.getId());
+                applyto.cancelEffectFromBuffStat(MapleBuffStatus.BODY_BOOST);
+                final EnumMap<MapleBuffStatus, Integer> statt = new EnumMap<>(MapleBuffStatus.class);
+                statt.put(sourceid == 32110009 ? MapleBuffStatus.BODY_BOOST : MapleBuffStatus.AURA, (int) (sourceid == 32120001 ? applyfrom.getTotalSkillLevel(32101003) : level));
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid == 32120001 ? 32101003 : sourceid, localDuration, statt, this));
                 statt.clear();
-                statt.put(MapleBuffStat.YELLOW_AURA, (int) level);
+                statt.put(MapleBuffStatus.YELLOW_AURA, (int) level);
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, statt, this));
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), statt, this), false);
                 normal = false;
                 break;
             }
             case 1211008: { //lightning
-                if (applyto.getBuffedValue(MapleBuffStat.WK_CHARGE) != null && applyto.getBuffSource(MapleBuffStat.WK_CHARGE) != sourceid) {
-                    localstatups = new EnumMap<>(MapleBuffStat.class);
-                    localstatups.put(MapleBuffStat.LIGHTNING_CHARGE, 1);
+                if (applyto.getBuffedValue(MapleBuffStatus.WK_CHARGE) != null && applyto.getBuffSource(MapleBuffStatus.WK_CHARGE) != sourceid) {
+                    localstatups = new EnumMap<>(MapleBuffStatus.class);
+                    localstatups.put(MapleBuffStatus.LIGHTNING_CHARGE, 1);
                 } else if (!applyto.isHidden()) {
-                    final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                    stat.put(MapleBuffStat.WK_CHARGE, 1);
+                    final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                    stat.put(MapleBuffStatus.WK_CHARGE, 1);
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 }
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
@@ -2414,15 +2379,15 @@ case 12111007:
                 break;
             }
             case 35111004: {//siege
-                if (applyto.getBuffedValue(MapleBuffStat.MECH_CHANGE) != null && applyto.getBuffSource(MapleBuffStat.MECH_CHANGE) == 35121005) {
+                if (applyto.getBuffedValue(MapleBuffStatus.MECH_CHANGE) != null && applyto.getBuffSource(MapleBuffStatus.MECH_CHANGE) == 35121005) {
                     SkillFactory.getSkill(35121013).getEffect(level).applyBuffEffect(applyfrom, applyto, primary, newDuration);
                     return;
                 }
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.MECH_CHANGE, 1);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.MECH_CHANGE, 1);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
@@ -2433,8 +2398,8 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.MECH_CHANGE, 1);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.MECH_CHANGE, 1);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
@@ -2442,8 +2407,8 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.DIVINE_SHIELD, 1);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.DIVINE_SHIELD, 1);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
@@ -2452,8 +2417,8 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.COMBO, 0);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.COMBO, 0);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
@@ -2463,14 +2428,14 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.SOULARROW, 0);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.SOULARROW, 0);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
             case 2321005: //holy shield
                 if (GameConstants.GMS) { //TODO JUMP
-                    applyto.cancelEffectFromBuffStat(MapleBuffStat.BLESS);
+                    applyto.cancelEffectFromBuffStat(MapleBuffStatus.BLESS);
                 }
                 break;
             case 4211008:
@@ -2480,21 +2445,21 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.SHADOWPARTNER, x);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.SHADOWPARTNER, x);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
             case 15111006: { // Spark
-                localstatups = new EnumMap<>(MapleBuffStat.class);
-                localstatups.put(MapleBuffStat.SPARK, x);
+                localstatups = new EnumMap<>(MapleBuffStatus.class);
+                localstatups.put(MapleBuffStatus.SPARK, x);
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 normal = false;
                 break;
             }
             case 4341002: { // Final Cut
-                localstatups = new EnumMap<>(MapleBuffStat.class);
-                localstatups.put(MapleBuffStat.FINAL_CUT, y);
+                localstatups = new EnumMap<>(MapleBuffStatus.class);
+                localstatups.put(MapleBuffStatus.FINAL_CUT, y);
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 normal = false;
                 break;
@@ -2521,8 +2486,8 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.WK_CHARGE, 1);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.WK_CHARGE, 1);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
@@ -2531,8 +2496,8 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.SPIRIT_LINK, 0);
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.SPIRIT_LINK, 0);
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
@@ -2540,8 +2505,8 @@ case 12111007:
                 if (applyto.isHidden()) {
                     break;
                 }
-                final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                stat.put(MapleBuffStat.DARK_METAMORPHOSIS, 6); // mob count
+                final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                stat.put(MapleBuffStatus.DARK_METAMORPHOSIS, 6); // mob count
                 applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 break;
             }
@@ -2552,8 +2517,8 @@ case 12111007:
                 break;
             }
             case 4331003: { // Owl Spirit
-                localstatups = new EnumMap<>(MapleBuffStat.class);
-                localstatups.put(MapleBuffStat.OWL_SPIRIT, y);
+                localstatups = new EnumMap<>(MapleBuffStatus.class);
+                localstatups.put(MapleBuffStatus.OWL_SPIRIT, y);
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
                 applyto.setBattleshipHP(x); //a variable that wouldnt' be used by a db
                 normal = false;
@@ -2575,54 +2540,54 @@ case 12111007:
                     return;
                 }
 
-            //fallthrough intended
+                //fallthrough intended
             default:
                 if (isPirateMorph()) {
-					final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                    stat.put(MapleBuffStat.MORPH, getMorph(applyto));
+                    final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                    stat.put(MapleBuffStatus.MORPH, getMorph(applyto));
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                     applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, stat, this));
                     maskedStatups = new EnumMap<>(localstatups);
-                    maskedStatups.remove(MapleBuffStat.MORPH);
-					normal = false;
+                    maskedStatups.remove(MapleBuffStatus.MORPH);
+                    normal = false;
                 } else if (isMorph()) {
                     if (applyto.isHidden()) {
                         break;
                     }
                     if (isIceKnight()) {
                         //odd
-                        final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                        stat.put(MapleBuffStat.ICE_KNIGHT, 2);
+                        final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                        stat.put(MapleBuffStatus.ICE_KNIGHT, 2);
                         applyto.getClient().sendPacket(BuffPacket.giveBuff(0, localDuration, stat, this));
                     }
-                    final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                    stat.put(MapleBuffStat.MORPH, getMorph(applyto));
+                    final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                    stat.put(MapleBuffStatus.MORPH, getMorph(applyto));
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 } else if (isInflation()) {
-                     if (applyto.isHidden()) {
+                    if (applyto.isHidden()) {
                         break;
                     }
-                    final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                    stat.put(MapleBuffStat.GIANT_POTION, (int) inflation);
+                    final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                    stat.put(MapleBuffStatus.GIANT_POTION, (int) inflation);
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 } else if (charColor > 0) {
                     if (applyto.isHidden()) {
                         break;
                     }
-                    final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                    stat.put(MapleBuffStat.FAMILIAR_SHADOW, 1);
+                    final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                    stat.put(MapleBuffStatus.FAMILIAR_SHADOW, 1);
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 } else if (isMonsterRiding()) {
                     localDuration = 2100000000;
                     localstatups = new EnumMap<>(statups);
-                    localstatups.put(MapleBuffStat.MONSTER_RIDING, 1);
+                    localstatups.put(MapleBuffStatus.MONSTER_RIDING, 1);
                     final int mountid = parseMountInfo(applyto, sourceid);
                     final int mountid2 = parseMountInfo_Pure(applyto, sourceid);
                     if (mountid != 0 && mountid2 != 0) {
-                        final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                        stat.put(MapleBuffStat.MONSTER_RIDING, 0);
-                        applyto.cancelEffectFromBuffStat(MapleBuffStat.POWERGUARD);
-                        applyto.cancelEffectFromBuffStat(MapleBuffStat.MANA_REFLECTION);
+                        final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                        stat.put(MapleBuffStatus.MONSTER_RIDING, 0);
+                        applyto.cancelEffectFromBuffStat(MapleBuffStatus.POWERGUARD);
+                        applyto.cancelEffectFromBuffStat(MapleBuffStatus.MANA_REFLECTION);
                         applyto.getClient().sendPacket(BuffPacket.giveMount(mountid2, sourceid, stat));
                         applyto.getMap().broadcastMessage(applyto, BuffPacket.showMonsterRiding(applyto.getId(), stat, mountid, sourceid), false);
                     } else {
@@ -2633,30 +2598,30 @@ case 12111007:
                     if (applyto.isHidden()) {
                         break;
                     }
-                  //  applyto.dropMessage(5, "Disabled..");
-                    final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<MapleBuffStat, Integer>(MapleBuffStat.class);
-                    stat.put(MapleBuffStat.SOARING, 0);
+                    //  applyto.dropMessage(5, "Disabled..");
+                    final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<MapleBuffStatus, Integer>(MapleBuffStatus.class);
+                    stat.put(MapleBuffStatus.SOARING, 0);
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 } else if (berserk > 0) {
                     if (applyto.isHidden()) {
                         break;
                     }
-                    final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                    stat.put(MapleBuffStat.PYRAMID_PQ, 0);
+                    final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                    stat.put(MapleBuffStatus.PYRAMID_PQ, 0);
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 } else if (isBerserkFury() || berserk2 > 0) {
                     if (applyto.isHidden()) {
                         break;
                     }
-                    final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                    stat.put(MapleBuffStat.BERSERK_FURY, 1);
+                    final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                    stat.put(MapleBuffStatus.BERSERK_FURY, 1);
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 } else if (isDivineBody()) {
                     if (applyto.isHidden()) {
                         break;
                     }
-                    final EnumMap<MapleBuffStat, Integer> stat = new EnumMap<>(MapleBuffStat.class);
-                    stat.put(MapleBuffStat.DIVINE_BODY, 1);
+                    final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
+                    stat.put(MapleBuffStatus.DIVINE_BODY, 1);
                     applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignBuff(applyto.getId(), stat, this), false);
                 }
                 break;
@@ -2670,7 +2635,7 @@ case 12111007:
         if (!isMonsterRiding() && !isMechDoor()) {
             applyto.cancelEffect(this, true, -1, localstatups);
         }
-		// Broadcast effect to self
+        // Broadcast effect to self
         if (normal && localstatups.size() > 0) {
             applyto.getClient().sendPacket(BuffPacket.giveBuff((skill ? sourceid : -sourceid), localDuration, maskedStatups == null ? localstatups : maskedStatups, this));
         }
@@ -2726,18 +2691,18 @@ case 12111007:
                 } else {
                     hpchange += hp;
                 }
-                if (applyfrom.hasDisease(MapleDisease.ZOMBIFY)) {
+                if (applyfrom.hasDisease(MapleBuffStatus.ZOMBIFY)) {
                     hpchange /= 2;
                 }
             } else { // assumption: this is heal
                 hpchange += makeHealHP(hp / 100.0, applyfrom.getStat().getTotalMagic(), 3, 5);
-                if (applyfrom.hasDisease(MapleDisease.ZOMBIFY)) {
+                if (applyfrom.hasDisease(MapleBuffStatus.ZOMBIFY)) {
                     hpchange = -hpchange;
                 }
             }
         }
         if (hpR != 0) {
-            hpchange += (int) (applyfrom.getStat().getCurrentMaxHp() * hpR) / (applyfrom.hasDisease(MapleDisease.ZOMBIFY) ? 2 : 1);
+            hpchange += (int) (applyfrom.getStat().getCurrentMaxHp() * hpR) / (applyfrom.hasDisease(MapleBuffStatus.ZOMBIFY) ? 2 : 1);
         }
         // actually receivers probably never get any hp when it's not heal but whatever
         if (primary) {
@@ -2778,17 +2743,17 @@ case 12111007:
         }
         if (primary) {
             if (mpCon != 0 && !GameConstants.isDemon(applyfrom.getJob())) {
-                if (applyfrom.getBuffedValue(MapleBuffStat.INFINITY) != null) {
+                if (applyfrom.getBuffedValue(MapleBuffStatus.INFINITY) != null) {
                     mpchange = 0;
                 } else {
                     mpchange -= (mpCon - (mpCon * applyfrom.getStat().mpconReduce / 100)) * (applyfrom.getStat().mpconPercent / 100.0);
                 }
             } else if (forceCon != 0 && GameConstants.isDemon(applyfrom.getJob())) {
-				if (applyfrom.getBuffedValue(MapleBuffStat.BOUNDLESS_RAGE) != null) {
+                if (applyfrom.getBuffedValue(MapleBuffStatus.BOUNDLESS_RAGE) != null) {
                     mpchange = 0;
                 } else {
-					mpchange -= forceCon;
-				}
+                    mpchange -= forceCon;
+                }
             }
         }
 
@@ -2981,20 +2946,20 @@ case 12111007:
     public final short getJump() {
         return jump;
     }
-	
-	public final short getPassiveSpeed() {
-		return psdSpeed;
-	}
-	
-	public final short getPassiveJump() {
-		return psdJump;
-	}
-	
+
+    public final short getPassiveSpeed() {
+        return psdSpeed;
+    }
+
+    public final short getPassiveJump() {
+        return psdJump;
+    }
+
     public final int getDuration() {
         return duration;
     }
-	
-	public final int getSubTime() {
+
+    public final int getSubTime() {
         return subTime;
     }
 
@@ -3002,7 +2967,7 @@ case 12111007:
         return overTime;
     }
 
-    public final Map<MapleBuffStat, Integer> getStatups() {
+    public final Map<MapleBuffStatus, Integer> getStatups() {
         return statups;
     }
 
@@ -3130,9 +3095,9 @@ case 12111007:
     public final boolean isInfinity() {
         return skill && (sourceid == 2121004 || sourceid == 2221004 || sourceid == 2321004);
     }
-    
+
     public final boolean isBadSkill() {
-        return sourceid == 5211014 || sourceid == 32121003 || sourceid == 35121013 ||  sourceid == 35111004 || sourceid == 35121003 || sourceid == 1320006 || sourceid == 32111006 || sourceid == 13111004 || sourceid == 3220012 || sourceid == 3211002 || sourceid == 3111002 || sourceid == 3120012 || sourceid == 12111004 || sourceid == 13001004 || sourceid == 14001004 || sourceid == 15001004 || sourceid == 12001004 || sourceid == 11001004 || sourceid == 2121005 || sourceid == 2221005 || sourceid == 2321003 || sourceid == 3211005 || sourceid == 3111005 || sourceid == 35121009 || sourceid == 5311004 || sourceid == 5321004 || sourceid == 5321003 || sourceid == 2321004 || sourceid == 2121004 || sourceid == 2221004 || sourceid == 86 || sourceid == 91 || sourceid == 30000091 || sourceid == 30000086 || sourceid == 20010091 || sourceid == 20010086 || sourceid == 20001090 || sourceid == 20001085 || sourceid == 10001085 || sourceid == 10001090 || sourceid == 1090 || sourceid == 1085 || sourceid == 30001085 || sourceid == 30001090 || sourceid == 20011085 || sourceid == 20011090 || sourceid == 10000091 || sourceid == 10000086 || sourceid == 20000091 || sourceid == 20000086;
+        return sourceid == 5211014 || sourceid == 32121003 || sourceid == 35121013 || sourceid == 35111004 || sourceid == 35121003 || sourceid == 1320006 || sourceid == 32111006 || sourceid == 13111004 || sourceid == 3220012 || sourceid == 3211002 || sourceid == 3111002 || sourceid == 3120012 || sourceid == 12111004 || sourceid == 13001004 || sourceid == 14001004 || sourceid == 15001004 || sourceid == 12001004 || sourceid == 11001004 || sourceid == 2121005 || sourceid == 2221005 || sourceid == 2321003 || sourceid == 3211005 || sourceid == 3111005 || sourceid == 35121009 || sourceid == 5311004 || sourceid == 5321004 || sourceid == 5321003 || sourceid == 2321004 || sourceid == 2121004 || sourceid == 2221004 || sourceid == 86 || sourceid == 91 || sourceid == 30000091 || sourceid == 30000086 || sourceid == 20010091 || sourceid == 20010086 || sourceid == 20001090 || sourceid == 20001085 || sourceid == 10001085 || sourceid == 10001090 || sourceid == 1090 || sourceid == 1085 || sourceid == 30001085 || sourceid == 30001090 || sourceid == 20011085 || sourceid == 20011090 || sourceid == 10000091 || sourceid == 10000086 || sourceid == 20000091 || sourceid == 20000086;
     }
 
     public final boolean isMonsterRiding_() {
@@ -3214,7 +3179,7 @@ case 12111007:
             case 35121008:
             case 5321008:
             case 23121008:
-			case 24121009:
+            case 24121009:
                 return skill;
         }
         return false;
@@ -3335,9 +3300,9 @@ case 12111007:
             case 5211002: // bird - pirate
                 return SummonMovementType.CIRCLE_STATIONARY;
             case 32111006: //reaper
-                case 5211011:
-                case 5211015:
-                case 5211016:
+            case 5211011:
+            case 5211015:
+            case 5211016:
                 return SummonMovementType.WALK_STATIONARY;
             case 1321007: // beholder
             case 2121005: // elquines
@@ -3391,8 +3356,9 @@ case 12111007:
 
     public final boolean isFinalAttack() {
         switch (sourceid) {
-            case 13101002:
             case 11101002:
+            case 13101002:
+            case 21120002:
                 return skill;
         }
         return false;
@@ -3415,16 +3381,15 @@ case 12111007:
         }
         return false;
     }
-    
-        public final boolean isMI() {
+
+    public final boolean isMI() {
         switch (sourceid) {
             case 4331002: // shadowpartner
                 return skill;
         }
         return false;
     }
-    
-    
+
 
     public final boolean isMechPassive() {
         switch (sourceid) {
@@ -3436,7 +3401,6 @@ case 12111007:
     }
 
     /**
-     *
      * @return true if the effect should happen based on it's probablity, false otherwise
      */
     public final boolean makeChanceResult() {
@@ -3490,8 +3454,8 @@ case 12111007:
     public final short getASRRate() {
         return asrR;
     }
-	
-	public final short getTERRate() {
+
+    public final short getTERRate() {
         return terR;
     }
 
@@ -3672,9 +3636,9 @@ case 12111007:
         private final MapleStatEffect effect;
         private final WeakReference<MapleCharacter> target;
         private final long startTime;
-        private final Map<MapleBuffStat, Integer> statup;
+        private final Map<MapleBuffStatus, Integer> statup;
 
-        public CancelEffectAction(final MapleCharacter target, final MapleStatEffect effect, final long startTime, final Map<MapleBuffStat, Integer> statup) {
+        public CancelEffectAction(final MapleCharacter target, final MapleStatEffect effect, final long startTime, final Map<MapleBuffStatus, Integer> statup) {
             this.effect = effect;
             this.target = new WeakReference<>(target);
             this.startTime = startTime;
@@ -3691,8 +3655,8 @@ case 12111007:
     }
 
     public final boolean isUnstealable() {
-        for (MapleBuffStat b : statups.keySet()) {
-            if (b == MapleBuffStat.MAPLE_WARRIOR) {
+        for (MapleBuffStatus b : statups.keySet()) {
+            if (b == MapleBuffStatus.MAPLE_WARRIOR) {
                 return true;
             }
         }

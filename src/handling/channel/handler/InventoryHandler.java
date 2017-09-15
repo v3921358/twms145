@@ -410,7 +410,7 @@ public class InventoryHandler {
     }
 
     public static void UseItem(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr) {
-        if (chr == null || !chr.isAlive() || chr.getMapId() == 749040100 || chr.getMap() == null || chr.hasDisease(MapleDisease.POTION) || chr.hasBlockedInventory() || chr.inPVP()) {
+        if (chr == null || !chr.isAlive() || chr.getMapId() == 749040100 || chr.getMap() == null || chr.hasDisease(MapleBuffStatus.POTION) || chr.hasBlockedInventory() || chr.inPVP()) {
             c.sendPacket(CWvsContext.enableActions());
             return;
         }

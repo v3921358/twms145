@@ -21,8 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.events;
 
+import client.MapleBuffStatus;
 import client.MapleCharacter;
-import client.MapleDisease;
+
 import java.util.concurrent.ScheduledFuture;
 import server.Timer.EventTimer;
 import server.life.MobSkillFactory;
@@ -251,11 +252,10 @@ public class MapleSnowball extends MapleEvent {
                                     oBall.broadcast(map, 5);
                                 }
                             }, 10000);
-                            for (MapleCharacter chrz : chr.getMap().getCharactersThreadsafe()) {
-                                if ((ball.getTeam() == 0 && chr.getTruePosition().y < -80) || (ball.getTeam() == 1 && chr.getTruePosition().y > -80)) {
-                                    chrz.giveDebuff(MapleDisease.SEDUCE, MobSkillFactory.getMobSkill(128, 1)); //go left
-                                }
-                            }
+                            //go left
+                            chr.getMap().getCharactersThreadsafe().stream().filter(chrz -> (ball.getTeam() == 0 && chr.getTruePosition().y < -80) || (ball.getTeam() == 1 && chr.getTruePosition().y > -80)).forEach(chrz -> {
+                                chrz.getDiseaseBuff(MapleBuffStatus.SEDUCE, MobSkillFactory.getMobSkill(128, 1)); //go left
+                            });
                         }
                     }
                 }

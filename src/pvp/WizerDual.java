@@ -6,11 +6,9 @@
 package pvp;
 
 import java.util.Collections;
-import client.MapleCharacter;
-import client.MapleBuffStat;
-import client.MapleStat;
-import client.Skill;
-import client.SkillFactory;
+
+import client.*;
+import client.MapleBuffStatus;
 import constants.GameConstants;
 import handling.channel.handler.AttackInfo;
 import handling.channel.handler.PlayerHandler;
@@ -323,15 +321,15 @@ public class WizerDual {
             damageCount *= 1.20;
         }
         //Buff modifiers
-        Integer mguard = attackedPlayers.getBuffedValue(MapleBuffStat.MAGIC_GUARD);
-        Integer mesoguard = attackedPlayers.getBuffedValue(MapleBuffStat.MESOGUARD);
+        Integer mguard = attackedPlayers.getBuffedValue(MapleBuffStatus.MAGIC_GUARD);
+        Integer mesoguard = attackedPlayers.getBuffedValue(MapleBuffStatus.MESOGUARD);
         if (mguard != null) {
             Map<MapleStat, Integer> stats = new EnumMap<>(MapleStat.class);
             int mploss = (int) (damageCount / .5);
                 damageCount *= .70;
             if (mploss > attackedPlayers.getStat().getMp()) {
                 damageCount /= .70;
-                attackedPlayers.cancelBuffStats(MapleBuffStat.MAGIC_GUARD);
+                attackedPlayers.cancelBuffStats(MapleBuffStatus.MAGIC_GUARD);
             } else {
                 attackedPlayers.setMp(attackedPlayers.getStat().getMp() - mploss);
                 stats.put(MapleStat.MP, Integer.valueOf(attackedPlayers.getStat().getMp()));
@@ -342,7 +340,7 @@ public class WizerDual {
             damageCount *= .75;
                 if(mesoloss > attackedPlayers.getMeso()) {
                     damageCount /= .75;
-                    attackedPlayers.cancelBuffStats(MapleBuffStat.MESOGUARD);
+                    attackedPlayers.cancelBuffStats(MapleBuffStatus.MESOGUARD);
                 } else {
                     attackedPlayers.gainMeso(-mesoloss, false);
                 }

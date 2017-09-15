@@ -2,7 +2,7 @@ package tools;
 
 public interface WritableShortValueHolder {
 
-    short getValue();
+    short get();
 
-    void setValue(short newval);
+    void set(short newval);
 }

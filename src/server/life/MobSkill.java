@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
+import client.MapleBuffStatus;
 import constants.GameConstants;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.LinkedList;
 
 import client.MapleCharacter;
-import client.MapleDisease;
+
 import client.status.MonsterStatus;
 import java.util.EnumMap;
 import server.maps.MapleMapObject;
@@ -42,24 +43,24 @@ public class MobSkill {
     private int skillId, skillLevel, mpCon, spawnEffect, hp, x, y;
     private long duration, cooltime;
     private float prop;
-//    private short effect_delay;
+    //    private short effect_delay;
     private short limit;
     private List<Integer> toSummon = new ArrayList<Integer>();
     private Point lt, rb;
-	private boolean summonOnce;
+    private boolean summonOnce;
 
     public MobSkill(int skillId, int level) {
         this.skillId = skillId;
         this.skillLevel = level;
     }
-	
-	public void setOnce(boolean o) {
-		this.summonOnce = o;
-	}
-	
-	public boolean onlyOnce() {
-		return summonOnce;
-	}
+
+    public void setOnce(boolean o) {
+        this.summonOnce = o;
+    }
+
+    public boolean onlyOnce() {
+        return summonOnce;
+    }
 
     public void setMpCon(int mpCon) {
         this.mpCon = mpCon;
@@ -145,12 +146,12 @@ public class MobSkill {
                 stop = player.getMap().getNumMonsters() >= limit;
                 break;
         }
-	stop |= monster.isBuffed(MonsterStatus.MAGIC_CRASH);
+        stop |= monster.isBuffed(MonsterStatus.MAGIC_CRASH);
         return stop;
     }
 
     public void applyEffect(MapleCharacter player, MapleMonster monster, boolean skill) {
-        MapleDisease disease = MapleDisease.getBySkill(skillId);
+        MapleBuffStatus disease = MobSkill.getBuffStatus(skillId);
         Map<MonsterStatus, Integer> stats = new EnumMap<MonsterStatus, Integer>(MonsterStatus.class);
         List<Integer> reflection = new LinkedList<Integer>();
 
@@ -158,35 +159,35 @@ public class MobSkill {
             case 100:
             case 110:
             case 150:
-                stats.put(MonsterStatus.WEAPON_ATTACK_UP, Integer.valueOf(x));
+                stats.put(MonsterStatus.WEAPON_ATTACK_UP, x);
                 break;
             case 101:
             case 111:
             case 151:
-                stats.put(MonsterStatus.MAGIC_ATTACK_UP, Integer.valueOf(x));
+                stats.put(MonsterStatus.MAGIC_ATTACK_UP, x);
                 break;
             case 102:
             case 112:
             case 152:
-                stats.put(MonsterStatus.WEAPON_DEFENSE_UP, Integer.valueOf(x));
+                stats.put(MonsterStatus.WEAPON_DEFENSE_UP, x);
                 break;
             case 103:
             case 113:
             case 153:
-                stats.put(MonsterStatus.MAGIC_DEFENSE_UP, Integer.valueOf(x));
+                stats.put(MonsterStatus.MAGIC_DEFENSE_UP, x);
                 break;
             case 154:
-                stats.put(MonsterStatus.ACC, Integer.valueOf(x));
+                stats.put(MonsterStatus.ACC, x);
                 break;
             case 155:
-                stats.put(MonsterStatus.AVOID, Integer.valueOf(x));
+                stats.put(MonsterStatus.AVOID, x);
                 break;
-	    case 115:
+            case 115:
             case 156:
-                stats.put(MonsterStatus.SPEED, Integer.valueOf(x));
+                stats.put(MonsterStatus.SPEED, x);
                 break;
             case 157:
-                stats.put(MonsterStatus.SEAL, Integer.valueOf(x)); //o.o
+                stats.put(MonsterStatus.SEAL, x); //o.o
                 break;
             case 114:
                 if (lt != null && rb != null && skill && monster != null) {
@@ -203,11 +204,11 @@ public class MobSkill {
                 if (lt != null && rb != null && skill && monster != null) {
                     List<MapleMapObject> objects = getObjectsInRange(monster, MapleMapObjectType.MONSTER);
                     for (MapleMapObject mons : objects) {
-			if (mons.getObjectId() != monster.getObjectId()) {
-                            player.getMap().killMonster((MapleMonster) mons, player, true, false, (byte)1, 0);
-			    monster.heal(getX(), getY(), true);
-			    break;
-			}
+                        if (mons.getObjectId() != monster.getObjectId()) {
+                            player.getMap().killMonster((MapleMonster) mons, player, true, false, (byte) 1, 0);
+                            monster.heal(getX(), getY(), true);
+                            break;
+                        }
                     }
                 } else if (monster != null) {
                     monster.heal(getX(), getY(), true);
@@ -232,9 +233,9 @@ public class MobSkill {
                     if (info != null) {
                         if (lt != null && rb != null && skill && player != null) {
                             for (MapleCharacter chr : getPlayersInRange(monster, player)) {
-				if (!chr.hasBlockedInventory()) {
+                                if (!chr.hasBlockedInventory()) {
                                     chr.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
-				}
+                                }
                             }
                         } else if (player != null && !player.hasBlockedInventory()) {
                             player.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
@@ -248,23 +249,23 @@ public class MobSkill {
                 }
                 break;
             case 140:
-               // stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
+                // stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
                 break;
             case 141:
-             //   stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
+                //   stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
                 break;
             case 142: // Weapon / Magic Immunity
-              //  stats.put(MonsterStatus.DAMAGE_IMMUNITY, Integer.valueOf(x));
+                //  stats.put(MonsterStatus.DAMAGE_IMMUNITY, Integer.valueOf(x));
                 break;
             case 143: // Weapon Reflect
-               // stats.put(MonsterStatus.WEAPON_DAMAGE_REFLECT, Integer.valueOf(x));
-               // stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
+                // stats.put(MonsterStatus.WEAPON_DAMAGE_REFLECT, Integer.valueOf(x));
+                // stats.put(MonsterStatus.WEAPON_IMMUNITY, Integer.valueOf(x));
                 //reflection.add(x);
                 break;
             case 144: // Magic Reflect
-           //     stats.put(MonsterStatus.MAGIC_DAMAGE_REFLECT, Integer.valueOf(x));
-             //   stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
-               // reflection.add(x);
+                //     stats.put(MonsterStatus.MAGIC_DAMAGE_REFLECT, Integer.valueOf(x));
+                //   stats.put(MonsterStatus.MAGIC_IMMUNITY, Integer.valueOf(x));
+                // reflection.add(x);
                 break;
             case 145: // Weapon / Magic reflect
                 //stats.put(MonsterStatus.WEAPON_DAMAGE_REFLECT, Integer.valueOf(x));
@@ -347,10 +348,10 @@ public class MobSkill {
         if (disease != null && player != null) {
             if (lt != null && rb != null && skill && monster != null) {
                 for (MapleCharacter chr : getPlayersInRange(monster, player)) {
-                    chr.giveDebuff(disease, this);
+                    chr.getDiseaseBuff(disease, this);
                 }
             } else {
-                player.giveDebuff(disease, this);
+                player.getDiseaseBuff(disease, this);
             }
         }
         if (monster != null) {
@@ -442,5 +443,73 @@ public class MobSkill {
         List<MapleMapObjectType> objectTypes = new ArrayList<MapleMapObjectType>();
         objectTypes.add(objectType);
         return monster.getMap().getMapObjectsInRect(bounds, objectTypes);
+    }
+
+    public static MapleBuffStatus getBuffStatus(int mobSkillId) {
+        switch (mobSkillId) {
+            case 120:
+                return MapleBuffStatus.SEAL;
+            case 121:
+                return MapleBuffStatus.DARKNESS;
+            case 122:
+                return MapleBuffStatus.WEAKEN;
+            case 123:
+                return MapleBuffStatus.STUN;
+            case 124:
+                return MapleBuffStatus.CURSE;
+            case 125:
+                return MapleBuffStatus.POISON;
+            case 126:
+                return MapleBuffStatus.SLOW;
+            case 128:
+                return MapleBuffStatus.SEDUCE;
+            case 132:
+                return MapleBuffStatus.REVERSE_DIRECTION;
+            case 133:
+                return MapleBuffStatus.ZOMBIFY;
+            case 134:
+                return MapleBuffStatus.POTION;
+            case 135:
+                return MapleBuffStatus.SHADOW;
+            case 136:
+                return MapleBuffStatus.BLIND;
+            case 137:
+                return MapleBuffStatus.FREEZE;
+        }
+        return null;
+    }
+
+    public static final int getMobSkillByBuffStatus(final MapleBuffStatus skill) {
+        switch (skill) {
+            case SEAL:
+                return 120;
+            case DARKNESS:
+                return 121;
+            case WEAKEN:
+                return 122;
+            case STUN:
+                return 123;
+            case CURSE:
+                return 124;
+            case POISON:
+                return 125;
+            case SLOW:
+                return 126;
+            case SEDUCE:
+                return 128;
+            case REVERSE_DIRECTION:
+                return 132;
+            case ZOMBIFY:
+                return 133;
+            case POTION:
+                return 134;
+            case SHADOW:
+                return 135;
+            case BLIND:
+                return 136;
+            case FREEZE:
+                return 137;
+        }
+        return 0;
     }
 }

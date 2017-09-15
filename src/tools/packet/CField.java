@@ -31,7 +31,6 @@ import handling.world.World;
 import handling.world.guild.MapleGuild;
 import java.awt.Point;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
@@ -45,7 +44,6 @@ import server.life.MapleNPC;
 import server.maps.*;
 import server.maps.MapleNodes.MaplePlatform;
 import server.movement.ILifeMovementFragment;
-import server.quest.MapleQuest;
 import tools.AttackPair;
 import tools.HexTool;
 import tools.types.Pair;
@@ -57,18 +55,6 @@ import tools.data.MaplePacketLittleEndianWriter;
  * @author AlphaEta
  */
 public class CField {
-
-    public static int DEFAULT_BUFFMASK = 0;
-
-    static {
-        DEFAULT_BUFFMASK |= MapleBuffStat.ENERGY_CHARGE.getValue();
-        DEFAULT_BUFFMASK |= MapleBuffStat.DASH_SPEED.getValue();
-        DEFAULT_BUFFMASK |= MapleBuffStat.DASH_JUMP.getValue();
-        DEFAULT_BUFFMASK |= MapleBuffStat.MONSTER_RIDING.getValue();
-        DEFAULT_BUFFMASK |= MapleBuffStat.SPEED_INFUSION.getValue();
-        DEFAULT_BUFFMASK |= MapleBuffStat.HOMING_BEACON.getValue();
-        DEFAULT_BUFFMASK |= MapleBuffStat.DEFAULT_BUFFSTAT.getValue();
-    }
 
     public static byte[] getPacketFromHexString(final String hex) {
         return HexTool.getByteArrayFromHexString(hex);
@@ -868,7 +854,6 @@ public class CField {
             mplew.writeShort(life.getRx0());
             mplew.writeShort(life.getRx1());
             mplew.write(show ? 1 : 0);
-
             return mplew.getPacket();
         }
 
@@ -898,6 +883,7 @@ public class CField {
             mplew.write(1);
             mplew.writeInt(life.getObjectId());
             mplew.writeInt(life.getId());
+
             mplew.writeShort(life.getPosition().x);
             mplew.writeShort(life.getCy());
             mplew.write(life.getF() == 1 ? 0 : 1);
@@ -2028,70 +2014,84 @@ public class CField {
         mplew.writeInt(chr.getId());
         mplew.write(chr.getLevel());
         mplew.writeMapleAsciiString(chr.getName());
-        String prefixGuild = null;
-        //TODO: PREFIX
-        if (chr.getGuildId() <= 0) {
-            final MapleGuild gs = World.Guild.getGuild(chr.getGuildId());
-            if (prefixGuild != null) {
-                mplew.writeMapleAsciiString(prefixGuild);
-            } else {
-                mplew.writeMapleAsciiString("");
-            }
+        final MapleGuild gs = World.Guild.getGuild(chr.getGuildId());
+        if (gs != null) {
+            mplew.writeMapleAsciiString(gs.getName());
+            mplew.writeShort(gs.getLogoBG());
+            mplew.write(gs.getLogoBGColor());
+            mplew.writeShort(gs.getLogo());
+            mplew.write(gs.getLogoColor());
+        } else {
+            mplew.writeMapleAsciiString("");
             mplew.writeShort(0);
             mplew.write(0);
             mplew.writeShort(0);
             mplew.write(0);
-        } else {
-            final MapleGuild gs = World.Guild.getGuild(chr.getGuildId());
-            if (gs != null) {
-                mplew.writeMapleAsciiString(prefixGuild + gs.getName());
-                mplew.writeShort(gs.getLogoBG());
-                mplew.write(gs.getLogoBGColor());
-                mplew.writeShort(gs.getLogo());
-                mplew.write(gs.getLogoColor());
-            } else {
-                mplew.writeInt(0);
-                mplew.writeInt(0);
-            }
         }
 
-        if (chr.getGuildId() <= 0) {
-            mplew.writeInt(0);
-            mplew.writeInt(0);
-        } else {
-            final MapleGuild gs = World.Guild.getGuild(chr.getGuildId());
-            if (gs != null) {
-                mplew.writeMapleAsciiString(gs.getName());
-                mplew.writeShort(gs.getLogoBG());
-                mplew.write(gs.getLogoBGColor());
-                mplew.writeShort(gs.getLogo());
-                mplew.write(gs.getLogoColor());
-            } else {
-                mplew.writeInt(0);
-                mplew.writeInt(0);
-            }
-        }
-
-        mplew.writeShort(chr.getJob());
+        PacketHelper.addSpawnPlayerBuffStatus(mplew, chr);
+        // SecondaryStat::DecodeForRemote
+        //TODO: Write Decode
+        //
         mplew.writeShort(0);
+        mplew.writeShort(chr.getJob());
         PacketHelper.addCharLook(mplew, chr, true, chr.getClient());
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(Math.min(250, chr.getInventory(MapleInventoryType.CASH).countById(5110000)));
+
+        mplew.writeInt(0); // ????
+        mplew.writeInt(0); // ????
+
+        // sub_8EE492
+        int v1 = 0;
+        int v2 = 0;
+        int v3 = 0;
+        mplew.writeInt(v1);
+        mplew.writeInt(v2);
+        mplew.writeInt(v3);
+        for(int i = 0; i < v3; i++)
+            mplew.writeInt(0);
+        // end
+
+
+        mplew.writeInt(Math.min(250, chr.getInventory(MapleInventoryType.CASH).countById(5110000))); //max is like 100. but w/e
+        mplew.writeInt(0); /** 黃金雞特效 (42900000) **/
         mplew.writeInt(chr.getItemEffect());
+        mplew.writeInt(0); /** BlinkMonkeyEffect **/
+        mplew.writeInt(0); /** ActiveNickName **/
         mplew.writeInt(0);
-        final MapleQuestStatus stat = chr.getQuestNoAdd(MapleQuest.getInstance(GameConstants.ITEM_TITLE));
-        mplew.writeInt(stat != null && stat.getCustomData() != null ? Integer.valueOf(stat.getCustomData()) : 0);
-        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the effect from SetItemInfo in Effect.wz
-        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the effect from SetItemInfo in Effect.wz
+        mplew.writeMapleAsciiString("");
+        mplew.writeMapleAsciiString("");
+
+        mplew.writeShort(0xFF);
+        mplew.writeShort(0xFF);
+
         mplew.writeInt(GameConstants.getInventoryType(chr.getChair()) == MapleInventoryType.SETUP ? chr.getChair() : 0);
-        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the effect from SetItemInfo in Effect.wz
-        mplew.writePos(chr.getTruePosition());
+        mplew.writePos(chr.getPosition());
         mplew.write(chr.getStance());
+//
+//        mplew.writeInt(Math.min(250, chr.getInventory(MapleInventoryType.CASH).countById(5110000)));
+//        mplew.writeInt(chr.getItemEffect());
+//        mplew.writeInt(0);
+//        final MapleQuestStatus stat = chr.getQuestNoAdd(MapleQuest.getInstance(GameConstants.ITEM_TITLE));
+//        mplew.writeInt(stat != null && stat.getCustomData() != null ? Integer.valueOf(stat.getCustomData()) : 0);
+//        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the effect from SetItemInfo in Effect.wz
+//        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the effect from SetItemInfo in Effect.wz
+//        mplew.writeInt(GameConstants.getInventoryType(chr.getChair()) == MapleInventoryType.SETUP ? chr.getChair() : 0);
+//        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the effect from SetItemInfo in Effect.wz
+//        mplew.writePos(chr.getTruePosition());
+//        mplew.write(chr.getStance());
         mplew.writeShort(0); //FH
+
+        // Pets
+        for (int i = 0; i <= 3; i++) { // 寵物
+            MaplePet pet = chr.getSummonedPet(i);
+            mplew.writeBool(pet != null);
+            if (pet == null) {
+                break;
+            }
+            mplew.writeInt(i);
+            PetPacket.addPetInfo(mplew, chr, pet, false);
+        }
+
         mplew.write(0); // pets can smd :)
         if (!chr.isHidden() && chr.getActivePets() > 0) {
             for (final MaplePet pet : chr.getPets()) {
@@ -2100,80 +2100,47 @@ public class CField {
                 }
             }
         }
-        mplew.write(0);
-            
-        mplew.write(1);
-        mplew.write(0); // for each, got structure
-      //  if (!chr.isHidden() && chr.getAndroid() != null) {
-      //      chr.getAndroid().setPos(chr.getPosition());
-      //      spawnAndroid(chr, chr.getAndroid());
-      //  }
-      //  mplew.write(0);
-        
+
         mplew.writeInt(chr.getMount().getLevel()); // mount lvl
         mplew.writeInt(chr.getMount().getExp()); // exp
         mplew.writeInt(chr.getMount().getFatigue()); // tiredness
         PacketHelper.addAnnounceBox(mplew, chr);
-        mplew.write(chr.getChalkboard() != null && chr.getChalkboard().length() > 0 ? 1 : 0);
-        if (chr.getChalkboard() != null && chr.getChalkboard().length() > 0) {
+
+        boolean hashChalkBoard = chr.getChalkboard() != null && chr.getChalkboard().length() > 0;
+        mplew.writeBool(hashChalkBoard);
+        if (hashChalkBoard) {
             mplew.writeMapleAsciiString(chr.getChalkboard());
         }
 
+
         Triple<List<MapleRing>, List<MapleRing>, List<MapleRing>> rings = chr.getRings(false);
-        // left = crush, mid = friend, right = marriage
-        boolean crush = false;
-        boolean friend = false;
-        boolean marriage = false;
-        if (chr.hasEquipped(1112001) || chr.hasEquipped(1112002) || chr.hasEquipped(1112003) || chr.hasEquipped(1112005) || chr.hasEquipped(1112006) || chr.hasEquipped(1112007) || chr.hasEquipped(1048000)) {
-            crush = true;
-        }
-        if (chr.hasEquipped(1112800) || chr.hasEquipped(1112801) || chr.hasEquipped(1112802) || chr.hasEquipped(1112810) || chr.hasEquipped(1112811) || chr.hasEquipped(1112812) || chr.hasEquipped(1112816) || chr.hasEquipped(1112817) || chr.hasEquipped(1049000)) {
-            friend = true;
-        }
-        if (chr.hasEquipped(1112803) || chr.hasEquipped(1112806) || chr.hasEquipped(1112807) || chr.hasEquipped(1112809)) {
-            marriage = true;
-        }
-        if (crush && friend) {
-            addRingInfo(mplew, rings.getLeft()); // crush
-            addRingInfo(mplew, rings.getMid()); // friend
-            addMRingInfo(mplew, rings.getRight(), chr); // marriage
-        } else if (crush && marriage) {
-            addRingInfo(mplew, rings.getLeft()); // crush
-            addRingInfo(mplew, rings.getRight()); // marriage
-            addMRingInfo(mplew, rings.getMid(), chr); // friend
-        } else if (friend && marriage) {
-            addRingInfo(mplew, rings.getMid()); // friend
-            addRingInfo(mplew, rings.getRight()); // marriage
-            addMRingInfo(mplew, rings.getLeft(), chr); // crush // this wont be able to be equipped, we load it anyway. it'll load some dash effect because the packet isn't here
-        } else if (crush) {
-            addRingInfo(mplew, rings.getLeft()); // crush
-            addRingInfo(mplew, rings.getMid()); // friend
-            addMRingInfo(mplew, rings.getRight(), chr); // marriage
-        } else if (friend) {
-            addRingInfo(mplew, rings.getLeft()); // crush
-            addRingInfo(mplew, rings.getMid()); // friend
-            addMRingInfo(mplew, rings.getRight(), chr); // marriage
-        } else if (marriage) {
-            addRingInfo(mplew, rings.getLeft()); // crush
-            addRingInfo(mplew, rings.getRight()); // marriage
-            addMRingInfo(mplew, rings.getMid(), chr); // friend
-        }
-        mplew.write(chr.getStat().Berserk ? 1 : 0); // 0x1 = dark force, 0x2 = dragon, 0x4 = swallow (wild hunter?), for (0x8, 0x10 and 0x20, extra int)
-        mplew.writeInt(0);
-        mplew.write(0); // new year cards boolean
+        addRingInfo(mplew, rings.getLeft());
+        addRingInfo(mplew, rings.getMid());
+        addMRingInfo(mplew, rings.getRight(), chr);
 
-        mplew.writeInt(0); //no clue
-        final boolean pvp = chr.inPVP();
-        if (pvp) {
-            mplew.write(Integer.parseInt(chr.getEventInstance().getProperty("type")));
+        int v65 = 0;
+        mplew.write(v65);
+        for (int o = 0; o < v65; o++) {
+            mplew.writeInt(0);
         }
-        if (chr.getCarnivalParty() != null) {
-            mplew.write(chr.getCarnivalParty().getTeam());
-        } else if (GameConstants.isTeamMap(chr.getMapId())) {
-            mplew.write(chr.getTeam() + (pvp ? 1 : 0)); //is it 0/1 or is it 1/2?
-        }
-        mplew.writeLong(0);
 
+        int unk_mask = 0;
+        mplew.write(chr.getStat().Berserk ? 1 : 0); //unk_mask
+        if ((unk_mask & 1) != 0) {
+        }
+        if ((unk_mask & 2) != 0) {
+        }
+        if ((unk_mask & 8) != 0) {
+            mplew.writeInt(0);
+        }
+        if ((unk_mask & 10) != 0) {
+            mplew.writeInt(0);
+        }
+        if ((unk_mask & 20) != 0) {
+            mplew.writeInt(0);
+        }
+
+        mplew.writeInt(chr.getMount().getItemId());//骑宠id
         return mplew.getPacket();
     }
     
@@ -3772,22 +3739,26 @@ mplew.writeLong(0);
     }
 
     public static void addRingInfo(MaplePacketLittleEndianWriter mplew, List<MapleRing> rings) {
-        mplew.write(rings.size());
-        for (MapleRing ring : rings) {
-            mplew.writeInt(1);
-            mplew.writeLong(ring.getRingId());
-            mplew.writeLong(ring.getPartnerRingId());
-            mplew.writeInt(ring.getItemId());
+        mplew.write(rings.size() > 0 ? 1 : 0);
+        if(rings.size() > 0) {
+            mplew.writeInt(rings.size());
+            for (MapleRing ring : rings) {
+                mplew.writeLong(ring.getRingId());
+                mplew.writeLong(ring.getPartnerRingId());
+                mplew.writeInt(ring.getItemId());
+            }
         }
     }
 
     public static void addMRingInfo(MaplePacketLittleEndianWriter mplew, List<MapleRing> rings, MapleCharacter chr) {
-        mplew.write(rings.size());
-        for (MapleRing ring : rings) {
-              mplew.writeInt(chr.getMarriageId());
-              mplew.writeInt(chr.getId());
-              mplew.writeInt(ring.getPartnerChrId());
-              mplew.writeInt(ring.getRingId());
+        mplew.writeBool(rings.size() > 0);
+        if (rings.size() > 0) {
+            mplew.writeInt(rings.size());
+            for (MapleRing ring : rings) {
+                mplew.writeInt(chr.getId());
+                mplew.writeInt(ring.getPartnerChrId());
+                mplew.writeInt(ring.getRingId());
+            }
         }
     }
 
