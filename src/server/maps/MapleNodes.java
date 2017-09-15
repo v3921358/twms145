@@ -21,15 +21,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package server.maps;
 
 import constants.GameConstants;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.*;
 import tools.types.Pair;
+
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class MapleNodes {
 
-    private Map<Integer, MapleNodeInfo> nodes; //used for HOB pq.
     private final List<Rectangle> areas;
+    private Map<Integer, MapleNodeInfo> nodes; //used for HOB pq.
     private List<MaplePlatform> platforms;
     private List<MonsterPoint> monsterPoints;
     private List<Integer> skillIds;
@@ -55,35 +56,6 @@ public class MapleNodes {
 
     public void setNodeStart(final int ns) {
         this.nodeStart = ns;
-    }
-
-    public static class MapleNodeInfo {
-
-        public int node, key, x, y, attr, nextNode = -1;
-        public List<Integer> edge;
-
-        public MapleNodeInfo(int node, int key, int x, int y, int attr, List<Integer> edge) {
-            this.node = node;
-            this.key = key;
-            this.x = x;
-            this.y = y;
-            this.attr = attr;
-            this.edge = edge;
-        }
-    }
-
-    public static class DirectionInfo {
-
-        public int x, y, key;
-        public boolean forcedInput;
-        public List<String> eventQ = new ArrayList<>();
-
-        public DirectionInfo(int key, int x, int y, boolean forcedInput) {
-            this.key = key;
-            this.x = x;
-            this.y = y;
-            this.forcedInput = forcedInput;
-        }
     }
 
     public void addDirection(int key, DirectionInfo d) {
@@ -134,7 +106,7 @@ public class MapleNodes {
         }
         addNode(mni);
         // output part
-	/*StringBuilder b = new StringBuilder(mapid + " added key " + mni.key + ". edges: ");
+    /*StringBuilder b = new StringBuilder(mapid + " added key " + mni.key + ". edges: ");
         for (int i : mni.edge) {
         b.append(i + ", ");
         }
@@ -188,44 +160,12 @@ public class MapleNodes {
         return getAreas().get(index);
     }
 
-    public static class MaplePlatform {
-
-        public String name;
-        public int start, speed, x1, y1, x2, y2, r;
-        public List<Integer> SN;
-
-        public MaplePlatform(String name, int start, int speed, int x1, int y1, int x2, int y2, int r, List<Integer> SN) {
-            this.name = name;
-            this.start = start;
-            this.speed = speed;
-            this.x1 = x1;
-            this.y1 = y1;
-            this.x2 = x2;
-            this.y2 = y2;
-            this.r = r;
-            this.SN = SN;
-        }
-    }
-
     public final void addPlatform(final MaplePlatform mp) {
         this.platforms.add(mp);
     }
 
     public final List<MaplePlatform> getPlatforms() {
         return new ArrayList<>(platforms);
-    }
-
-    public static class MonsterPoint {
-
-        public int x, y, fh, cy, team;
-
-        public MonsterPoint(int x, int y, int fh, int cy, int team) {
-            this.x = x;
-            this.y = y;
-            this.fh = fh;
-            this.cy = cy;
-            this.team = team;
-        }
     }
 
     public final List<MonsterPoint> getMonsterPoints() {
@@ -258,5 +198,66 @@ public class MapleNodes {
 
     public final void addSkillId(int z) {
         this.skillIds.add(z);
+    }
+
+    public static class MapleNodeInfo {
+
+        public int node, key, x, y, attr, nextNode = -1;
+        public List<Integer> edge;
+
+        public MapleNodeInfo(int node, int key, int x, int y, int attr, List<Integer> edge) {
+            this.node = node;
+            this.key = key;
+            this.x = x;
+            this.y = y;
+            this.attr = attr;
+            this.edge = edge;
+        }
+    }
+
+    public static class DirectionInfo {
+
+        public int x, y, key;
+        public boolean forcedInput;
+        public List<String> eventQ = new ArrayList<>();
+
+        public DirectionInfo(int key, int x, int y, boolean forcedInput) {
+            this.key = key;
+            this.x = x;
+            this.y = y;
+            this.forcedInput = forcedInput;
+        }
+    }
+
+    public static class MaplePlatform {
+
+        public String name;
+        public int start, speed, x1, y1, x2, y2, r;
+        public List<Integer> SN;
+
+        public MaplePlatform(String name, int start, int speed, int x1, int y1, int x2, int y2, int r, List<Integer> SN) {
+            this.name = name;
+            this.start = start;
+            this.speed = speed;
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+            this.r = r;
+            this.SN = SN;
+        }
+    }
+
+    public static class MonsterPoint {
+
+        public int x, y, fh, cy, team;
+
+        public MonsterPoint(int x, int y, int fh, int cy, int team) {
+            this.x = x;
+            this.y = y;
+            this.fh = fh;
+            this.cy = cy;
+            this.team = team;
+        }
     }
 }

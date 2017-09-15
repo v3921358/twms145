@@ -31,7 +31,7 @@ public class MapleOla extends MapleSurvival { //survival/ola so similar.
     //stg3 = ch00-ch15 = 16 ports
 
     public MapleOla(final int world, final int channel, final MapleEventType type) {
-	super(world,channel,type);
+        super(world, channel, type);
     }
 
     @Override
@@ -49,9 +49,9 @@ public class MapleOla extends MapleSurvival { //survival/ola so similar.
     public void unreset() {
         super.unreset();
         stages = new int[]{Randomizer.nextInt(5), Randomizer.nextInt(8), Randomizer.nextInt(15)};
-	if (stages[0] == 2) {
-	    stages[0] = 3; //hack check; 2nd portal cant be access
-	}
+        if (stages[0] == 2) {
+            stages[0] = 3; //hack check; 2nd portal cant be access
+        }
     }
 
     public boolean isCharCorrect(String portalName, int mapid) {

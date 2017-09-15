@@ -1,24 +1,8 @@
 package constants;
 
 public class MapConstants {
-    
-    public static String FM_BGM = "Bgm04/WhiteChristmas";
 
-    public boolean isStartupMap(int mapid) {
-        switch (mapid) {
-            case 130000000:
-            case 931000000:
-            case 10000:
-            case 913040000:
-            case 914000000:
-            case 900090000:
-            case 910150000:
-            case 931050310:
-            case 915000000:
-                return true;
-        }
-        return false;
-    }
+    public static String FM_BGM = "Bgm04/WhiteChristmas";
 
     public static boolean isStartingEventMap(final int mapid) {
         switch (mapid) {
@@ -51,5 +35,21 @@ public class MapConstants {
 
     public static boolean isCoconutMap(final int mapid) {
         return mapid == 109080000 || mapid == 109080001 || mapid == 109080002 || mapid == 109080003 || mapid == 109080010 || mapid == 109080011 || mapid == 109080012 || mapid == 109090300 || mapid == 109090301 || mapid == 109090302 || mapid == 109090303 || mapid == 109090304 || mapid == 910040100;
+    }
+
+    public boolean isStartupMap(int mapid) {
+        switch (mapid) {
+            case 130000000:
+            case 931000000:
+            case 10000:
+            case 913040000:
+            case 914000000:
+            case 900090000:
+            case 910150000:
+            case 931050310:
+            case 915000000:
+                return true;
+        }
+        return false;
     }
 }

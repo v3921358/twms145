@@ -6,7 +6,6 @@
 
 package constants;
 
-import handling.world.World;
 import tools.types.Pair;
 
 import java.util.LinkedList;
@@ -38,7 +37,7 @@ public class WorldConstants {
 
     public static void init() {
 
-        for(WorldConfig worldConfig: WorldConfig.values()) {
+        for (WorldConfig worldConfig : WorldConfig.values()) {
             worldConfig.setFlag(WorldFlag.New);
         }
 
@@ -102,7 +101,7 @@ public class WorldConstants {
 
 
         // Event messages
-        for(WorldConfig worldConfig: WorldConfig.values()) {
+        for (WorldConfig worldConfig : WorldConfig.values()) {
             worldConfig.setEventMessage("歡迎來到" + worldConfig.name() + "伺服器");
         }
 

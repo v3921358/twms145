@@ -1,14 +1,11 @@
 package server;
 
-import client.MapleTrait.MapleTraitType;
 import client.*;
-import client.inventory.EquipAdditions.RingSet;
+import client.MapleTrait.MapleTraitType;
 import client.inventory.*;
+import client.inventory.EquipAdditions.RingSet;
 import constants.GameConstants;
 import handling.world.World;
-import java.awt.Point;
-import java.util.*;
-
 import server.maps.AramiaFireWorks;
 import server.quest.MapleQuest;
 import tools.StringUtil;
@@ -16,6 +13,10 @@ import tools.packet.CWvsContext;
 import tools.packet.CWvsContext.InfoPacket;
 import tools.packet.CWvsContext.InventoryPacket;
 import tools.packet.MTSCSPacket;
+
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class MapleInventoryManipulator {
 
@@ -311,7 +312,7 @@ public class MapleInventoryManipulator {
     public static boolean addFromDrop(final MapleClient c, Item item, final boolean show, final boolean enhance) {
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
 
-       if (c.getPlayer() == null || (!c.getChannelServer().allowMoreThanOne() && c.getPlayer().haveItem(item.getItemId(), 1, true, false))) {
+        if (c.getPlayer() == null || (!c.getChannelServer().allowMoreThanOne() && c.getPlayer().haveItem(item.getItemId(), 1, true, false))) {
             c.sendPacket(InventoryPacket.getInventoryFull());
             c.sendPacket(InventoryPacket.showItemUnavailable());
             return false;
@@ -639,13 +640,13 @@ public class MapleInventoryManipulator {
             return;
         }
         if (!c.getPlayer().isGM() && (source.getItemId() == 1002140 || source.getItemId() == 1042003 || source.getItemId() == 1062007 || source.getItemId() == 1322013)) {
-                World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[AutoBan]: " + c.getPlayer().getName() + " has been banned for wearing a Wizet Item."));
-                c.getPlayer().ban("[AutoBan]: GM Equipment on character.", true);
+            World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[AutoBan]: " + c.getPlayer().getName() + " has been banned for wearing a Wizet Item."));
+            c.getPlayer().ban("[AutoBan]: GM Equipment on character.", true);
         }
         if (dst > -1200 && dst < -999 && !GameConstants.isEvanDragonItem(source.getItemId()) && !GameConstants.isMechanicItem(source.getItemId())) {
             c.sendPacket(CWvsContext.enableActions());
             return;
-        } else if (((dst <= -1200 && dst > -5000 ) || (dst >= -999 && dst < -99)) && !stats.containsKey("cash")) {
+        } else if (((dst <= -1200 && dst > -5000) || (dst >= -999 && dst < -99)) && !stats.containsKey("cash")) {
             c.sendPacket(CWvsContext.enableActions());
             return;
         } else if ((dst <= -1300 && dst > -5000) && c.getPlayer().getAndroid() == null) {
@@ -927,8 +928,8 @@ public class MapleInventoryManipulator {
             c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).addFromDB(target);
         }
         if (!c.getPlayer().isGM() && (source.getItemId() == 1002140 || source.getItemId() == 1042003 || source.getItemId() == 1062007 || source.getItemId() == 1322013)) {
-                World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[AutoBan]: " + c.getPlayer().getName() + " has been banned for dropping a Wizet Item."));
-                c.getPlayer().ban("[AutoBan]: GM Equipment on character.", true);
+            World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[AutoBan]: " + c.getPlayer().getName() + " has been banned for dropping a Wizet Item."));
+            c.getPlayer().ban("[AutoBan]: GM Equipment on character.", true);
         }
         if (GameConstants.isWeapon(source.getItemId())) {
             c.getPlayer().cancelEffectFromBuffStat(MapleBuffStatus.BOOSTER);
@@ -990,16 +991,16 @@ public class MapleInventoryManipulator {
             return false;
         }
         final Item source = c.getPlayer().getInventory(type).getItem(src);
-        
+
         if (GameConstants.isIllegal(source.getItemId())) {
-                c.getPlayer().dropMessage(1, "This item is a special item and is undroppable.");
-                c.sendPacket(CWvsContext.enableActions());
-                return false;
+            c.getPlayer().dropMessage(1, "This item is a special item and is undroppable.");
+            c.sendPacket(CWvsContext.enableActions());
+            return false;
         }
-        
+
         if (!c.getPlayer().isGM() && (source.getItemId() == 1002140 || source.getItemId() == 1042003 || source.getItemId() == 1062007 || source.getItemId() == 1322013)) {
-                World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[AutoBan]: " + c.getPlayer().getName() + " has been banned for dropping a Wizet Item."));
-                c.getPlayer().ban("[AutoBan]: GM Equipment on character.", true);
+            World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[AutoBan]: " + c.getPlayer().getName() + " has been banned for dropping a Wizet Item."));
+            c.getPlayer().ban("[AutoBan]: GM Equipment on character.", true);
         }
         if (quantity < 0 || source == null || (GameConstants.GMS && src == -55) || (!npcInduced && GameConstants.isPet(source.getItemId())) || (quantity == 0 && !GameConstants.isRechargable(source.getItemId())) || c.getPlayer().inPVP()) {
             c.sendPacket(CWvsContext.enableActions());
@@ -1024,7 +1025,7 @@ public class MapleInventoryManipulator {
             c.sendPacket(InventoryPacket.dropInventoryItemUpdate(type, source));
 
             if (!c.getChannelServer().allowUndroppablesDrop() && (ii.isDropRestricted(target.getItemId()) || ii.isAccountShared(target.getItemId()))) {
-                  if (ItemFlag.KARMA_EQ.check(flag)) {
+                if (ItemFlag.KARMA_EQ.check(flag)) {
                     target.setFlag((byte) (flag - ItemFlag.KARMA_EQ.getValue()));
                     c.getPlayer().getMap().spawnItemDrop(c.getPlayer(), c.getPlayer(), target, dropPos, true, true);
                 } else if (ItemFlag.KARMA_USE.check(flag)) {

@@ -20,12 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools.data.output;
 
-import java.awt.Point;
+import java.awt.*;
 
 /**
  * Provides an interface to a writer class that writes a little-endian sequence
  * of bytes.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 323
@@ -73,6 +73,7 @@ public interface LittleEndianWriter {
 
     /**
      * Write a long integer to the sequence.
+     *
      * @param l The long integer to write.
      */
     public void writeLong(final long l);

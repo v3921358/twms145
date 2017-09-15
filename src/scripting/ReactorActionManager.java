@@ -25,11 +25,6 @@ import client.inventory.Equip;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import constants.GameConstants;
-import handling.channel.ChannelServer;
-import java.awt.Point;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import server.MapleCarnivalFactory;
 import server.MapleCarnivalFactory.MCSkill;
 import server.MapleItemInformationProvider;
@@ -39,6 +34,11 @@ import server.life.MapleMonster;
 import server.maps.MapleReactor;
 import server.maps.ReactorDropEntry;
 import tools.packet.CField;
+
+import java.awt.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ReactorActionManager extends AbstractPlayerInteraction {
 
@@ -203,7 +203,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
     }
 
     public void doHarvest() { //TODO LEGEND
-        if (getPlayer().getFatigue() >=  (GameConstants.GMS ? 200 : 100) || getPlayer().getStat().harvestingTool <= 0 || getReactor().getTruePosition().distanceSq(getPlayer().getTruePosition()) > 10000) {
+        if (getPlayer().getFatigue() >= (GameConstants.GMS ? 200 : 100) || getPlayer().getStat().harvestingTool <= 0 || getReactor().getTruePosition().distanceSq(getPlayer().getTruePosition()) > 10000) {
             return;
         }
         final int pID = getReactor().getReactorId() < 200000 ? 92000000 : 92010000;
@@ -212,7 +212,7 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
         if (he <= 0) {
             return;
         }
-        final Item item = getInventory(1).getItem((short)getPlayer().getStat().harvestingTool);
+        final Item item = getInventory(1).getItem((short) getPlayer().getStat().harvestingTool);
         if (item == null || ((item.getItemId() / 10000)) != (getReactor().getReactorId() < 200000 ? 150 : 151)) {
             return;
         }
@@ -235,17 +235,17 @@ public class ReactorActionManager extends AbstractPlayerInteraction {
             dropItems();
             if (getReactor().getReactorId() < 200000) {
                 addTrait("sense", 5);
-				if (Randomizer.nextInt(10) == 0) {
-					dropSingleItem(2440000);
-				}
-				if (Randomizer.nextInt(100) == 0) {
-					dropSingleItem(4032933);
-				}
+                if (Randomizer.nextInt(10) == 0) {
+                    dropSingleItem(2440000);
+                }
+                if (Randomizer.nextInt(100) == 0) {
+                    dropSingleItem(4032933);
+                }
             } else {
                 addTrait("insight", 5);
-				if (Randomizer.nextInt(10) == 0) {
-					dropSingleItem(2440001); //IMP
-				}
+                if (Randomizer.nextInt(10) == 0) {
+                    dropSingleItem(2440001); //IMP
+                }
             }
         }
         cancelHarvest(succ);

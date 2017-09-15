@@ -20,12 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
-import java.awt.Point;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import server.Randomizer;
 import server.maps.MapleMap;
 import tools.packet.CWvsContext;
+
+import java.awt.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SpawnPointAreaBoss extends Spawns {
 
@@ -40,25 +40,25 @@ public class SpawnPointAreaBoss extends Spawns {
 
     public SpawnPointAreaBoss(final MapleMonster monster, final Point pos1, final Point pos2, final Point pos3, final int mobTime, final String msg, final boolean shouldSpawn) {
         if (monster != null) {
-        this.monster = monster.getStats();
-        this.id = monster.getId();
-	this.fh = monster.getFh();
-	this.f = monster.getF();
-        this.pos1 = pos1;
-        this.pos2 = pos2;
-        this.pos3 = pos3;
-        this.mobTime = (mobTime < 0 ? -1 : (mobTime * 1000));
-        this.msg = msg;
-        this.nextPossibleSpawn = System.currentTimeMillis() + (shouldSpawn ? 0 : this.mobTime);
-    }
+            this.monster = monster.getStats();
+            this.id = monster.getId();
+            this.fh = monster.getFh();
+            this.f = monster.getF();
+            this.pos1 = pos1;
+            this.pos2 = pos2;
+            this.pos3 = pos3;
+            this.mobTime = (mobTime < 0 ? -1 : (mobTime * 1000));
+            this.msg = msg;
+            this.nextPossibleSpawn = System.currentTimeMillis() + (shouldSpawn ? 0 : this.mobTime);
+        }
     }
 
     public final int getF() {
-	return f;
+        return f;
     }
 
     public final int getFh() {
-	return fh;
+        return fh;
     }
 
     @Override
@@ -92,14 +92,14 @@ public class SpawnPointAreaBoss extends Spawns {
 
     @Override
     public final MapleMonster spawnMonster(final MapleMap map) {
-	final Point pos = getPosition();
+        final Point pos = getPosition();
         final MapleMonster mob = new MapleMonster(id, monster);
         mob.setPosition(pos);
-	mob.setCy(pos.y);
-	mob.setRx0(pos.x - 50);
-	mob.setRx1(pos.x + 50); //these dont matter for mobs
-	mob.setFh(fh);
-	mob.setF(f);
+        mob.setCy(pos.y);
+        mob.setRx0(pos.x - 50);
+        mob.setRx1(pos.x + 50); //these dont matter for mobs
+        mob.setFh(fh);
+        mob.setF(f);
         spawned.set(true);
         mob.addListener(new MonsterListener() {
 

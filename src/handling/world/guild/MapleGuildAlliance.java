@@ -23,25 +23,21 @@ package handling.world.guild;
 
 import database.DatabaseConnection;
 import handling.world.World;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
 import tools.packet.CWvsContext;
 import tools.packet.CWvsContext.AlliancePacket;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collection;
+
 public class MapleGuildAlliance implements java.io.Serializable {
 
-    private static enum GAOp {
-
-        NONE, DISBAND, NEWGUILD
-    }
     public static final long serialVersionUID = 24081985245L;
     public static final int CHANGE_CAPACITY_COST = 10000000;
     private final int[] guilds = new int[5];
     private int allianceid, leaderid, capacity; //make SQL for this auto-increment
     private String name, notice;
     private String ranks[] = new String[5];
-
     public MapleGuildAlliance(final int id) {
         super();
 
@@ -72,14 +68,13 @@ public class MapleGuildAlliance implements java.io.Serializable {
         }
     }
 
-
     public static Collection<MapleGuildAlliance> loadAll() {
         final Collection<MapleGuildAlliance> ret = new ArrayList<>();
         MapleGuildAlliance g;
         try {
             Connection con = DatabaseConnection.getConnection();
-            try (PreparedStatement ps = con.prepareStatement("SELECT id FROM alliances"); 
-                    ResultSet rs = ps.executeQuery()) {
+            try (PreparedStatement ps = con.prepareStatement("SELECT id FROM alliances");
+                 ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     g = new MapleGuildAlliance(rs.getInt("id"));
                     if (g.getId() > 0) {
@@ -89,16 +84,6 @@ public class MapleGuildAlliance implements java.io.Serializable {
             }
         } catch (SQLException se) {
             System.err.println("unable to read guild information from sql");
-        }
-        return ret;
-    }
-
-    public int getNoGuilds() {
-        int ret = 0;
-        for (int i = 0; i < capacity; i++) {
-            if (guilds[i] > 0) {
-                ret++;
-            }
         }
         return ret;
     }
@@ -136,6 +121,16 @@ public class MapleGuildAlliance implements java.io.Serializable {
             ps.close();
         } catch (SQLException SE) {
             System.err.println("SQL THROW");
+        }
+        return ret;
+    }
+
+    public int getNoGuilds() {
+        int ret = 0;
+        for (int i = 0; i < capacity; i++) {
+            if (guilds[i] > 0) {
+                ret++;
+            }
         }
         return ret;
     }
@@ -269,15 +264,15 @@ public class MapleGuildAlliance implements java.io.Serializable {
     }
 
     public boolean removeGuild(final int guildid, final boolean expelled) {
-	return removeGuild(guildid, expelled, false);
+        return removeGuild(guildid, expelled, false);
     }
 
     public boolean removeGuild(final int guildid, final boolean expelled, final boolean isNull) {
         for (int i = 0; i < getNoGuilds(); i++) {
             if (guilds[i] == guildid) {
-		if (!isNull) {
+                if (!isNull) {
                     broadcast(null, guildid, GAOp.DISBAND, expelled);
-		}
+                }
                 if (i > 0 && i != getNoGuilds() - 1) { // if guild isnt the last guild.. damnit
                     for (int x = i + 1; x < getNoGuilds(); x++) {
                         if (guilds[x] > 0) {
@@ -308,7 +303,7 @@ public class MapleGuildAlliance implements java.io.Serializable {
     }
 
     public boolean setLeaderId(final int c) {
-	return setLeaderId(c, false);
+        return setLeaderId(c, false);
     }
 
     public boolean setLeaderId(final int c, boolean sameGuild) {
@@ -326,12 +321,12 @@ public class MapleGuildAlliance implements java.io.Serializable {
                 if (newLead != null && oldLead != null && !sameGuild) { //same guild
                     return false;
                 }
-		if (newLead != null && newLead.getGuildRank() == 1 && newLead.getAllianceRank() == 2) { //guild1 should always be leader so no worries about g being -1
+                if (newLead != null && newLead.getGuildRank() == 1 && newLead.getAllianceRank() == 2) { //guild1 should always be leader so no worries about g being -1
                     g_.changeARank(c, 1);
                     g = i;
                     leaderName = newLead.getName();
                 }
-		if (oldLead != null && oldLead.getGuildRank() == 1 && oldLead.getAllianceRank() == 1) {
+                if (oldLead != null && oldLead.getGuildRank() == 1 && oldLead.getAllianceRank() == 1) {
                     g_.changeARank(leaderid, 2);
                 }
             }
@@ -373,6 +368,11 @@ public class MapleGuildAlliance implements java.io.Serializable {
         }
         return false;
     }
+
+    private static enum GAOp {
+
+        NONE, DISBAND, NEWGUILD
+    }
 }
-		
+
 	

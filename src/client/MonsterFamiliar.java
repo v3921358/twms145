@@ -20,9 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
-import java.awt.Point;
-import java.io.Serializable;
-import java.util.List;
 import server.MapleItemInformationProvider;
 import server.Randomizer;
 import server.life.MapleLifeFactory;
@@ -35,6 +32,10 @@ import server.movement.ILifeMovementFragment;
 import tools.data.MaplePacketLittleEndianWriter;
 import tools.packet.CField;
 import tools.packet.PacketHelper;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.util.List;
 
 public final class MonsterFamiliar extends AnimatedMapleMapObject implements Serializable {
 
@@ -49,7 +50,7 @@ public final class MonsterFamiliar extends AnimatedMapleMapObject implements Ser
         this.familiar = familiar;
         this.characterid = characterid;
         this.expiry = expiry;
-		this.vitality = vitality;
+        this.vitality = vitality;
         this.id = id;
         this.name = name;
         this.fatigue = fatigue;
@@ -100,6 +101,10 @@ public final class MonsterFamiliar extends AnimatedMapleMapObject implements Ser
         return fatigue;
     }
 
+    public void setFatigue(int f) {
+        this.fatigue = f;
+    }
+
     public int getCharacterId() {
         return characterid;
     }
@@ -108,36 +113,32 @@ public final class MonsterFamiliar extends AnimatedMapleMapObject implements Ser
         return name;
     }
 
-    public long getExpiry() {
-        return expiry;
-    }
-
-    public byte getVitality() {
-        return vitality;
-    }
-
-    public void setFatigue(int f) {
-        this.fatigue = f;
-    }
-
     public void setName(String n) {
         this.name = n;
+    }
+
+    public long getExpiry() {
+        return expiry;
     }
 
     public void setExpiry(long e) {
         this.expiry = e;
     }
 
+    public byte getVitality() {
+        return vitality;
+    }
+
     public void setVitality(int v) {
         this.vitality = (byte) v;
     }
 
-    public void setFh(int f) {
-        this.fh = (short) f;
-    }
-
     public short getFh() {
         return fh;
+    }
+
+    public void setFh(int f) {
+        this.fh = (short) f;
     }
 
     @Override

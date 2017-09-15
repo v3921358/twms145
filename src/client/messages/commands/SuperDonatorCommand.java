@@ -9,7 +9,6 @@ import tools.FileoutputUtil;
 import tools.packet.CWvsContext;
 
 /**
- *
  * @author Eric
  */
 public class SuperDonatorCommand {
@@ -19,23 +18,23 @@ public class SuperDonatorCommand {
         return PlayerGMRank.SUPERDONATOR;
     }
 
-    public static boolean executeSuperDonatorCommand (MapleClient c, String[] splitted) {
+    public static boolean executeSuperDonatorCommand(MapleClient c, String[] splitted) {
         MapleCharacter player = c.getPlayer();
         if (!player.isGM() && GameConstants.isJail(c.getPlayer().getMapId())) {
             c.getPlayer().dropMessage(1, "You may not use commands in this map.");
             return true;
         }
         if (c.getPlayer().gmLevel() >= 2) {
-             if (player.gmLevel() < 3 && usedCommandSDonator == false) {
-                    FileoutputUtil.log("DonorLog.txt", "\r\nIGN: " + player.getName() + " || Command: " + InternCommand.joinStringFrom(splitted, 0) + " \r\n");
-                    usedCommandSDonator = true;
-                    EventTimer.getInstance().schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                           usedCommandSDonator = false;  
-                        }
-                    }, 10);
-                }
+            if (player.gmLevel() < 3 && usedCommandSDonator == false) {
+                FileoutputUtil.log("DonorLog.txt", "\r\nIGN: " + player.getName() + " || Command: " + InternCommand.joinStringFrom(splitted, 0) + " \r\n");
+                usedCommandSDonator = true;
+                EventTimer.getInstance().schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        usedCommandSDonator = false;
+                    }
+                }, 10);
+            }
             switch (splitted[0].substring(1).toLowerCase()) {
                 case "null":
                 case "fixme":

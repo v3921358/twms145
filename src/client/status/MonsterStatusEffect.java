@@ -22,16 +22,17 @@ package client.status;
 
 
 import client.MapleCharacter;
-import java.lang.ref.WeakReference;
 import server.life.MapleMonster;
 import server.life.MobSkill;
 
+import java.lang.ref.WeakReference;
+
 public class MonsterStatusEffect {
 
-    private MonsterStatus stati;
     private final int skill;
     private final MobSkill mobskill;
     private final boolean monsterSkill;
+    private MonsterStatus stati;
     private WeakReference<MapleCharacter> weakChr = null;
     private Integer x;
     private int poisonSchedule = 0;
@@ -52,7 +53,40 @@ public class MonsterStatusEffect {
         this.monsterSkill = monsterSkill;
         this.mobskill = mobskill;
         this.x = x;
-	this.reflect = reflect;
+        this.reflect = reflect;
+    }
+
+    public static int genericSkill(MonsterStatus stat) {
+        switch (stat) {
+            case STUN:
+                return 90001001;
+            case SPEED:
+                return 90001002;
+            case POISON:
+                return 90001003;
+            case DARKNESS:
+                return 90001004;
+            case SEAL:
+                return 90001005;
+            case FREEZE:
+                return 90001006;
+            case MAGIC_CRASH:
+                return 1111007;
+            case SHOWDOWN:
+                return 4121003;
+            case IMPRINT:
+                return 22161002;
+            case SHADOW_WEB:
+                return 4111003;
+            case BURN:
+                return 5211004;
+            case DOOM: //not used
+                return 2311005;
+            case NINJA_AMBUSH: //not used
+                return 4121004;
+
+        }
+        return 0;
     }
 
     public final MonsterStatus getStati() {
@@ -80,29 +114,29 @@ public class MonsterStatusEffect {
         return monsterSkill;
     }
 
+    public final long getCancelTask() {
+        return this.cancelTime;
+    }
+
     public final void setCancelTask(final long cancelTask) {
         this.cancelTime = System.currentTimeMillis() + cancelTask;
     }
 
-    public final long getCancelTask() {
-	return this.cancelTime;
-    }
-
     public final void setPoisonSchedule(final int poisonSchedule, MapleCharacter chrr) {
         this.poisonSchedule = poisonSchedule;
-	this.weakChr = new WeakReference<>(chrr);
+        this.weakChr = new WeakReference<>(chrr);
     }
 
     public final int getPoisonSchedule() {
-	return this.poisonSchedule;
+        return this.poisonSchedule;
     }
 
     public final boolean shouldCancel(long now) {
-	return (cancelTime > 0 && cancelTime <= now);
+        return (cancelTime > 0 && cancelTime <= now);
     }
 
     public final void cancelTask() {
-	cancelTime = 0;
+        cancelTime = 0;
     }
 
     public final boolean isReflect() {
@@ -110,45 +144,12 @@ public class MonsterStatusEffect {
     }
 
     public final int getFromID() {
-	return weakChr == null || weakChr.get() == null ? 0 : weakChr.get().getId();
+        return weakChr == null || weakChr.get() == null ? 0 : weakChr.get().getId();
     }
 
     public final void cancelPoisonSchedule(MapleMonster mm) {
-	mm.doPoison(this, weakChr);
+        mm.doPoison(this, weakChr);
         this.poisonSchedule = 0;
-	this.weakChr = null;
-    }
-
-    public static int genericSkill(MonsterStatus stat) {
-	switch(stat) {
-	    case STUN:
-		return 90001001;
-	    case SPEED:
-		return 90001002;
-	    case POISON:
-		return 90001003;
-	    case DARKNESS:
-		return 90001004;
-	    case SEAL:
-		return 90001005;
-	    case FREEZE:
-		return 90001006;
-	    case MAGIC_CRASH:
-		return 1111007;
-	    case SHOWDOWN:
-		return 4121003;
-	    case IMPRINT:
-		return 22161002;
-	    case SHADOW_WEB:
-		return 4111003;
-	    case BURN:
-		return 5211004;
-	    case DOOM: //not used
-		return 2311005;
-	    case NINJA_AMBUSH: //not used
-		return 4121004;
-
-	}
-	return 0;
+        this.weakChr = null;
     }
 }

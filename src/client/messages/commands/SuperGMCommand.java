@@ -5,10 +5,7 @@ import client.inventory.*;
 import client.messages.CommandProcessorUtil;
 import constants.GameConstants;
 import constants.Occupations;
-import constants.ServerConstants;
 import constants.ServerConstants.PlayerGMRank;
-import database.DatabaseConnection;
-import handling.MapleServerHandler;
 import handling.RecvPacketOpcode;
 import handling.SendPacketOpcode;
 import handling.channel.ChannelServer;
@@ -16,47 +13,40 @@ import handling.channel.handler.ChatHandler;
 import handling.login.LoginServer;
 import handling.login.handler.CharLoginHandler;
 import handling.world.World;
-import java.awt.Point;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.Map.Entry;
 import scripting.PortalScriptManager;
 import scripting.ReactorScriptManager;
 import server.*;
 import server.Timer;
-import server.Timer.BuffTimer;
-import server.Timer.EtcTimer;
-import server.Timer.EventTimer;
-import server.Timer.MapTimer;
-import server.Timer.WorldTimer;
+import server.Timer.*;
 import server.life.*;
 import server.maps.*;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
-import tools.HexTool;
 import tools.StringUtil;
 import tools.packet.CField;
 import tools.packet.CField.NPCPacket;
 import tools.packet.CWvsContext;
 import tools.packet.MobPacket;
 
+import java.awt.*;
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
+
 /**
  * @author: Eric
  * @rev: 3.9 - Moved several commands to GMCommand
- * 
  */
 public class SuperGMCommand {
-    
+
     static boolean usedCommandSuperGM = false;
 
     public static PlayerGMRank getPlayerLevelRequired() {
         return PlayerGMRank.SUPERGM;
     }
-    
+
     public static boolean executeSuperGMCommand(MapleClient c, String[] splitted) {
         if (c.getPlayer().getGMLevel() >= PlayerGMRank.SUPERGM.getLevel()) {
             StringBuilder builder = new StringBuilder();
@@ -72,15 +62,15 @@ public class SuperGMCommand {
             Skill skill;
             byte ret;
             if (player.gmLevel() < 6 && usedCommandSuperGM == false) {
-                    FileoutputUtil.log("GMLog.txt", "\r\nIGN: " + player.getName() + " || Command: " + InternCommand.joinStringFrom(splitted, 0) + " \r\n");
-                    usedCommandSuperGM = true;
-                    EventTimer.getInstance().schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                           usedCommandSuperGM = false;  
-                        }
-                    }, 10);
-                }
+                FileoutputUtil.log("GMLog.txt", "\r\nIGN: " + player.getName() + " || Command: " + InternCommand.joinStringFrom(splitted, 0) + " \r\n");
+                usedCommandSuperGM = true;
+                EventTimer.getInstance().schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        usedCommandSuperGM = false;
+                    }
+                }, 10);
+            }
             switch (splitted[0].substring(1).toLowerCase()) {
                 // Start of Eric's Commands
                 case "proitem":
@@ -118,8 +108,8 @@ public class SuperGMCommand {
                     player.dropMessage("Reset Fake Ban.");
                     return true;
                 case "flyperson":
-                        victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
-                        victim.fly(victim);
+                    victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
+                    victim.fly(victim);
                     /*if (victim.isFlying() == false) {
                         SkillFactory.getSkill(80001069).getEffect(1).applyTo(victim);
                       if (victim.getBuffedValue(MapleBuffStatus.MONSTER_RIDING) != null) {
@@ -139,16 +129,16 @@ public class SuperGMCommand {
                     return true;
                 case "supermax":
                     HashMap sa = new HashMap();
-      for (Skill skil : SkillFactory.getAllSkills()) {
-        if ((GameConstants.isApplicableSkill(skil.getId())) && (skil.getId() < 90000000)) {
-          if ((skil.getId() != 3101003) && (skil.getId() != 3201003) && (skil.getId() != 13101004))
-            sa.put(skil, new SkillEntry((byte)skil.getMaxLevel(), (byte)skil.getMaxLevel(), SkillFactory.getDefaultSExpiry(skil)));
-          else {
-            sa.put(skil, new SkillEntry(0, (byte)skil.getMaxLevel(), SkillFactory.getDefaultSExpiry(skil)));
-          }
-        }
-      }
-      player.changeSkillsLevel(sa);
+                    for (Skill skil : SkillFactory.getAllSkills()) {
+                        if ((GameConstants.isApplicableSkill(skil.getId())) && (skil.getId() < 90000000)) {
+                            if ((skil.getId() != 3101003) && (skil.getId() != 3201003) && (skil.getId() != 13101004))
+                                sa.put(skil, new SkillEntry((byte) skil.getMaxLevel(), (byte) skil.getMaxLevel(), SkillFactory.getDefaultSExpiry(skil)));
+                            else {
+                                sa.put(skil, new SkillEntry(0, (byte) skil.getMaxLevel(), SkillFactory.getDefaultSExpiry(skil)));
+                            }
+                        }
+                    }
+                    player.changeSkillsLevel(sa);
                     return true;
                 case "maxtraits":
                     player.traits.get(MapleTrait.MapleTraitType.charm).setExp(93596);
@@ -161,15 +151,15 @@ public class SuperGMCommand {
                     player.getMap().removePlayer(player);
                     player.getMap().addPlayer(player);
                     player.dropMessage(5, "Maxed your traits to 93596! If you don't see it, relog!");
-                        return true;
+                    return true;
                 case "rank1":
-                        player.pvpExp = 10001562;
-                        player.savePlayer();
-                        c.sendPacket(CField.getCharInfo(player));
-                        player.getMap().removePlayer(player);
-                        player.getMap().addPlayer(player);
-                        player.dropMessage(5, "You are now PvP Rank 1! If you don't see it, try doing a relog!");
-                        return true;
+                    player.pvpExp = 10001562;
+                    player.savePlayer();
+                    c.sendPacket(CField.getCharInfo(player));
+                    player.getMap().removePlayer(player);
+                    player.getMap().addPlayer(player);
+                    player.dropMessage(5, "You are now PvP Rank 1! If you don't see it, try doing a relog!");
+                    return true;
                 case "maxmeso":
                 case "maxmesos":
                     player.gainMeso(Integer.MAX_VALUE - player.getMeso(), true);
@@ -178,7 +168,7 @@ public class SuperGMCommand {
                     player.getMap().broadcastMessage(CWvsContext.serverNotice(1, "You're about to battle against a monster with such high HP it can't even be valued.\r\n\r\nCalculation of total HP: \\7.28e+13\\"));
                     player.spawnMonster(8800000, 9100000000000L, 9999999, 1);
                     for (int x = 8800003; x < 8800011; x++) {
-                       player.spawnMonster(x, 9100000000000L, 9999999, 1);
+                        player.spawnMonster(x, 9100000000000L, 9999999, 1);
                     }
                     AdminCommand.superBaal = true; // umad luke?
                     return true;
@@ -256,17 +246,17 @@ public class SuperGMCommand {
                 case "worldtrip":
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
                     if (victim.isAdmin()) {
-                    player.dropMessage("Don't world trip owners!");
-                } else {
-                if (victim != null) {
-                    for (int i = 0; i < 4; i++) {
-                        victim.changeMap(100000000 + 1000000 * i);
+                        player.dropMessage("Don't world trip owners!");
+                    } else {
+                        if (victim != null) {
+                            for (int i = 0; i < 4; i++) {
+                                victim.changeMap(100000000 + 1000000 * i);
+                            }
+                        } else {
+                            player.dropMessage(splitted[1] + " either doesn't exist or is offline");
+                        }
                     }
-                } else {
-                    player.dropMessage(splitted[1] + " either doesn't exist or is offline");
-                }
-                }
-                return true;
+                    return true;
                 case "whatsmyid":
                     player.dropMessage(6, "Your Current Player ID In The Database Is : " + player.getId());
                     return true;
@@ -280,13 +270,13 @@ public class SuperGMCommand {
                     return true;
                 case "bombwholemap":
                     for (MapleCharacter map_ : player.getMap().getCharacters()) {
-                if (map_ != null && map_ != player) {
-                    map_.spawnBomb();
+                        if (map_ != null && map_ != player) {
+                            map_.spawnBomb();
+                            return true;
+                        }
+                    }
                     return true;
-                }
-            }
-                return true;
-                    // End of Eric's Commands
+                // End of Eric's Commands
                 case "unb":
                 case "unban":
                     if (splitted.length < 2) {
@@ -491,18 +481,18 @@ public class SuperGMCommand {
                     player.getMap().spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(8510000), player.getPosition());
                     return true;
                 case "occupations":
-            player.dropMessage("None - 0");
-            player.dropMessage("Noob - 1");
-            player.dropMessage("Sniper - 100");
-            player.dropMessage("Leprechaun - 200");
-            player.dropMessage("NX Addict - 300");
-            player.dropMessage("Hacker - 400");
-            player.dropMessage("Eric IdoL - 500");
-            player.dropMessage("The Transformers AutoBots - 600");
-            player.dropMessage("Smega Whore - 700");
-            player.dropMessage("Terrorist - 800");
-            // player.dropMessage("I liek teh 1337 - 1337");
-            return true;
+                    player.dropMessage("None - 0");
+                    player.dropMessage("Noob - 1");
+                    player.dropMessage("Sniper - 100");
+                    player.dropMessage("Leprechaun - 200");
+                    player.dropMessage("NX Addict - 300");
+                    player.dropMessage("Hacker - 400");
+                    player.dropMessage("Eric IdoL - 500");
+                    player.dropMessage("The Transformers AutoBots - 600");
+                    player.dropMessage("Smega Whore - 700");
+                    player.dropMessage("Terrorist - 800");
+                    // player.dropMessage("I liek teh 1337 - 1337");
+                    return true;
                 case "occ":
                 case "occupation":
                     if (splitted.length != 2) {
@@ -512,7 +502,7 @@ public class SuperGMCommand {
                     player.setOccId(Integer.parseInt(splitted[1]));
                     player.setOccupation(Integer.parseInt(splitted[1]));
                     player.dropMessage("You have changed your occupation to " + Occupations.getById(Integer.parseInt(splitted[1])));
-            return true;
+                    return true;
                 case "occplayer":
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
                     victim.setOccId(Integer.parseInt(splitted[2]));
@@ -554,7 +544,7 @@ public class SuperGMCommand {
                             }
                         }
                     } else {
-                    c.getPlayer().showMessage("Item does not exist.");
+                        c.getPlayer().showMessage("Item does not exist.");
                     }
                     return true;
                 case "marry":
@@ -643,7 +633,7 @@ public class SuperGMCommand {
                         }
                     }
                     return true;
-                
+
                 case "resetother":
                     MapleQuest.getInstance(Integer.parseInt(splitted[2])).forfeit(c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]));
                     return true;
@@ -677,7 +667,7 @@ public class SuperGMCommand {
                         c.getPlayer().dropMessage(6, elem.toString());
                     }
                     return true;
-               
+
                 case "tmegaphone":
                     World.toggleMegaphoneMuteState(c.getWorld());
                     c.getPlayer().dropMessage(6, "Megaphone state : " + (c.getChannelServer().getMegaphoneMuteState() ? "Enabled" : "Disabled"));
@@ -1009,21 +999,7 @@ public class SuperGMCommand {
             return true;
         }
     }
-        
-    public static class BookComparator implements Comparator<Entry<Integer, Integer>>, Serializable {
 
-            @Override
-            public int compare(Entry<Integer, Integer> o1, Entry<Integer, Integer> o2) {
-                if (o1.getValue() > o2.getValue()) {
-                    return 1;
-                } else if (o1.getValue() == o2.getValue()) {
-                    return 0;
-                } else {
-                    return -1;
-                }
-            }
-        }
-    
     public static int getOptionalIntArg(String splitted[], int position, int def) {
         if (splitted.length > position) {
             try {
@@ -1033,5 +1009,19 @@ public class SuperGMCommand {
             }
         }
         return def;
+    }
+
+    public static class BookComparator implements Comparator<Entry<Integer, Integer>>, Serializable {
+
+        @Override
+        public int compare(Entry<Integer, Integer> o1, Entry<Integer, Integer> o2) {
+            if (o1.getValue() > o2.getValue()) {
+                return 1;
+            } else if (o1.getValue() == o2.getValue()) {
+                return 0;
+            } else {
+                return -1;
+            }
+        }
     }
 }

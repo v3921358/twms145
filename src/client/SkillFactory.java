@@ -22,18 +22,14 @@ package client;
 
 import client.status.MonsterStatus;
 import constants.GameConstants;
-import java.awt.Point;
-import java.util.*;
-
-import provider.MapleData;
-import provider.MapleDataProvider;
-import provider.MapleDataFileEntry;
-import provider.MapleDataProviderFactory;
-import provider.MapleDataDirectoryEntry;
-import provider.MapleDataTool;
+import provider.*;
 import server.Randomizer;
 import tools.StringUtil;
 import tools.types.Triple;
+
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class SkillFactory {
 
@@ -45,7 +41,7 @@ public class SkillFactory {
     private static final Map<Integer, SummonSkillEntry> SummonSkillInformation = new HashMap<Integer, SummonSkillEntry>();
 
     public static void load() {
-        final MapleData delayData = MapleDataProviderFactory.getDataProvider( "Character.wz").getData("00002000.img");
+        final MapleData delayData = MapleDataProviderFactory.getDataProvider("Character.wz").getData("00002000.img");
         final MapleData stringData = MapleDataProviderFactory.getDataProvider("String.wz").getData("Skill.img");
         final MapleDataProvider datasource = MapleDataProviderFactory.getDataProvider("Skill.wz");
         final MapleDataDirectoryEntry root = datasource.getRoot();
@@ -63,7 +59,7 @@ public class SkillFactory {
 
         for (MapleDataFileEntry topDir : root.getFiles()) { // Loop thru jobs
             if (topDir.getName().length() <= 8) {
-				for (MapleData data : datasource.getData(topDir.getName())) { // Loop thru each jobs
+                for (MapleData data : datasource.getData(topDir.getName())) { // Loop thru each jobs
                     if (data.getName().equals("skill")) {
                         for (MapleData data2 : data) { // Loop thru each jobs
                             if (data2 != null) {
@@ -198,8 +194,8 @@ public class SkillFactory {
 
         return null;
     }
-	
-	 public static long getDefaultSExpiry(final Skill skill) {
+
+    public static long getDefaultSExpiry(final Skill skill) {
         if (skill == null) {
             return -1;
         }
@@ -222,37 +218,6 @@ public class SkillFactory {
         return null;
     }
 
-    public static class CraftingEntry extends Skill {
-        //reqSkillProficiency -> always seems to be 0
-
-        public boolean needOpenItem;
-        public int period;
-        public byte incFatigability, reqSkillLevel, incSkillProficiency;
-        public List<Triple<Integer, Integer, Integer>> targetItems = new ArrayList<Triple<Integer, Integer, Integer>>(); // itemId / amount / probability
-        public Map<Integer, Integer> reqItems = new HashMap<Integer, Integer>(); // itemId / amount
-
-        public CraftingEntry(int id, byte incFatigability, byte reqSkillLevel, byte incSkillProficiency, boolean needOpenItem, int period) {
-            super(id);
-            this.incFatigability = incFatigability;
-            this.reqSkillLevel = reqSkillLevel;
-            this.incSkillProficiency = incSkillProficiency;
-            this.needOpenItem = needOpenItem;
-            this.period = period;
-        }
-    }
-
-    public static class FamiliarEntry {
-
-        public byte prop, time, attackCount, targetCount, speed;
-        public Point lt, rb;
-        public boolean knockback;
-        public EnumSet<MonsterStatus> status = EnumSet.noneOf(MonsterStatus.class);
-
-        public final boolean makeChanceResult() {
-            return prop >= 100 || Randomizer.nextInt(100) < prop;
-        }
-    }
-    
     public static enum Delay {
 
         walk1(0x00),
@@ -367,7 +332,7 @@ public class SkillFactory {
         dragonstrike(GameConstants.GMS ? 0x77 : 0x66),
         doublefire(GameConstants.GMS ? 0x78 : 0x67),
         triplefire(GameConstants.GMS ? 0x79 : 0x68),
-		fake(GameConstants.GMS ? 0x7A : 0x69),
+        fake(GameConstants.GMS ? 0x7A : 0x69),
         airstrike(GameConstants.GMS ? 0x7B : 0x6A),
         edrain(GameConstants.GMS ? 0x7C : 0x6B),
         octopus(GameConstants.GMS ? 0x7D : 0x6C),
@@ -554,6 +519,37 @@ public class SkillFactory {
                 }
             }
             return null;
+        }
+    }
+
+    public static class CraftingEntry extends Skill {
+        //reqSkillProficiency -> always seems to be 0
+
+        public boolean needOpenItem;
+        public int period;
+        public byte incFatigability, reqSkillLevel, incSkillProficiency;
+        public List<Triple<Integer, Integer, Integer>> targetItems = new ArrayList<Triple<Integer, Integer, Integer>>(); // itemId / amount / probability
+        public Map<Integer, Integer> reqItems = new HashMap<Integer, Integer>(); // itemId / amount
+
+        public CraftingEntry(int id, byte incFatigability, byte reqSkillLevel, byte incSkillProficiency, boolean needOpenItem, int period) {
+            super(id);
+            this.incFatigability = incFatigability;
+            this.reqSkillLevel = reqSkillLevel;
+            this.incSkillProficiency = incSkillProficiency;
+            this.needOpenItem = needOpenItem;
+            this.period = period;
+        }
+    }
+
+    public static class FamiliarEntry {
+
+        public byte prop, time, attackCount, targetCount, speed;
+        public Point lt, rb;
+        public boolean knockback;
+        public EnumSet<MonsterStatus> status = EnumSet.noneOf(MonsterStatus.class);
+
+        public final boolean makeChanceResult() {
+            return prop >= 100 || Randomizer.nextInt(100) < prop;
         }
     }
 }

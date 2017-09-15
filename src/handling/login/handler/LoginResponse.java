@@ -2,7 +2,7 @@ package handling.login.handler;
 
 /**
  * Created by Weber on 2017/9/9.
-*/
+ */
 public enum LoginResponse {
 
     LOGIN_SUCCESS(0x0),
@@ -16,17 +16,14 @@ public enum LoginResponse {
     SYSTEM_ERROR2(0x9),
     SYSTEM_OVERLOADED(0xA),
     IP_NOT_ALLOWED(0x22),
-    LOGIN_DELAY(0x7),
-    ;
+    LOGIN_DELAY(0x7),;
     private final int value;
 
-    private LoginResponse(int value)
-    {
+    private LoginResponse(int value) {
         this.value = value;
     }
 
-    public int getValue()
-    {
+    public int getValue() {
         return this.value;
     }
 }

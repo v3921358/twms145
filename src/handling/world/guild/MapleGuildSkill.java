@@ -29,9 +29,9 @@ public class MapleGuildSkill implements java.io.Serializable {
 
     public MapleGuildSkill(final int skillID, final int level, final long timestamp, final String purchaser, final String activator) {
         this.timestamp = timestamp;
-	this.skillID = skillID;
-	this.level = level;
-	this.purchaser = purchaser;
-	this.activator = activator;
+        this.skillID = skillID;
+        this.level = level;
+        this.purchaser = purchaser;
+        this.activator = activator;
     }
 }

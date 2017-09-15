@@ -9,26 +9,13 @@ import constants.ServerConstants.PlayerGMRank;
 import handling.channel.ChannelServer;
 import handling.login.LoginServer;
 import handling.world.World;
-import java.awt.Point;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map.Entry;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 import scripting.EventInstanceManager;
 import scripting.EventManager;
-import server.ItemInformation;
-import server.MapleItemInformationProvider;
-import server.MaplePortal;
-import server.MapleSquad;
-import server.Randomizer;
+import server.*;
 import server.Timer.EventTimer;
 import server.life.MapleMonster;
 import server.life.MapleNPC;
@@ -38,24 +25,29 @@ import server.maps.MapleMapObjectType;
 import server.maps.MapleReactor;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
-import tools.types.Pair;
 import tools.StringUtil;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
+import tools.types.Pair;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
- *
  * @author Emilyx3
  */
 public class InternCommand {
-    
+
     static boolean usedCommandIntern = false;
 
     public static PlayerGMRank getPlayerLevelRequired() {
         return PlayerGMRank.INTERN;
     }
 
-    public static boolean executeInternCommand (MapleClient c, String[] splitted) {
+    public static boolean executeInternCommand(MapleClient c, String[] splitted) {
         if (c.getPlayer().gmLevel() >= 3) {
             MapleCharacter player = c.getPlayer();
             MapleCharacter victim;
@@ -64,15 +56,15 @@ public class InternCommand {
             MapleMap map = c.getPlayer().getMap();
             StringBuilder sb = new StringBuilder();
             if (player.gmLevel() < 6 && usedCommandIntern == false) {
-                    FileoutputUtil.log("GMLog.txt", "\r\nIGN: " + player.getName() + " || Command: " + InternCommand.joinStringFrom(splitted, 0) + " \r\n");
-                    usedCommandIntern = true;
-                    EventTimer.getInstance().schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                           usedCommandIntern = false;  
-                        }
-                    }, 10);
-                }
+                FileoutputUtil.log("GMLog.txt", "\r\nIGN: " + player.getName() + " || Command: " + InternCommand.joinStringFrom(splitted, 0) + " \r\n");
+                usedCommandIntern = true;
+                EventTimer.getInstance().schedule(new Runnable() {
+                    @Override
+                    public void run() {
+                        usedCommandIntern = false;
+                    }
+                }, 10);
+            }
             switch (splitted[0].substring(1).toLowerCase()) {
                 // Start of Eric's Commands
                 case "fametoggle":
@@ -85,7 +77,7 @@ public class InternCommand {
                     } else {
                         player.dropMessage("fametoggle=null;");
                     }
-                 return true;
+                    return true;
                 case "gmchat":
                     World.Broadcast.broadcastGMMessage(player.getWorld(), CWvsContext.serverNotice(6, "[GM Chat - " + player.getName() + "]: " + joinStringFrom(splitted, 1)));
                     return true;
@@ -101,29 +93,29 @@ public class InternCommand {
                     player.setInvincible(player.isInvincible() ? false : true);
                     player.dropMessage(6, (player.isInvincible() ? "Invincibility activated." : "Invincibility deactivated."));
                     return true;
-                    
+
                 case "whosthere":
                     //	MessageCallback callback = new ServernoticeMapleClientMessageCallback(c);
-            StringBuilder builder = new StringBuilder("Players on Map: ");
-            for (MapleCharacter chr : c.getPlayer().getMap().getCharacters()) {
-                if (builder.length() > 150) { // wild guess :o
+                    StringBuilder builder = new StringBuilder("Players on Map: ");
+                    for (MapleCharacter chr : c.getPlayer().getMap().getCharacters()) {
+                        if (builder.length() > 150) { // wild guess :o
+                            builder.setLength(builder.length() - 2);
+                            player.dropMessage(builder.toString());
+                            builder = new StringBuilder();
+                        }
+                        builder.append(MapleCharacter.makeMapleReadable(chr.getName()));
+                        builder.append(", ");
+                    }
                     builder.setLength(builder.length() - 2);
                     player.dropMessage(builder.toString());
-                    builder = new StringBuilder();
-                }
-                builder.append(MapleCharacter.makeMapleReadable(chr.getName()));
-                builder.append(", ");
-            }
-                builder.setLength(builder.length() - 2);
-                player.dropMessage(builder.toString());
-                // c.sendPacket(CWvsContext.serverNotice(6, builder.toString()));
-            return true;
+                    // c.sendPacket(CWvsContext.serverNotice(6, builder.toString()));
+                    return true;
                 // End of Eric's Commands
                 case "hide": // fixed
                     //if (c.getPlayer().isHidden()) {
-                      //  SkillFactory.getSkill(9101004).getEffect(1).applyTo(c.getPlayer(), c.getPlayer(), true, c.getPlayer().getPosition(), 0);
+                    //  SkillFactory.getSkill(9101004).getEffect(1).applyTo(c.getPlayer(), c.getPlayer(), true, c.getPlayer().getPosition(), 0);
                     //} else {
-                       //SkillFactory.getSkill(9101004).getEffect(1).applyTo(c.getPlayer());
+                    //SkillFactory.getSkill(9101004).getEffect(1).applyTo(c.getPlayer());
                     //}
                     player.toggleHide(false, player.isHidden() ? false : true);
                     return true;
@@ -144,7 +136,7 @@ public class InternCommand {
                         c.getPlayer().dropMessage(6, "Characters connected to channel " + ch.getChannel() + ":");
                         c.getPlayer().dropMessage(6, ChannelServer.getInstance(c.getWorld(), ch.getChannel()).getPlayerStorage().getOnlinePlayers(true));
                     }
-                return true;
+                    return true;
                 case "onlinechannel":
                     c.getPlayer().dropMessage(6, "Characters connected to channel " + Integer.parseInt(splitted[1]) + ":");
                     c.getPlayer().dropMessage(6, LoginServer.getInstance().getWorld(c.getWorld()).getChannel(Integer.parseInt(splitted[1])).getPlayerStorage().getOnlinePlayers(true));
@@ -295,13 +287,13 @@ public class InternCommand {
                     c.getPlayer().dropMessage(6, "WorldConfig has been up for " + StringUtil.getReadableMillis(ChannelServer.serverStartTime, System.currentTimeMillis()));
                     return true;
                 case "eventinstance":
-                if (c.getPlayer().getEventInstance() == null) {
-                    c.getPlayer().dropMessage(5, "none");
-                } else {
-                    EventInstanceManager eim = c.getPlayer().getEventInstance();
-                    c.getPlayer().dropMessage(5, "Event " + eim.getName() + ", charSize: " + eim.getPlayers().size() + ", dcedSize: " + eim.getDisconnected().size() + ", mobSize: " + eim.getMobs().size() + ", eventManager: " + eim.getEventManager().getName() + ", timeLeft: " + eim.getTimeLeft() + ", iprops: " + eim.getProperties().toString() + ", eprops: " + eim.getEventManager().getProperties().toString());
-                }
-                return true;
+                    if (c.getPlayer().getEventInstance() == null) {
+                        c.getPlayer().dropMessage(5, "none");
+                    } else {
+                        EventInstanceManager eim = c.getPlayer().getEventInstance();
+                        c.getPlayer().dropMessage(5, "Event " + eim.getName() + ", charSize: " + eim.getPlayers().size() + ", dcedSize: " + eim.getDisconnected().size() + ", mobSize: " + eim.getMobs().size() + ", eventManager: " + eim.getEventManager().getName() + ", timeLeft: " + eim.getTimeLeft() + ", iprops: " + eim.getProperties().toString() + ", eprops: " + eim.getEventManager().getProperties().toString());
+                    }
+                    return true;
                 case "goto":
                     HashMap<String, Integer> gotomaps = new HashMap<String, Integer>();
                     gotomaps.put("gmmap", 180000000);
@@ -419,16 +411,18 @@ public class InternCommand {
                             cs.eventChannel = (byte) c.getPlayer().getClient().getChannel();
                         }
                         try {
-                            World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.serverNotice(6, c.getChannel(), "[Event] " + StringUtil.joinStringFrom(splitted, 1) + " - Type @joinevent on channel " + c.getChannel() +" to join."));
-                        } catch (NumberFormatException nfe) {}
+                            World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.serverNotice(6, c.getChannel(), "[Event] " + StringUtil.joinStringFrom(splitted, 1) + " - Type @joinevent on channel " + c.getChannel() + " to join."));
+                        } catch (NumberFormatException nfe) {
+                        }
                     } else {
                         for (ChannelServer cs : c.getWorldServer().getChannels()) {
                             cs.eventOn = false;
-                            cs.eventMap=0;
+                            cs.eventMap = 0;
                         }
                         try {
                             World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.serverNotice(6, c.getChannel(), "[Event] Access to the event has ended since the time finished."));
-                        } catch (NumberFormatException nfe) {}
+                        } catch (NumberFormatException nfe) {
+                        }
                         return true;
                     }
                     return true;
@@ -561,7 +555,7 @@ public class InternCommand {
                     } else {
                         c.getPlayer().dropMessage(6, "Syntax: say <message>");
                         return true;
-                      }
+                    }
                     return true;
                 case "letter":
                 case "spell":
@@ -612,7 +606,7 @@ public class InternCommand {
                         }
                     }
                     return true;
-                case "lookup": 
+                case "lookup":
                 case "search":
                 case "find":
                     if (splitted.length == 1) {
@@ -757,7 +751,7 @@ public class InternCommand {
                             }
                             for (Pair<Integer, String> npcPair : npcPairList) {
                                 if (npcPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-                                    sb.append("#b").append(npcPair.getLeft()).append("#k - #r").append((String)npcPair.getRight()).append("#k\r\n");
+                                    sb.append("#b").append(npcPair.getLeft()).append("#k - #r").append((String) npcPair.getRight()).append("#k\r\n");
                                 }
                             }
                         } else if (searchType.equalsIgnoreCase("MAP")) {
@@ -770,7 +764,7 @@ public class InternCommand {
                             }
                             for (Pair<Integer, String> mapPair : mapPairList) {
                                 if (mapPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-                                    sb.append("#b").append(mapPair.getLeft()).append("#k - #r").append((String)mapPair.getRight()).append("#k\r\n");
+                                    sb.append("#b").append(mapPair.getLeft()).append("#k - #r").append((String) mapPair.getRight()).append("#k\r\n");
                                 }
                             }
                         } else if (searchType.equalsIgnoreCase("MOB")) {
@@ -781,7 +775,7 @@ public class InternCommand {
                             }
                             for (Pair<Integer, String> mobPair : mobPairList) {
                                 if (mobPair.getRight().toLowerCase().contains(search.toLowerCase())) {
-                                    sb.append("#b").append(mobPair.getLeft()).append("#k - #r").append((String)mobPair.getRight()).append("#k\r\n");
+                                    sb.append("#b").append(mobPair.getLeft()).append("#k - #r").append((String) mobPair.getRight()).append("#k\r\n");
                                 }
                             }
                         } else if (searchType.equalsIgnoreCase("ITEM")) {
@@ -844,7 +838,7 @@ public class InternCommand {
                     if (c.getPlayer().gmLevel() >= 4) {
                         return GMCommand.executeGMCommand(c, splitted);
                     } else {
-                        return SuperDonatorCommand.executeSuperDonatorCommand(c, splitted); 
+                        return SuperDonatorCommand.executeSuperDonatorCommand(c, splitted);
                     }
                     // c.getPlayer().showMessage(splitted[0].substring(1) + " does not exist.");
                     // return false;
@@ -854,7 +848,7 @@ public class InternCommand {
             return true;
         }
     }
-    
+
     static String joinStringFrom(String arr[], int start) {
         StringBuilder builder = new StringBuilder();
         for (int i = start; i < arr.length; i++) {
@@ -865,7 +859,7 @@ public class InternCommand {
         }
         return builder.toString();
     }
-    
+
     public static class WhoComparator implements Comparator<Pair<String, Long>>, Serializable {
         @Override
         public int compare(Pair<String, Long> o1, Pair<String, Long> o2) {

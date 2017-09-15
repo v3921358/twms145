@@ -21,11 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.login;
 
 import client.MapleClient;
-import constants.WorldConfig;
-import handling.channel.ChannelServer;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import handling.world.World;
 import server.Timer.PingTimer;
 import tools.packet.CWvsContext;

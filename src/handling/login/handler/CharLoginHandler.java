@@ -275,7 +275,7 @@ public class CharLoginHandler {
         int top = 0;
         int bottom = 0;
 
-        if(isResist) {
+        if (isResist) {
             top = slea.readInt();
         } else {
             top = slea.readInt();
@@ -309,12 +309,12 @@ public class CharLoginHandler {
                 return;
             }
         } else if (jobType != JobType.Phantom) {
-                if (!LoginInformationProvider.getInstance().isEligibleItem(gender, 0, jobType.id, face) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 1, jobType.id, hair)
-                        || !LoginInformationProvider.getInstance().isEligibleItem(gender, 2, jobType.id, top) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 3, jobType.id, bottom)
-                        || !LoginInformationProvider.getInstance().isEligibleItem(gender, 4, jobType.id, shoes)) {
-                    return;
-                }
+            if (!LoginInformationProvider.getInstance().isEligibleItem(gender, 0, jobType.id, face) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 1, jobType.id, hair)
+                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 2, jobType.id, top) || !LoginInformationProvider.getInstance().isEligibleItem(gender, 3, jobType.id, bottom)
+                    || !LoginInformationProvider.getInstance().isEligibleItem(gender, 4, jobType.id, shoes)) {
+                return;
             }
+        }
 
         MapleCharacter newChar = MapleCharacter.getDefault(c, jobType);
         newChar.setWorld((byte) c.getWorld());

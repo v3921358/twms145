@@ -17,12 +17,6 @@ import handling.channel.ChannelServer;
 import handling.channel.handler.NPCHandler;
 import handling.login.LoginServer;
 import handling.world.World;
-import java.awt.Point;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 import scripting.NPCScriptManager;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
@@ -43,50 +37,58 @@ import tools.packet.CField;
 import tools.packet.CWvsContext;
 import tools.packet.MTSCSPacket;
 
+import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
 public class PlayerCommand {
-    
+
     /**
-     * 
      * @author: Eric
      * @param: <All commands updated and/or coded by Eric.
      * @return: Use only for Development v117.2
-     */ 
-   
+     */
+
     public static PlayerGMRank getPlayerLevelRequired() {
         return PlayerGMRank.NORMAL;
     }
-    
-    private static ResultSet ranking(boolean gm) {
-    try {
-      Connection con = DatabaseConnection.getConnection();
-      PreparedStatement ps;
-      if (!gm)
-        ps = con.prepareStatement("SELECT reborns, level, name, job FROM characters WHERE gm < 3 ORDER BY reborns DESC, level DESC LIMIT 10");
-      else {
-        ps = con.prepareStatement("SELECT name, gm FROM characters WHERE gm >= 3");
-      }
-      return ps.executeQuery(); 
-    } catch (SQLException ex) {
-    }
-    return null;
-  }
-    
-    private static ResultSet JQranking(boolean gm) {
-    try {
-      Connection con = DatabaseConnection.getConnection();
-      PreparedStatement ps;
-      if (!gm)
-        ps = con.prepareStatement("SELECT jqlevel, jqexp, name FROM characters WHERE gm < 3 ORDER BY jqlevel DESC, jqexp DESC LIMIT 10");
-      else {
-        ps = con.prepareStatement("SELECT name, gm FROM characters WHERE gm >= 3");
-      }
-      return ps.executeQuery(); 
-    } catch (SQLException ex) {
-    }
-    return null;
-  }
 
-    
+    private static ResultSet ranking(boolean gm) {
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement ps;
+            if (!gm)
+                ps = con.prepareStatement("SELECT reborns, level, name, job FROM characters WHERE gm < 3 ORDER BY reborns DESC, level DESC LIMIT 10");
+            else {
+                ps = con.prepareStatement("SELECT name, gm FROM characters WHERE gm >= 3");
+            }
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+        }
+        return null;
+    }
+
+    private static ResultSet JQranking(boolean gm) {
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement ps;
+            if (!gm)
+                ps = con.prepareStatement("SELECT jqlevel, jqexp, name FROM characters WHERE gm < 3 ORDER BY jqlevel DESC, jqexp DESC LIMIT 10");
+            else {
+                ps = con.prepareStatement("SELECT name, gm FROM characters WHERE gm >= 3");
+            }
+            return ps.executeQuery();
+        } catch (SQLException ex) {
+        }
+        return null;
+    }
+
+
     public static boolean executePlayerCommands(MapleClient c, String[] splitted) {
         final MapleCharacter player = c.getPlayer();
         MapleCharacter victim;
@@ -104,7 +106,7 @@ public class PlayerCommand {
                     }
                     player.changeMap(100000000); // should i give a choice fm/henesys?
                     return true;
-                default: 
+                default:
                     player.dropMessage(-1, "You can't use @commands during a Jump Quest. To exit the Jump Quest, type @exit.");
                     return false;
             }
@@ -119,7 +121,7 @@ public class PlayerCommand {
                     c.sendPacket(CWvsContext.clearMidMsg());
                     player.changeMap(100000000); // should i give a choice fm/henesys?
                     return true;
-                default: 
+                default:
                     player.dropMessage(-1, "The only way to leave this map is via @leave.");
                     return false;
             }
@@ -134,9 +136,9 @@ public class PlayerCommand {
             case "listcommands":
                 player.dropNPC("[" + ServerConstants.SERVER_NAME + "'s #eOfficial#n Command List] :\r\n\r\n#b@relog#k - #rGlitched, frozen, or bugged? Try this.#k\r\n#b@keyfix#k - #rKeys reset? Try this.#k\r\n#b@afk#k - #rGoing afk? Feel free to use this.#k\r\n#b@expfix#k - #rEXP passed your screen? Try this.#k\r\n#b@spy <ign>#k - #rLists basic stats of a player.#k\r\n#b@checkme#k - #rShows your character's stats and information.#k\r\n#b@credits#k - #rCredits to " + ServerConstants.SERVER_NAME + "'s Staff Team.#k\r\n#b@clear#k - #rClears all of the drops within the map.#k\r\n#b@kin/#b@nimakin#k - #r" + ServerConstants.SERVER_NAME + "'s Stylers.#k\r\n#b@unstuck <ign>#k - #rFixes a character that's stuck on a d/cing map.#k\r\n#b@save#k - #rSaves your character.#k\r\n#b@fm#k - #rDirectly warp to FM.#k\r\n#b@dispose#k - #rCan't click a NPC? Try this.#k\r\n#b@ranking#k - #r" + ServerConstants.SERVER_NAME + "'s Rankings.#k\r\n#b@gm <msg>#k - #rContact Staff Member's for help.#k\r\n#b@dev#k - #rAll-In-One NPC. Has basic stuff and shops.#k\r\n#b@online#k - #rLists all online players.#k\r\n#b@go <map>#k - #rDirectly warp to a map!#k\r\n#b@pvpranks#k - #rDisplay PvP leaderboards!#k\r\n#b@ring <id/info> <ign>#k - #rGet a ring with another player!#k\r\n#b@shop#k - #rOur all-in-one potion shop!#k\r\n#b@dps#k - #rTest out your Damage Per Second!#k\r\n#b@android#k - #rAccess the Android Styler NPC!#k\r\n#b@storage#k - #rDirect access to storage anywhere!#k\r\n#b@news#k - #r" + ServerConstants.SERVER_NAME + "'s Official Newsboard!#k\r\n#b@pvp#k - #rWarps you to our very own Battle Square!#k\r\n#b@advance#k - #rJob advances you if you're an explorer.#k");
                 return true;
-           // case "funcommands":
-           //     player.dropNPC("[" + ServerConstants.SERVER_NAME + "'s #eFun#n Commands] :\r\n\r\n#b@chalk <message>#k - #rChalk talk! #k\r\n#b@leet#k - #rType #b@leet to toggle typing in 1337.#k");
-           //     return true;
+            // case "funcommands":
+            //     player.dropNPC("[" + ServerConstants.SERVER_NAME + "'s #eFun#n Commands] :\r\n\r\n#b@chalk <message>#k - #rChalk talk! #k\r\n#b@leet#k - #rType #b@leet to toggle typing in 1337.#k");
+            //     return true;
             case "serveruptime":
             case "uptime":
                 c.sendPacket(CWvsContext.yellowChat(ServerConstants.SERVER_NAME + " + has been online for " + StringUtil.getReadableMillis(ChannelServer.serverStartTime, System.currentTimeMillis()) + " without a restart!"));
@@ -145,19 +147,19 @@ public class PlayerCommand {
                 player.getStorage().sendStorage(c, 9930100);
                 return true;
             case "dps": // Damage Per Second System
-                if(!player.isTestingDPS()) {
+                if (!player.isTestingDPS()) {
                     player.toggleTestingDPS();
                     player.dropMessage("Attack the Rock for 15 seconds to test your Damage Per Second.");
-                final MapleMonster mm = MapleLifeFactory.getMonster(9400410);
-                int distance = ((player.getJobId() >= 300 && player.getJobId() < 413) || (player.getJobId() >= 1300 && player.getJobId() < 1500) || (player.getJobId() >= 520 && player.getJobId() < 600)) ? 125 : 50;
-                Point p = new Point(player.getPosition().x - distance, player.getPosition().y);
-                mm.setBelongTo(player);
-                final long newhp = Long.MAX_VALUE;
-                OverrideMonsterStats overrideStats = new OverrideMonsterStats();
-                overrideStats.setOHp(newhp);
-                mm.setHp(newhp);
-                mm.setOverrideStats(overrideStats);
-                player.getMap().spawnMonsterOnGroudBelow(mm, p);
+                    final MapleMonster mm = MapleLifeFactory.getMonster(9400410);
+                    int distance = ((player.getJobId() >= 300 && player.getJobId() < 413) || (player.getJobId() >= 1300 && player.getJobId() < 1500) || (player.getJobId() >= 520 && player.getJobId() < 600)) ? 125 : 50;
+                    Point p = new Point(player.getPosition().x - distance, player.getPosition().y);
+                    mm.setBelongTo(player);
+                    final long newhp = Long.MAX_VALUE;
+                    OverrideMonsterStats overrideStats = new OverrideMonsterStats();
+                    overrideStats.setOHp(newhp);
+                    mm.setHp(newhp);
+                    mm.setOverrideStats(overrideStats);
+                    player.getMap().spawnMonsterOnGroudBelow(mm, p);
                     EventTimer.getInstance().schedule(new Runnable() {
                         @Override
                         public void run() {
@@ -178,27 +180,27 @@ public class PlayerCommand {
                 }
                 return true;
             case "dbomb":
-                    if (player.getOccId() == 800 || player.isDonator()) {
-                        if (!player.Spam((player.isDonator() ? 60000 : 69696969), 13)) {
-                            player.spawnBomb(); // todo: fix bombs from sticking after detonate
-                        } else 
-                            player.dropMessage("Please don't spam this command, you have a wait time of " + (player.isDonator() ? "1 minute." : "5 minutes."));
+                if (player.getOccId() == 800 || player.isDonator()) {
+                    if (!player.Spam((player.isDonator() ? 60000 : 69696969), 13)) {
+                        player.spawnBomb(); // todo: fix bombs from sticking after detonate
                     } else
-                        player.dropMessage("What do you think you're doing! Only Terrorists can spawn bombs!");
-                    return true;
+                        player.dropMessage("Please don't spam this command, you have a wait time of " + (player.isDonator() ? "1 minute." : "5 minutes."));
+                } else
+                    player.dropMessage("What do you think you're doing! Only Terrorists can spawn bombs!");
+                return true;
             case "top10":
             case "ranking":
                 ResultSet rs;
                 rs = ranking(false);
                 String top10msg = "Top 10 Players of " + ServerConstants.SERVER_NAME + ": ";
                 int zzz = 1;
-                    try {
-                while (rs.next()) {
-                    String job = getJobyNameById(rs.getInt("job"));
-                    top10msg += ("\r\n#e" + zzz + "#n. #b" + rs.getString("name") + "#k\r\nJob: " + job + "  ||  Rebirths: #r" + rs.getInt("reborns") + "#k  ||  Level: #d" + rs.getInt("level") + "#k");
-                    zzz++;
-                }
-                player.dropNPC(top10msg);
+                try {
+                    while (rs.next()) {
+                        String job = getJobyNameById(rs.getInt("job"));
+                        top10msg += ("\r\n#e" + zzz + "#n. #b" + rs.getString("name") + "#k\r\nJob: " + job + "  ||  Rebirths: #r" + rs.getInt("reborns") + "#k  ||  Level: #d" + rs.getInt("level") + "#k");
+                        zzz++;
+                    }
+                    player.dropNPC(top10msg);
                 } catch (SQLException e) {
                 }
                 return true;
@@ -218,39 +220,39 @@ public class PlayerCommand {
                 return true;*/
             case "pvprank":
             case "pvpranks":
-              try {
-               PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, pvpKills, pvpDeaths FROM characters WHERE gm < 3 ORDER BY pvpKills desc LIMIT 10");
-               ps.executeQuery();
-               rs = ps.executeQuery();
-            String msg = "Your Kills: #g" + c.getPlayer().getPvpKills() + "#k || Your Deaths: #r" + c.getPlayer().getPvpDeaths() + "#k\r\nPlayer vs. Player Top 10:";
-            int aaa = 1;
-                while (rs.next()) {
-                    int kills = rs.getInt("pvpKills");
-                    int deaths = rs.getInt("pvpDeaths");
-                    double kd = ((double)kills / (double)deaths);
-                    msg += "\r\n#e" + aaa + "#n. #b" + rs.getString("name") + "#k  -  Kills : #g" + kills + "#k  ||  Deaths : #r" + deaths + "#k || K/D : #d" + kd + "#k";
-                    aaa++;
-                }
+                try {
+                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, pvpKills, pvpDeaths FROM characters WHERE gm < 3 ORDER BY pvpKills desc LIMIT 10");
+                    ps.executeQuery();
+                    rs = ps.executeQuery();
+                    String msg = "Your Kills: #g" + c.getPlayer().getPvpKills() + "#k || Your Deaths: #r" + c.getPlayer().getPvpDeaths() + "#k\r\nPlayer vs. Player Top 10:";
+                    int aaa = 1;
+                    while (rs.next()) {
+                        int kills = rs.getInt("pvpKills");
+                        int deaths = rs.getInt("pvpDeaths");
+                        double kd = ((double) kills / (double) deaths);
+                        msg += "\r\n#e" + aaa + "#n. #b" + rs.getString("name") + "#k  -  Kills : #g" + kills + "#k  ||  Deaths : #r" + deaths + "#k || K/D : #d" + kd + "#k";
+                        aaa++;
+                    }
                     player.dropNPC(msg);
                     rs.close();
                     ps.close();
                 } catch (Exception ex) {
                 }
-                    return true;
+                return true;
             case "partyfix":
-                player.setParty(null); 
-                player.dropMessage("Please Relog or CC to finish changes."); 
+                player.setParty(null);
+                player.dropMessage("Please Relog or CC to finish changes.");
                 return true;
             case "fixmesos":
-            if (player.getMeso() < 0) {
-                player.setMeso(0);
-                player.dropMessage("Reset your mesos to 0.");
-            } else
-                player.dropMessage("You don't have negative mesos.");
-            return true;
-           case "news":
-               NPCHandler.openNpc(9040011, c);
-               return true;
+                if (player.getMeso() < 0) {
+                    player.setMeso(0);
+                    player.dropMessage("Reset your mesos to 0.");
+                } else
+                    player.dropMessage("You don't have negative mesos.");
+                return true;
+            case "news":
+                NPCHandler.openNpc(9040011, c);
+                return true;
             case "joinox":
                 if (player.getClient().getChannelServer().getEvent() == 109020001) {
                     player.changeMap(109020001);
@@ -268,22 +270,22 @@ public class PlayerCommand {
                 player.dropMessage(6, "Your Key Configuration has been fixed.");
                 return true;
             case "bosshp":
-                List<MapleMapObject> mobs = c.getPlayer().getMap().getMapObjectsInRange(new Point(0,0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
-            for (MapleMapObject mob : mobs) {
-                MapleMonster m = (MapleMonster) mob;
-                if (m.isBoss()) {
-                    player.dropMessage("Boss: " + m.getName() + " | HP: " + m.getHp() + "/" + m.getMobMaxHp() + "");
+                List<MapleMapObject> mobs = c.getPlayer().getMap().getMapObjectsInRange(new Point(0, 0), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
+                for (MapleMapObject mob : mobs) {
+                    MapleMonster m = (MapleMonster) mob;
+                    if (m.isBoss()) {
+                        player.dropMessage("Boss: " + m.getName() + " | HP: " + m.getHp() + "/" + m.getMobMaxHp() + "");
+                    }
                 }
-            }
                 return true;
             case "mobhp":
                 MapleMap map = player.getMap();
-            List<MapleMapObject> monsters = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
-            for (MapleMapObject monstermo : monsters) {
-                MapleMonster monster = (MapleMonster) monstermo;
-                player.dropMessage(6, monster.toString_());
-            }
-            return true;
+                List<MapleMapObject> monsters = map.getMapObjectsInRange(player.getPosition(), Double.POSITIVE_INFINITY, Arrays.asList(MapleMapObjectType.MONSTER));
+                for (MapleMapObject monstermo : monsters) {
+                    MapleMonster monster = (MapleMonster) monstermo;
+                    player.dropMessage(6, monster.toString_());
+                }
+                return true;
             case "afk":
                 player.setChalkboard(player.getName() + " is AFK~");
                 return true;
@@ -301,7 +303,7 @@ public class PlayerCommand {
                     player.dropMessage(5, "Please enter a channel number from 1~4.");
                     return true;
                 }
-                player.getClient().sendPacket(CWvsContext.changeChannelMsg((channel-1), "You are now switching channels to Channel " + channel + "."));
+                player.getClient().sendPacket(CWvsContext.changeChannelMsg((channel - 1), "You are now switching channels to Channel " + channel + "."));
                 return true;
             case "str":
             case "dex":
@@ -312,38 +314,38 @@ public class PlayerCommand {
                 boolean Int = splitted[0].equalsIgnoreCase("int");
                 boolean luk = splitted[0].equalsIgnoreCase("luk");
                 boolean dex = splitted[0].equalsIgnoreCase("dex");
-        if (((amount > 0) && (amount <= player.getRemainingAp()) && (amount <= 32763)) || ((amount < 0) && (amount >= -32763) && (Math.abs(amount) + player.getRemainingAp() <= 32767))) {
-          if ((str) && (amount + player.getStat().getStr() <= 32767) && (amount + player.getStat().getStr() >= 4)) {
-            player.getStat().setStr((short)(player.getStat().getStr() + amount), player);
-            player.updateSingleStat(MapleStat.STR, player.getStat().getStr());
-            player.setRemainingAp(player.getRemainingAp() - amount);
-            player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
-          } else if ((Int) && (amount + player.getStat().getInt() <= 32767) && (amount + player.getStat().getInt() >= 4)) {
-            player.getStat().setInt((short)(player.getStat().getInt() + amount), player);
-            player.updateSingleStat(MapleStat.INT, player.getStat().getInt());
-            player.setRemainingAp(player.getRemainingAp() - amount);
-            player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
-          } else if ((luk) && (amount + player.getStat().getLuk() <= 32767) && (amount + player.getStat().getLuk() >= 4)) {
-            player.getStat().setLuk((short)(player.getStat().getLuk() + amount), player);
-            player.updateSingleStat(MapleStat.LUK, player.getStat().getLuk());
-            player.setRemainingAp(player.getRemainingAp() - amount);
-            player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
-          } else if ((dex) && (amount + player.getStat().getDex() <= 32767) && (amount + player.getStat().getDex() >= 4)) {
-            player.getStat().setDex((short)(player.getStat().getDex() + amount), player);
-            player.updateSingleStat(MapleStat.DEX, player.getStat().getDex());
-            player.setRemainingAp(player.getRemainingAp() - amount);
-            player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
-          } else {
-            player.dropMessage("Please make sure the stat you are trying to raise is not over 32,767 or under 4.");
-          }
-        } else {
-             player.dropMessage("Please make sure your AP is not over 32,767 and you have enough to distribute.");
-         }
-            return true;
-           case "pvp":
+                if (((amount > 0) && (amount <= player.getRemainingAp()) && (amount <= 32763)) || ((amount < 0) && (amount >= -32763) && (Math.abs(amount) + player.getRemainingAp() <= 32767))) {
+                    if ((str) && (amount + player.getStat().getStr() <= 32767) && (amount + player.getStat().getStr() >= 4)) {
+                        player.getStat().setStr((short) (player.getStat().getStr() + amount), player);
+                        player.updateSingleStat(MapleStat.STR, player.getStat().getStr());
+                        player.setRemainingAp(player.getRemainingAp() - amount);
+                        player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
+                    } else if ((Int) && (amount + player.getStat().getInt() <= 32767) && (amount + player.getStat().getInt() >= 4)) {
+                        player.getStat().setInt((short) (player.getStat().getInt() + amount), player);
+                        player.updateSingleStat(MapleStat.INT, player.getStat().getInt());
+                        player.setRemainingAp(player.getRemainingAp() - amount);
+                        player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
+                    } else if ((luk) && (amount + player.getStat().getLuk() <= 32767) && (amount + player.getStat().getLuk() >= 4)) {
+                        player.getStat().setLuk((short) (player.getStat().getLuk() + amount), player);
+                        player.updateSingleStat(MapleStat.LUK, player.getStat().getLuk());
+                        player.setRemainingAp(player.getRemainingAp() - amount);
+                        player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
+                    } else if ((dex) && (amount + player.getStat().getDex() <= 32767) && (amount + player.getStat().getDex() >= 4)) {
+                        player.getStat().setDex((short) (player.getStat().getDex() + amount), player);
+                        player.updateSingleStat(MapleStat.DEX, player.getStat().getDex());
+                        player.setRemainingAp(player.getRemainingAp() - amount);
+                        player.updateSingleStat(MapleStat.AVAILABLE_AP, player.getRemainingAp());
+                    } else {
+                        player.dropMessage("Please make sure the stat you are trying to raise is not over 32,767 or under 4.");
+                    }
+                } else {
+                    player.dropMessage("Please make sure your AP is not over 32,767 and you have enough to distribute.");
+                }
+                return true;
+            case "pvp":
                 player.changeMap(960000000);
                 return true;
-           case "rates":
+            case "rates":
                 int exp = c.getWorldServer().getExpRate();
                 int meso = c.getWorldServer().getMesoRate();
                 int drop = c.getWorldServer().getDropRate();
@@ -351,14 +353,14 @@ public class PlayerCommand {
                 return true;
             case "chalk":
                 if (splitted.length < 2) {
-            player.dropMessage(6, "Please use @chalk <message>");
-            return true;
-          } else {
-            player.setChalkboard("" + StringUtil.joinStringFrom(splitted, 1) + "");
-            player.getMap().broadcastMessage(MTSCSPacket.useChalkboard(player.getId(), StringUtil.joinStringFrom(splitted, 1)));
-            player.getClient().sendPacket(CWvsContext.enableActions());
-          }
-            return true;
+                    player.dropMessage(6, "Please use @chalk <message>");
+                    return true;
+                } else {
+                    player.setChalkboard("" + StringUtil.joinStringFrom(splitted, 1) + "");
+                    player.getMap().broadcastMessage(MTSCSPacket.useChalkboard(player.getId(), StringUtil.joinStringFrom(splitted, 1)));
+                    player.getClient().sendPacket(CWvsContext.enableActions());
+                }
+                return true;
             case "sex":
                 player.dropMessage(5, "Smexy you!");
                 player.unequipEverything();
@@ -376,7 +378,7 @@ public class PlayerCommand {
                 player.dropMessage(6, "Your EXP has been reset to 0% - you're now fixed!");
                 return true;
             case "spy":
-                victim = c.getChannelServer().getPlayerStorage().getCharacterByName(InternCommand.joinStringFrom(splitted,1 )); 
+                victim = c.getChannelServer().getPlayerStorage().getCharacterByName(InternCommand.joinStringFrom(splitted, 1));
                 StringBuilder sendText = new StringBuilder();
                 sendText.append(victim.getName()).append("'s Stats Are:").append("\r\n");
                 sendText.append("Str: ").append(victim.getStat().getTotalStr()).append(", Dex: ").append(victim.getStat().getTotalDex()).append(", Int: ").append(victim.getStat().getTotalInt()).append(", Luk: ").append(victim.getStat().getTotalLuk()).append("\r\n");
@@ -401,9 +403,9 @@ public class PlayerCommand {
                 sendText.append("----- JumpQuest Information -----").append("\r\n");
                 sendText.append("JQ Rank: ").append(JQLevels.getNameById(victim.getJQLevel())).append(" (Level ").append(victim.getJQLevel()).append(")").append("\r\n");
                 sendText.append("JQ Exp: ").append(victim.getJQExp()).append("/").append(victim.getJQExpNeeded()).append("\r\n");
-              //  sendText.append("----- Occupation Information -----").append("\r\n");
-              //  sendText.append("Occupation: ").append(Occupations.getNameById(victim.getOccId())).append("\r\n");
-              //  sendText.append("Occupation Lv.: ").append(victim.getOccLevel()).append(" (").append(victim.getOccEXP()).append("/").append(victim.getOccExpNeeded()).append(")").append("\r\n");
+                //  sendText.append("----- Occupation Information -----").append("\r\n");
+                //  sendText.append("Occupation: ").append(Occupations.getNameById(victim.getOccId())).append("\r\n");
+                //  sendText.append("Occupation Lv.: ").append(victim.getOccLevel()).append(" (").append(victim.getOccEXP()).append("/").append(victim.getOccExpNeeded()).append(")").append("\r\n");
                 player.dropNPC(sendText.toString());
                 return true;
             case "checkme":
@@ -440,7 +442,7 @@ public class PlayerCommand {
             case "1337":
                 player.setLeetness(false);
                 player.dropMessage(6, "1337 Language Disabled.");
-                return true; 
+                return true;
             case "clear":
                 if (!player.Spam(60000, 55) || player.isGM()) { // I like @clear better so let's skip check for GMs
                     player.getMap().removeDrops();
@@ -500,64 +502,64 @@ public class PlayerCommand {
                 return true;
             case "gm":
                 if (splitted.length < 2) {
-                   return true;
-                }
-          if (!player.Spam(300000, 1)) {
-              World.Broadcast.broadcastGMMessage(player.getWorld(), CWvsContext.serverNotice(6, "Channel: " + c.getChannel() + "  " + player.getName() + ": " + StringUtil.joinStringFrom(splitted, 1)));
-              player.dropMessage("Message sent.");
-              return true;
-          } else {
-            player.dropMessage(1, "Please don't flood GMs with your messages.");
-          }
-            return true;
-            case "unstuck":
-                if (splitted.length < 2) {
-                player.dropMessage("Syntax: @unstuck <ign> - The character MUST be on your account!");
-                return true;
-            }
-            String chrName = splitted[1];
-            if (chrName.equalsIgnoreCase(c.getPlayer().getName())) {
-                player.dropMessage("You are already logged onto " + c.getPlayer().getName() + "!");
-                return true;
-            }
-            int accId = c.getAccID();
-            int charId = -999;
-            int chrAccId = -999;
-            try {
-                java.sql.Connection con = DatabaseConnection.getConnection();
-                PreparedStatement ps = con.prepareStatement("SELECT * FROM characters WHERE name = ?");
-                ps.setString(1, chrName);
-                rs = ps.executeQuery();
-                if (rs.next()) {
-                    charId = rs.getInt("id");
-                    chrAccId = rs.getInt("accountid");
-                } else {
-                    player.dropMessage("Character not found!");
                     return true;
                 }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            if (chrAccId != accId /*&& !c.getPlayer().isInvincible()*/) {
-                player.dropMessage("The character is not on your account!");
+                if (!player.Spam(300000, 1)) {
+                    World.Broadcast.broadcastGMMessage(player.getWorld(), CWvsContext.serverNotice(6, "Channel: " + c.getChannel() + "  " + player.getName() + ": " + StringUtil.joinStringFrom(splitted, 1)));
+                    player.dropMessage("Message sent.");
+                    return true;
+                } else {
+                    player.dropMessage(1, "Please don't flood GMs with your messages.");
+                }
                 return true;
-            }
-            victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
-            if (victim != null) {
-                player.dropMessage("The character is already online. Disconnect the character first. The character is on channel " + victim.getClient().getChannel() + ".");
+            case "unstuck":
+                if (splitted.length < 2) {
+                    player.dropMessage("Syntax: @unstuck <ign> - The character MUST be on your account!");
+                    return true;
+                }
+                String chrName = splitted[1];
+                if (chrName.equalsIgnoreCase(c.getPlayer().getName())) {
+                    player.dropMessage("You are already logged onto " + c.getPlayer().getName() + "!");
+                    return true;
+                }
+                int accId = c.getAccID();
+                int charId = -999;
+                int chrAccId = -999;
+                try {
+                    java.sql.Connection con = DatabaseConnection.getConnection();
+                    PreparedStatement ps = con.prepareStatement("SELECT * FROM characters WHERE name = ?");
+                    ps.setString(1, chrName);
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        charId = rs.getInt("id");
+                        chrAccId = rs.getInt("accountid");
+                    } else {
+                        player.dropMessage("Character not found!");
+                        return true;
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                if (chrAccId != accId /*&& !c.getPlayer().isInvincible()*/) {
+                    player.dropMessage("The character is not on your account!");
+                    return true;
+                }
+                victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
+                if (victim != null) {
+                    player.dropMessage("The character is already online. Disconnect the character first. The character is on channel " + victim.getClient().getChannel() + ".");
+                    return true;
+                }
+                try {
+                    java.sql.Connection con = DatabaseConnection.getConnection();
+                    PreparedStatement ps = con.prepareStatement("UPDATE characters SET map = ? WHERE name = ?");
+                    ps.setInt(1, 100000000);
+                    ps.setString(2, chrName);
+                    ps.executeUpdate();
+                    ps.close();
+                } catch (SQLException e) {
+                }
+                player.dropMessage("Sucessfully warped " + splitted[1] + " to Henesys.");
                 return true;
-            }
-            try {
-            java.sql.Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("UPDATE characters SET map = ? WHERE name = ?");
-            ps.setInt(1, 100000000);
-            ps.setString(2, chrName);
-            ps.executeUpdate();
-            ps.close();
-            } catch (SQLException e) {
-            }
-            player.dropMessage("Sucessfully warped " + splitted[1] + " to Henesys.");
-            return true;
             case "save":
                 if (player.Spam(60000, 1)) { // save every minute sounds nice
                     player.dropMessage("Please don't flood our database.");
@@ -568,260 +570,260 @@ public class PlayerCommand {
                 return true;
             case "ring":
             case "marry": // just incase?
-                  if (splitted[1].equalsIgnoreCase("info")) { // allowance of INFO | iNfO
-                      String ring_help = "It should go like: @ring <ringid> <partner> \r\n";
-                      ring_help += "#r===== Crush Ring ID's: =====#k\r\n";
-                      ring_help += "1112001 - Crush Ring\r\n";
-                      ring_help += "1112002 - Cloud Ring\r\n";
-                      ring_help += "1112003 - Cupid Ring\r\n";
-                      ring_help += "1112005 - Venus Fireworks\r\n";
-                      ring_help += "1112006 - Crossed Hearts\r\n";
-                      ring_help += "1112007 - Mistletoe Crush Ring\r\n";
-                      ring_help += "#d===== Friendship Ring ID's =====#k\r\n";
-                      ring_help += "1112800 - Friendship Ring : Clover\r\n";
-                      ring_help += "1112801 - Friendship Ring : Flower Petal\r\n";
-                      ring_help += "1112802 - Friendship Ring : Star\r\n";
-                      ring_help += "1112810 - Christmas Night Bells\r\n";
-                      ring_help += "1112811 - Christmas Party\r\n";
-                      ring_help += "1112812 - Shared Umbrella Ring\r\n";
-                      ring_help += "1112816 - Couple Snow Dome\r\n";
-                      ring_help += "#d===== Shirt ID's =====#k\r\n";
-                      ring_help += "1048000 - Friendship Shirt\r\n";
-                      ring_help += "1049000 - Couple Shirt\r\n\r\n";
-                      ring_help += "#bCreating a ring will cost #e10#n vote points, shirts cost #e15#n.#k";
-                      player.dropNPC(ring_help);
-                      return true;
-                  } else if (splitted.length < 3) {
+                if (splitted[1].equalsIgnoreCase("info")) { // allowance of INFO | iNfO
+                    String ring_help = "It should go like: @ring <ringid> <partner> \r\n";
+                    ring_help += "#r===== Crush Ring ID's: =====#k\r\n";
+                    ring_help += "1112001 - Crush Ring\r\n";
+                    ring_help += "1112002 - Cloud Ring\r\n";
+                    ring_help += "1112003 - Cupid Ring\r\n";
+                    ring_help += "1112005 - Venus Fireworks\r\n";
+                    ring_help += "1112006 - Crossed Hearts\r\n";
+                    ring_help += "1112007 - Mistletoe Crush Ring\r\n";
+                    ring_help += "#d===== Friendship Ring ID's =====#k\r\n";
+                    ring_help += "1112800 - Friendship Ring : Clover\r\n";
+                    ring_help += "1112801 - Friendship Ring : Flower Petal\r\n";
+                    ring_help += "1112802 - Friendship Ring : Star\r\n";
+                    ring_help += "1112810 - Christmas Night Bells\r\n";
+                    ring_help += "1112811 - Christmas Party\r\n";
+                    ring_help += "1112812 - Shared Umbrella Ring\r\n";
+                    ring_help += "1112816 - Couple Snow Dome\r\n";
+                    ring_help += "#d===== Shirt ID's =====#k\r\n";
+                    ring_help += "1048000 - Friendship Shirt\r\n";
+                    ring_help += "1049000 - Couple Shirt\r\n\r\n";
+                    ring_help += "#bCreating a ring will cost #e10#n vote points, shirts cost #e15#n.#k";
+                    player.dropNPC(ring_help);
+                    return true;
+                } else if (splitted.length < 3) {
                     c.getPlayer().dropMessage(6, "Need <name> <itemid>");
                     return true;
                 }
-		int itemId = Integer.parseInt(splitted[2]);
-                  if ((itemId == 1048000 && player.getVPoints() >= 15 || itemId == 1049000 && player.getVPoints() >= 15) || player.getVPoints() >= 10) {
-                if (!GameConstants.isEffectRing(itemId)) {
-                    c.getPlayer().dropMessage(6, "Invalid itemID.");
-                    return true;
-                } else if (itemId == 1049000 && player.getVPoints() < 15 || itemId == 1048000 && player.getVPoints() < 15) {
-                    c.getPlayer().dropMessage(6, "You must have 15 Vote Points to buy a Friendship/Couple Shirt.");
-                    return true;
-                } else {
-                    MapleCharacter fff = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
-                    if (fff == null) {
-                        c.getPlayer().dropMessage(6, "Player must be online");
+                int itemId = Integer.parseInt(splitted[2]);
+                if ((itemId == 1048000 && player.getVPoints() >= 15 || itemId == 1049000 && player.getVPoints() >= 15) || player.getVPoints() >= 10) {
+                    if (!GameConstants.isEffectRing(itemId)) {
+                        c.getPlayer().dropMessage(6, "Invalid itemID.");
+                        return true;
+                    } else if (itemId == 1049000 && player.getVPoints() < 15 || itemId == 1048000 && player.getVPoints() < 15) {
+                        c.getPlayer().dropMessage(6, "You must have 15 Vote Points to buy a Friendship/Couple Shirt.");
                         return true;
                     } else {
-                        int[] ringID = {MapleInventoryIdentifier.getInstance(), MapleInventoryIdentifier.getInstance()};
-                        try {
-                            MapleCharacter[] chrz = {fff, c.getPlayer()};
-                            for (int i = 0; i < chrz.length; i++) {
-                                Equip eq = (Equip) MapleItemInformationProvider.getInstance().getEquipById(itemId, ringID[i]);
-                                if (eq == null) {
-                                    c.getPlayer().dropMessage(6, "Invalid itemID.");
-                                    return true;
-                                }
-                                MapleInventoryManipulator.addbyItem(chrz[i].getClient(), eq.copy());
-                                chrz[i].dropMessage(6, "Successfully ring'd with " + chrz[i == 0 ? 1 : 0].getName());
-                            }
-                            MapleRing.addToDB(itemId, c.getPlayer(), fff.getName(), fff.getId(), ringID);
-                        } catch (SQLException e) {
-                        }
-                        player.gainVotePoints(itemId == 1049000 || itemId == 1048000 ? -15 : -10); // shirt=15,ring=10
-                    }
-                }
-            } else {
-                c.getPlayer().dropMessage(5, "A ring costs 10 Vote Points! It must be a crush, friend or a marriage ring!");       
-            }
-            return true;
-        case "joinevent":
-            if (c.getPlayer().getClient().getChannelServer().eventOn && c.getChannelServer().getEvent() != 109020001) {
-                try {
-                    if (player.getClient().getChannel() != c.getChannelServer().eventChannel) {
-                        c.getPlayer().dropMessage(5, "Please go to the channel where it's being hosted on before trying to warp there.");
-                    } else {
-                        int mapId = c.getChannelServer().eventMap;
-                        MapleMap target = c.getChannelServer().getMapFactory().getMap(mapId);
-                        c.getPlayer().changeMap(target, target.getPortal(0));
-                    }
-                } catch (Exception e) {
-                    c.getPlayer().dropMessage(6, "Something went wrong " + e.getMessage());
-                }
-            } else {
-                c.getPlayer().dropMessage(6, "There is no event currently on.");
-            }
-                return true;
-        case "fm":
-            c.getPlayer().saveLocation(SavedLocationType.FREE_MARKET, c.getPlayer().getMap().getReturnMap().getId());
-            map = c.getChannelServer().getMapFactory().getMap(910000000);
-            c.getPlayer().changeMap(map, map.getPortal(0));
-            return true;
-        case "dispose":
-            c.removeClickedNPC();
-            NPCScriptManager.getInstance().dispose(c);
-            c.sendPacket(CWvsContext.enableActions());
-            player.dropMessage("Done.");
-            return true;
-        case "tsmega":
-            c.getPlayer().setSmega();
-            return true;
-        case "android": // Android styler
-            NPCScriptManager.getInstance().start(c, 1012123);
-            return true;
-        case "rank":
-        case "ranks":
-            if (splitted.length < 4) { //job start end
-                c.getPlayer().dropMessage(5, "Use @ranking [job] [start number] [end number] where start and end are ranks of the players");
-                final StringBuilder builder = new StringBuilder("JOBS: ");
-                for (String b : RankingWorker.getJobCommands().keySet()) {
-                    builder.append(b);
-                    builder.append(" ");
-                }
-                c.getPlayer().dropMessage(5, builder.toString());
-            } else {
-                int start = 1, end = 20;
-                try {
-                    start = Integer.parseInt(splitted[2]);
-                    end = Integer.parseInt(splitted[3]);
-                } catch (NumberFormatException e) {
-                    c.getPlayer().dropMessage(5, "You didn't specify start and end number correctly, the default values of 1 and 20 will be used.");
-                }
-                if (end < start || end - start > 20) {
-                    c.getPlayer().dropMessage(5, "End number must be greater, and end number must be within a range of 20 from the start number.");
-                } else {
-                    final Integer job = RankingWorker.getJobCommand(splitted[1]);
-                    if (job == null) {
-                        c.getPlayer().dropMessage(5, "Please use @ranking to check the job names.");
-                    } else {
-                        final List<RankingInformation> ranks = RankingWorker.getRankingInfo(job.intValue());
-                        if (ranks == null || ranks.size() <= 0) {
-                            c.getPlayer().dropMessage(5, "Please try again later.");
+                        MapleCharacter fff = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
+                        if (fff == null) {
+                            c.getPlayer().dropMessage(6, "Player must be online");
+                            return true;
                         } else {
-                            int num = 0;
-                            for (RankingInformation rank : ranks) {
-                                if (rank.rank >= start && rank.rank <= end) {
-                                    if (num == 0) {
-                                        c.getPlayer().dropMessage(6, "Rankings for " + splitted[1] + " - from " + start + " to " + end);
-                                        c.getPlayer().dropMessage(6, "--------------------------------------");
+                            int[] ringID = {MapleInventoryIdentifier.getInstance(), MapleInventoryIdentifier.getInstance()};
+                            try {
+                                MapleCharacter[] chrz = {fff, c.getPlayer()};
+                                for (int i = 0; i < chrz.length; i++) {
+                                    Equip eq = (Equip) MapleItemInformationProvider.getInstance().getEquipById(itemId, ringID[i]);
+                                    if (eq == null) {
+                                        c.getPlayer().dropMessage(6, "Invalid itemID.");
+                                        return true;
                                     }
-                                    c.getPlayer().dropMessage(6, rank.toString());
-                                    num++;
+                                    MapleInventoryManipulator.addbyItem(chrz[i].getClient(), eq.copy());
+                                    chrz[i].dropMessage(6, "Successfully ring'd with " + chrz[i == 0 ? 1 : 0].getName());
                                 }
+                                MapleRing.addToDB(itemId, c.getPlayer(), fff.getName(), fff.getId(), ringID);
+                            } catch (SQLException e) {
                             }
-                            if (num == 0) {
-                                c.getPlayer().dropMessage(5, "No ranking was returned.");
+                            player.gainVotePoints(itemId == 1049000 || itemId == 1048000 ? -15 : -10); // shirt=15,ring=10
+                        }
+                    }
+                } else {
+                    c.getPlayer().dropMessage(5, "A ring costs 10 Vote Points! It must be a crush, friend or a marriage ring!");
+                }
+                return true;
+            case "joinevent":
+                if (c.getPlayer().getClient().getChannelServer().eventOn && c.getChannelServer().getEvent() != 109020001) {
+                    try {
+                        if (player.getClient().getChannel() != c.getChannelServer().eventChannel) {
+                            c.getPlayer().dropMessage(5, "Please go to the channel where it's being hosted on before trying to warp there.");
+                        } else {
+                            int mapId = c.getChannelServer().eventMap;
+                            MapleMap target = c.getChannelServer().getMapFactory().getMap(mapId);
+                            c.getPlayer().changeMap(target, target.getPortal(0));
+                        }
+                    } catch (Exception e) {
+                        c.getPlayer().dropMessage(6, "Something went wrong " + e.getMessage());
+                    }
+                } else {
+                    c.getPlayer().dropMessage(6, "There is no event currently on.");
+                }
+                return true;
+            case "fm":
+                c.getPlayer().saveLocation(SavedLocationType.FREE_MARKET, c.getPlayer().getMap().getReturnMap().getId());
+                map = c.getChannelServer().getMapFactory().getMap(910000000);
+                c.getPlayer().changeMap(map, map.getPortal(0));
+                return true;
+            case "dispose":
+                c.removeClickedNPC();
+                NPCScriptManager.getInstance().dispose(c);
+                c.sendPacket(CWvsContext.enableActions());
+                player.dropMessage("Done.");
+                return true;
+            case "tsmega":
+                c.getPlayer().setSmega();
+                return true;
+            case "android": // Android styler
+                NPCScriptManager.getInstance().start(c, 1012123);
+                return true;
+            case "rank":
+            case "ranks":
+                if (splitted.length < 4) { //job start end
+                    c.getPlayer().dropMessage(5, "Use @ranking [job] [start number] [end number] where start and end are ranks of the players");
+                    final StringBuilder builder = new StringBuilder("JOBS: ");
+                    for (String b : RankingWorker.getJobCommands().keySet()) {
+                        builder.append(b);
+                        builder.append(" ");
+                    }
+                    c.getPlayer().dropMessage(5, builder.toString());
+                } else {
+                    int start = 1, end = 20;
+                    try {
+                        start = Integer.parseInt(splitted[2]);
+                        end = Integer.parseInt(splitted[3]);
+                    } catch (NumberFormatException e) {
+                        c.getPlayer().dropMessage(5, "You didn't specify start and end number correctly, the default values of 1 and 20 will be used.");
+                    }
+                    if (end < start || end - start > 20) {
+                        c.getPlayer().dropMessage(5, "End number must be greater, and end number must be within a range of 20 from the start number.");
+                    } else {
+                        final Integer job = RankingWorker.getJobCommand(splitted[1]);
+                        if (job == null) {
+                            c.getPlayer().dropMessage(5, "Please use @ranking to check the job names.");
+                        } else {
+                            final List<RankingInformation> ranks = RankingWorker.getRankingInfo(job.intValue());
+                            if (ranks == null || ranks.size() <= 0) {
+                                c.getPlayer().dropMessage(5, "Please try again later.");
+                            } else {
+                                int num = 0;
+                                for (RankingInformation rank : ranks) {
+                                    if (rank.rank >= start && rank.rank <= end) {
+                                        if (num == 0) {
+                                            c.getPlayer().dropMessage(6, "Rankings for " + splitted[1] + " - from " + start + " to " + end);
+                                            c.getPlayer().dropMessage(6, "--------------------------------------");
+                                        }
+                                        c.getPlayer().dropMessage(6, rank.toString());
+                                        num++;
+                                    }
+                                }
+                                if (num == 0) {
+                                    c.getPlayer().dropMessage(5, "No ranking was returned.");
+                                }
                             }
                         }
                     }
                 }
-            }
-            return true;
-        case "maxskills": 
-            if (player.isSuperDonor()) { // gm lv 2
-                c.getPlayer().maxAllSkills();
-            } else
-                player.dropMessage(5, "You must be a GM to max your skills.");
-            return true;
-        case "dev": // aio npc
-            NPCHandler.openNpc(9270035, c);
-            return true;
-        case "shop":
-            MapleShopFactory.getInstance().getShop(61).sendShop(c);
-            return true;
-        case "go":
-            if (!player.isGM() && player.getReborns() < 3) {
-                player.dropMessage(5, "You are still weak. Finish your training first and come back when you have fullfilled your 3 rebirths.");
                 return true;
-            }
-            HashMap<String, Integer> maps = new HashMap<String, Integer>();
-                    maps.put("henesys", 100000000);
-                    maps.put("ellinia", 101000000);
-                    maps.put("perion", 102000000);
-                    maps.put("kerning", 103000000);
-                    maps.put("lith", 104000000);
-                    maps.put("amoria", 680000000);
-                    maps.put("sleepywood", 105000000); //105040300 - old maple o-o
-                    maps.put("florina", 110000000);
-                    maps.put("orbis", 200000000);
-                    maps.put("happy", 209000000);
-                    maps.put("elnath", 211000000);
-		    maps.put("ereve", 130000000);
-                    maps.put("ludi", 220000000);
-                    maps.put("omega", 221000000);
-                    maps.put("korean", 222000000);
-                    maps.put("aqua", 230000000);
-                    maps.put("maya", 100000001);
-                    maps.put("leafre", 240000000);
-                    maps.put("mulung", 250000000);
-                    maps.put("herb", 251000000);
-                    maps.put("nlc", 600000000);
-                    maps.put("shrine", 800000000);
-                    maps.put("showa", 801000000);
-                    maps.put("fm", 910000000);
-		    maps.put("guild", 200000301);
-		    maps.put("fog", 105040306);
-                    maps.put("kaede", 800040000);
-                    maps.put("ellin", 300000000);
-                    maps.put("coke", 219000000);
-                    maps.put("kampung", 551000000);
-                    maps.put("tot", 270000100);
-                    maps.put("nautilus", 120000000);
-                    maps.put("magatia", 261000000);
-                    maps.put("future", 271000000);
-                    maps.put("ariant", 260000000);
+            case "maxskills":
+                if (player.isSuperDonor()) { // gm lv 2
+                    c.getPlayer().maxAllSkills();
+                } else
+                    player.dropMessage(5, "You must be a GM to max your skills.");
+                return true;
+            case "dev": // aio npc
+                NPCHandler.openNpc(9270035, c);
+                return true;
+            case "shop":
+                MapleShopFactory.getInstance().getShop(61).sendShop(c);
+                return true;
+            case "go":
+                if (!player.isGM() && player.getReborns() < 3) {
+                    player.dropMessage(5, "You are still weak. Finish your training first and come back when you have fullfilled your 3 rebirths.");
+                    return true;
+                }
+                HashMap<String, Integer> maps = new HashMap<String, Integer>();
+                maps.put("henesys", 100000000);
+                maps.put("ellinia", 101000000);
+                maps.put("perion", 102000000);
+                maps.put("kerning", 103000000);
+                maps.put("lith", 104000000);
+                maps.put("amoria", 680000000);
+                maps.put("sleepywood", 105000000); //105040300 - old maple o-o
+                maps.put("florina", 110000000);
+                maps.put("orbis", 200000000);
+                maps.put("happy", 209000000);
+                maps.put("elnath", 211000000);
+                maps.put("ereve", 130000000);
+                maps.put("ludi", 220000000);
+                maps.put("omega", 221000000);
+                maps.put("korean", 222000000);
+                maps.put("aqua", 230000000);
+                maps.put("maya", 100000001);
+                maps.put("leafre", 240000000);
+                maps.put("mulung", 250000000);
+                maps.put("herb", 251000000);
+                maps.put("nlc", 600000000);
+                maps.put("shrine", 800000000);
+                maps.put("showa", 801000000);
+                maps.put("fm", 910000000);
+                maps.put("guild", 200000301);
+                maps.put("fog", 105040306);
+                maps.put("kaede", 800040000);
+                maps.put("ellin", 300000000);
+                maps.put("coke", 219000000);
+                maps.put("kampung", 551000000);
+                maps.put("tot", 270000100);
+                maps.put("nautilus", 120000000);
+                maps.put("magatia", 261000000);
+                maps.put("future", 271000000);
+                maps.put("ariant", 260000000);
                 if (splitted.length != 2) {
-                StringBuilder builder = new StringBuilder("Syntax: @go/@goto <mapname>");
-                int i = 0;
-                for (String mapss : maps.keySet()) {
-                    if (1 % 10 == 0) {// 10 maps per line
-                        player.dropMessage(builder.toString());
-                    } else {
+                    StringBuilder builder = new StringBuilder("Syntax: @go/@goto <mapname>");
+                    int i = 0;
+                    for (String mapss : maps.keySet()) {
+                        if (1 % 10 == 0) {// 10 maps per line
+                            player.dropMessage(builder.toString());
+                        } else {
                             builder.append(mapss).append(", ");
+                        }
                     }
-                }
-                player.dropMessage(builder.toString());
-            } else if (maps.containsKey(splitted[1])) {
-                int map_ = maps.get(splitted[1]);
-                if (map_ == 910000000) {
-                    player.saveLocation(SavedLocationType.FREE_MARKET);
-                }
-                if (player.getMapId() == 502) {
-                    c.getPlayer().saveLocation(SavedLocationType.FREE_MARKET, c.getPlayer().getMap().getReturnMap().getId());
-                }
-                player.changeMap(map_);
-            } else {
-                StringBuilder builder = new StringBuilder("Syntax: @go/@goto <mapname>");
-                int i = 0;
-                for (String mapss : maps.keySet()) {
-                    if (1 % 10 == 0) {// 10 maps per line 
-                        player.dropMessage(builder.toString());
-                    } else {
+                    player.dropMessage(builder.toString());
+                } else if (maps.containsKey(splitted[1])) {
+                    int map_ = maps.get(splitted[1]);
+                    if (map_ == 910000000) {
+                        player.saveLocation(SavedLocationType.FREE_MARKET);
+                    }
+                    if (player.getMapId() == 502) {
+                        c.getPlayer().saveLocation(SavedLocationType.FREE_MARKET, c.getPlayer().getMap().getReturnMap().getId());
+                    }
+                    player.changeMap(map_);
+                } else {
+                    StringBuilder builder = new StringBuilder("Syntax: @go/@goto <mapname>");
+                    int i = 0;
+                    for (String mapss : maps.keySet()) {
+                        if (1 % 10 == 0) {// 10 maps per line
+                            player.dropMessage(builder.toString());
+                        } else {
                             builder.append(mapss).append(", ");
+                        }
                     }
-                }
-                player.dropMessage(builder.toString());
+                    player.dropMessage(builder.toString());
                 }
                 maps.clear();
-            return true;
-        case "online":
-        case "connected":
-            for (ChannelServer cs : LoginServer.getInstance().getWorld(c.getWorld()).getChannels()) {
-                c.getPlayer().dropMessage(6, "Total Players Online: " + cs.getPlayerStorage().getOnlinePlayers(false));
-            }
-            c.getPlayer().dropMessage(6, "Characters on Channel " + c.getChannel() + ":");
-            c.getPlayer().dropMessage(6, ChannelServer.getInstance(c.getWorld(), c.getChannel()).getPlayerStorage().getOnlinePlayers(false));
-            return true;
-        default:
-            c.getPlayer().showMessage(splitted[0].substring(1) + " does not exist.");
-            return false;
+                return true;
+            case "online":
+            case "connected":
+                for (ChannelServer cs : LoginServer.getInstance().getWorld(c.getWorld()).getChannels()) {
+                    c.getPlayer().dropMessage(6, "Total Players Online: " + cs.getPlayerStorage().getOnlinePlayers(false));
+                }
+                c.getPlayer().dropMessage(6, "Characters on Channel " + c.getChannel() + ":");
+                c.getPlayer().dropMessage(6, ChannelServer.getInstance(c.getWorld(), c.getChannel()).getPlayerStorage().getOnlinePlayers(false));
+                return true;
+            default:
+                c.getPlayer().showMessage(splitted[0].substring(1) + " does not exist.");
+                return false;
         }
     }
-    
+
     /**
-     * @author: Eric
      * @param id - Gets the JOBID
      * @return - Returns the String of the Job rather than an enum.
+     * @author: Eric
      */
 
     public static String getJobyNameById(int id) {
-        switch(id) {
+        switch (id) {
             case 0:
                 return "Beginner"; // Beginner
             case 100:
@@ -849,7 +851,7 @@ public class PlayerCommand {
             case 210:
                 return "Wizard (Fire, Poison)";
             case 211:
-                return "Mage (Fire, Poison)"; 
+                return "Mage (Fire, Poison)";
             case 212:
                 return "Arch Mage (Fire, Poison)";
             case 220:
@@ -878,7 +880,7 @@ public class PlayerCommand {
                 return "Sniper";
             case 322:
                 return "Marksman";
-            case 400: 
+            case 400:
                 return "Rogue"; // Thief
             case 410:
                 return "Assassin";
@@ -938,13 +940,13 @@ public class PlayerCommand {
                 return "GM"; // GM
             case 910:
                 return "SuperGM"; // SuperGM
-            case 1000: 
+            case 1000:
                 return "Noblesse"; // Cygnus
             case 1100:
                 return "Dawn Warrior";
             case 1110:
                 return "Dawn Warrior";
-            case 1111: 
+            case 1111:
                 return "Dawn Warrior";
             case 1112:
                 return "Dawn Warrior";
@@ -1035,7 +1037,7 @@ public class PlayerCommand {
             case 3000:
                 return "Citizen"; // Resistance
             case 3001:
-                return "Demon Slayer"; 
+                return "Demon Slayer";
             case 3100:
                 return "Demon Slayer";
             case 3110:

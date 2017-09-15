@@ -27,17 +27,21 @@ import client.SkillFactory;
 import handling.world.World;
 import handling.world.guild.MapleGuild;
 import handling.world.guild.MapleGuildResponse;
+import server.MapleStatEffect;
+import tools.data.LittleEndianAccessor;
+import tools.packet.CField;
+import tools.packet.CWvsContext.GuildPacket;
+import tools.types.Pair;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import server.MapleStatEffect;
-import tools.types.Pair;
-import tools.data.LittleEndianAccessor;
-import tools.packet.CField;
-import tools.packet.CWvsContext.GuildPacket;
 
 public class GuildHandler {
+
+    private static final Map<String, Pair<Integer, Long>> invited = new HashMap<>();
+    private static long nextPruneTime = System.currentTimeMillis() + 5 * 60 * 1000;
 
     public static void DenyGuildRequest(final String from, final MapleClient c) {
         final MapleCharacter cfrom = c.getChannelServer().getPlayerStorage().getCharacterByName(from);
@@ -63,10 +67,8 @@ public class GuildHandler {
             return;
         }
         mc.getMap().broadcastMessage(CField.loadGuildName(mc));
-		mc.getMap().broadcastMessage(CField.loadGuildIcon(mc));
+        mc.getMap().broadcastMessage(CField.loadGuildIcon(mc));
     }
-    private static final Map<String, Pair<Integer, Long>> invited = new HashMap<>();
-    private static long nextPruneTime = System.currentTimeMillis() + 5 * 60 * 1000;
 
     public static void Guild(final LittleEndianAccessor slea, final MapleClient c) {
         final long currentTime = System.currentTimeMillis();
@@ -109,7 +111,7 @@ public class GuildHandler {
                 World.Guild.setGuildMemberOnline(c.getPlayer().getMGC(), true, c.getChannel());
                 //c.sendPacket(GuildPacket.showGuildInfo(c.getPlayer()));
                 c.sendPacket(GuildPacket.newGuildInfo(c.getPlayer()));
-		World.Guild.gainGP(c.getPlayer().getGuildId(), 500, c.getPlayer().getId());
+                World.Guild.gainGP(c.getPlayer().getGuildId(), 500, c.getPlayer().getId());
                 //c.getPlayer().dropMessage(1, "You have successfully created a Guild.");
                 //respawnPlayer(c.getPlayer());
                 break;

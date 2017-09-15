@@ -1,4 +1,3 @@
-
 /*
 This file is part of the OdinMS Maple Story WorldConfig
 Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc> 
@@ -23,16 +22,17 @@ package server.maps;
 
 import client.MapleCharacter;
 import client.MapleClient;
-import java.awt.Point;
+import server.MaplePortal;
+import tools.packet.CField;
+import tools.packet.CWvsContext;
+import tools.packet.CWvsContext.PartyPacket;
+
+import java.awt.*;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import server.MaplePortal;
-import tools.packet.CField;
-import tools.packet.CWvsContext;
-import tools.packet.CWvsContext.PartyPacket;
 
 public class MapleDoor extends MapleMapObject {
 
@@ -100,9 +100,9 @@ public class MapleDoor extends MapleMapObject {
             final MapleDoor door = (MapleDoor) obj;
             /// hmm
             if (door.getOwner() != null && door.getOwner().getParty() != null && getOwner() != null && getOwner().getParty() != null && getOwner().getParty().getId() == door.getOwner().getParty().getId()) {
-               return null; //one per
+                return null; //one per
             }
-	    freePortals.remove(door.getTownPortal());
+            freePortals.remove(door.getTownPortal());
         }
         if (freePortals.size() <= 0) {
             return null;
@@ -112,9 +112,9 @@ public class MapleDoor extends MapleMapObject {
 
     @Override
     public final void sendSpawnData(final MapleClient client) {
-	if (getOwner() == null || target == null || client.getPlayer() == null) {
-	    return;
-	}
+        if (getOwner() == null || target == null || client.getPlayer() == null) {
+            return;
+        }
         if (target.getId() == client.getPlayer().getMapId() || getOwnerId() == client.getPlayer().getId() || (getOwner() != null && getOwner().getParty() != null && client.getPlayer().getParty() != null && getOwner().getParty().getId() == client.getPlayer().getParty().getId())) {
             client.sendPacket(CField.spawnDoor(getOwnerId(), target.getId() == client.getPlayer().getMapId() ? targetPosition : townPortal.getPosition(), true)); //spawnDoor always has same position.
             if (getOwner() != null && getOwner().getParty() != null && client.getPlayer().getParty() != null && (getOwnerId() == client.getPlayer().getId() || getOwner().getParty().getId() == client.getPlayer().getParty().getId())) {
@@ -126,22 +126,22 @@ public class MapleDoor extends MapleMapObject {
 
     @Override
     public final void sendDestroyData(final MapleClient client) {
-	if (client.getPlayer() == null || getOwner() == null || target == null) {
-	    return;
-	}
+        if (client.getPlayer() == null || getOwner() == null || target == null) {
+            return;
+        }
         if (target.getId() == client.getPlayer().getMapId() || getOwnerId() == client.getPlayer().getId() || (getOwner() != null && getOwner().getParty() != null && client.getPlayer().getParty() != null && getOwner().getParty().getId() == client.getPlayer().getParty().getId())) {
-            client.sendPacket(CField.removeDoor(getOwnerId(),false));
+            client.sendPacket(CField.removeDoor(getOwnerId(), false));
             if (getOwner() != null && getOwner().getParty() != null && client.getPlayer().getParty() != null && (getOwnerId() == client.getPlayer().getId() || getOwner().getParty().getId() == client.getPlayer().getParty().getId())) {
                 client.sendPacket(PartyPacket.partyPortal(999999999, 999999999, 0, new Point(-1, -1), false));
             }
-	    client.sendPacket(CWvsContext.spawnPortal(999999999, 999999999, 0, null));
+            client.sendPacket(CWvsContext.spawnPortal(999999999, 999999999, 0, null));
         }
     }
 
     public final void warp(final MapleCharacter chr, final boolean toTown) {
         if (chr.getId() == getOwnerId() || (getOwner() != null && getOwner().getParty() != null && chr.getParty() != null && getOwner().getParty().getId() == chr.getParty().getId())) {
             if (!toTown) {
-		chr.changeMap(target, target.findClosestPortal(targetPosition));
+                chr.changeMap(target, target.findClosestPortal(targetPosition));
             } else {
                 chr.changeMap(town, townPortal);
             }

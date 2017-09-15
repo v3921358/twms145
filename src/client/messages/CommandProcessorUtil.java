@@ -3,7 +3,6 @@ package client.messages;
 import tools.StringUtil;
 
 /**
- *
  * @author Emilyx3
  */
 public class CommandProcessorUtil {

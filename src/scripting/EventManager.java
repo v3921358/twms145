@@ -21,18 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scripting;
 
 import client.MapleCharacter;
-import constants.ServerConstants;
-import constants.WorldConstants;
 import handling.channel.ChannelServer;
 import handling.login.LoginServer;
 import handling.world.MapleParty;
 import handling.world.MaplePartyCharacter;
 import handling.world.World;
-import java.awt.Point;
-import java.util.*;
-import java.util.concurrent.ScheduledFuture;
-import javax.script.Invocable;
-import javax.script.ScriptException;
 import server.MapleSquad;
 import server.Randomizer;
 import server.Timer.EventTimer;
@@ -45,6 +38,11 @@ import server.maps.*;
 import tools.FileoutputUtil;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
+
+import javax.script.Invocable;
+import javax.script.ScriptException;
+import java.util.*;
+import java.util.concurrent.ScheduledFuture;
 
 public class EventManager {
 
@@ -100,7 +98,7 @@ public class EventManager {
             }
         }, delay);
     }
-    
+
     public void spawnMonster(int mobid, long HP, int MP, int amount) {
         MapleCharacter player = new MapleCharacter(false);
         OverrideMonsterStats newStats = new OverrideMonsterStats();
@@ -120,28 +118,28 @@ public class EventManager {
             player.getMap().spawnMonsterOnGroundBelow(npcmob, player.getPosition());
         }
     }
-    
+
     public void AutoUnstucker() {
-            List<String> playerz = new ArrayList<>();
-                for (MapleCharacter players : World.getAllCharacters()) {
-                    //if(players.getClient().getSession().isClosing() && players != null && players.getClient().isLoggedIn() && players.getMap() != null){
-                    if (players == null || !players.getClient().getSession().isActive() || (players.getClient().isLoggedIn() && players.getMap() == null)) {
-                        playerz.add(players.getName() + ", ");
-                        getChannelServer().getPlayerStorage().deregisterPlayer(players);
-                        // System.out.println("Deregistered");
-                        getChannelServer().getPlayerStorage().deregisterPendingPlayer(players.getId());
-                        // System.out.println("Deregistered charid and name");
-                        players.getClient().getSession().close();
-                        // System.out.println("Closed session");
-                        players.getClient().disconnect(true, true);
-                        // System.out.println("Disconnected");
-                    }
-                }
-                if (playerz.size() > 0) {
-                       System.out.println("Unstucked " + playerz.size() + " players.");
-                }
+        List<String> playerz = new ArrayList<>();
+        for (MapleCharacter players : World.getAllCharacters()) {
+            //if(players.getClient().getSession().isClosing() && players != null && players.getClient().isLoggedIn() && players.getMap() != null){
+            if (players == null || !players.getClient().getSession().isActive() || (players.getClient().isLoggedIn() && players.getMap() == null)) {
+                playerz.add(players.getName() + ", ");
+                getChannelServer().getPlayerStorage().deregisterPlayer(players);
+                // System.out.println("Deregistered");
+                getChannelServer().getPlayerStorage().deregisterPendingPlayer(players.getId());
+                // System.out.println("Deregistered charid and name");
+                players.getClient().getSession().close();
+                // System.out.println("Closed session");
+                players.getClient().disconnect(true, true);
+                // System.out.println("Disconnected");
+            }
+        }
+        if (playerz.size() > 0) {
+            System.out.println("Unstucked " + playerz.size() + " players.");
+        }
     }
-    
+
     public void AutoJQ(int map) {
         World.setEventOn(true);
         World.setEventMap(map);
@@ -166,7 +164,7 @@ public class EventManager {
     public int getChannel() {
         return channel;
     }
-    
+
     public ChannelServer getChannelServer() {
         return ChannelServer.getInstance(world, channel);
     }
@@ -233,7 +231,7 @@ public class EventManager {
             FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Event name : " + name + ", method Name : setup:\n" + ex);
         }
     }
-	
+
     public void startInstance_Solo(String mapid, MapleCharacter chr) {
         try {
             EventInstanceManager eim = (EventInstanceManager) iv.invokeFunction("setup", (Object) mapid);
@@ -447,7 +445,7 @@ public class EventManager {
 
     public boolean scheduleRandomEventInChannel(int chz) {
         for (World worlds : LoginServer.getWorlds()) {
-            final ChannelServer cs = worlds.getChannel(chz); 
+            final ChannelServer cs = worlds.getChannel(chz);
             if (cs == null || cs.getEvent() > -1) {
                 return false;
             }

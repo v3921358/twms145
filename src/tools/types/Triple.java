@@ -31,7 +31,7 @@ public class Triple<E, F, G> implements Serializable {
 
     public Triple(E left, F mid, G right) {
         this.left = left;
-	this.mid = mid;
+        this.mid = mid;
         this.right = right;
     }
 

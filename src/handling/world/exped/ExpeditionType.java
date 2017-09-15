@@ -13,20 +13,21 @@ public enum ExpeditionType {
     Hilla(30, 2010, 70, 120);
 
     public int maxMembers, maxParty, exped, minLevel, maxLevel;
+
     private ExpeditionType(int maxMembers, int exped, int minLevel, int maxLevel) {
-	this.maxMembers = maxMembers;
-	this.exped = exped;
-	this.maxParty = (maxMembers / 2) + (maxMembers % 2 > 0 ? 1 : 0);
-	this.minLevel = minLevel;
-	this.maxLevel = maxLevel;
+        this.maxMembers = maxMembers;
+        this.exped = exped;
+        this.maxParty = (maxMembers / 2) + (maxMembers % 2 > 0 ? 1 : 0);
+        this.minLevel = minLevel;
+        this.maxLevel = maxLevel;
     }
 
     public static ExpeditionType getById(int id) {
-	for (ExpeditionType pst : ExpeditionType.values()) {
-	    if (pst.exped == id) {
-		return pst;
-	    }
-	}
-	return null;
+        for (ExpeditionType pst : ExpeditionType.values()) {
+            if (pst.exped == id) {
+                return pst;
+            }
+        }
+        return null;
     }
 }

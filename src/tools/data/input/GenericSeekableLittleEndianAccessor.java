@@ -25,11 +25,11 @@ import java.io.IOException;
 /**
  * Provides an abstract accessor to a generic Little Endian byte stream. This
  * accessor is seekable.
- * 
+ *
  * @author Frz
  * @version 1.0
- * @since Revision 323
  * @see net.sf.odinms.tools.data.input.GenericLittleEndianAccessor
+ * @since Revision 323
  */
 public class GenericSeekableLittleEndianAccessor extends GenericLittleEndianAccessor implements SeekableLittleEndianAccessor {
 

@@ -22,10 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package server.events;
 
 import client.MapleCharacter;
-import java.util.concurrent.ScheduledFuture;
 import server.Timer.EventTimer;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
+
+import java.util.concurrent.ScheduledFuture;
 
 public class MapleSurvival extends MapleEvent {
 
@@ -34,7 +35,7 @@ public class MapleSurvival extends MapleEvent {
     protected ScheduledFuture<?> olaSchedule;
 
     public MapleSurvival(final int world, final int channel, final MapleEventType type) {
-	super(world,channel,type);
+        super(world, channel, type);
     }
 
     @Override
@@ -44,7 +45,7 @@ public class MapleSurvival extends MapleEvent {
 
     @Override
     public void onMapLoad(MapleCharacter chr) {
-	super.onMapLoad(chr);
+        super.onMapLoad(chr);
         if (isTimerStarted()) {
             chr.getClient().sendPacket(CField.getClock((int) (getTimeLeft() / 1000)));
         }
@@ -71,7 +72,7 @@ public class MapleSurvival extends MapleEvent {
         }, this.time);
 
         broadcast(CWvsContext.serverNotice(0, "The portal has now opened. Press the up arrow key at the portal to enter."));
-	broadcast(CWvsContext.serverNotice(0, "Fall down once, and never get back up again! Get to the top without falling down!"));
+        broadcast(CWvsContext.serverNotice(0, "Fall down once, and never get back up again! Get to the top without falling down!"));
     }
 
     public boolean isTimerStarted() {

@@ -17,8 +17,9 @@
  */
 package server.movement;
 
-import java.awt.Point;
 import tools.data.MaplePacketLittleEndianWriter;
+
+import java.awt.*;
 
 public class TeleportMovement extends AbstractLifeMovement {
 

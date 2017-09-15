@@ -23,9 +23,10 @@ package server.maps;
 import client.MapleCharacter;
 import client.MapleClient;
 import constants.GameConstants;
-import java.awt.Point;
 import server.MapleStatEffect;
 import tools.packet.CField.SummonPacket;
+
+import java.awt.*;
 
 public class MapleSummon extends AnimatedMapleMapObject {
 
@@ -39,7 +40,7 @@ public class MapleSummon extends AnimatedMapleMapObject {
     private int lastSummonTickCount;
     private byte Summon_tickResetCount;
     private long Server_ClientSummonTickDiff;
-	private long lastAttackTime;
+    private long lastAttackTime;
 
     public MapleSummon(final MapleCharacter owner, final MapleStatEffect skill, final Point pos, final SummonMovementType movementType) {
         this(owner, skill.getSourceId(), skill.getLevel(), pos, movementType);
@@ -59,7 +60,7 @@ public class MapleSummon extends AnimatedMapleMapObject {
             lastSummonTickCount = 0;
             Summon_tickResetCount = 0;
             Server_ClientSummonTickDiff = 0;
-			lastAttackTime = 0;
+            lastAttackTime = 0;
         }
     }
 
@@ -108,8 +109,8 @@ public class MapleSummon extends AnimatedMapleMapObject {
         switch (skill) {
             case 3111002:
             case 3211002:
-	    case 3120012:
-	    case 3220012:
+            case 3120012:
+            case 3220012:
             case 5711001:
             case 13111004:
             case 4341006:
@@ -118,17 +119,17 @@ public class MapleSummon extends AnimatedMapleMapObject {
         }
         return isAngel();
     }
-	
-	public final boolean isAngel() {
-		return GameConstants.isAngel(skill);
-	}
-	
-	public final boolean isMultiAttack() {
-		if (skill != 35111002 && skill != 35121003 && (isGaviota() || skill == 33101008 || skill >= 35000000) && skill != 35111009 && skill != 35111010 && skill != 35111001) {
-			return false;
-		}
-		return true;
-	}
+
+    public final boolean isAngel() {
+        return GameConstants.isAngel(skill);
+    }
+
+    public final boolean isMultiAttack() {
+        if (skill != 35111002 && skill != 35121003 && (isGaviota() || skill == 33101008 || skill >= 35000000) && skill != 35111009 && skill != 35111010 && skill != 35111001) {
+            return false;
+        }
+        return true;
+    }
 
     public final boolean isGaviota() {
         return skill == 5211002;
@@ -172,17 +173,17 @@ public class MapleSummon extends AnimatedMapleMapObject {
             case 4111007:
             case 4211007: //dark flare
             case 32111006:
-	    case 33101008:
-	    case 35121003:
-	    case 3101007:
-	    case 3201007:
-	    case 3111005:
-	    case 3211005:
-	    case 5321003:
-	    case 5321004:
-	    case 23111008:
-	    case 23111009:
-	    case 23111010:
+            case 33101008:
+            case 35121003:
+            case 3101007:
+            case 3201007:
+            case 3111005:
+            case 3211005:
+            case 5321003:
+            case 5321004:
+            case 23111008:
+            case 23111009:
+            case 23111010:
                 return true;
         }
         return isAngel();
@@ -193,9 +194,9 @@ public class MapleSummon extends AnimatedMapleMapObject {
     }
 
     public final int getSummonType() {
-		if (isAngel()) {
-			return 2;
-		} else if ((skill != 33111003 && skill != 5711001 && skill != 3120012 && skill != 3220012 && isPuppet()) || skill == 33101008 || skill == 35111002) {
+        if (isAngel()) {
+            return 2;
+        } else if ((skill != 33111003 && skill != 5711001 && skill != 3120012 && skill != 3220012 && isPuppet()) || skill == 33101008 || skill == 35111002) {
             return 0;
         }
         switch (skill) {
@@ -207,11 +208,11 @@ public class MapleSummon extends AnimatedMapleMapObject {
                 return 3; //attacks what you attack
             case 35121009: //bots n. tots
                 return 5; //sub summons
-			case 35121003:
-				return 6; //charge
+            case 35121003:
+                return 6; //charge
             case 4111007: // test
             case 4211007: //dark flare
-            	return 7; //attacks what you get hit by
+                return 7; //attacks what you get hit by
         }
         return 1;
     }
@@ -232,7 +233,7 @@ public class MapleSummon extends AnimatedMapleMapObject {
         }
         lastSummonTickCount = tickcount;
     }
-	
+
     public final void CheckPVPSummonAttackFrequency(final MapleCharacter chr) {
         final long tickdifference = (System.currentTimeMillis() - lastAttackTime);
         lastAttackTime = System.currentTimeMillis();

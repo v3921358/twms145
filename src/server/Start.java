@@ -13,16 +13,7 @@ import handling.login.LoginServer;
 import handling.world.World;
 import handling.world.family.MapleFamily;
 import handling.world.guild.MapleGuild;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicInteger;
-import server.Timer.BuffTimer;
-import server.Timer.EtcTimer;
-import server.Timer.EventTimer;
-import server.Timer.MapTimer;
-import server.Timer.PingTimer;
-import server.Timer.PokeTimer;
-import server.Timer.WorldTimer;
+import server.Timer.*;
 import server.events.MapleOxQuizFactory;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonsterInformationProvider;
@@ -31,11 +22,19 @@ import server.life.PlayerNPC;
 import server.maps.MapleMapFactory;
 import server.quest.MapleQuest;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Start {
 
-    public static long startTime = System.currentTimeMillis();
     public static final Start instance = new Start();
+    public static long startTime = System.currentTimeMillis();
     public static AtomicInteger CompletedLoadingThreads = new AtomicInteger(0);
+
+    public static void main(final String args[]) throws InterruptedException {
+        instance.run();
+    }
 
     private void setAccountsLoginStatus() {
         try {
@@ -62,7 +61,7 @@ public class Start {
 
     public void run() throws InterruptedException {
 
-        System.out.println("楓之谷v145模擬器 啟動中" + "." + ServerConstants.MAPLE_PATCH +"..");
+        System.out.println("楓之谷v145模擬器 啟動中" + "." + ServerConstants.MAPLE_PATCH + "..");
         // Worlds
         WorldConstants.init();
         World.init();
@@ -74,16 +73,16 @@ public class Start {
         LoginServer.run_startup_configurations();
         CashShopServer.run_startup_configurations();
         // Information
-        MapleItemInformationProvider.getInstance().runEtc(); 
-        MapleMonsterInformationProvider.getInstance().load(); 
-        MapleItemInformationProvider.getInstance().runItems(); 
+        MapleItemInformationProvider.getInstance().runEtc();
+        MapleMonsterInformationProvider.getInstance().load();
+        MapleItemInformationProvider.getInstance().runItems();
         LoginServer.setOn();
         // Every other instance cache :)
         SkillFactory.load();
         LoginInformationProvider.getInstance();
         MapleGuildRanking.getInstance().load();
-        MapleGuild.loadAll(); //(this); 
-        MapleFamily.loadAll(); //(this); 
+        MapleGuild.loadAll(); //(this);
+        MapleFamily.loadAll(); //(this);
         MapleLifeFactory.loadQuestCounts();
         MapleQuest.initQuests();
         RandomRewards.load();
@@ -94,14 +93,10 @@ public class Start {
         SpeedRunner.loadSpeedRuns();
         MapleInventoryIdentifier.getInstance();
         MapleMapFactory.loadCustomLife();
-        CashItemFactory.getInstance().initialize(); 
+        CashItemFactory.getInstance().initialize();
         PlayerNPC.loadAll();// touch - so we see database problems early...
         MapleMonsterInformationProvider.getInstance().addExtra();
         RankingWorker.run();
         System.out.println("Server is Opened");
-    }
-
-    public static void main(final String args[]) throws InterruptedException {
-        instance.run();
     }
 }

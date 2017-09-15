@@ -50,6 +50,7 @@ public class PortalPlayerInteraction extends AbstractPlayerInteraction {
             }
         }
     }
+
     public final void inArdentmill() {
         if (getMapId() != 910001000) {
             if (getPlayer().getLevel() >= 10) {
@@ -73,7 +74,7 @@ public class PortalPlayerInteraction extends AbstractPlayerInteraction {
     public void spawnMonster(int id, int qty) {
         spawnMonster(id, qty, portal.getPosition());
     }
-    
+
     // summon special monsters on reactor location
     public void spawnMonster(int id, long hp, int mp, int qty, int exp) {
         MapleMonster monster = MapleLifeFactory.getMonster(id);

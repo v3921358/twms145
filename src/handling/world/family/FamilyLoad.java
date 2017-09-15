@@ -5,6 +5,7 @@
 package handling.world.family;
 
 import handling.world.World;
+
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -14,13 +15,13 @@ public class FamilyLoad {
 
     public static final int NumSavingThreads = 8;
     private static final TimingThread[] Threads = new TimingThread[NumSavingThreads];
+    private static final AtomicInteger Distribute = new AtomicInteger(0);
 
     static {
         for (int i = 0; i < Threads.length; i++) {
             Threads[i] = new TimingThread(new FamilyLoadRunnable());
         }
     }
-    private static final AtomicInteger Distribute = new AtomicInteger(0);
 
     public static void QueueFamilyForLoad(int hm) {
         int Current = Distribute.getAndIncrement() % NumSavingThreads;

@@ -25,20 +25,21 @@ public enum PartySearchType {
 
     public int id, minLevel, maxLevel, timeLimit;
     public boolean exped;
+
     private PartySearchType(int minLevel, int maxLevel, int value, boolean exped) {
-	this.id = value;
-	this.minLevel = minLevel;
-	this.maxLevel = maxLevel;
-	this.exped = exped;
-	this.timeLimit = exped ? 20 : 5;
+        this.id = value;
+        this.minLevel = minLevel;
+        this.maxLevel = maxLevel;
+        this.exped = exped;
+        this.timeLimit = exped ? 20 : 5;
     }
 
     public static PartySearchType getById(int id) {
-	for (PartySearchType pst : PartySearchType.values()) {
-	    if (pst.id == id) {
-		return pst;
-	    }
-	}
-	return null;
+        for (PartySearchType pst : PartySearchType.values()) {
+            if (pst.id == id) {
+                return pst;
+            }
+        }
+        return null;
     }
 }

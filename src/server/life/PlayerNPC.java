@@ -32,7 +32,11 @@ import handling.channel.ChannelServer;
 import handling.login.LoginServer;
 import handling.world.MapleCharacterLook;
 import handling.world.World;
-import java.awt.Point;
+import server.maps.MapleMap;
+import tools.packet.CField.NPCPacket;
+import tools.packet.CWvsContext;
+
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -41,9 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import server.maps.*;
-import tools.packet.CField.NPCPacket;
-import tools.packet.CWvsContext;
 
 public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
 
@@ -90,17 +91,8 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
         update(cid);
     }
 
-    public void setCoords(int x, int y, int f, int fh) {
-        setPosition(new Point(x, y));
-        setCy(y);
-        setRx0(x - 50);
-        setRx1(x + 50);
-        setF(f);
-        setFh(fh);
-    }
-
     public static void loadAll() {
-	List<PlayerNPC> toAdd = new ArrayList<PlayerNPC>();
+        List<PlayerNPC> toAdd = new ArrayList<PlayerNPC>();
         Connection con = DatabaseConnection.getConnection();
         try {
             PreparedStatement ps = con.prepareStatement("SELECT * FROM playernpcs");
@@ -113,9 +105,9 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
         } catch (Exception se) {
             se.printStackTrace();
         }
-	for (PlayerNPC npc : toAdd) {
-	    npc.addToServer();
-	}
+        for (PlayerNPC npc : toAdd) {
+            npc.addToServer();
+        }
     }
 
     public static void updateByCharId(MapleCharacter chr) {
@@ -124,6 +116,15 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
                 npc.update(chr);
             }
         }
+    }
+
+    public void setCoords(int x, int y, int f, int fh) {
+        setPosition(new Point(x, y));
+        setCy(y);
+        setRx0(x - 50);
+        setRx1(x + 50);
+        setF(f);
+        setFh(fh);
     }
 
     public void addToServer() {
@@ -165,7 +166,7 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
 
     public void destroy() {
         destroy(false); //just sql
-        }
+    }
 
     public void destroy(boolean remove) {
         Connection con = DatabaseConnection.getConnection();
@@ -232,11 +233,11 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
             se.printStackTrace();
         }
     }
-    
+
     public short getJob() {
         return 0; // we'll do this later,
     }
-    
+
     public int getDemonMarking() {
         return 0; // player npcs should have demon mark? ..idk, we'll see later
     }
@@ -244,13 +245,23 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
     public Map<Byte, Integer> getEquips() {
         return equips;
     }
-    
+
     public Map<Byte, Integer> getTotems() {
         return new HashMap<>();
     }
-    
+
     public List<MaplePet> getPets() {
         return pet;
+    }
+
+    public void setPets(List<MaplePet> p) {
+        for (int i = 0; i < 3; i++) {
+            if (p != null && p.size() > i && p.get(i) != null) {
+                this.pets[i] = p.get(i).getPetItemId();
+            } else {
+                this.pets[i] = 0;
+            }
+        }
     }
 
     public byte getSkinColor() {
@@ -261,12 +272,24 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
         return gender;
     }
 
+    public void setGender(int g) {
+        this.gender = (byte) g;
+    }
+
     public int getFace() {
         return face;
     }
 
+    public void setFace(int f) {
+        this.face = f;
+    }
+
     public int getHair() {
         return hair;
+    }
+
+    public void setHair(int h) {
+        this.hair = h;
     }
 
     public int getCharId() {
@@ -281,30 +304,8 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
         this.skin = s;
     }
 
-    public void setFace(int f) {
-        this.face = f;
-    }
-
-    public void setHair(int h) {
-        this.hair = h;
-    }
-
-    public void setGender(int g) {
-        this.gender = (byte) g;
-    }
-
     public int getPet(int i) {
         return pets[i] > 0 ? pets[i] : 0;
-    }
-
-    public void setPets(List<MaplePet> p) {
-        for (int i = 0; i < 3; i++) {
-            if (p != null && p.size() > i && p.get(i) != null) {
-                this.pets[i] = p.get(i).getPetItemId();
-            } else {
-                this.pets[i] = 0;
-            }
-        }
     }
 
     @Override

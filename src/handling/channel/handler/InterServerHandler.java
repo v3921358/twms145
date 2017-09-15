@@ -46,6 +46,8 @@ import tools.packet.CWvsContext.GuildPacket;
 import tools.packet.LoginPacket;
 import tools.packet.MTSCSPacket;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -57,7 +59,7 @@ public class InterServerHandler {
             c.sendPacket(CWvsContext.enableActions());
             return;
         }
-        if (ServerConstants.BlockCS == true) {
+        if (ServerConstants.BlockCS) {
             chr.dropMessage(1, "The Cash Shop has been temporarily disabled due to the amount of bugged players.");
             c.sendPacket(CWvsContext.enableActions());
             return;
@@ -97,7 +99,11 @@ public class InterServerHandler {
         c.getChannelServer().removePlayer(c.getPlayer());
         c.getPlayer().saveToDB(false, false);
         c.updateLoginState(MapleClient.CHANGE_CHANNEL, c.getSessionIPAddress());
-        c.sendPacket(CField.getChannelChange(c, Integer.parseInt(CashShopServer.getIP().split(":")[1])));
+        String[] socket = CashShopServer.getIP().split(":");
+        try {
+            c.sendPacket(CField.getChannelChange(c, InetAddress.getByName(socket[0]), Integer.parseInt(socket[1])));
+        } catch (UnknownHostException | NumberFormatException e) {
+        }
         c.setPlayer(null);
         c.setReceiving(false);
     }
@@ -184,8 +190,8 @@ public class InterServerHandler {
         if (player.inCS()) {
             player.setInCS(false); // exit them from CS enabling
         } else {
-            client.sendPacket(CWvsContext.yellowChat("[Welcome] Welcome to " + ServerConstants.SERVER_NAME + " v117.2!"));
-            //client.sendPacket(CField.sendHint("" + ServerConstants.WELCOME_MESSAGE + "", 350, 5));
+            client.sendPacket(CWvsContext.yellowChat("[啾咪谷] 歡迎來到 " + ServerConstants.SERVER_NAME));
+            client.sendPacket(CField.sendHint("" + ServerConstants.WELCOME_MESSAGE + "", 350, 5));
         }
         // GM Hide is a skill now, and auto-applies super hide. 
         if (player.isGM()) {

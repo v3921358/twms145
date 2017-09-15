@@ -29,7 +29,7 @@ public class CharacterNameAndId {
         super();
         this.id = id;
         this.name = name;
-	this.group = group;
+        this.group = group;
     }
 
     public int getId() {

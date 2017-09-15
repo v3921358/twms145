@@ -21,6 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package client;
 
 import database.DatabaseConnection;
+import tools.data.MaplePacketLittleEndianWriter;
+import tools.types.Pair;
+
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,8 +31,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import tools.types.Pair;
-import tools.data.MaplePacketLittleEndianWriter;
 
 public class MapleKeyLayout implements Serializable {
 
@@ -49,16 +50,16 @@ public class MapleKeyLayout implements Serializable {
         changed = true;
         return keymap;
     }
-	
-	public final void unchanged() {
-		changed = false;
-	}
+
+    public final void unchanged() {
+        changed = false;
+    }
 
     public final void writeData(final MaplePacketLittleEndianWriter mplew) {
-		mplew.write(keymap.isEmpty() ? 1 : 0);
-		if (keymap.isEmpty()) {
-			return;
-		}
+        mplew.write(keymap.isEmpty() ? 1 : 0);
+        if (keymap.isEmpty()) {
+            return;
+        }
         Pair<Byte, Integer> binding;
         for (int x = 0; x < 89; x++) {
             binding = keymap.get(Integer.valueOf(x));
@@ -82,9 +83,9 @@ public class MapleKeyLayout implements Serializable {
         ps.setInt(1, charid);
         ps.execute();
         ps.close();
-		if (keymap.isEmpty()) {
-			return;
-		}
+        if (keymap.isEmpty()) {
+            return;
+        }
         boolean first = true;
         StringBuilder query = new StringBuilder();
 

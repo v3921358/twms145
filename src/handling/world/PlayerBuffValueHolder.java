@@ -21,9 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.world;
 
 import client.MapleBuffStatus;
+import server.MapleStatEffect;
+
 import java.io.Serializable;
 import java.util.Map;
-import server.MapleStatEffect;
 
 public class PlayerBuffValueHolder implements Serializable {
 
@@ -31,13 +32,13 @@ public class PlayerBuffValueHolder implements Serializable {
     public long startTime;
     public int localDuration, cid;
     public MapleStatEffect effect;
-    public Map<MapleBuffStatus,Integer> statup;
+    public Map<MapleBuffStatus, Integer> statup;
 
-    public PlayerBuffValueHolder(final long startTime, final MapleStatEffect effect, final Map<MapleBuffStatus,Integer> statup, int localDuration, int cid) {
+    public PlayerBuffValueHolder(final long startTime, final MapleStatEffect effect, final Map<MapleBuffStatus, Integer> statup, int localDuration, int cid) {
         this.startTime = startTime;
         this.effect = effect;
-	this.statup = statup;
-	this.localDuration = localDuration;
-	this.cid = cid;
+        this.statup = statup;
+        this.localDuration = localDuration;
+        this.cid = cid;
     }
 }

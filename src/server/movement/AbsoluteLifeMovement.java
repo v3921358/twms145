@@ -17,10 +17,9 @@
  */
 package server.movement;
 
-import java.awt.Point;
-
-import tools.data.LittleEndianAccessor;
 import tools.data.MaplePacketLittleEndianWriter;
+
+import java.awt.*;
 
 public class AbsoluteLifeMovement extends AbstractLifeMovement {
 
@@ -43,12 +42,12 @@ public class AbsoluteLifeMovement extends AbstractLifeMovement {
         this.fh = fh;
     }
 
-    public void setUnk(short unk) {
-        this.unk = unk;
-    }
-
     public short getUnk() {
         return unk;
+    }
+
+    public void setUnk(short unk) {
+        this.unk = unk;
     }
 
     @Override

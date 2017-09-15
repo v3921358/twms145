@@ -63,6 +63,8 @@ import java.util.concurrent.locks.Lock;
 
 public class InventoryHandler {
 
+    public static int OWL_ID = 2; //don't change. 0 = owner ID, 1 = store ID, 2 = object ID
+
     private static String getDateTime() {
         DateFormat dateFormat = new SimpleDateFormat("dd/MM HH:mm:ss z");
         Date date = new Date();
@@ -111,6 +113,7 @@ public class InventoryHandler {
         }
         MapleInventoryManipulator.move(c, MapleInventoryType.ETC, src, dst);
     }
+/*      */
 
     /*      */
     public static void UseMagicWheel(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr)
@@ -123,7 +126,7 @@ public class InventoryHandler {
             return;
 /*      */
         }
-/*      */ 
+/*      */
 /* 4202 */
         byte mode = slea.readByte();
 /* 4203 */
@@ -264,7 +267,6 @@ public class InventoryHandler {
         }
 /*      */
     }
-/*      */
 
     public static void MoveBag(LittleEndianAccessor slea, MapleClient c) {
         if (c.getPlayer().hasBlockedInventory()) { //hack
@@ -1150,7 +1152,7 @@ public class InventoryHandler {
                         c.getPlayer().dropMessage(5, "Please make some space.");
                     }
                     break;
-                case 2430748: // premium fusion ticket 
+                case 2430748: // premium fusion ticket
                     if (c.getPlayer().getInventory(MapleInventoryType.ETC).getNumFreeSlot() >= 1) {
                         if (c.getPlayer().getInventory(MapleInventoryType.USE).countById(2430748) >= 20) {
                             if (MapleInventoryManipulator.checkSpace(c, 4420000, 1, "") && MapleInventoryManipulator.removeById(c, MapleInventoryType.USE, toUse.getItemId(), 20, true, false)) {
@@ -1191,7 +1193,7 @@ public class InventoryHandler {
                         c.getPlayer().dropMessage(5, "Please make some space.");
                     }
                     break;
-                case 5680019: {//starling hair 
+                case 5680019: {//starling hair
                     //if (c.getPlayer().getGender() == 1) {
                     int hair = 32150 + (c.getPlayer().getHair() % 10);
                     c.getPlayer().setHair(hair);
@@ -1200,7 +1202,7 @@ public class InventoryHandler {
                     //}
                     break;
                 }
-                case 5680020: {//starling hair 
+                case 5680020: {//starling hair
                     //if (c.getPlayer().getGender() == 0) {
                     int hair = 32160 + (c.getPlayer().getHair() % 10);
                     c.getPlayer().setHair(hair);
@@ -3833,7 +3835,6 @@ public class InventoryHandler {
 
     }
 
-
     public static void Pickup_Player(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr) {
         if (c.getPlayer().hasBlockedInventory()) { //hack
             return;
@@ -4195,8 +4196,6 @@ public class InventoryHandler {
             }
         }
     }
-
-    public static int OWL_ID = 2; //don't change. 0 = owner ID, 1 = store ID, 2 = object ID
 
     public static void OwlWarp(LittleEndianAccessor slea, MapleClient c) {
         if (!c.getPlayer().isAlive()) {

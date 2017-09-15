@@ -49,6 +49,10 @@ public class MapleDueyActions {
         return packageId;
     }
 
+    public long getSentTime() {
+        return sentTime;
+    }
+
     /*    public boolean isExpired() {
     Calendar cal1 = Calendar.getInstance();
     cal1.set(year, month - 1, day);
@@ -64,9 +68,5 @@ public class MapleDueyActions {
     }*/
     public void setSentTime(long sentTime) {
         this.sentTime = sentTime;
-    }
-
-    public long getSentTime() {
-        return sentTime;
     }
 }

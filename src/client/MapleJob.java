@@ -193,16 +193,11 @@ public enum MapleJob {
     凱內西斯2轉(14210),
     凱內西斯3轉(14211),
     凱內西斯4轉(14212),
-    未知(999999),
-    ;
+    未知(999999),;
     private final int jobid;
 
     private MapleJob(int id) {
         this.jobid = id;
-    }
-
-    public int getId() {
-        return this.jobid;
     }
 
     public static String getName(MapleJob mjob) {
@@ -657,5 +652,9 @@ public enum MapleJob {
         } else {
             return job % 10 + 2;
         }
+    }
+
+    public int getId() {
+        return this.jobid;
     }
 }

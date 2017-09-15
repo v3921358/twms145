@@ -24,13 +24,13 @@ import client.MapleCharacter;
 import client.MapleClient;
 import client.Skill;
 import client.SkillFactory;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.concurrent.ScheduledFuture;
 import server.MapleStatEffect;
 import server.life.MapleMonster;
 import server.life.MobSkill;
 import tools.packet.CField;
+
+import java.awt.*;
+import java.util.concurrent.ScheduledFuture;
 
 public class MapleMist extends MapleMapObject {
 
@@ -61,12 +61,12 @@ public class MapleMist extends MapleMapObject {
         this.skilllevel = owner.getTotalSkillLevel(SkillFactory.getSkill(source.getSourceId()));
 
         switch (source.getSourceId()) {
-           // case 4221006: // Smoke Screen
-	    case 32121006: //Party Shield
+            // case 4221006: // Smoke Screen
+            case 32121006: //Party Shield
                 isPoisonMist = 2;
                 break;
             case 14111006:
-	    case 1076:
+            case 1076:
             case 11076:
             case 2111003: // FP mist
             case 12111005: // Flame wizard, [Flame Gear]
@@ -100,24 +100,28 @@ public class MapleMist extends MapleMapObject {
         return mistPosition.getLocation();
     }
 
+    @Override
+    public void setPosition(Point position) {
+    }
+
     public Skill getSourceSkill() {
         return SkillFactory.getSkill(source.getSourceId());
     }
 
-    public void setSchedule(ScheduledFuture<?> s) {
-	this.schedule = s;
-    }
-
     public ScheduledFuture<?> getSchedule() {
-	return schedule;
+        return schedule;
     }
 
-    public void setPoisonSchedule(ScheduledFuture<?> s) {
-	this.poisonSchedule = s;
+    public void setSchedule(ScheduledFuture<?> s) {
+        this.schedule = s;
     }
 
     public ScheduledFuture<?> getPoisonSchedule() {
-	return poisonSchedule;
+        return poisonSchedule;
+    }
+
+    public void setPoisonSchedule(ScheduledFuture<?> s) {
+        this.poisonSchedule = s;
     }
 
     public boolean isMobMist() {
@@ -150,10 +154,6 @@ public class MapleMist extends MapleMapObject {
 
     public MapleStatEffect getSource() {
         return source;
-    }
-
-    @Override
-    public void setPosition(Point position) {
     }
 
     public byte[] fakeSpawnData(int level) {

@@ -13,6 +13,7 @@ public enum MovementKind {
     FAMILIAR_MOVMENT(0x06);
 
     int type;
+
     MovementKind(int type) {
         this.type = type;
     }

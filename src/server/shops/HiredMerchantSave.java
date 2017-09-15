@@ -10,20 +10,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Emy
  */
 public class HiredMerchantSave {
 
     public static final int NumSavingThreads = 5;
     private static final TimingThread[] Threads = new TimingThread[NumSavingThreads];
+    private static final AtomicInteger Distribute = new AtomicInteger(0);
 
     static {
         for (int i = 0; i < Threads.length; i++) {
             Threads[i] = new TimingThread(new HiredMerchantSaveRunnable());
         }
     }
-    private static final AtomicInteger Distribute = new AtomicInteger(0);
 
     public static void QueueShopForSave(HiredMerchant hm) {
         int Current = Distribute.getAndIncrement() % NumSavingThreads;

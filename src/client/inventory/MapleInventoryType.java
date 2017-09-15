@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package client.inventory;
 
 /**
- *
  * @author Matze
  */
 public enum MapleInventoryType {
@@ -37,14 +36,6 @@ public enum MapleInventoryType {
 
     private MapleInventoryType(int type) {
         this.type = (byte) type;
-    }
-
-    public byte getType() {
-        return type;
-    }
-
-    public short getBitfieldEncoding() {
-        return (short) (2 << type);
     }
 
     public static MapleInventoryType getByType(byte type) {
@@ -72,5 +63,13 @@ public enum MapleInventoryType {
                 return CASH;
         }
         return UNDEFINED;
+    }
+
+    public byte getType() {
+        return type;
+    }
+
+    public short getBitfieldEncoding() {
+        return (short) (2 << type);
     }
 }

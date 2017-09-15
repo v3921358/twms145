@@ -29,10 +29,6 @@ import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import constants.GameConstants;
 import handling.SendPacketOpcode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import scripting.NPCConversationManager;
 import scripting.NPCScriptManager;
 import server.MapleInventoryManipulator;
@@ -41,20 +37,25 @@ import server.MapleShop;
 import server.MapleStorage;
 import server.life.MapleNPC;
 import server.quest.MapleQuest;
-import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.data.MaplePacketLittleEndianWriter;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
 import tools.packet.CField.NPCPacket;
 import tools.packet.CWvsContext;
+import tools.types.Pair;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class NPCHandler {
 
     public static void NPCAnimation(LittleEndianAccessor slea, MapleClient c) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         int length = (int) slea.available();
-          if (length == 10) { // NPC Talk
+        if (length == 10) { // NPC Talk
             //System.out.println("NPCTALK: " + slea.toString());
             mplew.writeShort(SendPacketOpcode.NPC_ACTION.getValue());
             mplew.writeInt(slea.readInt());
@@ -71,8 +72,8 @@ public class NPCHandler {
             //System.out.println("ehh " + slea.toString());
         }
     }
-    
-     public static final void openNpc(int npcId, final MapleClient c) {
+
+    public static final void openNpc(int npcId, final MapleClient c) {
         NPCScriptManager.getInstance().start(c, npcId);
     }
 
@@ -362,7 +363,6 @@ public class NPCHandler {
     public static void NPCMoreTalk(final LittleEndianAccessor slea, final MapleClient c) {
         final byte lastMsg = slea.readByte(); // 00 (last msg type I think)
         final byte action = slea.readByte(); // 00 = end chat, 01 == follow
-
 
 
         final NPCConversationManager cm = NPCScriptManager.getInstance().getCM(c);

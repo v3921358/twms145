@@ -36,7 +36,7 @@ public class Item implements Comparable<Item>, Serializable {
     private String giftFrom = "";
 
 
-        public Item(int id, short position, short quantity, short flag, int uniqueid) {
+    public Item(int id, short position, short quantity, short flag, int uniqueid) {
         super();
         this.id = id;
         this.position = position;
@@ -45,7 +45,6 @@ public class Item implements Comparable<Item>, Serializable {
         this.uniqueid = uniqueid;
     }
 
- 
 
     public Item(int id, short position, short quantity, short flag) {
         super();
@@ -84,18 +83,6 @@ public class Item implements Comparable<Item>, Serializable {
         return ret;
     }
 
-    public void setPosition(short position) {
-        this.position = position;
-
-        if (pet != null) {
-            pet.setInventoryPosition(position);
-        }
-    }
-
-    public void setQuantity(short quantity) {
-        this.quantity = quantity;
-    }
-
     public int getItemId() {
         return id;
     }
@@ -104,12 +91,28 @@ public class Item implements Comparable<Item>, Serializable {
         return position;
     }
 
+    public void setPosition(short position) {
+        this.position = position;
+
+        if (pet != null) {
+            pet.setInventoryPosition(position);
+        }
+    }
+
     public short getFlag() {
         return flag;
     }
 
+    public void setFlag(short flag) {
+        this.flag = flag;
+    }
+
     public short getQuantity() {
         return quantity;
+    }
+
+    public void setQuantity(short quantity) {
+        this.quantity = quantity;
     }
 
     public byte getType() {
@@ -122,10 +125,6 @@ public class Item implements Comparable<Item>, Serializable {
 
     public void setOwner(String owner) {
         this.owner = owner;
-    }
-
-    public void setFlag(short flag) {
-        this.flag = flag;
     }
 
     public long getExpiration() {
@@ -143,7 +142,7 @@ public class Item implements Comparable<Item>, Serializable {
     public void setGMLog(String GameMaster_log) {
         this.GameMaster_log = GameMaster_log;
     }
-    
+
 
     public int getUniqueId() {
         return uniqueid;
@@ -172,12 +171,12 @@ public class Item implements Comparable<Item>, Serializable {
         }
     }
 
-    public void setGiftFrom(String gf) {
-        this.giftFrom = gf;
-    }
-
     public String getGiftFrom() {
         return giftFrom;
+    }
+
+    public void setGiftFrom(String gf) {
+        this.giftFrom = gf;
     }
 
     @Override

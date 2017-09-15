@@ -23,20 +23,20 @@ package server.events;
 
 import client.MapleBuffStatus;
 import client.MapleCharacter;
-
-import java.util.concurrent.ScheduledFuture;
 import server.Timer.EventTimer;
 import server.life.MobSkillFactory;
 import server.maps.MapleMap;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
 
+import java.util.concurrent.ScheduledFuture;
+
 public class MapleSnowball extends MapleEvent {
 
     private MapleSnowballs[] balls = new MapleSnowballs[2];
 
     public MapleSnowball(final int world, final int channel, final MapleEventType type) {
-	super(world,channel,type);
+        super(world, channel, type);
     }
 
     @Override
@@ -85,8 +85,8 @@ public class MapleSnowball extends MapleEvent {
 
     public static class MapleSnowballs {
 
-        private int position = 0;
         private final int team;
+        private int position = 0;
         private int startPoint = 0;
         private boolean invis = true;
         private boolean hittable = true;
@@ -95,72 +95,6 @@ public class MapleSnowball extends MapleEvent {
 
         public MapleSnowballs(int team_) {
             this.team = team_;
-        }
-
-        public void resetSchedule() {
-            if (snowmanSchedule != null) {
-                snowmanSchedule.cancel(false);
-                snowmanSchedule = null;
-            }
-        }
-
-        public int getTeam() {
-            return team;
-        }
-
-        public int getPosition() {
-            return position;
-        }
-
-        public void setPositionX(int pos) {
-            this.position = pos;
-        }
-
-        public void setStartPoint(MapleMap map) {
-            this.startPoint++;
-            broadcast(map, startPoint);
-        }
-
-        public boolean isInvis() {
-            return invis;
-        }
-
-        public void setInvis(boolean i) {
-            this.invis = i;
-        }
-
-        public boolean isHittable() {
-            return hittable && !invis;
-        }
-
-        public void setHittable(boolean b) {
-            this.hittable = b;
-        }
-
-        public int getSnowmanHP() {
-            return snowmanhp;
-        }
-
-        public void setSnowmanHP(int shp) {
-            this.snowmanhp = shp;
-        }
-
-        public void broadcast(MapleMap map, int message) {
-            for (MapleCharacter chr : map.getCharactersThreadsafe()) {
-                //if ((team == 0 && chr.getPosition().y > -80) || (team == 1 && chr.getPosition().y <= -80)) {
-                chr.getClient().sendPacket(CField.snowballMessage(team, message));
-                //}
-            }
-        }
-
-        //0 ballpos = 329,469
-        //900 = 3042,3172
-        public int getLeftX() {
-            return position * 3 + 175;
-        }
-
-        public int getRightX() {
-            return getLeftX() + 275; //exact pos where you cant hit it, as it should knockback
         }
 
         public static void hitSnowball(final MapleCharacter chr) {
@@ -260,6 +194,72 @@ public class MapleSnowball extends MapleEvent {
                     }
                 }
             }
+        }
+
+        public void resetSchedule() {
+            if (snowmanSchedule != null) {
+                snowmanSchedule.cancel(false);
+                snowmanSchedule = null;
+            }
+        }
+
+        public int getTeam() {
+            return team;
+        }
+
+        public int getPosition() {
+            return position;
+        }
+
+        public void setPositionX(int pos) {
+            this.position = pos;
+        }
+
+        public void setStartPoint(MapleMap map) {
+            this.startPoint++;
+            broadcast(map, startPoint);
+        }
+
+        public boolean isInvis() {
+            return invis;
+        }
+
+        public void setInvis(boolean i) {
+            this.invis = i;
+        }
+
+        public boolean isHittable() {
+            return hittable && !invis;
+        }
+
+        public void setHittable(boolean b) {
+            this.hittable = b;
+        }
+
+        public int getSnowmanHP() {
+            return snowmanhp;
+        }
+
+        public void setSnowmanHP(int shp) {
+            this.snowmanhp = shp;
+        }
+
+        public void broadcast(MapleMap map, int message) {
+            for (MapleCharacter chr : map.getCharactersThreadsafe()) {
+                //if ((team == 0 && chr.getPosition().y > -80) || (team == 1 && chr.getPosition().y <= -80)) {
+                chr.getClient().sendPacket(CField.snowballMessage(team, message));
+                //}
+            }
+        }
+
+        //0 ballpos = 329,469
+        //900 = 3042,3172
+        public int getLeftX() {
+            return position * 3 + 175;
+        }
+
+        public int getRightX() {
+            return getLeftX() + 275; //exact pos where you cant hit it, as it should knockback
         }
         /*
         if (mapData.getChildByPath("snowBall") != null) {

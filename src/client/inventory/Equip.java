@@ -21,18 +21,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package client.inventory;
 
 import constants.GameConstants;
-import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 import server.MapleItemInformationProvider;
 import server.Randomizer;
 import server.StructItemOption;
 
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+
 public class Equip extends Item implements Serializable {
 
-    public static enum ScrollResult {
-        SUCCESS, FAIL, CURSE
-    }
     public static final int ARMOR_RATIO = 350000;
     public static final int WEAPON_RATIO = 700000;
     //charm: -1 = has not been initialized yet, 0 = already been worn, >0 = has teh charm exp
@@ -43,7 +41,6 @@ public class Equip extends Item implements Serializable {
     private MapleAndroid android = null;
     // EUS (Eric's doing something? Whoa!)
     private int equipLevel, equipExp, equipMSIUpgrades;
-
     public Equip(int id, short position, byte flag) {
         super(id, position, (short) 1, flag);
         this.equipLevel = 1;
@@ -57,7 +54,7 @@ public class Equip extends Item implements Serializable {
         this.equipExp = 0;
         this.equipMSIUpgrades = 0;
     }
-    
+
     @Override
     public Item copy() {
         Equip ret = new Equip(getItemId(), getPosition(), getUniqueId(), getFlag());
@@ -113,30 +110,76 @@ public class Equip extends Item implements Serializable {
         return upgradeSlots;
     }
 
+    public void setUpgradeSlots(byte upgradeSlots) {
+        this.upgradeSlots = upgradeSlots;
+    }
+
     public short getStr() {
         return str;
+    }
+
+    public void setStr(short str) {
+        if (str < 0) {
+            str = 0;
+        }
+        this.str = str;
     }
 
     public short getDex() {
         return dex;
     }
 
+    public void setDex(short dex) {
+        if (dex < 0) {
+            dex = 0;
+        }
+        this.dex = dex;
+    }
+
     public short getInt() {
         return _int;
+    }
+
+    public void setInt(short _int) {
+        if (_int < 0) {
+            _int = 0;
+        }
+        this._int = _int;
     }
 
     public short getLuk() {
         return luk;
     }
 
+    public void setLuk(short luk) {
+        if (luk < 0) {
+            luk = 0;
+        }
+        this.luk = luk;
+    }
+
     public short getHp() {
         return hp;
+    }
+
+    public void setHp(short hp) {
+        if (hp < 0) {
+            hp = 0;
+        }
+        this.hp = hp;
     }
 
     public short getMp() {
         return mp;
     }
-    
+
+    public void setMp(short mp) {
+        if (mp < 0) {
+            mp = 0;
+        }
+        this.mp = mp;
+    }
+
     public void makeMSI(String owner) {
         this.setOwner(owner);
         this.level = 20;
@@ -165,7 +208,7 @@ public class Equip extends Item implements Serializable {
         this.pvpDamage = 32767;
         this.enhance = 20; // maximum of 127(byte), but the highest enhancement should be 15.
     }
-    
+
     public void makeProItem(String owner, short stat, boolean potential) {
         this.setOwner(owner);
         this.level = 20;
@@ -183,15 +226,15 @@ public class Equip extends Item implements Serializable {
         this.avoid = stat;
         this.hp = stat;
         this.mp = stat;
-            if (potential) {
-                this.potential1 = 60001;
-                this.potential2 = 60001;
-                this.potential3 = 60001;
-                this.potential4 = 60001;
-                this.potential5 = 60001;
+        if (potential) {
+            this.potential1 = 60001;
+            this.potential2 = 60001;
+            this.potential3 = 60001;
+            this.potential4 = 60001;
+            this.potential5 = 60001;
         }
     }
-    
+
     public void makeProItem(String owner, short str, short dex, short _int, short luk, short watk, short matk_, short wdef, short mdef_, short speed, short jump, short acc, short avoid, short hp, short mp, boolean potential) {
         this.setOwner(owner);
         this.level = 20;
@@ -209,91 +252,17 @@ public class Equip extends Item implements Serializable {
         this.avoid = avoid;
         this.hp = hp;
         this.mp = mp;
-            if (potential) {
-        this.potential1 = 60001;
-        this.potential2 = 60001;
-        this.potential3 = 60001;
-        this.potential4 = 60001;
-        this.potential5 = 60001;
+        if (potential) {
+            this.potential1 = 60001;
+            this.potential2 = 60001;
+            this.potential3 = 60001;
+            this.potential4 = 60001;
+            this.potential5 = 60001;
         }
     }
 
     public short getWatk() {
         return watk;
-    }
-
-    public short getMatk() {
-        return matk;
-    }
-
-    public short getWdef() {
-        return wdef;
-    }
-
-    public short getMdef() {
-        return mdef;
-    }
-
-    public short getAcc() {
-        return acc;
-    }
-
-    public short getAvoid() {
-        return avoid;
-    }
-
-    public short getHands() {
-        return hands;
-    }
-
-    public short getSpeed() {
-        return speed;
-    }
-
-    public short getJump() {
-        return jump;
-    }
-
-    public void setStr(short str) {
-        if (str < 0) {
-            str = 0;
-        }
-        this.str = str;
-    }
-
-    public void setDex(short dex) {
-        if (dex < 0) {
-            dex = 0;
-        }
-        this.dex = dex;
-    }
-
-    public void setInt(short _int) {
-        if (_int < 0) {
-            _int = 0;
-        }
-        this._int = _int;
-    }
-
-    public void setLuk(short luk) {
-        if (luk < 0) {
-            luk = 0;
-        }
-        this.luk = luk;
-    }
-
-    public void setHp(short hp) {
-        if (hp < 0) {
-            hp = 0;
-        }
-        this.hp = hp;
-    }
-
-    public void setMp(short mp) {
-        if (mp < 0) {
-            mp = 0;
-        }
-        this.mp = mp;
     }
 
     public void setWatk(short watk) {
@@ -303,11 +272,19 @@ public class Equip extends Item implements Serializable {
         this.watk = watk;
     }
 
+    public short getMatk() {
+        return matk;
+    }
+
     public void setMatk(short matk) {
         if (matk < 0) {
             matk = 0;
         }
         this.matk = matk;
+    }
+
+    public short getWdef() {
+        return wdef;
     }
 
     public void setWdef(short wdef) {
@@ -317,11 +294,19 @@ public class Equip extends Item implements Serializable {
         this.wdef = wdef;
     }
 
+    public short getMdef() {
+        return mdef;
+    }
+
     public void setMdef(short mdef) {
         if (mdef < 0) {
             mdef = 0;
         }
         this.mdef = mdef;
+    }
+
+    public short getAcc() {
+        return acc;
     }
 
     public void setAcc(short acc) {
@@ -331,11 +316,19 @@ public class Equip extends Item implements Serializable {
         this.acc = acc;
     }
 
+    public short getAvoid() {
+        return avoid;
+    }
+
     public void setAvoid(short avoid) {
         if (avoid < 0) {
             avoid = 0;
         }
         this.avoid = avoid;
+    }
+
+    public short getHands() {
+        return hands;
     }
 
     public void setHands(short hands) {
@@ -345,6 +338,10 @@ public class Equip extends Item implements Serializable {
         this.hands = hands;
     }
 
+    public short getSpeed() {
+        return speed;
+    }
+
     public void setSpeed(short speed) {
         if (speed < 0) {
             speed = 0;
@@ -352,15 +349,15 @@ public class Equip extends Item implements Serializable {
         this.speed = speed;
     }
 
+    public short getJump() {
+        return jump;
+    }
+
     public void setJump(short jump) {
         if (jump < 0) {
             jump = 0;
         }
         this.jump = jump;
-    }
-
-    public void setUpgradeSlots(byte upgradeSlots) {
-        this.upgradeSlots = upgradeSlots;
     }
 
     public byte getLevel() {
@@ -402,6 +399,10 @@ public class Equip extends Item implements Serializable {
         }
     }
 
+    public void setEquipExp(int exp) {
+        equipExp = exp;
+    }
+
     public int getEquipExpForLevel() {
         if (getEquipExp() <= 0) {
             return 0;
@@ -441,6 +442,10 @@ public class Equip extends Item implements Serializable {
             }
         }
         return levelz;
+    }
+
+    public void setEquipLevel(int level) {
+        equipLevel = level;
     }
 
     public int getBaseLevel() {
@@ -533,7 +538,7 @@ public class Equip extends Item implements Serializable {
         if (Randomizer.nextInt(100) < 12) {
             potentialState -= Randomizer.nextInt(100) < 12 ? (Randomizer.nextInt(100) < 6 ? 3 : 2) : 1;
         }
-        if(potentialState < -20){
+        if (potentialState < -20) {
             potentialState = -20;  //just in case
         }
         setPotential1(potentialState);
@@ -553,7 +558,7 @@ public class Equip extends Item implements Serializable {
         setPotential5(0); //just set it theoretically
     }
 
-     public void renewPotential(int type) { // 0 = normal miracle cube, 1 = premium, 2 = epic pot scroll, 3 = super 
+    public void renewPotential(int type) { // 0 = normal miracle cube, 1 = premium, 2 = epic pot scroll, 3 = super
         final int rank = type == 2 ? -18 : (Randomizer.nextInt(100) < 4 && getState() != (type == 3 ? 20 : 19) ? -(getState() + 1) : -(getState())); // 4 % chance to up 1 tier
         setPotential1(rank);
         if (getPotential3() > 0) {
@@ -603,12 +608,12 @@ public class Equip extends Item implements Serializable {
         return charmExp;
     }
 
-    public short getPVPDamage() {
-        return pvpDamage;
-    }
-
     public void setCharmEXP(short s) {
         this.charmExp = s;
+    }
+
+    public short getPVPDamage() {
+        return pvpDamage;
     }
 
     public void setPVPDamage(short p) {
@@ -645,7 +650,7 @@ public class Equip extends Item implements Serializable {
 
     public short getSocketState() {
         int flag = 0;
-        if (socket1 != -1 || socket2 != -1 || socket3 != -1) { // Got empty sockets show msg 
+        if (socket1 != -1 || socket2 != -1 || socket3 != -1) { // Got empty sockets show msg
             flag |= SocketFlag.DEFAULT.getValue();
         }
         if (socket1 != -1) {
@@ -692,32 +697,24 @@ public class Equip extends Item implements Serializable {
     public void setSocket3(int socket3) {
         this.socket3 = socket3;
     }
-    
+
     // Equipment Upgrade System
     public int getEquipmentLevel() {
         return equipLevel;
     }
-    
-    public void setEquipLevel(int level) {
-        equipLevel = level;
-    }
-    
+
     public void levelUpEquip() { // won't need this for Exp because yeah.. logic lol
         equipLevel += 1;
     }
-    
+
     public void addEquipLevel(int level) {
         equipLevel += level;
     }
-    
+
     public int getEquipmentExp() {
         return equipExp;
     }
-    
-    public void setEquipExp(int exp) {
-        equipExp = exp;
-    }
-    
+
     public void gainEquipExp(int exp) {
         if (getEquipmentLevel() == 10) { // we don't want people to level up.. period after this.
             return;
@@ -729,63 +726,71 @@ public class Equip extends Item implements Serializable {
         }
         equipExp += exp;
     }
-    
+
     public int getEquipExpNeeded(int level) { // TODO: Calculations.
-          switch(level) {
-              case 1: // Level 1
-              case 2: // Level 2
-              case 3: // Level 3
-              case 4: // Level 4
-              case 5: // Level 5
-              case 6: // Level 6
-              case 7: // Level 7
-              case 8: // Level 8
-              case 9: // Level 9
-                  return 10;
-              case 10: // Level 10 (Max Level)
-                  return 1; // when they're maxed, the exp system will read 1/1
-              default:
-                  return 999;
-          }
+        switch (level) {
+            case 1: // Level 1
+            case 2: // Level 2
+            case 3: // Level 3
+            case 4: // Level 4
+            case 5: // Level 5
+            case 6: // Level 6
+            case 7: // Level 7
+            case 8: // Level 8
+            case 9: // Level 9
+                return 10;
+            case 10: // Level 10 (Max Level)
+                return 1; // when they're maxed, the exp system will read 1/1
+            default:
+                return 999;
+        }
     }
-    
+
     public int getEquipMSIUpgrades() {
         return equipMSIUpgrades;
     }
-    
+
     public void setEquipMSIUpgrades(int upgrades) {
         equipMSIUpgrades = upgrades;
     }
-    
+
     public void addEquipMSIUpgrade() {
         equipMSIUpgrades += 1;
     }
-    
+
     //Doesn't change rank or lines, just reset existing ones.
-    public void shufflePotential(){
+    public void shufflePotential() {
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         //Extra check: Level 200+ weapons hotfix
         final int potentialLevel = (ii.getReqLevel(getItemId()) / 10) >= 20 ? 19 : (ii.getReqLevel(getItemId()) / 10);
         final List<List<StructItemOption>> pots = new LinkedList<>(ii.getAllPotentialInfo().values());
         int lines = 1;
-        
-        if(getPotential2() != 0){ lines++; }
-        if(getPotential3() != 0){ lines++; }
-        if(getPotential4() != 0){ lines++; }
-        if(getPotential5() != 0){ lines++; }
-        
-        for(int i = 0; i < lines; i++){
+
+        if (getPotential2() != 0) {
+            lines++;
+        }
+        if (getPotential3() != 0) {
+            lines++;
+        }
+        if (getPotential4() != 0) {
+            lines++;
+        }
+        if (getPotential5() != 0) {
+            lines++;
+        }
+
+        for (int i = 0; i < lines; i++) {
             boolean rewarded = false;
-            while(!rewarded){
+            while (!rewarded) {
                 StructItemOption pot = pots.get(Randomizer.nextInt(pots.size())).get(potentialLevel);
                 if (pot != null && pot.reqLevel / 10 <= potentialLevel && GameConstants.optionTypeFits(pot.optionType, getItemId()) && GameConstants.potentialIDFits(pot.opID, getState(), i)) {
-                    if(i == 0){
+                    if (i == 0) {
                         setPotential1(pot.opID);
-                    } else if (i == 1){
+                    } else if (i == 1) {
                         setPotential2(pot.opID);
-                    } else if (i == 2){
+                    } else if (i == 2) {
                         setPotential3(pot.opID);
-                    } else if (i == 3){
+                    } else if (i == 3) {
                         setPotential4(pot.opID);
                     } else if (i == 4) {
                         setPotential5(pot.opID);
@@ -795,23 +800,23 @@ public class Equip extends Item implements Serializable {
             }
         }
     }
-    
-    public void shuffleSinglePotential(int line){
+
+    public void shuffleSinglePotential(int line) {
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         final int potentialLevel = (ii.getReqLevel(getItemId()) / 10) >= 20 ? 19 : (ii.getReqLevel(getItemId()) / 10);
         final List<List<StructItemOption>> pots = new LinkedList<>(ii.getAllPotentialInfo().values());
-        
+
         boolean rewarded = false;
-        while(!rewarded){
+        while (!rewarded) {
             StructItemOption pot = pots.get(Randomizer.nextInt(pots.size())).get(potentialLevel);
-            if (pot != null && pot.reqLevel / 10 <= potentialLevel && GameConstants.optionTypeFits(pot.optionType, getItemId()) && GameConstants.potentialIDFits(pot.opID, getState(), line-1)) {
-                if(line == 1){
+            if (pot != null && pot.reqLevel / 10 <= potentialLevel && GameConstants.optionTypeFits(pot.optionType, getItemId()) && GameConstants.potentialIDFits(pot.opID, getState(), line - 1)) {
+                if (line == 1) {
                     setPotential1(pot.opID);
-                } else if (line == 2){
+                } else if (line == 2) {
                     setPotential2(pot.opID);
-                } else if (line == 3){
+                } else if (line == 3) {
                     setPotential3(pot.opID);
-                } else if (line == 4){
+                } else if (line == 4) {
                     setPotential4(pot.opID);
                 } else if (line == 5) {
                     setPotential5(pot.opID);
@@ -819,5 +824,9 @@ public class Equip extends Item implements Serializable {
                 rewarded = true;
             }
         }
+    }
+
+    public static enum ScrollResult {
+        SUCCESS, FAIL, CURSE
     }
 }

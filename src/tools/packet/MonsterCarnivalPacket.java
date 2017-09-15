@@ -22,9 +22,10 @@ package tools.packet;
 
 import client.MapleCharacter;
 import handling.SendPacketOpcode;
-import java.util.List;
 import server.MapleCarnivalParty;
 import tools.data.MaplePacketLittleEndianWriter;
+
+import java.util.List;
 
 public class MonsterCarnivalPacket {
 
@@ -43,7 +44,7 @@ public class MonsterCarnivalPacket {
         mplew.writeShort(0); // not sure if short or long goes first, either way works
         return mplew.getPacket();
     }
-    
+
     public static byte[] playerDiedMessage(String name, int lostCP, int team) {
         // @eric: don't need this.. this is actually handled within the instance but we aren't going to spawn to a revive map.
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
@@ -64,7 +65,7 @@ public class MonsterCarnivalPacket {
 
         return mplew.getPacket();
     }
-    
+
     public static byte[] CPUpdate(boolean party, int curCP, int totalCP, int team) {
         // @eric: fixed the issue with this updating for both teams and not seperately
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();

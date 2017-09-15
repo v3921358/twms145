@@ -1,24 +1,20 @@
 package server;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import provider.MapleData;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 import tools.types.Pair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ItemMakerFactory {
 
     private final static ItemMakerFactory instance = new ItemMakerFactory();
     protected Map<Integer, ItemMakerCreateEntry> createCache = new HashMap<>();
     protected Map<Integer, GemCreateEntry> gemCache = new HashMap<>();
-
-    public static ItemMakerFactory getInstance() {
-        // DO ItemMakerFactory.getInstance() on ChannelServer startup.
-        return instance;
-    }
 
     protected ItemMakerFactory() {
         // 0 = Item upgrade crystals
@@ -46,15 +42,15 @@ public class ItemMakerFactory {
 
                         for (MapleData rewardNRecipe : itemFolder.getChildren()) {
                             for (MapleData ind : rewardNRecipe.getChildren()) {
-                            switch (rewardNRecipe.getName()) {
-                                case "randomReward":
-                                    ret.addRandomReward(MapleDataTool.getInt("item", ind, 0), MapleDataTool.getInt("prob", ind, 0));
+                                switch (rewardNRecipe.getName()) {
+                                    case "randomReward":
+                                        ret.addRandomReward(MapleDataTool.getInt("item", ind, 0), MapleDataTool.getInt("prob", ind, 0));
 // MapleDataTool.getInt("itemNum", ind, 0)
-                                    break;
-                                case "recipe":
-                                    ret.addReqRecipe(MapleDataTool.getInt("item", ind, 0), MapleDataTool.getInt("count", ind, 0));
-                                    break;
-                            }
+                                        break;
+                                    case "recipe":
+                                        ret.addReqRecipe(MapleDataTool.getInt("item", ind, 0), MapleDataTool.getInt("count", ind, 0));
+                                        break;
+                                }
                             }
                         }
                         gemCache.put(Integer.parseInt(itemFolder.getName()), ret);
@@ -89,6 +85,11 @@ public class ItemMakerFactory {
                 }
             }
         }
+    }
+
+    public static ItemMakerFactory getInstance() {
+        // DO ItemMakerFactory.getInstance() on ChannelServer startup.
+        return instance;
     }
 
     public GemCreateEntry getGemInfo(int itemid) {

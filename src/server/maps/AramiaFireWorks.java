@@ -22,7 +22,6 @@ package server.maps;
 
 import client.MapleCharacter;
 import handling.world.World;
-import java.awt.Point;
 import server.MapleItemInformationProvider;
 import server.Randomizer;
 import server.Timer.EventTimer;
@@ -30,25 +29,27 @@ import server.life.MapleLifeFactory;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
 
+import java.awt.*;
+
 public class AramiaFireWorks {
 
     public final static int KEG_ID = 4001128, SUN_ID = 4001246, DEC_ID = 4001473;
     public final static int MAX_KEGS = 2400, MAX_SUN = 3000, MAX_DEC = 3600;
+    private static final int[] arrayMob = {9500168, 9500169, 9500170, 9500171, 9500173,
+            9500174, 9500175, 9500176, 9500170, 9500171, 9500172, 9500173, 9500174, 9500175,
+            9400569};
+    private static final int[] arrayX = {2100, 2605, 1800, 2600, 3120, 2700, 2320, 2062,
+            2800, 3100, 2300, 2840, 2700, 2320, 1950};
+    private static final int[] arrayY = {574, 364, 574, 316, 574, 574, 403, 364, 574, 574,
+            403, 574, 574, 403, 574};
+    private static final int[] array_X = {720, 180, 630, 270, 360, 540, 450, 142,
+            142, 218, 772, 810, 848, 232, 308, 142};
+    private static final int[] array_Y = {1234, 1234, 1174, 1234, 1174, 1174, 1174, 1260,
+            1234, 1234, 1234, 1234, 1234, 1114, 1114, 1140};
+    private static final int flake_Y = 149;
     private short kegs = MAX_KEGS / 6;
     private short sunshines = MAX_SUN / 6; //start at 1/6 then go from that
     private short decorations = MAX_DEC / 6;
-    private static final int[] arrayMob = {9500168, 9500169, 9500170, 9500171, 9500173,
-        9500174, 9500175, 9500176, 9500170, 9500171, 9500172, 9500173, 9500174, 9500175,
-        9400569};
-    private static final int[] arrayX = {2100, 2605, 1800, 2600, 3120, 2700, 2320, 2062,
-        2800, 3100, 2300, 2840, 2700, 2320, 1950};
-    private static final int[] arrayY = {574, 364, 574, 316, 574, 574, 403, 364, 574, 574,
-        403, 574, 574, 403, 574};
-    private static final int[] array_X = {720, 180, 630, 270, 360, 540, 450, 142,
-        142, 218, 772, 810, 848, 232, 308, 142};
-    private static final int[] array_Y = {1234, 1234, 1174, 1234, 1174, 1174, 1174, 1260,
-        1234, 1234, 1234, 1234, 1234, 1114, 1114, 1140};
-    private static final int flake_Y = 149;
 
     public final void giveKegs(final MapleCharacter c, final int kegs) {
         this.kegs += kegs;
@@ -137,7 +138,7 @@ public class AramiaFireWorks {
     private void broadcastSun(final MapleCharacter c) {
         broadcastServer(c, SUN_ID);
         // Henesys Park
-       EventTimer.getInstance().schedule(new Runnable() {
+        EventTimer.getInstance().schedule(new Runnable() {
 
             @Override
             public final void run() {
@@ -164,20 +165,20 @@ public class AramiaFireWorks {
 
         for (int i = 0; i < Randomizer.nextInt(5) + 10; i++) {
             pos = new Point(array_X[i], array_Y[i]);
-	    int itemId = 4001246;
-	    switch(Randomizer.nextInt(15)) {
-		case 0:
-		case 1:
-		    itemId = 3010141;
-		    break;
-		case 2:
-		    itemId = 3010146;
-		    break;
-		case 3:
-		case 4:
-		    itemId = 3010025;
-		    break;
-	    }
+            int itemId = 4001246;
+            switch (Randomizer.nextInt(15)) {
+                case 0:
+                case 1:
+                    itemId = 3010141;
+                    break;
+                case 2:
+                    itemId = 3010146;
+                    break;
+                case 3:
+                case 4:
+                    itemId = 3010025;
+                    break;
+            }
             map.spawnAutoDrop(itemId, pos);
         }
     }

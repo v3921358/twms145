@@ -27,7 +27,6 @@ import client.inventory.ItemFlag;
 import client.inventory.MapleInventory;
 import client.inventory.MapleInventoryType;
 import constants.GameConstants;
-import java.util.Arrays;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MapleTrade;
@@ -39,69 +38,12 @@ import tools.data.LittleEndianAccessor;
 import tools.packet.CWvsContext;
 import tools.packet.PlayerShopPacket;
 
+import java.util.Arrays;
+
 public class PlayerInteractionHandler {
 
-    private enum Interaction {
-
-        CREATE(6), 
-        INVITE_TRADE(11),
-        DENY_TRADE(12),
-        VISIT(9),
-        HIRED_MERCHANT_MAINTENANCE(21), // ?
-        CHAT(14),
-        EXIT(18),
-        OPEN(16),
-        SET_ITEMS(0),
-        SET_MESO(1),
-        CONFIRM_TRADE(2),
-        PLAYER_SHOP_ADD_ITEM(42),
-        PLAYER_SHOP_REMOVE_ITEM(50),
-        PLAYER_SHOP_BAN(51),
-        BUY_ITEM_PLAYER_SHOP(43), // (BUY_ITEM_STORE(22) // unknown: 53
-        ADD_ITEM(23),
-        BUY_ITEM_HIREDMERCHANT(24), // ? was 26
-        REMOVE_ITEM(30),
-        MAINTANCE_OFF(31), // ?
-        MAINTANCE_ORGANISE(32), // ?
-        CLOSE_MERCHANT(33), // fix this
-	TAKE_MESOS(35), // ?
-        ADMIN_STORE_NAMECHANGE(37), // ?
-        VIEW_MERCHANT_VISITOR(38), 
-        VIEW_MERCHANT_BLACKLIST(39),
-        MERCHANT_BLACKLIST_ADD(40), 
-        MERCHANT_BLACKLIST_REMOVE(41),
-        REQUEST_TIE(56),
-        ANSWER_TIE(57),
-        GIVE_UP(58),
-        REQUEST_REDO(60), // code this
-        ANSWER_REDO(61), // code this
-        EXIT_AFTER_GAME(62),
-        CANCEL_EXIT(63),
-        READY(64),
-        UN_READY(65),
-        EXPEL(66),
-        START(67),
-        SKIP(69),
-        MOVE_OMOK(70),
-        SELECT_CARD(74); // working (74), possibly 73
-        public int action;
-
-        private Interaction(int action) {
-            this.action = action;
-        }
-
-        public static Interaction getByAction(int i) {
-            for (Interaction s : Interaction.values()) {
-                if (s.action == i) {
-                    return s;
-                }
-            }
-            return null;
-        }
-    }
-    
     public static int generatePieceType(MapleCharacter chr) {
-        // to randomly generate the type of matchcard because i don't think it reads the byte of the matchcard layout anymore 
+        // to randomly generate the type of matchcard because i don't think it reads the byte of the matchcard layout anymore
         int type = Randomizer.rand(0, 2); //0=4x3,1=5x4,2=6x5
         if (type != chr.getMatchCardVal()) {
             chr.setMatchCardVal(type); // update it for the character each time.. (yes i know this is sloppy) :/
@@ -111,10 +53,10 @@ public class PlayerInteractionHandler {
     }
 
     public static void PlayerInteraction(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-       // System.out.println("player interaction.." + slea.toString());
+        // System.out.println("player interaction.." + slea.toString());
         byte a = slea.readByte();
         final Interaction action = Interaction.getByAction(a);
-        if (chr == null || action ==  null) {
+        if (chr == null || action == null) {
             System.out.println("null interaction: " + a);
             return;
         }
@@ -128,9 +70,9 @@ public class PlayerInteractionHandler {
                 }
                 final byte createType = slea.readByte();
                 if (!chr.getMap().getMapObjectsInRange(chr.getTruePosition(), 20000, Arrays.asList(MapleMapObjectType.SHOP, MapleMapObjectType.HIRED_MERCHANT)).isEmpty() || !chr.getMap().getPortalsInRange(chr.getTruePosition(), 20000).isEmpty()) {
-                        chr.dropMessage(1, "You may not establish a " + (createType == 1 || createType == 2 ? "minigame" : "store") + " here.");
-                        c.sendPacket(CWvsContext.enableActions());
-                        return;
+                    chr.dropMessage(1, "You may not establish a " + (createType == 1 || createType == 2 ? "minigame" : "store") + " here.");
+                    c.sendPacket(CWvsContext.enableActions());
+                    return;
                 }
                 if (createType == 3) {
                     MapleTrade.startTrade(chr);
@@ -145,7 +87,7 @@ public class PlayerInteractionHandler {
                     Item item = etc.getItem(slot);
                     int piece = createType == 1 ? (item.getItemId() == 4080010 ? 10 : item.getItemId() == 4080011 ? 11 : item.getItemId() % 10) : generatePieceType(chr);
                     final int itemId = item.getItemId();
-              
+
                     MapleMiniGame game = new MapleMiniGame(chr, itemId, desc, pass, createType); //itemid
                     game.setPieceType(piece);
                     chr.setPlayerShop(game);
@@ -156,7 +98,7 @@ public class PlayerInteractionHandler {
                     game.update();
                 } else if (createType == 4 || createType == 5) {
                     // [06] // create
-                    // [04] // createType 
+                    // [04] // createType
                     // [04 00] // amount of characters in "test" (ascii) and byte space
                     // [74 65 73 74 00] "test" in ascii and byte space
                     // [10 00 20] // ??
@@ -175,7 +117,7 @@ public class PlayerInteractionHandler {
                             chr.setPlayerShop(mps);
                             chr.getMap().addMapObject(mps);
                             c.sendPacket(PlayerShopPacket.getPlayerStore(chr, true));
-                            c.sendPacket(PlayerShopPacket.shopVisitorLeave((byte)1));
+                            c.sendPacket(PlayerShopPacket.shopVisitorLeave((byte) 1));
                         } else if (HiredMerchantHandler.UseHiredMerchant(chr.getClient(), false)) {
                             final HiredMerchant merch = new HiredMerchant(chr, shop.getItemId(), desc);
                             chr.setPlayerShop(merch);
@@ -227,19 +169,19 @@ public class PlayerInteractionHandler {
                                 chr.setPlayerShop(ips);
                                 c.sendPacket(PlayerShopPacket.getHiredMerch(chr, merchant, false));
                             } else {*/
-                                if (!merchant.isOpen() || !merchant.isAvailable()) {
-                                    chr.dropMessage(1, "This shop is in maintenance, please come by later.");
+                            if (!merchant.isOpen() || !merchant.isAvailable()) {
+                                chr.dropMessage(1, "This shop is in maintenance, please come by later.");
+                            } else {
+                                if (ips.getFreeSlot() == -1) {
+                                    chr.dropMessage(1, "This shop has reached it's maximum capacity, please come by later.");
+                                } else if (merchant.isInBlackList(chr.getName())) {
+                                    chr.dropMessage(1, "You have been banned from this store.");
                                 } else {
-                                    if (ips.getFreeSlot() == -1) {
-                                        chr.dropMessage(1, "This shop has reached it's maximum capacity, please come by later.");
-                                    } else if (merchant.isInBlackList(chr.getName())) {
-                                        chr.dropMessage(1, "You have been banned from this store.");
-                                    } else {
-                                        chr.setPlayerShop(ips);
-                                        merchant.addVisitor(chr);
-                                        c.sendPacket(PlayerShopPacket.getHiredMerch(chr, merchant, false));
-                                    }
+                                    chr.setPlayerShop(ips);
+                                    merchant.addVisitor(chr);
+                                    c.sendPacket(PlayerShopPacket.getHiredMerch(chr, merchant, false));
                                 }
+                            }
                             //}
                         } else {
                             if (ips instanceof MaplePlayerShop && ((MaplePlayerShop) ips).isBanned(chr.getName())) {
@@ -272,32 +214,32 @@ public class PlayerInteractionHandler {
                 }
                 break;
             }
-			case HIRED_MERCHANT_MAINTENANCE : {
-				if (c.getChannelServer().isShutdown() || chr.getMap() == null || chr.getTrade() != null) {
+            case HIRED_MERCHANT_MAINTENANCE: {
+                if (c.getChannelServer().isShutdown() || chr.getMap() == null || chr.getTrade() != null) {
                     c.sendPacket(CWvsContext.enableActions());
                     return;
                 }
-				slea.skip(1); // 9?
-				byte type = slea.readByte(); // 5?
-				if (type != 5) {
-					c.sendPacket(CWvsContext.enableActions());
-                                        return;
-				}
-				final String password = slea.readMapleAsciiString();
-				//if (!c.CheckSecondPassword(password) || password.length() < 6 || password.length() > 16) {
-				//	chr.dropMessage(5, "Please enter a valid PIC.");
-				//	c.sendPacket(CWvsContext.enableActions());
-				//	return;
-				//}				
+                slea.skip(1); // 9?
+                byte type = slea.readByte(); // 5?
+                if (type != 5) {
+                    c.sendPacket(CWvsContext.enableActions());
+                    return;
+                }
+                final String password = slea.readMapleAsciiString();
+                //if (!c.CheckSecondPassword(password) || password.length() < 6 || password.length() > 16) {
+                //	chr.dropMessage(5, "Please enter a valid PIC.");
+                //	c.sendPacket(CWvsContext.enableActions());
+                //	return;
+                //}
                 final int obid = slea.readInt();
                 MapleMapObject ob = chr.getMap().getMapObject(obid, MapleMapObjectType.HIRED_MERCHANT);
                 if (ob == null || chr.getPlayerShop() != null) {
-					c.sendPacket(CWvsContext.enableActions());
-                    return;				
-				}
-                if (ob instanceof IMaplePlayerShop &&  ob instanceof HiredMerchant) {
+                    c.sendPacket(CWvsContext.enableActions());
+                    return;
+                }
+                if (ob instanceof IMaplePlayerShop && ob instanceof HiredMerchant) {
                     final IMaplePlayerShop ips = (IMaplePlayerShop) ob;
-					final HiredMerchant merchant = (HiredMerchant) ips;
+                    final HiredMerchant merchant = (HiredMerchant) ips;
                     if (merchant.isOwner(chr) && merchant.isOpen() && merchant.isAvailable()) {
                         merchant.setOpen(false);
                         merchant.removeAllVisitors((byte) 16, (byte) 0);
@@ -305,10 +247,10 @@ public class PlayerInteractionHandler {
                         c.sendPacket(PlayerShopPacket.getHiredMerch(chr, merchant, false));
                     } else {
                         c.sendPacket(CWvsContext.enableActions());
-					}                     
-                }			
-				break;
-			}			
+                    }
+                }
+                break;
+            }
             case CHAT: {
                 slea.readInt();
                 String message = slea.readMapleAsciiString();
@@ -316,7 +258,7 @@ public class PlayerInteractionHandler {
                     chr.getTrade().chat(message);
                 } else if (chr.getPlayerShop() != null) {
                     final IMaplePlayerShop ips = chr.getPlayerShop();
-                    ips.broadcastToVisitors(PlayerShopPacket.shopChat(chr.getName() + " : " + message, ips.getVisitorSlot(chr))); 
+                    ips.broadcastToVisitors(PlayerShopPacket.shopChat(chr.getName() + " : " + message, ips.getVisitorSlot(chr)));
                 }
                 break;
             }
@@ -391,8 +333,8 @@ public class PlayerInteractionHandler {
                 final short bundles = slea.readShort(); // How many in a bundle
                 final short perBundle = slea.readShort(); // Price per bundle
                 if (!c.getPlayer().haveItem(c.getPlayer().getInventory(type).getItem(slot).getItemId(), (perBundle * bundles), false, true)) {
-                return;
-            }
+                    return;
+                }
                 final int price = slea.readInt();
 
                 if (price <= 0 || bundles <= 0 || perBundle <= 0) {
@@ -471,7 +413,7 @@ public class PlayerInteractionHandler {
                     c.getPlayer().getClient().sendPacket(CWvsContext.enableActions());
                     return;
                 }
-                if (tobuy.bundles < quantity || (tobuy.bundles % quantity != 0 && GameConstants.isEquip(tobuy.item.getItemId()))  || chr.getMeso() - (check2) < 0 || chr.getMeso() - (check2) > 2147483647 || shop.getMeso() + (check2) < 0 || shop.getMeso() + (check2) > 2147483647) {
+                if (tobuy.bundles < quantity || (tobuy.bundles % quantity != 0 && GameConstants.isEquip(tobuy.item.getItemId())) || chr.getMeso() - (check2) < 0 || chr.getMeso() - (check2) > 2147483647 || shop.getMeso() + (check2) < 0 || shop.getMeso() + (check2) > 2147483647) {
                     c.getPlayer().dropMessage(1, "Can't buy! The shop owner probably has too much mesos.");
                     c.getPlayer().getClient().sendPacket(CWvsContext.enableActions());
                     return;
@@ -482,7 +424,7 @@ public class PlayerInteractionHandler {
             }
             case PLAYER_SHOP_REMOVE_ITEM:
             case REMOVE_ITEM: {
-		slea.skip(1);
+                slea.skip(1);
                 int slot = slea.readShort();
                 final IMaplePlayerShop shop = chr.getPlayerShop();
                 if (shop == null || !shop.isOwner(chr) || shop instanceof MapleMiniGame || shop.getItems().size() <= 0 || shop.getItems().size() <= slot || slot < 0) {
@@ -495,7 +437,7 @@ public class PlayerInteractionHandler {
                         Item item_get = item.item.copy();
                         long check = item.bundles * item.item.getQuantity();
                         if (check < 0 || check > 32767) {
-                             c.getPlayer().getClient().sendPacket(CWvsContext.enableActions());
+                            c.getPlayer().getClient().sendPacket(CWvsContext.enableActions());
                             return;
                         }
                         item_get.setQuantity((short) check);
@@ -609,7 +551,7 @@ public class PlayerInteractionHandler {
                 }
                 break;
             }
-            case EXPEL: { 
+            case EXPEL: {
                 final IMaplePlayerShop ips = chr.getPlayerShop();
                 if (ips != null && ips instanceof MapleMiniGame) {
                     if (!((MapleMiniGame) ips).isOpen()) {
@@ -699,10 +641,10 @@ public class PlayerInteractionHandler {
                     if (game.isOpen()) {
                         break;
                     }
-                  //  if (game.getLoser() != ips.getVisitorSlot(chr)) {
-                  //      ips.broadcastToVisitors(PlayerShopPacket.shopChat("Turn could not be skipped by " + chr.getName() + ". Loser: " + game.getLoser() + " Visitor: " + ips.getVisitorSlot(chr), ips.getVisitorSlot(chr)));
-                  //      return;
-                  //  }
+                    //  if (game.getLoser() != ips.getVisitorSlot(chr)) {
+                    //      ips.broadcastToVisitors(PlayerShopPacket.shopChat("Turn could not be skipped by " + chr.getName() + ". Loser: " + game.getLoser() + " Visitor: " + ips.getVisitorSlot(chr), ips.getVisitorSlot(chr)));
+                    //      return;
+                    //  }
                     ips.broadcastToVisitors(PlayerShopPacket.getMiniGameSkip(ips.getVisitorSlot(chr)));
                     game.nextLoser();
                 }
@@ -732,14 +674,14 @@ public class PlayerInteractionHandler {
                     if (game.isOpen()) {
                         break;
                     }
-                //    if (game.getLoser() != game.getVisitorSlot(chr)) {
-                //        game.broadcastToVisitors(PlayerShopPacket.shopChat("Card could not be placed by " + chr.getName() + ". Loser: " + game.getLoser() + " Visitor: " + game.getVisitorSlot(chr), game.getVisitorSlot(chr)));
-                //        return;
-                //    }
-                //    if (slea.readByte() != game.getTurn()) {
-                //        game.broadcastToVisitors(PlayerShopPacket.shopChat("Omok could not be placed by " + chr.getName() + ". Loser: " + game.getLoser() + " Visitor: " + game.getVisitorSlot(chr) + " Turn: " + game.getTurn(), game.getVisitorSlot(chr)));
-                //        return;
-                //    }
+                    //    if (game.getLoser() != game.getVisitorSlot(chr)) {
+                    //        game.broadcastToVisitors(PlayerShopPacket.shopChat("Card could not be placed by " + chr.getName() + ". Loser: " + game.getLoser() + " Visitor: " + game.getVisitorSlot(chr), game.getVisitorSlot(chr)));
+                    //        return;
+                    //    }
+                    //    if (slea.readByte() != game.getTurn()) {
+                    //        game.broadcastToVisitors(PlayerShopPacket.shopChat("Omok could not be placed by " + chr.getName() + ". Loser: " + game.getLoser() + " Visitor: " + game.getVisitorSlot(chr) + " Turn: " + game.getTurn(), game.getVisitorSlot(chr)));
+                    //        return;
+                    //    }
                     final int firstslot = game.getFirstSlot();
                     if (turn == 1) {
                         game.setFirstSlot(slot);
@@ -776,7 +718,7 @@ public class PlayerInteractionHandler {
                 }
                 break;
             }
-            case REQUEST_REDO: { 
+            case REQUEST_REDO: {
                 final IMaplePlayerShop ips = chr.getPlayerShop();
                 if (ips != null && ips instanceof MapleMiniGame) {
                     MapleMiniGame game = (MapleMiniGame) ips;
@@ -819,6 +761,65 @@ public class PlayerInteractionHandler {
                 //System.out.println("Unhandled interaction action by " + chr.getName() + " : " + action + ", " + slea.toString());
                 break;
             }
+        }
+    }
+
+    private enum Interaction {
+
+        CREATE(6),
+        INVITE_TRADE(11),
+        DENY_TRADE(12),
+        VISIT(9),
+        HIRED_MERCHANT_MAINTENANCE(21), // ?
+        CHAT(14),
+        EXIT(18),
+        OPEN(16),
+        SET_ITEMS(0),
+        SET_MESO(1),
+        CONFIRM_TRADE(2),
+        PLAYER_SHOP_ADD_ITEM(42),
+        PLAYER_SHOP_REMOVE_ITEM(50),
+        PLAYER_SHOP_BAN(51),
+        BUY_ITEM_PLAYER_SHOP(43), // (BUY_ITEM_STORE(22) // unknown: 53
+        ADD_ITEM(23),
+        BUY_ITEM_HIREDMERCHANT(24), // ? was 26
+        REMOVE_ITEM(30),
+        MAINTANCE_OFF(31), // ?
+        MAINTANCE_ORGANISE(32), // ?
+        CLOSE_MERCHANT(33), // fix this
+        TAKE_MESOS(35), // ?
+        ADMIN_STORE_NAMECHANGE(37), // ?
+        VIEW_MERCHANT_VISITOR(38),
+        VIEW_MERCHANT_BLACKLIST(39),
+        MERCHANT_BLACKLIST_ADD(40),
+        MERCHANT_BLACKLIST_REMOVE(41),
+        REQUEST_TIE(56),
+        ANSWER_TIE(57),
+        GIVE_UP(58),
+        REQUEST_REDO(60), // code this
+        ANSWER_REDO(61), // code this
+        EXIT_AFTER_GAME(62),
+        CANCEL_EXIT(63),
+        READY(64),
+        UN_READY(65),
+        EXPEL(66),
+        START(67),
+        SKIP(69),
+        MOVE_OMOK(70),
+        SELECT_CARD(74); // working (74), possibly 73
+        public int action;
+
+        private Interaction(int action) {
+            this.action = action;
+        }
+
+        public static Interaction getByAction(int i) {
+            for (Interaction s : Interaction.values()) {
+                if (s.action == i) {
+                    return s;
+                }
+            }
+            return null;
         }
     }
 }

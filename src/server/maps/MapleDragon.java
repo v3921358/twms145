@@ -32,7 +32,7 @@ import tools.packet.CField;
 
 public class MapleDragon extends AnimatedMapleMapObject {
 
-    private int owner,jobid;
+    private int owner, jobid;
 
     public MapleDragon(MapleCharacter owner) {
         super();

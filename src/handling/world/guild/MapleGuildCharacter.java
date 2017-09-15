@@ -41,7 +41,7 @@ public class MapleGuildCharacter implements java.io.Serializable { // alias for 
         jobid = c.getJob();
         guildrank = c.getGuildRank();
         guildid = c.getGuildId();
-	guildContribution = c.getGuildContribution();
+        guildContribution = c.getGuildContribution();
         allianceRank = c.getAllianceRank();
         online = true;
     }
@@ -58,7 +58,7 @@ public class MapleGuildCharacter implements java.io.Serializable { // alias for 
         this.online = on;
         this.guildrank = rank;
         this.allianceRank = allianceRank;
-	this.guildContribution = guildContribution;
+        this.guildContribution = guildContribution;
         this.guildid = gid;
     }
 
@@ -74,12 +74,12 @@ public class MapleGuildCharacter implements java.io.Serializable { // alias for 
         return id;
     }
 
-    public void setChannel(byte ch) {
-        channel = ch;
-    }
-
     public int getChannel() {
         return channel;
+    }
+
+    public void setChannel(byte ch) {
+        channel = ch;
     }
 
     public int getJobId() {
@@ -98,39 +98,39 @@ public class MapleGuildCharacter implements java.io.Serializable { // alias for 
         guildid = gid;
     }
 
-    public void setGuildRank(byte rank) {
-        guildrank = rank;
-    }
-
     public byte getGuildRank() {
         return guildrank;
     }
 
-    public void setGuildContribution(int c) {
-	this.guildContribution = c;
+    public void setGuildRank(byte rank) {
+        guildrank = rank;
     }
 
     public int getGuildContribution() {
-	return guildContribution;
+        return guildContribution;
+    }
+
+    public void setGuildContribution(int c) {
+        this.guildContribution = c;
     }
 
     public boolean isOnline() {
         return online;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setOnline(boolean f) {
         online = f;
     }
 
-    public void setAllianceRank(byte rank) {
-        allianceRank = rank;
+    public String getName() {
+        return name;
     }
 
     public byte getAllianceRank() {
         return allianceRank;
+    }
+
+    public void setAllianceRank(byte rank) {
+        allianceRank = rank;
     }
 }

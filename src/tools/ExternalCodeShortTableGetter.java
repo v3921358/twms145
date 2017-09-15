@@ -1,13 +1,6 @@
 package tools;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Properties;
-
-import tools.HexTool;
+import java.util.*;
 
 public class ExternalCodeShortTableGetter {
 
@@ -24,31 +17,6 @@ public class ExternalCodeShortTableGetter {
             }
         }
         return null;
-    }
-
-    private <T extends Enum<? extends WritableShortValueHolder> & WritableShortValueHolder> short getValue(final String name, T[] values, final short def) {
-        String prop = props.getProperty(name);
-        if (prop != null && prop.length() > 0) {
-            String trimmed = prop.trim();
-            String[] args = trimmed.split(" ");
-            int base = 0;
-            String offset;
-            if (args.length == 2) {
-                base = valueOf(args[0], values).get();
-                if (base == def) {
-                    base = getValue(args[0], values, def);
-                }
-                offset = args[1];
-            } else {
-                offset = args[0];
-            }
-            if (offset.length() > 2 && offset.substring(0, 2).equals("0x")) {
-                return (short) (Short.parseShort(offset.substring(2), 16) + base);
-            } else {
-                return (short) (Short.parseShort(offset) + base);
-            }
-        }
-        return def;
     }
 
     public final static <T extends Enum<? extends WritableShortValueHolder> & WritableShortValueHolder> String getOpcodeTable(T[] enumeration) {
@@ -78,5 +46,30 @@ public class ExternalCodeShortTableGetter {
         for (T code : values) {
             code.set(exc.getValue(code.name(), values, (short) -2));
         }
+    }
+
+    private <T extends Enum<? extends WritableShortValueHolder> & WritableShortValueHolder> short getValue(final String name, T[] values, final short def) {
+        String prop = props.getProperty(name);
+        if (prop != null && prop.length() > 0) {
+            String trimmed = prop.trim();
+            String[] args = trimmed.split(" ");
+            int base = 0;
+            String offset;
+            if (args.length == 2) {
+                base = valueOf(args[0], values).get();
+                if (base == def) {
+                    base = getValue(args[0], values, def);
+                }
+                offset = args[1];
+            } else {
+                offset = args[0];
+            }
+            if (offset.length() > 2 && offset.substring(0, 2).equals("0x")) {
+                return (short) (Short.parseShort(offset.substring(2), 16) + base);
+            } else {
+                return (short) (Short.parseShort(offset) + base);
+            }
+        }
+        return def;
     }
 }

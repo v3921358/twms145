@@ -20,11 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
+import tools.HexTool;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
-import tools.HexTool;
 
 public class LoginCrypto {
 

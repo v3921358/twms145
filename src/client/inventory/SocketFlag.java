@@ -18,7 +18,6 @@
 package client.inventory;
 
 /**
- *
  * @author AlphaEta
  */
 public enum SocketFlag {

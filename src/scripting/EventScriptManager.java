@@ -21,39 +21,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scripting;
 
 import handling.channel.ChannelServer;
-import handling.world.World;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import tools.FileoutputUtil;
+
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-import tools.FileoutputUtil;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
  * @author Matze
  */
 public class EventScriptManager extends AbstractScriptManager {
 
-    private static class EventEntry {
-
-        public EventEntry(final String script, final Invocable iv, final EventManager em) {
-            this.script = script;
-            this.iv = iv;
-            this.em = em;
-        }
-        public String script;
-        public Invocable iv;
-        public EventManager em;
-    }
-    private final Map<String, EventEntry> events = new LinkedHashMap<>();
     private static final AtomicInteger runningInstanceMapId = new AtomicInteger(0);
-
-    public static int getNewInstanceMapId() {
-        return runningInstanceMapId.addAndGet(1);
-    }
-
+    private final Map<String, EventEntry> events = new LinkedHashMap<>();
     public EventScriptManager(final ChannelServer channel, final String[] scripts) {
         super();
         for (final String script : scripts) {
@@ -65,6 +48,10 @@ public class EventScriptManager extends AbstractScriptManager {
                 }
             }
         }
+    }
+
+    public static int getNewInstanceMapId() {
+        return runningInstanceMapId.addAndGet(1);
     }
 
     public final EventManager getEventManager(final String event) {
@@ -90,6 +77,18 @@ public class EventScriptManager extends AbstractScriptManager {
     public final void cancel() {
         for (final EventEntry entry : events.values()) {
             entry.em.cancel();
+        }
+    }
+
+    private static class EventEntry {
+
+        public String script;
+        public Invocable iv;
+        public EventManager em;
+        public EventEntry(final String script, final Invocable iv, final EventManager em) {
+            this.script = script;
+            this.iv = iv;
+            this.em = em;
         }
     }
 }

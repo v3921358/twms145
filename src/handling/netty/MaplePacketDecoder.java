@@ -36,10 +36,6 @@ import java.util.List;
 
 public class MaplePacketDecoder extends ByteToMessageDecoder {
 
-    public static class DecoderState {
-        int packetLength = -1;
-    }
-
     public static final AttributeKey<DecoderState> DECODER_STATE_KEY = AttributeKey.valueOf(MaplePacketDecoder.class.getName() + ".STATE");
 
     @Override
@@ -81,5 +77,9 @@ public class MaplePacketDecoder extends ByteToMessageDecoder {
                 }
             }
         }
+    }
+
+    public static class DecoderState {
+        int packetLength = -1;
     }
 }

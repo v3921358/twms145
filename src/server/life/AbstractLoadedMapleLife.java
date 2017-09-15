@@ -31,8 +31,8 @@ public abstract class AbstractLoadedMapleLife extends AnimatedMapleMapObject {
     private int cy;
     private int rx0;
     private int rx1;
-    private String ctype; 
-    private int mtime;  
+    private String ctype;
+    private int mtime;
 
     public AbstractLoadedMapleLife(int id) {
         this.id = id;
@@ -75,7 +75,7 @@ public abstract class AbstractLoadedMapleLife extends AnimatedMapleMapObject {
 
     public void setFh(int fh) {
         this.fh = fh;
-	this.originFh = fh;
+        this.originFh = fh;
     }
 
     public int getCy() {
@@ -105,8 +105,8 @@ public abstract class AbstractLoadedMapleLife extends AnimatedMapleMapObject {
     public int getId() {
         return id;
     }
-    
-   public int getMTime() {
+
+    public int getMTime() {
         return mtime;
     }
 
@@ -120,5 +120,5 @@ public abstract class AbstractLoadedMapleLife extends AnimatedMapleMapObject {
 
     public void setCType(String type) {
         this.ctype = type;
-    }  
+    }
 }

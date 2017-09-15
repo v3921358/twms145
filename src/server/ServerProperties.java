@@ -1,33 +1,29 @@
 package server;
 
 import constants.GameConstants;
+
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Properties;
-import database.DatabaseConnection;
 
 /**
- *
  * @author Emilyx3
  */
 public class ServerProperties {
 
     private static final Properties props = new Properties();
 
-    private ServerProperties() {
-    }
-
     static {
         String toLoad = "channel.properties";
         loadProperties(toLoad);
-		if (getProperty("GMS") != null) {
-			GameConstants.GMS = Boolean.parseBoolean(getProperty("GMS"));
-		}
+        if (getProperty("GMS") != null) {
+            GameConstants.GMS = Boolean.parseBoolean(getProperty("GMS"));
+        }
         toLoad = GameConstants.GMS ? "server.properties" : "server.properties";
         loadProperties(toLoad);
+    }
+
+    private ServerProperties() {
     }
 
     public static void loadProperties(String s) {

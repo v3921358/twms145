@@ -20,36 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling.channel.handler;
 
+import client.*;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
-import static client.BuddyList.BuddyOperation.ADDED;
-import static client.BuddyList.BuddyOperation.DELETED;
-import client.*;
 import database.DatabaseConnection;
 import handling.channel.ChannelServer;
 import handling.world.World;
+import tools.data.LittleEndianAccessor;
+import tools.packet.CWvsContext.BuddylistPacket;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import tools.data.LittleEndianAccessor;
-import tools.packet.CWvsContext.BuddylistPacket;
+
+import static client.BuddyList.BuddyOperation.ADDED;
+import static client.BuddyList.BuddyOperation.DELETED;
 
 public class BuddyListHandler {
-
-    private static final class CharacterIdNameBuddyCapacity extends CharacterNameAndId {
-
-        private int buddyCapacity;
-
-        public CharacterIdNameBuddyCapacity(int id, String name, String group, int buddyCapacity) {
-            super(id, name, group);
-            this.buddyCapacity = buddyCapacity;
-        }
-
-        public int getBuddyCapacity() {
-            return buddyCapacity;
-        }
-    }
 
     private static CharacterIdNameBuddyCapacity getCharacterIdAndNameFromDatabase(final String name, final String group) throws SQLException {
         Connection con = DatabaseConnection.getConnection();
@@ -59,7 +47,7 @@ public class BuddyListHandler {
             try (ResultSet rs = ps.executeQuery()) {
                 ret = null;
                 if (rs.next()) {
-                        ret = new CharacterIdNameBuddyCapacity(rs.getInt("id"), rs.getString("name"), group, rs.getInt("buddyCapacity"));
+                    ret = new CharacterIdNameBuddyCapacity(rs.getInt("id"), rs.getString("name"), group, rs.getInt("buddyCapacity"));
                 }
             }
         }
@@ -81,9 +69,9 @@ public class BuddyListHandler {
             }
             if (ble != null && (ble.getGroup().equals(groupName) || !ble.isVisible())) {
                 c.sendPacket(BuddylistPacket.buddylistMessage((byte) 11));
-	    } else if (ble != null && ble.isVisible()) {
-	    	ble.setGroup(groupName);
-		c.sendPacket(BuddylistPacket.updateBuddylist(buddylist.getBuddies(), 10));
+            } else if (ble != null && ble.isVisible()) {
+                ble.setGroup(groupName);
+                c.sendPacket(BuddylistPacket.updateBuddylist(buddylist.getBuddies(), 10));
             } else if (buddylist.isFull()) {
                 c.sendPacket(BuddylistPacket.buddylistMessage((byte) 11));
             } else {
@@ -93,9 +81,9 @@ public class BuddyListHandler {
                     int world = World.Find.findWorld(addName);
                     MapleCharacter otherChar;
                     if (channel > 0) {
-			otherChar = ChannelServer.getInstance(world, channel).getPlayerStorage().getCharacterByName(addName);
-			if (otherChar == null) {
-			    charWithId = getCharacterIdAndNameFromDatabase(addName, groupName);
+                        otherChar = ChannelServer.getInstance(world, channel).getPlayerStorage().getCharacterByName(addName);
+                        if (otherChar == null) {
+                            charWithId = getCharacterIdAndNameFromDatabase(addName, groupName);
                         } else {
                             charWithId = new CharacterIdNameBuddyCapacity(otherChar.getId(), otherChar.getName(), groupName, otherChar.getBuddylist().getCapacity());
                         }
@@ -176,13 +164,13 @@ public class BuddyListHandler {
             }
         } else if (mode == 3) { // delete
             final int otherCid = slea.readInt();
-	    final BuddylistEntry blz = buddylist.get(otherCid);
+            final BuddylistEntry blz = buddylist.get(otherCid);
             if (blz != null && blz.isVisible()) {
                 notifyRemoteChannel(c, World.Find.findChannel(otherCid), otherCid, blz.getGroup(), DELETED);
             }
             buddylist.remove(otherCid);
             c.sendPacket(BuddylistPacket.updateBuddylist(buddylist.getBuddies(), 18));
-	}
+        }
     }
 
     private static void notifyRemoteChannel(final MapleClient c, final int remoteChannel, final int otherCid, final String group, final BuddyOperation operation) {
@@ -190,6 +178,20 @@ public class BuddyListHandler {
 
         if (remoteChannel > 0) {
             World.Buddy.buddyChanged(otherCid, player.getId(), player.getName(), c.getChannel(), operation, group);
+        }
+    }
+
+    private static final class CharacterIdNameBuddyCapacity extends CharacterNameAndId {
+
+        private int buddyCapacity;
+
+        public CharacterIdNameBuddyCapacity(int id, String name, String group, int buddyCapacity) {
+            super(id, name, group);
+            this.buddyCapacity = buddyCapacity;
+        }
+
+        public int getBuddyCapacity() {
+            return buddyCapacity;
         }
     }
 }

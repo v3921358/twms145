@@ -38,7 +38,23 @@ import handling.world.World;
 import handling.world.exped.ExpeditionType;
 import handling.world.guild.MapleGuild;
 import handling.world.guild.MapleGuildAlliance;
-import java.awt.Point;
+import server.*;
+import server.Timer.WorldTimer;
+import server.life.*;
+import server.maps.*;
+import server.quest.MapleQuest;
+import tools.FileoutputUtil;
+import tools.StringUtil;
+import tools.packet.CField;
+import tools.packet.CField.NPCPacket;
+import tools.packet.CField.UIPacket;
+import tools.packet.CWvsContext;
+import tools.packet.CWvsContext.GuildPacket;
+import tools.packet.CWvsContext.InfoPacket;
+import tools.types.Triple;
+
+import javax.script.Invocable;
+import java.awt.*;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -47,47 +63,32 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.script.Invocable;
-import server.*;
-import server.Timer.WorldTimer;
-import server.life.MapleLifeFactory;
-import server.life.MapleMonster;
-import server.life.MapleMonsterInformationProvider;
-import server.life.MapleNPC;
-import server.life.MonsterDropEntry;
-import server.maps.Event_DojoAgent;
-import server.maps.Event_PyramidSubway;
-import server.maps.MapleMap;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
-import server.quest.MapleQuest;
-import tools.FileoutputUtil;
-import tools.StringUtil;
-import tools.types.Triple;
-import tools.packet.CField;
-import tools.packet.CField.NPCPacket;
-import tools.packet.CField.UIPacket;
-import tools.packet.CWvsContext;
-import tools.packet.CWvsContext.GuildPacket;
-import tools.packet.CWvsContext.InfoPacket;
 
 public class NPCConversationManager extends AbstractPlayerInteraction {
 
+    public boolean pendingDisposal = false;
+    public long MRushAmount = 700000000000L;
+    public long Mesos = getPlayer().getMeso();
     private String getText;
     private byte type; // -1 = NPC, 0 = start quest, 1 = end quest
     private byte lastMsg = -1;
-    public boolean pendingDisposal = false;
     private Invocable iv;
 
     public NPCConversationManager(MapleClient c, int npc, int questid, byte type, Invocable iv) {
         super(c, npc, questid);
         this.type = type;
         this.iv = iv;
-        
+
+    }
+
+    public static void dispose(MapleClient c) {
+        c.sendPacket(CWvsContext.enableActions());
+        NPCScriptManager.getInstance().getCM(c).dispose();
     }
 
     public Invocable getIv() {
@@ -101,27 +102,27 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public int getQuest() {
         return id2;
     }
-    
+
     public String getDevNews() throws SQLException {
         StringBuilder ret = new StringBuilder();
         PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT title, msg, date FROM dev_news ORDER BY id desc LIMIT 5");
         ResultSet rs = ps.executeQuery();
-            try {
-                while (rs.next()) {
-                    ret.append("\r\n#e").append(rs.getString("title")).append(" - (").append(rs.getString("date")).append(")#n\r\n").append(rs.getString("msg")).append("\r\n");
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            while (rs.next()) {
+                ret.append("\r\n#e").append(rs.getString("title")).append(" - (").append(rs.getString("date")).append(")#n\r\n").append(rs.getString("msg")).append("\r\n");
             }
+        } catch (SQLException ex) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
         ps.close();
         rs.close();
         return ret.toString();
-}
-    
+    }
+
     public byte getType() {
         return type;
     }
-    
+
     public void updateAndroid(boolean itemonly) {
         CField.updateAndroidLook(itemonly, c.getPlayer(), c.getPlayer().getAndroid());
     }
@@ -133,11 +134,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public void dispose() {
         NPCScriptManager.getInstance().dispose(c);
     }
-    
-    public static void dispose(MapleClient c){
-        c.sendPacket(CWvsContext.enableActions());
-        NPCScriptManager.getInstance().getCM(c).dispose();
-    }  
 
     public void askMapSelection(final String sel) {
         if (lastMsg > -1) {
@@ -146,7 +142,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         c.sendPacket(NPCPacket.getMapSelection(id, sel));
         lastMsg = (byte) (GameConstants.GMS ? 0x11 : 0x10);
     }
-    
+
     public void askBuffSelection(final String sel) {
         if (lastMsg > -1) {
             return;
@@ -422,7 +418,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         c.sendPacket(NPCPacket.getNPCTalkStyle(id, text, styles));
         lastMsg = 9;
     }
-    
+
     public void askAndroid(String text, int... args) {
         if (lastMsg > -1) {
             return;
@@ -472,8 +468,8 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         getPlayer().updateSingleStat(MapleStat.HAIR, hair);
         getPlayer().equipChanged();
     }
-    
-        @Override
+
+    @Override
     public final MapleCharacter getChar() {
         return getPlayer();
     }
@@ -489,74 +485,74 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         getPlayer().updateSingleStat(MapleStat.SKIN, color);
         getPlayer().equipChanged();
     }
-    
+
     public String getPvPRanks() throws SQLException {
-          StringBuilder ret = new StringBuilder();
-          PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, pvpKills FROM characters WHERE gm < 3 ORDER BY pvpKills desc LIMIT 10");
-          ps.executeQuery();
-          ResultSet rs = ps.executeQuery();
-          try {
-          while (rs.next()) {
+        StringBuilder ret = new StringBuilder();
+        PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, pvpKills FROM characters WHERE gm < 3 ORDER BY pvpKills desc LIMIT 10");
+        ps.executeQuery();
+        ResultSet rs = ps.executeQuery();
+        try {
+            while (rs.next()) {
                 ret.append("\r\n").append("#b").append("Name(IGN) : ").append(rs.getString("name")).append("#k#r").append("        |      Kills : ").append(rs.getInt("pvpKills")).append("#k");
             }
-          rs.close();
-          ps.close();
+            rs.close();
+            ps.close();
         } catch (Exception ex) {
             Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-          return ret.toString();
+        return ret.toString();
     }
-    
+
     public String getFameRanks() throws SQLException {
-          StringBuilder ret = new StringBuilder();
-          PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, fame FROM characters WHERE gm < 3 ORDER BY fame desc LIMIT 10");
-          ps.executeQuery();
-          ResultSet rs = ps.executeQuery();
-          try {
-          while (rs.next()) {
+        StringBuilder ret = new StringBuilder();
+        PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, fame FROM characters WHERE gm < 3 ORDER BY fame desc LIMIT 10");
+        ps.executeQuery();
+        ResultSet rs = ps.executeQuery();
+        try {
+            while (rs.next()) {
                 ret.append("\r\n").append("#b").append(rs.getString("name")).append(" : ").append(rs.getInt("fame")).append("#k");
             }
-          rs.close();
-          ps.close();
+            rs.close();
+            ps.close();
         } catch (Exception ex) {
             Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-          return ret.toString();
+        return ret.toString();
     }
-    
+
     public String getJQRanks() throws SQLException {
-          StringBuilder ret = new StringBuilder();
-          PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, jqlevel, jqexp FROM characters WHERE gm < 3 ORDER BY jqlevel desc, jqexp DESC LIMIT 10");
-          ps.executeQuery();
-          ResultSet rs = ps.executeQuery();
-          try {
-          while (rs.next()) {
+        StringBuilder ret = new StringBuilder();
+        PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT name, jqlevel, jqexp FROM characters WHERE gm < 3 ORDER BY jqlevel desc, jqexp DESC LIMIT 10");
+        ps.executeQuery();
+        ResultSet rs = ps.executeQuery();
+        try {
+            while (rs.next()) {
                 ret.append("\r\n").append("#d").append(rs.getString("name")).append("#k - #bJQ Level:#k #rLv. ").append(rs.getInt("jqlevel")).append("#k #bJQ Exp:#k #r").append(rs.getInt("jqexp")).append("#k");
             }
-          rs.close();
-          ps.close();
+            rs.close();
+            ps.close();
         } catch (Exception ex) {
             Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-          return ret.toString();
+        return ret.toString();
     }
-    
-     public void ProDonatorItem(byte slot, int str, int dex, int int_, int luk){
-         MapleInventory equip = getPlayer().getInventory(MapleInventoryType.EQUIP);
-         Equip eu = (Equip) equip.getItem(slot); // get slot determine eq
-         short hand = eu.getHands(); // HANDS
-         byte level = eu.getLevel(); // LEVEL
-         eu.setStr((short) str); // STR
-         eu.setDex((short) dex); // DEX
-         eu.setInt((short) int_); // INT
-         eu.setLuk((short) luk); //LUK
-         eu.setUpgradeSlots((byte) 0); // Feel free to change
-         eu.setHands(hand);
-         eu.setLevel(level);
-         getPlayer().getInventory(MapleInventoryType.EQUIP).addFromDB(eu);
+
+    public void ProDonatorItem(byte slot, int str, int dex, int int_, int luk) {
+        MapleInventory equip = getPlayer().getInventory(MapleInventoryType.EQUIP);
+        Equip eu = (Equip) equip.getItem(slot); // get slot determine eq
+        short hand = eu.getHands(); // HANDS
+        byte level = eu.getLevel(); // LEVEL
+        eu.setStr((short) str); // STR
+        eu.setDex((short) dex); // DEX
+        eu.setInt((short) int_); // INT
+        eu.setLuk((short) luk); //LUK
+        eu.setUpgradeSlots((byte) 0); // Feel free to change
+        eu.setHands(hand);
+        eu.setLevel(level);
+        getPlayer().getInventory(MapleInventoryType.EQUIP).addFromDB(eu);
     }
-     
-     public int setAndroid(int args) {
+
+    public int setAndroid(int args) {
         if (args < 30000) {
             c.getPlayer().getAndroid().setFace(args);
             c.getPlayer().getAndroid().saveToDb();
@@ -568,34 +564,34 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
         return 1;
     }
-    
-     public int getAndroidStat(final String type) {
+
+    public int getAndroidStat(final String type) {
         if (type.equals("HAIR")) {
             return c.getPlayer().getAndroid().getHair();
         } else if (type.equals("FACE")) {
             return c.getPlayer().getAndroid().getFace();
         } else if (type.equals("GENDER")) {
             int itemid = c.getPlayer().getAndroid().getItemId();
-            if (itemid == 1662000 || itemid == 1662002){
+            if (itemid == 1662000 || itemid == 1662002) {
                 return 0;
-            }else{
+            } else {
                 return 1;
             }
         }
         return -1;
     }
-     
-     public void gainJQExp(int gain) {
-         getPlayer().gainJQExp(gain);
-     }
-     
-      public void MakeGMItem(byte slot, MapleCharacter player) {
+
+    public void gainJQExp(int gain) {
+        getPlayer().gainJQExp(gain);
+    }
+
+    public void MakeGMItem(byte slot, MapleCharacter player) {
         MapleInventory equip = player.getInventory(MapleInventoryType.EQUIP);
         Equip eu = (Equip) equip.getItem(slot);
         int item = equip.getItem(slot).getItemId();
         short hand = eu.getHands();
         byte level = eu.getLevel();
-        Equip nItem = new Equip(item,slot,(byte)0);
+        Equip nItem = new Equip(item, slot, (byte) 0);
         nItem.setStr((short) 32767); // STR
         nItem.setDex((short) 32767); // DEX
         nItem.setInt((short) 32767); // INT
@@ -606,12 +602,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         player.getInventory(MapleInventoryType.EQUIP).removeItem(slot);
         player.getInventory(MapleInventoryType.EQUIP).addFromDB(nItem);
     }
-    
-     public void giveBuff(int buff) {
-            SkillFactory.getSkill(buff).getEffect(SkillFactory.getSkill(buff).getMaxLevel()).applyTo(getPlayer());
-        }
-     
-     public void MakeNoobPot(byte slot, MapleCharacter player) {
+
+    public void giveBuff(int buff) {
+        SkillFactory.getSkill(buff).getEffect(SkillFactory.getSkill(buff).getMaxLevel()).applyTo(getPlayer());
+    }
+
+    public void MakeNoobPot(byte slot, MapleCharacter player) {
         int randst = (int) (100.0 * Math.random()) + 21;
         MapleInventory equip = player.getInventory(MapleInventoryType.EQUIP);
         Equip eu = (Equip) equip.getItem(slot);
@@ -619,7 +615,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         // MapleJob job = eu.();
         short hand = eu.getHands();
         byte level = eu.getLevel();
-        Equip nItem = new Equip(item, equip.getNextFreeSlot(), (byte)0);
+        Equip nItem = new Equip(item, equip.getNextFreeSlot(), (byte) 0);
         nItem.setStr((short) randst); // STR
         nItem.setDex((short) randst); // DEX
         nItem.setInt((short) randst); // INT
@@ -641,7 +637,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         // MapleJob job = eu.();
         short hand = eu.getHands();
         byte level = eu.getLevel();
-        Equip nItem = new Equip(item, equip.getNextFreeSlot(), (byte)0);
+        Equip nItem = new Equip(item, equip.getNextFreeSlot(), (byte) 0);
         nItem.setStr((short) randst); // STR
         nItem.setDex((short) randst); // DEX
         nItem.setInt((short) randst); // INT
@@ -663,7 +659,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         // MapleJob job = eu.();
         short hand = eu.getHands();
         byte level = eu.getLevel();
-        Equip nItem = new Equip(item, equip.getNextFreeSlot(), (byte)0);
+        Equip nItem = new Equip(item, equip.getNextFreeSlot(), (byte) 0);
         nItem.setStr((short) randst); // STR
         nItem.setDex((short) randst); // DEX
         nItem.setInt((short) randst); // INT
@@ -675,327 +671,325 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         nItem.setLevel(level);
         player.getInventory(MapleInventoryType.EQUIP).addFromDB(nItem);
     }
-     
-     public boolean nameIsLegal(String text) {
+
+    public boolean nameIsLegal(String text) {
         String[] illegalChars = {" ", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "-", "+", "=", ";", ":", "\"", "\\", "/", "//", ",", ".", "<", ">", "?", "{", "}", "[", "]", "|", " ", "Owner", "Admin", "GameMaster", "GM", "Fuck", "Bitch", "Pussy", "friend", "EricIs", "Shit", "Dick", " Vagina", "Penis", "Clit", "Faggot", "Gay", "Gayboi", "Asian", "DeathStar", "God"};
         for (String illegalChar : illegalChars) {
-            if (text.contains(illegalChar)) { 
+            if (text.contains(illegalChar)) {
                 return false;
             }
         }
         return true;
     }
-     
-     public boolean nameIsLegalDonor(String dtext) {
-             String[] illegalChars = {" ", "Owner", "Admin", "GameMaster", "GM", "Fuck", "Bitch", "Pussy", "friend", "EricIs", "Shit", "Dick", " Vagina", "Penis", "Clit", "Faggot", "Gay", "Gayboi", "Asian", "DeathStar", "God"};
-          for (int i = 0; i < illegalChars.length; i++) 
-            if (dtext.contains(illegalChars[i])) 
-              return false;
-                return true;
-     }
-     
-     public String sendGreen(String text) {
+
+    public boolean nameIsLegalDonor(String dtext) {
+        String[] illegalChars = {" ", "Owner", "Admin", "GameMaster", "GM", "Fuck", "Bitch", "Pussy", "friend", "EricIs", "Shit", "Dick", " Vagina", "Penis", "Clit", "Faggot", "Gay", "Gayboi", "Asian", "DeathStar", "God"};
+        for (int i = 0; i < illegalChars.length; i++)
+            if (dtext.contains(illegalChars[i]))
+                return false;
+        return true;
+    }
+
+    public String sendGreen(String text) {
         char[] hi = text.toLowerCase().toCharArray();
         int itemId;
         String newString = "";
-        for (Character hello : hi)  {
-           itemId = Character.getNumericValue(hello) + 3991016;
-           newString += itemId != 3991015 ? "#v" + itemId + "#" : " ";
+        for (Character hello : hi) {
+            itemId = Character.getNumericValue(hello) + 3991016;
+            newString += itemId != 3991015 ? "#v" + itemId + "#" : " ";
         }
-	  return newString;
+        return newString;
     }
-     
-     public int getRandom(int start, int end) {
+
+    public int getRandom(int start, int end) {
         return (int) Math.floor(Math.random() * end + start);
-    }  
-     
-     public String getInsult() {
-                try {
-				HttpURLConnection con = (HttpURLConnection) new URL("http://www.randominsults.net/").openConnection();
-				StringBuilder sb = new StringBuilder();
-				con.connect();
-				InputStream input = con.getInputStream();
-				byte[] buf = new byte[2048];
-				int read;
-				while ((read = input.read(buf)) > 0) {
-					sb.append(new String(buf, 0, read));
-				}
-				final String find = "<strong><i>";
-				int firstPost = sb.indexOf(find);
-				StringBuilder send = new StringBuilder();
-				for (int i = firstPost + find.length(); i < sb.length(); i++) {
-					char ch = sb.charAt(i);
-					if (sb.charAt(i) == '<' && sb.charAt(i + 1) == '/' && sb.charAt(i + 2) == 'i')
-						break;
-					send.append(ch);
-				}
-				String sendTxt = send.toString();
-				sendTxt = sendTxt.replaceAll("\\<.*?>", "");
-				sendTxt = fixHTML(sendTxt);
-				return sendTxt;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-                                return "Error Occured!";
-                        }
+    }
 
-        public String fixHTML(String in) {
-		in = in.replaceAll(Pattern.quote("&quot;"), "\"");
-		in = in.replaceAll(Pattern.quote("&amp;"), "&");
+    public String getInsult() {
+        try {
+            HttpURLConnection con = (HttpURLConnection) new URL("http://www.randominsults.net/").openConnection();
+            StringBuilder sb = new StringBuilder();
+            con.connect();
+            InputStream input = con.getInputStream();
+            byte[] buf = new byte[2048];
+            int read;
+            while ((read = input.read(buf)) > 0) {
+                sb.append(new String(buf, 0, read));
+            }
+            final String find = "<strong><i>";
+            int firstPost = sb.indexOf(find);
+            StringBuilder send = new StringBuilder();
+            for (int i = firstPost + find.length(); i < sb.length(); i++) {
+                char ch = sb.charAt(i);
+                if (sb.charAt(i) == '<' && sb.charAt(i + 1) == '/' && sb.charAt(i + 2) == 'i')
+                    break;
+                send.append(ch);
+            }
+            String sendTxt = send.toString();
+            sendTxt = sendTxt.replaceAll("\\<.*?>", "");
+            sendTxt = fixHTML(sendTxt);
+            return sendTxt;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "Error Occured!";
+    }
 
-		return in;
-	}
-    
+    public String fixHTML(String in) {
+        in = in.replaceAll(Pattern.quote("&quot;"), "\"");
+        in = in.replaceAll(Pattern.quote("&amp;"), "&");
+
+        return in;
+    }
+
     public void playMusic(String music) {
         getPlayer().getMap().broadcastMessage(CField.musicChange(music));
     }
-    
+
     public String getChallenges() throws SQLException {
-    StringBuilder ret = new StringBuilder();
+        StringBuilder ret = new StringBuilder();
         PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT title, completed, date FROM challenges ORDER BY id desc LIMIT 5");
         ResultSet rs = ps.executeQuery();
-            try {
-                while (rs.next()) {
-                    ret.append("\r\n#e").append(rs.getString("title")).append(" - (").append(rs.getString("date")).append(")#n\r\n").append(rs.getString("completed")).append("\r\n");
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            while (rs.next()) {
+                ret.append("\r\n#e").append(rs.getString("title")).append(" - (").append(rs.getString("date")).append(")#n\r\n").append(rs.getString("completed")).append("\r\n");
             }
-         ps.close();
-         rs.close();
-    return ret.toString();
-}
-    
+        } catch (SQLException ex) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ps.close();
+        rs.close();
+        return ret.toString();
+    }
+
     public void openNpc2(int id) {
         dispose();
         NPCScriptManager.getInstance().start(getClient(), id);
     }
 
-     public void changeKeyBinding (int key, byte type, int action) {
+    public void changeKeyBinding(int key, byte type, int action) {
         getPlayer().changeKeybinding(key, type, action);
         getPlayer().sendKeymap();
     }
 
-     public String getNews() throws SQLException {
-    StringBuilder ret = new StringBuilder();
+    public String getNews() throws SQLException {
+        StringBuilder ret = new StringBuilder();
         PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT title, message, date FROM trollnews ORDER BY newsid desc LIMIT 5");
         ResultSet rs = ps.executeQuery();
-            try {
-                while (rs.next()) {
-                    ret.append("\r\n#e").append(rs.getString("title")).append(" - (").append(rs.getString("date")).append(")#n\r\n").append(rs.getString("message")).append("\r\n");
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            while (rs.next()) {
+                ret.append("\r\n#e").append(rs.getString("title")).append(" - (").append(rs.getString("date")).append(")#n\r\n").append(rs.getString("message")).append("\r\n");
             }
-         ps.close();
-         rs.close();
-    return ret.toString();
-}
+        } catch (SQLException ex) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ps.close();
+        rs.close();
+        return ret.toString();
+    }
 
-     public String getDigits() throws SQLException {
-    StringBuilder ret = new StringBuilder();
+    public String getDigits() throws SQLException {
+        StringBuilder ret = new StringBuilder();
         PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT mesos FROM mrush");
         ResultSet rs = ps.executeQuery();
-            try {
-                while (rs.next()) {
-                    ret.append("#e#b").append(rs.getLong("mesos")).append("#k#n");
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            while (rs.next()) {
+                ret.append("#e#b").append(rs.getLong("mesos")).append("#k#n");
             }
-         ps.close();
-         rs.close();
-         return ret.toString();
-     }
-     
-     public long MRushAmount = 700000000000L;
-     public long getMMesos() throws SQLException {
+        } catch (SQLException ex) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ps.close();
+        rs.close();
+        return ret.toString();
+    }
+
+    public long getMMesos() throws SQLException {
         PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT mesos FROM mrush");
         ResultSet rs = ps.executeQuery();
-            try {
-                while (rs.next()) {
-                    MRushAmount = rs.getLong("mesos");
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            while (rs.next()) {
+                MRushAmount = rs.getLong("mesos");
             }
-         ps.close();
-         rs.close();
-      return MRushAmount;
-}
-     
-     public long Mesos = getPlayer().getMeso();
-     public long getPMesos() throws SQLException {
+        } catch (SQLException ex) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ps.close();
+        rs.close();
+        return MRushAmount;
+    }
+
+    public long getPMesos() throws SQLException {
         PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT meso FROM characters");
         ResultSet rs = ps.executeQuery();
-            try {
-                while (rs.next()) {
-                    Mesos = rs.getLong("meso");
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            while (rs.next()) {
+                Mesos = rs.getLong("meso");
             }
-         ps.close();
-         rs.close();
-      return Mesos;
-}
- 
-     public void resetMonsterRush() throws SQLException {
+        } catch (SQLException ex) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ps.close();
+        rs.close();
+        return Mesos;
+    }
+
+    public void resetMonsterRush() throws SQLException {
         PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = 700000000000");
         ps.executeUpdate();
         ps.close();
-     }
-     
-     public void deduct50M() {
-                try {
-                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
-                    //ResultSet rs = ps.executeQuery();
-                    if (getMMesos() <= 50000000) {
-                    ps.setLong(1, 0); // set total to 0
-                    } else {
-                    ps.setLong(1, getMMesos() - 50000000); //see if it will subtract or do anything at all. :)
-                    }
-                    ps.executeUpdate();
-                    ps.close();
-                    //rs.close();
-                } catch (SQLException e) {
-                   Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
-                }
-}
-     
-     public void deduct100M() {
-             try {
-                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
-                    if (getMMesos() <= 50000000) {
-                    ps.setLong(1, 0); // set total to 0
-                    } else {
-                    ps.setLong(1, getMMesos() - 100000000); 
-                    }
-                    ps.executeUpdate();
-                    ps.close();
-                } catch (SQLException e) {
-                   Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
-                }
-              }
-     
-     public void deduct200M() {
-             try {
-                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
-                    if (getMMesos() <= 50000000) {
-                    ps.setLong(1, 0); // set total to 0
-                    } else {
-                    ps.setLong(1, getMMesos() - 200000000); 
-                    }
-                    ps.executeUpdate();
-                    ps.close();
-                } catch (SQLException e) {
-                   Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
-                }
-              }
-     
-     public void deduct400M() {
-             try {
-                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
-                    if (getMMesos() <= 50000000) {
-                    ps.setLong(1, 0); // set total to 0
-                    } else {
-                    ps.setLong(1, getMMesos() - 400000000); 
-                    }
-                    ps.executeUpdate();
-                    ps.close();
-                } catch (SQLException e) {
-                   Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
-                }
-              }
-     
-     public void deduct800M() {
-             try {
-                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
-                    if (getMMesos() <= 50000000) {
-                    ps.setLong(1, 0); // set total to 0
-                    } else {
-                    ps.setLong(1, getMMesos() - 800000000);
-                    }
-                    ps.executeUpdate();
-                    ps.close();
-                } catch (SQLException e) {
-                   Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
-                }
-              }
-     
-     public void deduct1_5B() {
-             try {
-                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
-                    if (getMMesos() <= 50000000) {
-                    ps.setLong(1, 0); // set total to 0
-                    } else {
-                    ps.setLong(1, getMMesos() - 1500000000);
-                    }
-                    ps.executeUpdate();
-                    ps.close();
-                } catch (SQLException e) {
-                   Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
-                }
-              }
-     
-     public void deduct69() {
-             try {
-                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
-                    if (getMMesos() <= 69) {
-                    ps.setLong(1, 0); // set total to 0
-                    } else {
-                    ps.setLong(1, getMMesos() - 69); 
-                    }
-                    ps.executeUpdate();
-                    ps.close();
-                } catch (SQLException e) {
-                   Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
-                }
-              }
-     
-     public void deductAll() {
-         try { 
-                    PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
-                    ps.setLong(1, getMMesos() - getMeso()); 
-                    ps.executeUpdate();
-                    ps.close();
-                } catch (SQLException e) {
-                   Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
-                }
-              }
-     
-     public void startMonsterRush() { // don't use my sloppy code until i re-build this entire system #EricsOldCodeIsLul
-       for (int l = 1; l <= LoginServer.getWorlds().size(); l++) { //ChannelServer instance [l]
-             //ChannelServer.getInstance(l).MonsterRush = true;
-             //MapleMonsterStats newStats = new MapleMonsterStats();
-             //newStats.setHp(2000000000);
-             //newStats.setLevel((short)195);
-             //newStats.setExp(/*8589934*/200000000); //EXP = 250x, 8589934 * 250 = MAX value rounded up, 140less then Integer.MAX_VALUE. EXP equal from leveling 1 to 200 per mob LOL
-             MapleMap map = c.getChannelServer().getMapFactory().getMap(100000000);
-             MapleMap map1 = c.getChannelServer().getMapFactory().getMap(103000000);
-             MapleMap map2 = c.getChannelServer().getMapFactory().getMap(680000000);
-             MapleMap map3 = c.getChannelServer().getMapFactory().getMap(220000000);
-             MapleMap map4 = c.getChannelServer().getMapFactory().getMap(200000000);
-             MapleMap map5 = c.getChannelServer().getMapFactory().getMap(240000000);
-          for (int i = 0; i < 25; i++) { //Monster Spawning Instance [i]
-             MapleMonster npcmob = MapleLifeFactory.getMonster(9400203);
-             //npcmob.setOverrideStats(newStats);
-             npcmob.setHp(npcmob.getMobMaxHp());
-             npcmob.setMp(npcmob.getMobMaxMp());
-             map.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
-             map1.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
-             map2.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
-             map3.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
-             map4.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
-             map5.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
-      }
-     }  
-   }
-    
-     public int getJQMap() {
-      return World.getEventMap();
-  }
-    
+    }
+
+    public void deduct50M() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
+            //ResultSet rs = ps.executeQuery();
+            if (getMMesos() <= 50000000) {
+                ps.setLong(1, 0); // set total to 0
+            } else {
+                ps.setLong(1, getMMesos() - 50000000); //see if it will subtract or do anything at all. :)
+            }
+            ps.executeUpdate();
+            ps.close();
+            //rs.close();
+        } catch (SQLException e) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    public void deduct100M() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
+            if (getMMesos() <= 50000000) {
+                ps.setLong(1, 0); // set total to 0
+            } else {
+                ps.setLong(1, getMMesos() - 100000000);
+            }
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    public void deduct200M() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
+            if (getMMesos() <= 50000000) {
+                ps.setLong(1, 0); // set total to 0
+            } else {
+                ps.setLong(1, getMMesos() - 200000000);
+            }
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    public void deduct400M() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
+            if (getMMesos() <= 50000000) {
+                ps.setLong(1, 0); // set total to 0
+            } else {
+                ps.setLong(1, getMMesos() - 400000000);
+            }
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    public void deduct800M() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
+            if (getMMesos() <= 50000000) {
+                ps.setLong(1, 0); // set total to 0
+            } else {
+                ps.setLong(1, getMMesos() - 800000000);
+            }
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    public void deduct1_5B() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
+            if (getMMesos() <= 50000000) {
+                ps.setLong(1, 0); // set total to 0
+            } else {
+                ps.setLong(1, getMMesos() - 1500000000);
+            }
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    public void deduct69() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
+            if (getMMesos() <= 69) {
+                ps.setLong(1, 0); // set total to 0
+            } else {
+                ps.setLong(1, getMMesos() - 69);
+            }
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    public void deductAll() {
+        try {
+            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE mrush SET mesos = ?");
+            ps.setLong(1, getMMesos() - getMeso());
+            ps.executeUpdate();
+            ps.close();
+        } catch (SQLException e) {
+            Logger.getLogger(NPCConversationManager.class.getName()).log(Level.SEVERE, null, e);
+        }
+    }
+
+    public void startMonsterRush() { // don't use my sloppy code until i re-build this entire system #EricsOldCodeIsLul
+        for (int l = 1; l <= LoginServer.getWorlds().size(); l++) { //ChannelServer instance [l]
+            //ChannelServer.getInstance(l).MonsterRush = true;
+            //MapleMonsterStats newStats = new MapleMonsterStats();
+            //newStats.setHp(2000000000);
+            //newStats.setLevel((short)195);
+            //newStats.setExp(/*8589934*/200000000); //EXP = 250x, 8589934 * 250 = MAX value rounded up, 140less then Integer.MAX_VALUE. EXP equal from leveling 1 to 200 per mob LOL
+            MapleMap map = c.getChannelServer().getMapFactory().getMap(100000000);
+            MapleMap map1 = c.getChannelServer().getMapFactory().getMap(103000000);
+            MapleMap map2 = c.getChannelServer().getMapFactory().getMap(680000000);
+            MapleMap map3 = c.getChannelServer().getMapFactory().getMap(220000000);
+            MapleMap map4 = c.getChannelServer().getMapFactory().getMap(200000000);
+            MapleMap map5 = c.getChannelServer().getMapFactory().getMap(240000000);
+            for (int i = 0; i < 25; i++) { //Monster Spawning Instance [i]
+                MapleMonster npcmob = MapleLifeFactory.getMonster(9400203);
+                //npcmob.setOverrideStats(newStats);
+                npcmob.setHp(npcmob.getMobMaxHp());
+                npcmob.setMp(npcmob.getMobMaxMp());
+                map.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
+                map1.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
+                map2.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
+                map3.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
+                map4.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
+                map5.spawnMonsterOnGroudBelow(MapleLifeFactory.getMonster(9400203), new Point(72, 274));
+            }
+        }
+    }
+
+    public int getJQMap() {
+        return World.getEventMap();
+    }
+
     public int getEventMap() {
         /**
          * @param: <Returning> the reason we're returning the map ID is so
@@ -1013,12 +1007,17 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         } else if (getPlayer().getMapId() == 910530001 && World.getEventMap() == 910530000) {
             return 910530001; // Forest of Tenacity
         } else if (getPlayer().getMapId() == World.getEventMap()) {
-            return World.getEventMap();    
+            return World.getEventMap();
         } else {
             return 0; // invalid - will return unavailable | wrong map
         }
     }
-    
+
+    public void setEventMap(int id) {
+        World.setEventMap(id);
+        World.setJQChannel(-1); // could use 0 but whatever? o.O this will never be used unless a GM has hosted
+    }
+
     public boolean getEventMapWarp(MapleCharacter player) {
         /**
          * @param: <Returning> We reach through sets of maps and return true if
@@ -1036,56 +1035,51 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         } else if (player.getMapId() >= 910530000 && player.getMapId() <= 910530001) {
             return true; // Forest of Tenacity
         } else if (player.getMapId() == World.getEventMap()) {
-            return true;    
+            return true;
         } else {
             return false; // invalid - will return unavailable | wrong map
         }
     }
-    
+
     public int getEventMapByGM() {
         return c.getChannelServer().eventMap;
     }
-    
+
     public int getMapleEvent() {
-         // if (getChannelServer().getEvent() > 0) {
-         //   if (getChannelServer().getEvent() == 109080000 || getChannelServer().getEvent() == 109080010) {
-         //       warp(getChannelServer().getEvent(), 0);
-         //   } else {
-         //       warp(getChannelServer().getEvent(), "join00");
-         //   }
-                return -1;//getChannelServer().getEventMap();
-         // }
-    }    
-    
+        // if (getChannelServer().getEvent() > 0) {
+        //   if (getChannelServer().getEvent() == 109080000 || getChannelServer().getEvent() == 109080010) {
+        //       warp(getChannelServer().getEvent(), 0);
+        //   } else {
+        //       warp(getChannelServer().getEvent(), "join00");
+        //   }
+        return -1;//getChannelServer().getEventMap();
+        // }
+    }
+
     public void changeOccupationById(int occ) {
-        getPlayer().changeOccupation(Occupations.getById(occ)); 
+        getPlayer().changeOccupation(Occupations.getById(occ));
     }
 
     public boolean hasOccupation() {
-        return (getPlayer().retrieveOccupation().getId() % 100 == 0); 
+        return (getPlayer().retrieveOccupation().getId() % 100 == 0);
     }
 
-  public void setEventMap(int id) {
-        World.setEventMap(id);
-        World.setJQChannel(-1); // could use 0 but whatever? o.O this will never be used unless a GM has hosted
-  }
-  
-  public void serverNotice(String msg) {
-      World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[Notice] " + msg));
-  }
-  
-  public void gainCurrency(short amount) {
+    public void serverNotice(String msg) {
+        World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[Notice] " + msg));
+    }
+
+    public void gainCurrency(short amount) {
         MapleInventoryManipulator.addById(c, ServerConstants.Currency, (short) amount, "AutoJQ Reward");
     }
-  
-  public void makeCustomPet(int petid) {
-     if (petid >= 5000000 && petid <= 5000500) {
-        MapleInventoryManipulator.addById(c, petid, (short) 1, "", MaplePet.createPet(petid, MapleItemInformationProvider.getInstance().getName(petid), 1, 0, 100, MapleInventoryIdentifier.getInstance(), 0, (short) 0), 20000, "");
-     } else {
-        getPlayer().dropMessage(1, "The item you just received is not a pet, please report this.");
-        System.out.println("ERROR: makeCustomPet AT NPCConversationManager :: Unable to create pet of id " + petid);
-     }
-  }
+
+    public void makeCustomPet(int petid) {
+        if (petid >= 5000000 && petid <= 5000500) {
+            MapleInventoryManipulator.addById(c, petid, (short) 1, "", MaplePet.createPet(petid, MapleItemInformationProvider.getInstance().getName(petid), 1, 0, 100, MapleInventoryIdentifier.getInstance(), 0, (short) 0), 20000, "");
+        } else {
+            getPlayer().dropMessage(1, "The item you just received is not a pet, please report this.");
+            System.out.println("ERROR: makeCustomPet AT NPCConversationManager :: Unable to create pet of id " + petid);
+        }
+    }
 
     public int setRandomAvatar(int ticket, int... args_all) {
         if (!haveItem(ticket)) {
@@ -1134,21 +1128,21 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public boolean haveMeso(int meso) {
         return getPlayer().getMeso() >= meso;
     }
-    
+
     public void gainReborns(int reborns) {
         getPlayer().setReborns(reborns + getPlayer().getReborns());
     }
-    
+
     public void reloadChar() {
         getPlayer().getClient().sendPacket(CField.getCharInfo(getPlayer()));
         getPlayer().getMap().removePlayer(getPlayer());
         getPlayer().getMap().addPlayer(getPlayer());
     }
-    
+
     public MapleCharacter getCharByName(String name) {
         return c.getChannelServer().getPlayerStorage().getCharacterByName(name);
-    }  
-    
+    }
+
     public void sendStorage() {
         c.getPlayer().setConversation(4);
         c.getPlayer().getStorage().sendStorage(c, id);
@@ -1236,16 +1230,16 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         }
         return -1;
     }
-    
+
     public void sendSimple(String text, String... selections) {
         if (selections.length > 0) // Adding this even if selections length is 0 will do anything, but whatever.
-               text += "#b\r\n";
+            text += "#b\r\n";
 
         for (int i = 0; i < selections.length; i++) {
-               text += "#L" + i + "#" + selections[i] + "#l\r\n";
+            text += "#L" + i + "#" + selections[i] + "#l\r\n";
         }
         sendSimple(text, id);
-    } 
+    }
 
     public void changeJob(int job) {
         c.getPlayer().changeJob(job);
@@ -1292,7 +1286,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public void setQuestCustomData(String customData) {
         getPlayer().getQuestNAdd(MapleQuest.getInstance(id2)).setCustomData(customData);
     }
-    
+
     public String getQuestCustomData(int qid) {
         return c.getPlayer().getQuestNAdd(MapleQuest.getInstance(qid)).getCustomData();
     }
@@ -1438,7 +1432,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             }
         }
     }
-    
+
     public void openGate() { // for MV's Lair
         if (getPlayer().getParty() == null) {
             return;
@@ -1450,7 +1444,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             }
         }
     }
-    
+
     public void closeGate() { // for MV's Lair
         if (getPlayer().getParty() == null) {
             return;
@@ -1741,7 +1735,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         c.sendPacket(UIPacket.openUI(50));
         c.sendPacket(CField.sendPVPMaps());
     }
-    
+
     public void sendDojoRanks() {
         try {
             PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT `name`, `time` FROM dojo_ranks ORDER BY `time` ASC LIMIT 50");
@@ -1753,15 +1747,15 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             System.out.println("Failed to load Mu Lung Ranking. " + e);
         }
     }
-    
+
     public void setDojoMode(int mode) {
         getPlayer().setDojoMode(getPlayer().getDojoMode(mode));
     }
-    
+
     public void findParty() {
         c.sendPacket(UIPacket.openUI(21));
     }
-    
+
     public void sendAzwanWindow() {
         c.sendPacket(UIPacket.openUI(0x46));
     }
@@ -1790,7 +1784,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             c.getPlayer().getQuestNAdd(MapleQuest.getInstance(GameConstants.DOJO_RECORD)).setCustomData(String.valueOf(c.getPlayer().getIntRecord(GameConstants.DOJO_RECORD) + 1));
         }
     }
-    
+
     public void takeDojoPoints(final int data) {
         if (data < 1) {
             c.getPlayer().getQuestNAdd(MapleQuest.getInstance(GameConstants.DOJO_RECORD)).setCustomData("0");
@@ -1800,7 +1794,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             c.getPlayer().getQuestNAdd(MapleQuest.getInstance(GameConstants.DOJO)).setCustomData(String.valueOf(dojo));
         }
     }
-    
+
     public void addDojoPoints(final int data) {
         final int dojo = c.getPlayer().getIntRecord(GameConstants.DOJO) + data;
         c.getPlayer().getQuestNAdd(MapleQuest.getInstance(GameConstants.DOJO)).setCustomData(String.valueOf(dojo));
@@ -2025,15 +2019,15 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public boolean isCash(final int itemId) {
         return MapleItemInformationProvider.getInstance().isCash(itemId);
     }
-    
-        public void clearDrops() {
-                   MapleMap map = c.getPlayer().getMap();
-            double range = Double.POSITIVE_INFINITY;
-            java.util.List<MapleMapObject> items = map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(MapleMapObjectType.ITEM));
-            for (MapleMapObject itemmo : items) {
-                map.removeMapObject(itemmo);
-                map.broadcastMessage(CField.removeItemFromMap(itemmo.getObjectId(), 0, c.getPlayer().getId()));
-            }
+
+    public void clearDrops() {
+        MapleMap map = c.getPlayer().getMap();
+        double range = Double.POSITIVE_INFINITY;
+        java.util.List<MapleMapObject> items = map.getMapObjectsInRange(c.getPlayer().getPosition(), range, Arrays.asList(MapleMapObjectType.ITEM));
+        for (MapleMapObject itemmo : items) {
+            map.removeMapObject(itemmo);
+            map.broadcastMessage(CField.removeItemFromMap(itemmo.getObjectId(), 0, c.getPlayer().getId()));
+        }
     }
 
     public int getTotalStat(final int itemId) {
@@ -2188,20 +2182,20 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public final void setQuestRecord(Object ch, final int questid, final String data) {
         ((MapleCharacter) ch).getQuestNAdd(MapleQuest.getInstance(questid)).setCustomData(data);
     }
-    
-    public void warpMap(int id) {
-    for (MapleCharacter chr : getMap().getCharacters()) {
-        chr.changeMap(id);
-     }
-  }
 
-     public void warpMapAutoJQers(int id) {
-       for (MapleCharacter jqers : World.getAllCharacters()) {
-         if (getEventMapWarp(jqers)) { // this is so we catch all the characters within the jq maps (even staged)*
-             jqers.changeMap(id);
+    public void warpMap(int id) {
+        for (MapleCharacter chr : getMap().getCharacters()) {
+            chr.changeMap(id);
         }
-     }
-  }
+    }
+
+    public void warpMapAutoJQers(int id) {
+        for (MapleCharacter jqers : World.getAllCharacters()) {
+            if (getEventMapWarp(jqers)) { // this is so we catch all the characters within the jq maps (even staged)*
+                jqers.changeMap(id);
+            }
+        }
+    }
 
     public final void doWeddingEffect(final Object ch) {
         final MapleCharacter chr = (MapleCharacter) ch;
@@ -2397,7 +2391,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public void sendPendant(boolean b) {
         c.sendPacket(CWvsContext.pendantSlot(b));
     }
-    
+
     public void addPendantSlot(int days) {
         c.getPlayer().getQuestNAdd(MapleQuest.getInstance(GameConstants.PENDANT_SLOT)).setCustomData(String.valueOf(System.currentTimeMillis() + ((long) days * 24 * 60 * 60 * 1000)));
     }
@@ -2433,11 +2427,11 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             return false;
         }
     }
-    
+
     public void gainAPS(int gain) {
         getPlayer().gainAPS(gain);
     }
-    
+
     public void hideNpc(int npcid) {
         for (MapleMapObject npcs : c.getPlayer().getMap().getAllNPCsThreadsafe()) {
             MapleNPC npc = (MapleNPC) npcs;

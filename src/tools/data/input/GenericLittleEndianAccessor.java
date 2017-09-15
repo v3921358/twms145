@@ -20,14 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools.data.input;
 
-import java.awt.Point;
+import java.awt.*;
 import java.io.UnsupportedEncodingException;
 
 /**
  * Provides a generic interface to a Little Endian stream of bytes.
- * 
- * @version 1.0
+ *
  * @author Frz
+ * @version 1.0
  * @since Revision 323
  */
 public class GenericLittleEndianAccessor implements LittleEndianAccessor {
@@ -152,7 +152,7 @@ public class GenericLittleEndianAccessor implements LittleEndianAccessor {
         } catch (UnsupportedEncodingException ex) {
             System.err.println(ex);
         }
-        return  "";
+        return "";
     }
 
     /**

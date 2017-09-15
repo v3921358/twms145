@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools.data.input;
 
-import java.awt.Point;
+import java.awt.*;
 
 /**
  * Provides an abstract interface for a little-endian stream of bytes.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 323

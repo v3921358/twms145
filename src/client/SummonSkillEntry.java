@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
-import java.awt.Point;
+import java.awt.*;
 
 public class SummonSkillEntry {
 

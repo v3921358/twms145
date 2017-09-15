@@ -23,10 +23,11 @@ package server.maps;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.inventory.Item;
-import java.awt.Point;
+import tools.packet.CField;
+
+import java.awt.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import tools.packet.CField;
 
 public class MapleMapItem extends MapleMapObject {
 
@@ -153,31 +154,31 @@ public class MapleMapItem extends MapleMapObject {
     }
 
     public void registerExpire(final long time) {
-	nextExpiry = System.currentTimeMillis() + time;
+        nextExpiry = System.currentTimeMillis() + time;
     }
 
     public void registerFFA(final long time) {
-	nextFFA = System.currentTimeMillis() + time;
+        nextFFA = System.currentTimeMillis() + time;
     }
 
     public boolean shouldExpire(long now) {
-	return !pickedUp && nextExpiry > 0 && nextExpiry < now;
+        return !pickedUp && nextExpiry > 0 && nextExpiry < now;
     }
 
     public boolean shouldFFA(long now) {
-	return !pickedUp && type < 2 && nextFFA > 0 && nextFFA < now;
+        return !pickedUp && type < 2 && nextFFA > 0 && nextFFA < now;
     }
 
     public boolean hasFFA() {
-	return nextFFA > 0;
+        return nextFFA > 0;
     }
 
     public void expire(final MapleMap map) {
-	pickedUp = true;
-	map.broadcastMessage(CField.removeItemFromMap(getObjectId(), 0, 0));
-	map.removeMapObject(this);
-	if (randDrop) {
-	   map.spawnRandDrop();
-	}
+        pickedUp = true;
+        map.broadcastMessage(CField.removeItemFromMap(getObjectId(), 0, 0));
+        map.removeMapObject(this);
+        if (randDrop) {
+            map.spawnRandDrop();
+        }
     }
 }

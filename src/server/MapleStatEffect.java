@@ -1324,10 +1324,66 @@ public class MapleStatEffect implements Serializable {
         return ret;
     }
 
+    public static Rectangle calculateBoundingBox(final Point posFrom, final boolean facingLeft, final Point lt, final Point rb, final int range) {
+        if (lt == null || rb == null) {
+            return new Rectangle((facingLeft ? (-200 - range) : 0) + posFrom.x, (-100 - range) + posFrom.y, 200 + range, 100 + range);
+        }
+        Point mylt;
+        Point myrb;
+        if (facingLeft) {
+            mylt = new Point(lt.x + posFrom.x - range, lt.y + posFrom.y);
+            myrb = new Point(rb.x + posFrom.x, rb.y + posFrom.y);
+        } else {
+            myrb = new Point(lt.x * -1 + posFrom.x + range, rb.y + posFrom.y);
+            mylt = new Point(rb.x * -1 + posFrom.x, lt.y + posFrom.y);
+        }
+        return new Rectangle(mylt.x, mylt.y, myrb.x - mylt.x, myrb.y - mylt.y);
+    }
+
+    public static int parseMountInfo(final MapleCharacter player, final int skillid) {
+        switch (skillid) {
+            case 80001000:
+            case 1004: // Monster riding
+            case 11004: // Monster riding
+            case 10001004:
+            case 20001004:
+            case 20011004:
+            case 20021004:
+                if (player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -118) != null && player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -119) != null) {
+                    return player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -118).getItemId();
+                }
+                return parseMountInfo_Pure(player, skillid);
+            default:
+                return GameConstants.getMountItem(skillid, player);
+        }
+    }
+
+    public static int parseMountInfo_Pure(final MapleCharacter player, final int skillid) {
+        switch (skillid) {
+            case 80001000:
+            case 1004: // Monster riding
+            case 11004: // Monster riding
+            case 10001004:
+            case 20001004:
+            case 20011004:
+            case 20021004:
+                if (player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18) != null && player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -19) != null) {
+                    return player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18).getItemId();
+                }
+                return 0;
+            default:
+                return GameConstants.getMountItem(skillid, player);
+        }
+    }
+
+    private static int makeHealHP(double rate, double stat, double lowerfactor, double upperfactor) {
+        return (int) ((Math.random() * ((int) (stat * upperfactor * rate) - (int) (stat * lowerfactor * rate) + 1)) + (int) (stat * lowerfactor * rate));
+    }
+
     /**
      * @param applyto
      * @param obj
-     * @param   damage done by the skill
+     * @param damage  done by the skill
      */
     public final void applyPassive(final MapleCharacter applyto, final MapleMapObject obj) {
         if (makeChanceResult() && !GameConstants.isDemon(applyto.getJob())) { // demon can't heal mp
@@ -1998,30 +2054,10 @@ public class MapleStatEffect implements Serializable {
         return calculateBoundingBox(posFrom, facingLeft, lt, rb, range + addedRange);
     }
 
-    public static Rectangle calculateBoundingBox(final Point posFrom, final boolean facingLeft, final Point lt, final Point rb, final int range) {
-        if (lt == null || rb == null) {
-            return new Rectangle((facingLeft ? (-200 - range) : 0) + posFrom.x, (-100 - range) + posFrom.y, 200 + range, 100 + range);
-        }
-        Point mylt;
-        Point myrb;
-        if (facingLeft) {
-            mylt = new Point(lt.x + posFrom.x - range, lt.y + posFrom.y);
-            myrb = new Point(rb.x + posFrom.x, rb.y + posFrom.y);
-        } else {
-            myrb = new Point(lt.x * -1 + posFrom.x + range, rb.y + posFrom.y);
-            mylt = new Point(rb.x * -1 + posFrom.x, lt.y + posFrom.y);
-        }
-        return new Rectangle(mylt.x, mylt.y, myrb.x - mylt.x, myrb.y - mylt.y);
-    }
-
     public final double getMaxDistanceSq() { //lt = infront of you, rb = behind you; not gonna distanceSq the two points since this is in relative to player position which is (0,0) and not both directions, just one
         final int maxX = Math.max(Math.abs(lt == null ? 0 : lt.x), Math.abs(rb == null ? 0 : rb.x));
         final int maxY = Math.max(Math.abs(lt == null ? 0 : lt.y), Math.abs(rb == null ? 0 : rb.y));
         return (maxX * maxX) + (maxY * maxY);
-    }
-
-    public final void setDuration(int d) {
-        this.duration = d;
     }
 
     public final void silentApplyBuff(final MapleCharacter chr, final long starttime, final int localDuration, final Map<MapleBuffStatus, Integer> statup, final int cid) {
@@ -2095,7 +2131,7 @@ public class MapleStatEffect implements Serializable {
             case 5111007:
             case 5311005:
             case 5211007:
-            case 15111011: //dice  
+            case 15111011: //dice
             case 5711011:
             case 5311004: {//dice
                 final int zz = Randomizer.nextInt(6) + 1;
@@ -2645,43 +2681,6 @@ public class MapleStatEffect implements Serializable {
         applyto.registerEffect(this, starttime, schedule, localstatups, false, localDuration, applyfrom.getId());
     }
 
-    public static int parseMountInfo(final MapleCharacter player, final int skillid) {
-        switch (skillid) {
-            case 80001000:
-            case 1004: // Monster riding
-            case 11004: // Monster riding
-            case 10001004:
-            case 20001004:
-            case 20011004:
-            case 20021004:
-                if (player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -118) != null && player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -119) != null) {
-                    return player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -118).getItemId();
-                }
-                return parseMountInfo_Pure(player, skillid);
-            default:
-                return GameConstants.getMountItem(skillid, player);
-        }
-    }
-
-    public static int parseMountInfo_Pure(final MapleCharacter player, final int skillid) {
-        switch (skillid) {
-            case 80001000:
-            case 1004: // Monster riding
-            case 11004: // Monster riding
-            case 10001004:
-            case 20001004:
-            case 20011004:
-            case 20021004:
-                if (player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18) != null && player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -19) != null) {
-                    return player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18).getItemId();
-                }
-                return 0;
-            default:
-                return GameConstants.getMountItem(skillid, player);
-        }
-    }
-
-
     private int calcHPChange(final MapleCharacter applyfrom, final boolean primary) {
         int hpchange = 0;
         if (hp != 0) {
@@ -2720,10 +2719,6 @@ public class MapleStatEffect implements Serializable {
                 break;
         }
         return hpchange;
-    }
-
-    private static int makeHealHP(double rate, double stat, double lowerfactor, double upperfactor) {
-        return (int) ((Math.random() * ((int) (stat * upperfactor * rate) - (int) (stat * lowerfactor * rate) + 1)) + (int) (stat * lowerfactor * rate));
     }
 
     private int calcMPChange(final MapleCharacter applyfrom, final boolean primary) {
@@ -2765,10 +2760,6 @@ public class MapleStatEffect implements Serializable {
             return (val * (100 + (withX ? chr.getStat().RecoveryUP : chr.getStat().BuffUP)) / 100);
         }
         return (val * (100 + (withX ? chr.getStat().RecoveryUP : (chr.getStat().BuffUP_Skill + (getSummonMovementType() == null ? 0 : chr.getStat().BuffUP_Summon)))) / 100);
-    }
-
-    public final void setSourceId(final int newid) {
-        sourceid = newid;
     }
 
     public final boolean isGmBuff() {
@@ -2844,10 +2835,6 @@ public class MapleStatEffect implements Serializable {
         return false;
     }
 
-    public final void setPartyBuff(boolean pb) {
-        this.partyBuff = pb;
-    }
-
     private boolean isPartyBuff() {
         if (lt == null || rb == null || !partyBuff) {
             return isSoulStone();
@@ -2873,6 +2860,10 @@ public class MapleStatEffect implements Serializable {
             return false;
         }
         return true;
+    }
+
+    public final void setPartyBuff(boolean pb) {
+        this.partyBuff = pb;
     }
 
     public final boolean isArcane() {
@@ -2957,6 +2948,10 @@ public class MapleStatEffect implements Serializable {
 
     public final int getDuration() {
         return duration;
+    }
+
+    public final void setDuration(int d) {
+        this.duration = d;
     }
 
     public final int getSubTime() {
@@ -3338,6 +3333,10 @@ public class MapleStatEffect implements Serializable {
         return sourceid;
     }
 
+    public final void setSourceId(final int newid) {
+        sourceid = newid;
+    }
+
     public final boolean isIceKnight() {
         return skill && GameConstants.isBeginnerJob(sourceid / 10000) && sourceid % 10000 == 1105;
     }
@@ -3631,6 +3630,15 @@ public class MapleStatEffect implements Serializable {
         return mddR;
     }
 
+    public final boolean isUnstealable() {
+        for (MapleBuffStatus b : statups.keySet()) {
+            if (b == MapleBuffStatus.MAPLE_WARRIOR) {
+                return true;
+            }
+        }
+        return sourceid == 4221013;
+    }
+
     public static class CancelEffectAction implements Runnable {
 
         private final MapleStatEffect effect;
@@ -3652,15 +3660,6 @@ public class MapleStatEffect implements Serializable {
                 realTarget.cancelEffect(effect, false, startTime, statup);
             }
         }
-    }
-
-    public final boolean isUnstealable() {
-        for (MapleBuffStatus b : statups.keySet()) {
-            if (b == MapleBuffStatus.MAPLE_WARRIOR) {
-                return true;
-            }
-        }
-        return sourceid == 4221013;
     }
 
 }

@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package provider;
 
 /**
- *
  * @author Matze
  */
 public class MapleDataEntry implements MapleDataEntity {

@@ -22,104 +22,13 @@ import java.util.Map.Entry;
 
 public class MapleItemInformationProvider {
 
-    public static enum JobInfoFlag {
-
-        臉型(0x1),
-        髮型(0x2),
-        臉飾(0x4),
-        耳朵(0x8),
-        尾巴(0x10),
-        帽子(0x20),
-        衣服(0x40),
-        褲裙(0x80),
-        披風(0x100),
-        鞋子(0x200),
-        手套(0x400),
-        武器(0x800),
-        副手(0x1000),
-        ;
-        private final int value;
-
-        private JobInfoFlag(int value) {
-            this.value = value;
-        }
-
-        public int getVelue() {
-            return value;
-        }
-
-        public boolean check(int x) {
-            return (value & x) != 0;
-        }
-    }
-
-    public static enum JobType {
-
-        終極冒險家(-1, MapleJob.初心者.getId(), 100000000, JobInfoFlag.褲裙.getVelue()),
-        末日反抗軍(0, MapleJob.市民.getId(), 931000000),
-        冒險家(1, MapleJob.初心者.getId(), 4000000),
-        皇家騎士團(2, MapleJob.貴族.getId(), 130030000, JobInfoFlag.披風.getVelue()),
-        狂狼勇士(3, MapleJob.傳說.getId(), 914000000, JobInfoFlag.褲裙.getVelue()),
-        龍魔導士(4, MapleJob.龍魔導士.getId(), 900010000, JobInfoFlag.褲裙.getVelue()),
-        精靈遊俠(5, MapleJob.精靈遊俠.getId(), 910150000),
-        惡魔(6, MapleJob.惡魔殺手.getId(), 931050310, JobInfoFlag.臉飾.getVelue() | JobInfoFlag.副手.getVelue()),
-        幻影俠盜(7, MapleJob.幻影俠盜.getId(), 915000000, JobInfoFlag.披風.getVelue()),
-        影武者(8, MapleJob.初心者.getId(), 103050900),
-        米哈逸(9, MapleJob.米哈逸.getId(), 913070000, JobInfoFlag.褲裙.getVelue()),
-        夜光(10, MapleJob.夜光.getId(), 927020080, JobInfoFlag.披風.getVelue()),
-        凱撒(11, MapleJob.凱撒.getId(), 940001000),
-        天使破壞者(12, MapleJob.天使破壞者.getId(), 940011000),
-        重砲指揮官(13, MapleJob.初心者.getId(), 3000600),
-        傑諾(14, MapleJob.傑諾.getId(), 931060089, JobInfoFlag.臉飾.getVelue()),
-        神之子(15, MapleJob.神之子.getId(), 321000001, JobInfoFlag.披風.getVelue() | JobInfoFlag.副手.getVelue()),
-        隱月(16, MapleJob.隱月.getId(), 927030050, JobInfoFlag.褲裙.getVelue() | JobInfoFlag.披風.getVelue()),
-        皮卡啾(17, MapleJob.皮卡啾1轉.getId(), 927030090),
-        凱內西斯(18, MapleJob.凱內西斯.getId(), 331001100),
-        蒼龍俠客(19, MapleJob.蒼龍俠客1轉.getId(), 743020100, JobInfoFlag.褲裙.getVelue()),
-        劍豪(20, MapleJob.劍豪.getId(), 807100010, JobInfoFlag.帽子.getVelue() | JobInfoFlag.手套.getVelue()),
-        陰陽師(21, MapleJob.陰陽師.getId(), 807100110, JobInfoFlag.帽子.getVelue() | JobInfoFlag.手套.getVelue()),
-        幻獸師(22, MapleJob.幻獸師.getId(), 866100000, JobInfoFlag.臉飾.getVelue() | JobInfoFlag.耳朵.getVelue() | JobInfoFlag.尾巴.getVelue());
-        public int type, id, map;
-        public int flag = JobInfoFlag.臉型.getVelue() | JobInfoFlag.髮型.getVelue() | JobInfoFlag.衣服.getVelue() | JobInfoFlag.鞋子.getVelue() | JobInfoFlag.武器.getVelue();
-
-        private JobType(int type, int id, int map) {
-            this.type = type;
-            this.id = id;
-            this.map = map;
-        }
-
-        private JobType(int type, int id, int map, int flag) {
-            this.type = type;
-            this.id = id;
-            this.map = map;
-            this.flag |= flag;
-        }
-
-        public static JobType getByType(int g) {
-            for (JobType e : JobType.values()) {
-                if (e.type == g) {
-                    return e;
-                }
-            }
-            return null;
-        }
-
-        public static JobType getById(int g) {
-            for (JobType e : JobType.values()) {
-                if (e.id == g) {
-                    return e;
-                }
-            }
-            return null;
-        }
-    }
-
+    protected static Map<Integer, ItemInformation> dataCache = new HashMap<>();
+    protected static Map<Integer, String> itemNameCache = new LinkedHashMap<>();
     private static MapleItemInformationProvider instance = new MapleItemInformationProvider();
     protected MapleDataProvider chrData = MapleDataProviderFactory.getDataProvider("Character.wz");
     protected MapleDataProvider etcData = MapleDataProviderFactory.getDataProvider("Etc.wz");
     protected MapleDataProvider itemData = MapleDataProviderFactory.getDataProvider("Item.wz");
     protected MapleDataProvider stringData = MapleDataProviderFactory.getDataProvider("String.wz");
-    protected static Map<Integer, ItemInformation> dataCache = new HashMap<>();
     protected Map<String, List<Triple<String, Point, Point>>> afterImage = new HashMap<>();
     protected Map<Integer, List<StructItemOption>> potentialCache = new HashMap<>();
     protected Map<Integer, Map<Integer, StructItemOption>> socketCache = new HashMap<>(); // Grade, (id, data)
@@ -134,7 +43,18 @@ public class MapleItemInformationProvider {
     protected Map<Integer, Pair<List<Integer>, List<Integer>>> androids = new HashMap<>();
     protected Map<Integer, Triple<Integer, List<Integer>, List<Integer>>> monsterBookSets = new HashMap<>();
     protected Map<Integer, StructSetItem> setItems = new HashMap<>();
-    protected static Map<Integer, String> itemNameCache = new LinkedHashMap<>();
+    private ItemInformation tmpInfo = null;
+
+    public static MapleItemInformationProvider getInstance() {
+        return instance;
+    }
+
+    public static ItemInformation getItemInformation(int itemId) {
+        if (itemId <= 0) {
+            return null;
+        }
+        return dataCache.get(itemId);
+    }
 
     public void runEtc() {
         if (!setItems.isEmpty() || !potentialCache.isEmpty() || !socketCache.isEmpty()) {
@@ -420,10 +340,6 @@ public class MapleItemInformationProvider {
 
     public StructFamiliar getFamiliarByMob(int f) {
         return familiars_Mob.get(f);
-    }
-
-    public static MapleItemInformationProvider getInstance() {
-        return instance;
     }
 
     public Collection<ItemInformation> getAllItems() {
@@ -1376,15 +1292,6 @@ public class MapleItemInformationProvider {
         return GameConstants.getInventoryType(itemId) == MapleInventoryType.CASH || getEquipStats(itemId).get("cash") != null;
     }
 
-    public static ItemInformation getItemInformation(int itemId) {
-        if (itemId <= 0) {
-            return null;
-        }
-        return dataCache.get(itemId);
-    }
-
-    private ItemInformation tmpInfo = null;
-
     public void initItemRewardData(ResultSet sqlRewardData) throws SQLException {
         int itemID = sqlRewardData.getInt("itemid");
         if (tmpInfo == null || tmpInfo.itemId != itemID) {
@@ -1666,7 +1573,6 @@ public class MapleItemInformationProvider {
         return equip;
     }
 
-
     public boolean isMSI(Equip equip, short stat) {
         if (equip.getStr() > stat && equip.getDex() > stat && equip.getInt() > stat && equip.getLuk() > stat && equip.getMatk() > stat && equip.getWatk() > stat && equip.getAcc() > stat && equip.getAvoid() > stat && equip.getSpeed() > stat && equip.getJump() > stat && equip.getWdef() > stat && equip.getMdef() > stat && equip.getMp() > stat && equip.getHp() > stat) {
             return true;
@@ -1694,7 +1600,6 @@ public class MapleItemInformationProvider {
         return equip;
     }
 
-
     public Equip SRB3(Equip equip) {
         // short stat = ;
         equip.setStr((short) Math.max(20000, (Randomizer.nextInt(32767))));
@@ -1720,5 +1625,97 @@ public class MapleItemInformationProvider {
             return false;
         }
         return ((i.flag & 0x200) != 0 || (i.flag & 0x400) != 0 || GameConstants.isIllegal(itemId)) && (itemId == 3012000 || itemId == 3012015 || itemId / 10000 != 301) && itemId != 2041200 && itemId != 5640000 && itemId != 4170023 && itemId != 2040124 && itemId != 2040125 && itemId != 2040126 && itemId != 2040211 && itemId != 2040212 && itemId != 2040227 && itemId != 2040228 && itemId != 2040229 && itemId != 2040230 && itemId != 1002926 && itemId != 1002906 && itemId != 1002927;
+    }
+
+
+    public static enum JobInfoFlag {
+
+        臉型(0x1),
+        髮型(0x2),
+        臉飾(0x4),
+        耳朵(0x8),
+        尾巴(0x10),
+        帽子(0x20),
+        衣服(0x40),
+        褲裙(0x80),
+        披風(0x100),
+        鞋子(0x200),
+        手套(0x400),
+        武器(0x800),
+        副手(0x1000),;
+        private final int value;
+
+        private JobInfoFlag(int value) {
+            this.value = value;
+        }
+
+        public int getVelue() {
+            return value;
+        }
+
+        public boolean check(int x) {
+            return (value & x) != 0;
+        }
+    }
+
+    public static enum JobType {
+
+        終極冒險家(-1, MapleJob.初心者.getId(), 100000000, JobInfoFlag.褲裙.getVelue()),
+        末日反抗軍(0, MapleJob.市民.getId(), 931000000),
+        冒險家(1, MapleJob.初心者.getId(), 4000000),
+        皇家騎士團(2, MapleJob.貴族.getId(), 130030000, JobInfoFlag.披風.getVelue()),
+        狂狼勇士(3, MapleJob.傳說.getId(), 914000000, JobInfoFlag.褲裙.getVelue()),
+        龍魔導士(4, MapleJob.龍魔導士.getId(), 900010000, JobInfoFlag.褲裙.getVelue()),
+        精靈遊俠(5, MapleJob.精靈遊俠.getId(), 910150000),
+        惡魔(6, MapleJob.惡魔殺手.getId(), 931050310, JobInfoFlag.臉飾.getVelue() | JobInfoFlag.副手.getVelue()),
+        幻影俠盜(7, MapleJob.幻影俠盜.getId(), 915000000, JobInfoFlag.披風.getVelue()),
+        影武者(8, MapleJob.初心者.getId(), 103050900),
+        米哈逸(9, MapleJob.米哈逸.getId(), 913070000, JobInfoFlag.褲裙.getVelue()),
+        夜光(10, MapleJob.夜光.getId(), 927020080, JobInfoFlag.披風.getVelue()),
+        凱撒(11, MapleJob.凱撒.getId(), 940001000),
+        天使破壞者(12, MapleJob.天使破壞者.getId(), 940011000),
+        重砲指揮官(13, MapleJob.初心者.getId(), 3000600),
+        傑諾(14, MapleJob.傑諾.getId(), 931060089, JobInfoFlag.臉飾.getVelue()),
+        神之子(15, MapleJob.神之子.getId(), 321000001, JobInfoFlag.披風.getVelue() | JobInfoFlag.副手.getVelue()),
+        隱月(16, MapleJob.隱月.getId(), 927030050, JobInfoFlag.褲裙.getVelue() | JobInfoFlag.披風.getVelue()),
+        皮卡啾(17, MapleJob.皮卡啾1轉.getId(), 927030090),
+        凱內西斯(18, MapleJob.凱內西斯.getId(), 331001100),
+        蒼龍俠客(19, MapleJob.蒼龍俠客1轉.getId(), 743020100, JobInfoFlag.褲裙.getVelue()),
+        劍豪(20, MapleJob.劍豪.getId(), 807100010, JobInfoFlag.帽子.getVelue() | JobInfoFlag.手套.getVelue()),
+        陰陽師(21, MapleJob.陰陽師.getId(), 807100110, JobInfoFlag.帽子.getVelue() | JobInfoFlag.手套.getVelue()),
+        幻獸師(22, MapleJob.幻獸師.getId(), 866100000, JobInfoFlag.臉飾.getVelue() | JobInfoFlag.耳朵.getVelue() | JobInfoFlag.尾巴.getVelue());
+        public int type, id, map;
+        public int flag = JobInfoFlag.臉型.getVelue() | JobInfoFlag.髮型.getVelue() | JobInfoFlag.衣服.getVelue() | JobInfoFlag.鞋子.getVelue() | JobInfoFlag.武器.getVelue();
+
+        private JobType(int type, int id, int map) {
+            this.type = type;
+            this.id = id;
+            this.map = map;
+        }
+
+        private JobType(int type, int id, int map, int flag) {
+            this.type = type;
+            this.id = id;
+            this.map = map;
+            this.flag |= flag;
+        }
+
+        public static JobType getByType(int g) {
+            for (JobType e : JobType.values()) {
+                if (e.type == g) {
+                    return e;
+                }
+            }
+            return null;
+        }
+
+        public static JobType getById(int g) {
+            for (JobType e : JobType.values()) {
+                if (e.id == g) {
+                    return e;
+                }
+            }
+            return null;
+        }
     }
 }

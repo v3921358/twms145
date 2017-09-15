@@ -20,30 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package scripting;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
-
 import client.MapleClient;
-import java.io.PrintWriter;
 import server.MaplePortal;
 import tools.FileoutputUtil;
 import tools.packet.CWvsContext;
 
+import javax.script.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+
 public class PortalScriptManager {
 
     private static final PortalScriptManager instance = new PortalScriptManager();
-    private final Map<String, PortalScript> scripts = new HashMap<String, PortalScript>();
     private final static ScriptEngineFactory sef = new ScriptEngineManager().getEngineByName("nashorn").getFactory();
+    private final Map<String, PortalScript> scripts = new HashMap<String, PortalScript>();
 
     public final static PortalScriptManager getInstance() {
         return instance;
@@ -94,27 +88,27 @@ public class PortalScriptManager {
         } else {
             System.out.println("Unhandled portal script " + portal.getScriptName() + " on map " + c.getPlayer().getMapId());
             FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Unhandled portal script " + portal.getScriptName() + " on map " + c.getPlayer().getMapId());
-        //    try {
-        //        createPortalScript(c,portal.getScriptName(), c.getPlayer().getLastMap(), c.getPlayer().getLastPortal());
-        //    } catch (IOException ex) {
-        //        ex.printStackTrace();
-        //    }
+            //    try {
+            //        createPortalScript(c,portal.getScriptName(), c.getPlayer().getLastMap(), c.getPlayer().getLastPortal());
+            //    } catch (IOException ex) {
+            //        ex.printStackTrace();
+            //    }
         }
     }
-    
-    private void createPortalScript(MapleClient c,String name,int mapid,MaplePortal portal) throws IOException{
+
+    private void createPortalScript(MapleClient c, String name, int mapid, MaplePortal portal) throws IOException {
         int portalnpc = 9270031;// choose an NPC for this
-        if (portalnpc == 0) 
+        if (portalnpc == 0)
             return;
-        NPCScriptManager.getInstance().start( c ,portalnpc);// ask if trying to get back
+        NPCScriptManager.getInstance().start(c, portalnpc);// ask if trying to get back
         c.sendPacket(CWvsContext.enableActions());
-        if (!c.getPlayer().getReturningToMap()) 
+        if (!c.getPlayer().getReturningToMap())
             return; // want to get back = true
-        String fname = "./scripts/portal/"+name+".js";
+        String fname = "./scripts/portal/" + name + ".js";
         if (new File(fname).exists()) return; // make sure script does not exist already.
         PrintWriter pw = new PrintWriter(fname);
         pw.println("function enter(pi) {");
-        pw.format("   pi.warp(%s,%s);\r\n",mapid,portal.getId());
+        pw.format("   pi.warp(%s,%s);\r\n", mapid, portal.getId());
         pw.println("}");
         pw.flush();
         pw.close();

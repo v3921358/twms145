@@ -9,32 +9,28 @@ import client.inventory.MapleInventoryType;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.GameConstants;
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.Randomizer;
 import server.StructFamiliar;
 import server.Timer.MapTimer;
-import server.life.MapleLifeFactory;
-import server.life.MapleMonster;
-import server.life.MapleMonsterStats;
-import server.life.MobSkill;
-import server.life.MobSkillFactory;
-import server.life.OverrideMonsterStats;
+import server.life.*;
 import server.maps.MapleMap;
 import server.maps.MapleNodes.MapleNodeInfo;
 import server.movement.ILifeMovementFragment;
 import server.movement.MovementKind;
 import tools.FileoutputUtil;
-import tools.types.Pair;
-import tools.types.Triple;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
 import tools.packet.MobPacket;
+import tools.types.Pair;
+import tools.types.Triple;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class MobHandler {
 
@@ -219,7 +215,7 @@ public class MobHandler {
         if (mob_from != null && mob_to != null && mob_to.getStats().isFriendly()) {
             if (damage > 30000) {
                 double damageRound = damage * 0.001;
-                damage = (int)Math.round(damageRound);
+                damage = (int) Math.round(damageRound);
                 System.out.println("Damage: " + damageRound + " Damage (Rounded): " + damage);
             }
             final int rDamage = (int) Math.max(0, Math.min(damage, mob_to.getHp()));
@@ -256,26 +252,26 @@ public class MobHandler {
                         break;
                     case 9211202:
                         if (mni.key == 0) {
-                            chr.getMap().talkMonster("There is the entrance to the cave where Lex was sealed. Hang in there, you are almost there.", 5120035, mob_from.getObjectId(), 5); 
+                            chr.getMap().talkMonster("There is the entrance to the cave where Lex was sealed. Hang in there, you are almost there.", 5120035, mob_from.getObjectId(), 5);
                         } else if (mni.key == 26) {
                             chr.getMap().talkMonster("Don't worry about that poster. Let's go!", 2, mob_from.getObjectId(), 5);
                         }
                         break;
                     case 9211203:
                         if (mni.key == 1) {
-                            chr.getMap().talkMonster("Shall we go see if the seal is intact?", 2, mob_from.getObjectId(), 4); 
+                            chr.getMap().talkMonster("Shall we go see if the seal is intact?", 2, mob_from.getObjectId(), 4);
                         } else if (mni.key == 4) {
-                            chr.getMap().talkMonster("This lock won't stop me. Hahaha!", 2, mob_from.getObjectId(), 4); 
+                            chr.getMap().talkMonster("This lock won't stop me. Hahaha!", 2, mob_from.getObjectId(), 4);
                             MapTimer.getInstance().schedule(new Runnable() {
                                 @Override
                                 public void run() {
                                     if (chr.getParty() == null || chr.getParty().getLeader().getName().equals(chr.getName())) {
                                         chr.getMap().startMapEffect("You fools. I am glad you have come. The Hoblin King will now destroy all of you.", 5120035);
-                                        chr.getMap().setReactorState((byte)1);
+                                        chr.getMap().setReactorState((byte) 1);
                                         MapleMonster rex = MapleLifeFactory.getMonster(9300281);
                                         OverrideMonsterStats s = new OverrideMonsterStats();
                                         s.setOHp(chr.getLevel() > 80 ? (rex.getMobMaxHp() * chr.getLevel()) : rex.getMobMaxHp());
-                                        s.setOMp(chr.getLevel() > 80 ?  (rex.getMobMaxMp() * chr.getLevel()) : rex.getMobMaxMp());
+                                        s.setOMp(chr.getLevel() > 80 ? (rex.getMobMaxMp() * chr.getLevel()) : rex.getMobMaxMp());
                                         rex.changeLevel(chr.getLevel() > 80 ? (chr.getLevel()) : rex.getStats().getLevel());
                                         rex.setOverrideStats(s);
                                         chr.getMap().spawnMonsterOnGroundBelow(rex, new Point(332, 174));
@@ -285,7 +281,7 @@ public class MobHandler {
                         } else if (mni.key == 8) {
                             int rand = MapleCharacter.rand(0, 6);
                             String text;
-                            switch(rand) {
+                            switch (rand) {
                                 case 1:
                                     text = "Rex! Defeat your enemies!"; // <string name="say" value="Rex! Defeat your enemies!"/>
                                     break;
@@ -333,7 +329,7 @@ public class MobHandler {
                         break;
                     case 9320001: // Ice Knight
                     case 9320002:
-                    case 9320003: 
+                    case 9320003:
                         chr.getMap().removeMonster(mob_from);
                         chr.getMap().broadcastMessage(CWvsContext.serverNotice(5, "Proceed to the next stage."));
                         break;
@@ -421,7 +417,7 @@ public class MobHandler {
             if ((chr.getTruePosition().distanceSq(mons.getTruePosition()) > 640000.0D) || (chr.getSummonedFamiliar().getTruePosition().distanceSq(mons.getTruePosition()) > GameConstants.getAttackRange(f.lt, f.rb))) {
                 return;
             }
-            for (Iterator i$ = ((List) attack.right).iterator(); i$.hasNext();) {
+            for (Iterator i$ = ((List) attack.right).iterator(); i$.hasNext(); ) {
                 int damage = ((Integer) i$.next()).intValue();
                 if (damage <= oStats.getPhysicalAttack() * 4) {
                     mons.damage(chr, damage, true);

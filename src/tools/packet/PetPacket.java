@@ -24,11 +24,11 @@ import client.MapleCharacter;
 import client.MapleStat;
 import client.inventory.Item;
 import client.inventory.MaplePet;
-import constants.GameConstants;
 import handling.SendPacketOpcode;
-import java.util.List;
 import server.movement.ILifeMovementFragment;
 import tools.data.MaplePacketLittleEndianWriter;
+
+import java.util.List;
 
 public class PetPacket {
 
@@ -75,8 +75,8 @@ public class PetPacket {
 
         return mplew.getPacket();
     }
-    
-    
+
+
     public static void addPetInfo(MaplePacketLittleEndianWriter mplew, MapleCharacter chr, MaplePet pet, boolean showpet) {
         if (showpet) {
             mplew.write(0);
@@ -87,7 +87,7 @@ public class PetPacket {
         mplew.writePos(pet.getPos());
         mplew.write(pet.getStance());
         mplew.writeShort(pet.getFh());
-  }
+    }
 
     public static byte[] removePet(final int cid, final int index) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();

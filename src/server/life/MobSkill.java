@@ -21,22 +21,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package server.life;
 
 import client.MapleBuffStatus;
-import constants.GameConstants;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.LinkedList;
-
 import client.MapleCharacter;
-
 import client.status.MonsterStatus;
-import java.util.EnumMap;
+import constants.GameConstants;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import server.maps.MapleMist;
+
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class MobSkill {
 
@@ -54,6 +48,74 @@ public class MobSkill {
         this.skillLevel = level;
     }
 
+    public static MapleBuffStatus getBuffStatus(int mobSkillId) {
+        switch (mobSkillId) {
+            case 120:
+                return MapleBuffStatus.SEAL;
+            case 121:
+                return MapleBuffStatus.DARKNESS;
+            case 122:
+                return MapleBuffStatus.WEAKEN;
+            case 123:
+                return MapleBuffStatus.STUN;
+            case 124:
+                return MapleBuffStatus.CURSE;
+            case 125:
+                return MapleBuffStatus.POISON;
+            case 126:
+                return MapleBuffStatus.SLOW;
+            case 128:
+                return MapleBuffStatus.SEDUCE;
+            case 132:
+                return MapleBuffStatus.REVERSE_DIRECTION;
+            case 133:
+                return MapleBuffStatus.ZOMBIFY;
+            case 134:
+                return MapleBuffStatus.POTION;
+            case 135:
+                return MapleBuffStatus.SHADOW;
+            case 136:
+                return MapleBuffStatus.BLIND;
+            case 137:
+                return MapleBuffStatus.FREEZE;
+        }
+        return null;
+    }
+
+    public static final int getMobSkillByBuffStatus(final MapleBuffStatus skill) {
+        switch (skill) {
+            case SEAL:
+                return 120;
+            case DARKNESS:
+                return 121;
+            case WEAKEN:
+                return 122;
+            case STUN:
+                return 123;
+            case CURSE:
+                return 124;
+            case POISON:
+                return 125;
+            case SLOW:
+                return 126;
+            case SEDUCE:
+                return 128;
+            case REVERSE_DIRECTION:
+                return 132;
+            case ZOMBIFY:
+                return 133;
+            case POTION:
+                return 134;
+            case SHADOW:
+                return 135;
+            case BLIND:
+                return 136;
+            case FREEZE:
+                return 137;
+        }
+        return 0;
+    }
+
     public void setOnce(boolean o) {
         this.summonOnce = o;
     }
@@ -62,39 +124,12 @@ public class MobSkill {
         return summonOnce;
     }
 
-    public void setMpCon(int mpCon) {
-        this.mpCon = mpCon;
-    }
-
     public void addSummons(List<Integer> toSummon) {
         this.toSummon = toSummon;
     }
 
-    /*   public void setEffectDelay(short effect_delay) {
-    this.effect_delay = effect_delay;
-    }*/
-    public void setSpawnEffect(int spawnEffect) {
-        this.spawnEffect = spawnEffect;
-    }
-
     public void setHp(int hp) {
         this.hp = hp;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public void setDuration(long duration) {
-        this.duration = duration;
-    }
-
-    public void setCoolTime(long cooltime) {
-        this.cooltime = cooltime;
     }
 
     public void setProp(float prop) {
@@ -104,10 +139,6 @@ public class MobSkill {
     public void setLtRb(Point lt, Point rb) {
         this.lt = lt;
         this.rb = rb;
-    }
-
-    public void setLimit(short limit) {
-        this.limit = limit;
     }
 
     public boolean checkCurrentBuff(MapleCharacter player, MapleMonster monster) {
@@ -371,6 +402,10 @@ public class MobSkill {
         return mpCon;
     }
 
+    public void setMpCon(int mpCon) {
+        this.mpCon = mpCon;
+    }
+
     public List<Integer> getSummons() {
         return Collections.unmodifiableList(toSummon);
     }
@@ -382,6 +417,13 @@ public class MobSkill {
         return spawnEffect;
     }
 
+    /*   public void setEffectDelay(short effect_delay) {
+    this.effect_delay = effect_delay;
+    }*/
+    public void setSpawnEffect(int spawnEffect) {
+        this.spawnEffect = spawnEffect;
+    }
+
     public int getHP() {
         return hp;
     }
@@ -390,16 +432,32 @@ public class MobSkill {
         return x;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
     public int getY() {
         return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public long getDuration() {
         return duration;
     }
 
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
     public long getCoolTime() {
         return cooltime;
+    }
+
+    public void setCoolTime(long cooltime) {
+        this.cooltime = cooltime;
     }
 
     public Point getLt() {
@@ -412,6 +470,10 @@ public class MobSkill {
 
     public int getLimit() {
         return limit;
+    }
+
+    public void setLimit(short limit) {
+        this.limit = limit;
     }
 
     public boolean makeChanceResult() {
@@ -443,73 +505,5 @@ public class MobSkill {
         List<MapleMapObjectType> objectTypes = new ArrayList<MapleMapObjectType>();
         objectTypes.add(objectType);
         return monster.getMap().getMapObjectsInRect(bounds, objectTypes);
-    }
-
-    public static MapleBuffStatus getBuffStatus(int mobSkillId) {
-        switch (mobSkillId) {
-            case 120:
-                return MapleBuffStatus.SEAL;
-            case 121:
-                return MapleBuffStatus.DARKNESS;
-            case 122:
-                return MapleBuffStatus.WEAKEN;
-            case 123:
-                return MapleBuffStatus.STUN;
-            case 124:
-                return MapleBuffStatus.CURSE;
-            case 125:
-                return MapleBuffStatus.POISON;
-            case 126:
-                return MapleBuffStatus.SLOW;
-            case 128:
-                return MapleBuffStatus.SEDUCE;
-            case 132:
-                return MapleBuffStatus.REVERSE_DIRECTION;
-            case 133:
-                return MapleBuffStatus.ZOMBIFY;
-            case 134:
-                return MapleBuffStatus.POTION;
-            case 135:
-                return MapleBuffStatus.SHADOW;
-            case 136:
-                return MapleBuffStatus.BLIND;
-            case 137:
-                return MapleBuffStatus.FREEZE;
-        }
-        return null;
-    }
-
-    public static final int getMobSkillByBuffStatus(final MapleBuffStatus skill) {
-        switch (skill) {
-            case SEAL:
-                return 120;
-            case DARKNESS:
-                return 121;
-            case WEAKEN:
-                return 122;
-            case STUN:
-                return 123;
-            case CURSE:
-                return 124;
-            case POISON:
-                return 125;
-            case SLOW:
-                return 126;
-            case SEDUCE:
-                return 128;
-            case REVERSE_DIRECTION:
-                return 132;
-            case ZOMBIFY:
-                return 133;
-            case POTION:
-                return 134;
-            case SHADOW:
-                return 135;
-            case BLIND:
-                return 136;
-            case FREEZE:
-                return 137;
-        }
-        return 0;
     }
 }

@@ -26,31 +26,24 @@ import constants.GameConstants;
 import handling.world.World;
 import handling.world.guild.MapleGuild;
 import handling.world.guild.MapleGuildSkill;
-import java.io.Serializable;
-import java.util.*;
-import java.util.Map.Entry;
 import server.*;
 import server.StructSetItem.SetItem;
 import server.life.Element;
-import tools.types.Pair;
-import tools.types.Triple;
 import tools.data.MaplePacketLittleEndianWriter;
 import tools.packet.CField.EffectPacket;
 import tools.packet.CWvsContext.InventoryPacket;
+import tools.types.Pair;
+import tools.types.Triple;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class PlayerStats implements Serializable {
-    private Map<Integer, Integer> setHandling = new HashMap<>(), skillsIncrement = new HashMap<>(), damageIncrease = new HashMap<>();
-    private EnumMap<Element, Integer> elemBoosts = new EnumMap<>(Element.class);
-    private List<Equip> durabilityHandling = new ArrayList<>(), equipLevelHandling = new ArrayList<>();
-    private List<Triple<Integer, String, Integer>> psdSkills = new ArrayList<>();
-    private transient float shouldHealHP, shouldHealMP;
+    public static int[] pvpSkills = {1000007, 2000007, 3000006, 4000010, 5000006, 5010004, 11000006, 12000006, 13000005, 14000006, 15000005, 21000005, 22000002, 23000004, 31000005, 32000012, 33000004, 35000005};
+    private static int[] allJobs = {0, 10000, 10000000, 20000000, 20010000, 20020000, 30000000, 30010000};
     public short str, dex, luk, int_;
     public int hp, maxhp, mp, maxmp;
-    private transient short passive_sharpeye_min_percent, passive_sharpeye_percent, passive_sharpeye_rate;
-    private transient byte passive_mastery;
-    private transient int localstr, localdex, localluk, localint_, localmaxhp, localmaxmp;
-    private transient int magic, hands, accuracy;
-    private transient long watk;
     public transient boolean equippedWelcomeBackRing, hasClone, hasPartyBonus, Berserk, canFish, canFishVIP;
     public transient double expBuff, dropBuff, mesoBuff, cashBuff, mesoGuard, mesoGuardMeso, expMod, pickupRange;
     public transient double dam_r, bossdam_r;
@@ -60,8 +53,35 @@ public class PlayerStats implements Serializable {
             equipmentBonusExp, dropMod, cashMod, levelBonus, ASR, TER, pickRate, decreaseDebuff, equippedFairy, equippedSummon,
             percent_hp, percent_mp, percent_str, percent_dex, percent_int, percent_luk, percent_acc, percent_atk, percent_matk, percent_wdef, percent_mdef,
             pvpDamage, hpRecoverTime = 0, mpRecoverTime = 0, dot, dotTime, questBonus, pvpRank, pvpExp, wdef, mdef, trueMastery;
-    private transient float localmaxbasedamage, localmaxbasepvpdamage, localmaxbasepvpdamageL;
     public transient int def, element_ice, element_fire, element_light, element_psn;
+    private Map<Integer, Integer> setHandling = new HashMap<>(), skillsIncrement = new HashMap<>(), damageIncrease = new HashMap<>();
+    private EnumMap<Element, Integer> elemBoosts = new EnumMap<>(Element.class);
+    private List<Equip> durabilityHandling = new ArrayList<>(), equipLevelHandling = new ArrayList<>();
+    private List<Triple<Integer, String, Integer>> psdSkills = new ArrayList<>();
+    private transient float shouldHealHP, shouldHealMP;
+    private transient short passive_sharpeye_min_percent, passive_sharpeye_percent, passive_sharpeye_rate;
+    private transient byte passive_mastery;
+    private transient int localstr, localdex, localluk, localint_, localmaxhp, localmaxmp;
+    private transient int magic, hands, accuracy;
+    private transient long watk;
+    private transient float localmaxbasedamage, localmaxbasepvpdamage, localmaxbasepvpdamageL;
+
+    public static int getSkillByJob(int skillID, int job) {
+        if (GameConstants.isKOC(job)) {
+            return skillID + 10000000;
+        } else if (GameConstants.isAran(job)) {
+            return skillID + 20000000;
+        } else if (GameConstants.isEvan(job)) {
+            return skillID + 20010000;
+        } else if (GameConstants.isMercedes(job)) {
+            return skillID + 20020000;
+        } else if (GameConstants.isDemon(job)) {
+            return skillID + 30010000;
+        } else if (GameConstants.isResist(job)) {
+            return skillID + 30000000;
+        }
+        return skillID;
+    }
 
     // TODO: all psd skills (Passive)
     public void init(MapleCharacter chra) {
@@ -172,8 +192,6 @@ public class PlayerStats implements Serializable {
     public int getMaxHp() {
         return maxhp;
     }
-    
-    
 
     public int getMp() {
         return mp;
@@ -217,7 +235,7 @@ public class PlayerStats implements Serializable {
 
     public int getCurrentMaxHp() {
         return localmaxhp;
-        
+
     }
 
     public int getCurrentMaxMp(int job) {
@@ -225,7 +243,7 @@ public class PlayerStats implements Serializable {
             return GameConstants.getMPByJob(job);
         }
         return localmaxmp;
-        
+
     }
 
     public int getHands() {
@@ -249,7 +267,7 @@ public class PlayerStats implements Serializable {
     }
 
     public void recalcLocalStats(boolean first_login, MapleCharacter chra) {
-        
+
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         int oldmaxhp = localmaxhp;
         int localmaxhp_ = getMaxHp();
@@ -362,8 +380,8 @@ public class PlayerStats implements Serializable {
         Iterator<Item> itera = chra.getInventory(MapleInventoryType.EQUIPPED).newList().iterator();
         while (itera.hasNext()) {
             Equip equip = (Equip) itera.next();
-         //   if (GameConstants.getAngelicSkill(equip.getItemId()) > 0) {
-           //     equippedSummon = PlayerStats.getSkillByJob(GameConstants.getAngelicSkill(equip.getItemId()), chra.getJob());
+            //   if (GameConstants.getAngelicSkill(equip.getItemId()) > 0) {
+            //     equippedSummon = PlayerStats.getSkillByJob(GameConstants.getAngelicSkill(equip.getItemId()), chra.getJob());
             //}
             if (equip.getPosition() == -11) {
                 if (GameConstants.isMagicWeapon(equip.getItemId())) {
@@ -403,7 +421,7 @@ public class PlayerStats implements Serializable {
             localstr += equip.getStr();
             localluk += equip.getLuk();
             magic += equip.getMatk();
-            watk += equip.getWatk(); 
+            watk += equip.getWatk();
             wdef += equip.getWdef();
             mdef += equip.getMdef();
             speed += equip.getSpeed();
@@ -634,37 +652,64 @@ public class PlayerStats implements Serializable {
                 sData.put(SkillFactory.getSkill(getSkillByJob(1179, chra.getJob())), new SkillEntry((byte) 1, (byte) 0, -1));
             }
         }
-        
-        /*  426 */     for (Pair ix : chra.getCharacterCard().getCardEffects()) {
-/*  427 */       MapleStatEffect e = SkillFactory.getSkill(((Integer)ix.getLeft()).intValue()).getEffect(((Integer)ix.getRight()).intValue());
-/*  428 */       this.percent_wdef += e.getWDEFRate();
-/*  429 */       this.watk += chra.getLevel();
-/*  430 */       this.percent_hp += e.getPercentHP();
-/*  431 */       this.percent_mp += e.getPercentMP();
-/*  432 */       this.magic += chra.getLevel();
-/*  433 */       this.RecoveryUP += 132;
-/*  434 */       this.percent_acc += 11;
-/*  435 */       this.passive_sharpeye_rate = (short)(this.passive_sharpeye_rate + e.getCr());
-/*  436 */       this.jump += e.getPassiveJump();
-/*  437 */       this.speed += e.getPassiveSpeed();
-/*  438 */       this.dodgeChance += 13;
-/*  440 */       this.BuffUP_Summon += 10;
-/*  442 */       this.ASR += e.getASRRate();
-/*      */ 
-/*  445 */       this.BuffUP_Skill += 30;
-/*      */ 
-/*  449 */       this.incMesoProp += 10;
-/*      */ 
-/*  453 */       this.passive_sharpeye_percent = (short)(this.passive_sharpeye_percent + e.getCriticalMax());
-/*  454 */       this.ignoreTargetDEF += e.getIgnoreMob();
-/*  455 */       this.localstr += e.getStrX();
-/*  456 */       this.localdex += e.getDexX();
-/*  457 */       this.localint_ += e.getIntX();
-/*  458 */       this.localluk += e.getLukX();
-/*  461 */       this.watk += e.getAttackX();
-/*  462 */       this.magic += e.getMagicX();
-/*  463 */       this.bossdam_r += e.getBossDamage();
-/*      */     }
+
+        /*  426 */
+        for (Pair ix : chra.getCharacterCard().getCardEffects()) {
+/*  427 */
+            MapleStatEffect e = SkillFactory.getSkill(((Integer) ix.getLeft()).intValue()).getEffect(((Integer) ix.getRight()).intValue());
+/*  428 */
+            this.percent_wdef += e.getWDEFRate();
+/*  429 */
+            this.watk += chra.getLevel();
+/*  430 */
+            this.percent_hp += e.getPercentHP();
+/*  431 */
+            this.percent_mp += e.getPercentMP();
+/*  432 */
+            this.magic += chra.getLevel();
+/*  433 */
+            this.RecoveryUP += 132;
+/*  434 */
+            this.percent_acc += 11;
+/*  435 */
+            this.passive_sharpeye_rate = (short) (this.passive_sharpeye_rate + e.getCr());
+/*  436 */
+            this.jump += e.getPassiveJump();
+/*  437 */
+            this.speed += e.getPassiveSpeed();
+/*  438 */
+            this.dodgeChance += 13;
+/*  440 */
+            this.BuffUP_Summon += 10;
+/*  442 */
+            this.ASR += e.getASRRate();
+/*      */
+/*  445 */
+            this.BuffUP_Skill += 30;
+/*      */
+/*  449 */
+            this.incMesoProp += 10;
+/*      */
+/*  453 */
+            this.passive_sharpeye_percent = (short) (this.passive_sharpeye_percent + e.getCriticalMax());
+/*  454 */
+            this.ignoreTargetDEF += e.getIgnoreMob();
+/*  455 */
+            this.localstr += e.getStrX();
+/*  456 */
+            this.localdex += e.getDexX();
+/*  457 */
+            this.localint_ += e.getIntX();
+/*  458 */
+            this.localluk += e.getLukX();
+/*  461 */
+            this.watk += e.getAttackX();
+/*  462 */
+            this.magic += e.getMagicX();
+/*  463 */
+            this.bossdam_r += e.getBossDamage();
+/*      */
+        }
         if (equippedSummon > 0) {
             equippedSummon = getSkillByJob(equippedSummon, chra.getJob());
         }
@@ -1827,8 +1872,8 @@ public class PlayerStats implements Serializable {
         chra.changeSkillLevel_Skip(sData, false);
         if (GameConstants.isDemon(chra.getJob())) {
             localmaxmp = GameConstants.getMPByJob(chra.getJob());
-        }        
-		//damage increase
+        }
+        //damage increase
         switch (chra.getJob()) {
             case 210:
             case 211:
@@ -2399,7 +2444,7 @@ public class PlayerStats implements Serializable {
                 RecoveryUP += bx.getEffect(bof).getX() - 100;
             }
         }
-      // CalcPassive_SharpEye(chra);
+        // CalcPassive_SharpEye(chra);
         CalcPassive_Mastery(chra);
         recalcPVPRank(chra);
         if (first_login) {
@@ -2409,154 +2454,247 @@ public class PlayerStats implements Serializable {
             chra.enforceMaxHpMp();
         }
 
-       calculateMaxBaseDamage(Math.max(magic, watk), pvpDamage, chra);
+        calculateMaxBaseDamage(Math.max(magic, watk), pvpDamage, chra);
         trueMastery = Math.min(100, trueMastery);
         passive_sharpeye_min_percent = (short) Math.min(passive_sharpeye_min_percent, passive_sharpeye_percent);
         if (oldmaxhp != 0 && oldmaxhp != localmaxhp) {
             chra.updatePartyMemberHP();
         }
-        
+
         //[CUSTOM]: Inneral Abilities:
         //Apply formulas from InnerSkillValueHolder.java here;
-        //PROOF OF CONCEPT. SEEMS TO WORK JUST FINE INGAME. 
-        for(InnerSkillValueHolder ISVH : chra.getInnerSkills()){
+        //PROOF OF CONCEPT. SEEMS TO WORK JUST FINE INGAME.
+        for (InnerSkillValueHolder ISVH : chra.getInnerSkills()) {
             int x = ISVH.getSkillLevel();
-            switch(ISVH.getSkillId()){
-                case 70000000: localstr += MapleStatEffect.parseEval("x", x); break; //strFX = x
-                case 70000001: localdex += MapleStatEffect.parseEval("x", x); break; 
-                case 70000002: localint_ += MapleStatEffect.parseEval("x", x); break;
-                case 70000003: localluk += MapleStatEffect.parseEval("x", x); break;
-                case 70000004: accuracy += MapleStatEffect.parseEval("(10 * x)", x); break; //accX = 10 * x
-                case 70000005: evaR += MapleStatEffect.parseEval("(10 * x)", x); break;
-                case 70000006: wdef += MapleStatEffect.parseEval("(10 * x)", x); break;
-                case 70000007: mdef += MapleStatEffect.parseEval("(10 * x)", x); break;
-                case 70000008: localmaxhp += MapleStatEffect.parseEval("(15 * x)", x); break;//mhpX = x * 15
-                case 70000009: localmaxmp += MapleStatEffect.parseEval("(15 * x)", x);; break;
-                case 70000010: jump += MapleStatEffect.parseEval("2*u(x/3)", x); break; //psdJump = 2 * u(x / 3)
-                case 70000011: speed += MapleStatEffect.parseEval("2*u(x/3)", x);break;
-                case 70000012: watk += MapleStatEffect.parseEval("3*u(x/3)", x); break; //padX = 3 * u(x / 3)
-                case 70000013: magic += MapleStatEffect.parseEval("3*u(x/3)", x); break;
-                case 70000014: passive_sharpeye_rate += MapleStatEffect.parseEval("x", x); break;
-                case 70000015:{ //lukFX = x	strFX = x	dexFX = x	intFX = x
+            switch (ISVH.getSkillId()) {
+                case 70000000:
+                    localstr += MapleStatEffect.parseEval("x", x);
+                    break; //strFX = x
+                case 70000001:
+                    localdex += MapleStatEffect.parseEval("x", x);
+                    break;
+                case 70000002:
+                    localint_ += MapleStatEffect.parseEval("x", x);
+                    break;
+                case 70000003:
+                    localluk += MapleStatEffect.parseEval("x", x);
+                    break;
+                case 70000004:
+                    accuracy += MapleStatEffect.parseEval("(10 * x)", x);
+                    break; //accX = 10 * x
+                case 70000005:
+                    evaR += MapleStatEffect.parseEval("(10 * x)", x);
+                    break;
+                case 70000006:
+                    wdef += MapleStatEffect.parseEval("(10 * x)", x);
+                    break;
+                case 70000007:
+                    mdef += MapleStatEffect.parseEval("(10 * x)", x);
+                    break;
+                case 70000008:
+                    localmaxhp += MapleStatEffect.parseEval("(15 * x)", x);
+                    break;//mhpX = x * 15
+                case 70000009:
+                    localmaxmp += MapleStatEffect.parseEval("(15 * x)", x);
+                    ;
+                    break;
+                case 70000010:
+                    jump += MapleStatEffect.parseEval("2*u(x/3)", x);
+                    break; //psdJump = 2 * u(x / 3)
+                case 70000011:
+                    speed += MapleStatEffect.parseEval("2*u(x/3)", x);
+                    break;
+                case 70000012:
+                    watk += MapleStatEffect.parseEval("3*u(x/3)", x);
+                    break; //padX = 3 * u(x / 3)
+                case 70000013:
+                    magic += MapleStatEffect.parseEval("3*u(x/3)", x);
+                    break;
+                case 70000014:
+                    passive_sharpeye_rate += MapleStatEffect.parseEval("x", x);
+                    break;
+                case 70000015: { //lukFX = x	strFX = x	dexFX = x	intFX = x
                     localstr += MapleStatEffect.parseEval("x", x);
                     localdex += MapleStatEffect.parseEval("x", x);
                     localint_ += MapleStatEffect.parseEval("x", x);
-                    localluk += MapleStatEffect.parseEval("x", x);                 
-                } break;
-                case 70000016: break; //actionSpeed ??= -1 //this is attack speed, isn't it?  client-sided
-                case 70000017: mdef += (wdef * MapleStatEffect.parseEval("u(x / 4)", x) / 100); break;// pdd2mdd = u (x / 4)
-                case 70000018: wdef += (mdef * MapleStatEffect.parseEval("u(x / 4)", x) / 100); break;
-                case 70000019: localmaxmp += (accuracy * MapleStatEffect.parseEval("(5 * u(x / 4))", x) / 100); break;//acc2mp = 5 * u (x / 4)
-                case 70000020: localmaxhp += (evaR * MapleStatEffect.parseEval("(5 * u(x / 4))", x) / 100); break;
-                case 70000021: localdex += (str * MapleStatEffect.parseEval("u(x / 4)", x) / 100); break; //str2dex = u (x / 4) (str is base, localstr is bonus included)
-                case 70000022: localstr += (dex * MapleStatEffect.parseEval("u(x / 4)", x) / 100); break;
-                case 70000023: localluk += (int_ *MapleStatEffect.parseEval("u(x / 4)", x) / 100); break;
-                case 70000024: localdex += (luk * MapleStatEffect.parseEval("u(x / 4)", x) / 100); break;
-                case 70000025:{ 
-                    int perLevelGain = MapleStatEffect.parseEval("(20 - (2 * d(x / 2)))", x); 
+                    localluk += MapleStatEffect.parseEval("x", x);
+                }
+                break;
+                case 70000016:
+                    break; //actionSpeed ??= -1 //this is attack speed, isn't it?  client-sided
+                case 70000017:
+                    mdef += (wdef * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+                    break;// pdd2mdd = u (x / 4)
+                case 70000018:
+                    wdef += (mdef * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+                    break;
+                case 70000019:
+                    localmaxmp += (accuracy * MapleStatEffect.parseEval("(5 * u(x / 4))", x) / 100);
+                    break;//acc2mp = 5 * u (x / 4)
+                case 70000020:
+                    localmaxhp += (evaR * MapleStatEffect.parseEval("(5 * u(x / 4))", x) / 100);
+                    break;
+                case 70000021:
+                    localdex += (str * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+                    break; //str2dex = u (x / 4) (str is base, localstr is bonus included)
+                case 70000022:
+                    localstr += (dex * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+                    break;
+                case 70000023:
+                    localluk += (int_ * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+                    break;
+                case 70000024:
+                    localdex += (luk * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+                    break;
+                case 70000025: {
+                    int perLevelGain = MapleStatEffect.parseEval("(20 - (2 * d(x / 2)))", x);
                     watk += d(chra.getLevel() / perLevelGain);
-                } break; //lv2pad = 20-2 * d (x / 2)	
-                case 70000026: { 
+                }
+                break; //lv2pad = 20-2 * d (x / 2)
+                case 70000026: {
                     int perLevelGain = MapleStatEffect.parseEval("(20 - (2 * d(x / 2)))", x);
                     magic += d(chra.getLevel() / perLevelGain);
-                } break;
-                case 70000027: accuracy += (accuracy * (MapleStatEffect.parseEval("x", x) / 100)); break;//accR = x
-                case 70000028: evaR += (evaR * (MapleStatEffect.parseEval("x", x) / 100)); break;
-                case 70000029: wdef += (wdef * (MapleStatEffect.parseEval("x", x) / 100)); break;
-                case 70000030: mdef += (mdef * (MapleStatEffect.parseEval("x", x) / 100)); break;
-                case 70000031: localmaxhp += (localmaxhp * (MapleStatEffect.parseEval("x", x) / 100)); break;
-                case 70000032: localmaxmp += (localmaxmp * (MapleStatEffect.parseEval("x", x) / 100)); break;
-                case 70000033: accuracy += (accuracy * (MapleStatEffect.parseEval("u(x / 2)", x) / 100)); break; //ar = u (x/2)
-                case 70000034: evaR += (evaR * (MapleStatEffect.parseEval("u(x / 2)", x) / 100)); break;
-                case 70000035: break;//bossdam_r += MapleStatEffect.parseEval("x", x); break;//bdR = x //Clientsided?
-                case 70000036: break;//+% Damage to Norm Mobs//Clientsided?
-                case 70000037: break;//+% Damage to Towers//Clientsided?
-                case 70000038: break;//+% Chance to insta-kill in Azwan Supply//Clientsided?
-                case 70000039: break;//+% Damage when attacking abnormal ailment targets.//Clientsided?
+                }
+                break;
+                case 70000027:
+                    accuracy += (accuracy * (MapleStatEffect.parseEval("x", x) / 100));
+                    break;//accR = x
+                case 70000028:
+                    evaR += (evaR * (MapleStatEffect.parseEval("x", x) / 100));
+                    break;
+                case 70000029:
+                    wdef += (wdef * (MapleStatEffect.parseEval("x", x) / 100));
+                    break;
+                case 70000030:
+                    mdef += (mdef * (MapleStatEffect.parseEval("x", x) / 100));
+                    break;
+                case 70000031:
+                    localmaxhp += (localmaxhp * (MapleStatEffect.parseEval("x", x) / 100));
+                    break;
+                case 70000032:
+                    localmaxmp += (localmaxmp * (MapleStatEffect.parseEval("x", x) / 100));
+                    break;
+                case 70000033:
+                    accuracy += (accuracy * (MapleStatEffect.parseEval("u(x / 2)", x) / 100));
+                    break; //ar = u (x/2)
+                case 70000034:
+                    evaR += (evaR * (MapleStatEffect.parseEval("u(x / 2)", x) / 100));
+                    break;
+                case 70000035:
+                    break;//bossdam_r += MapleStatEffect.parseEval("x", x); break;//bdR = x //Clientsided?
+                case 70000036:
+                    break;//+% Damage to Norm Mobs//Clientsided?
+                case 70000037:
+                    break;//+% Damage to Towers//Clientsided?
+                case 70000038:
+                    break;//+% Chance to insta-kill in Azwan Supply//Clientsided?
+                case 70000039:
+                    break;//+% Damage when attacking abnormal ailment targets.//Clientsided?
                 case 70000040: { //Definitely needs to be looked into. "% of Wep Acc or Magic ACC (>) added to additional damage.
                     watk += (accuracy * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));//acc2dam = x * 2 + u (x / 2)
                     magic += (accuracy * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));
-                            //Assuming only one type of attack (magic or weapon) can be active at a time, just apply them to both;
-                } break;
-                case 70000041:{
+                    //Assuming only one type of attack (magic or weapon) can be active at a time, just apply them to both;
+                }
+                break;
+                case 70000041: {
                     watk += (wdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));//pdd2dam = x * 2 + u (x / 2)
                     magic += (wdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));
-                } break;
+                }
+                break;
                 case 70000042: {
                     watk += (wdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));//pdd2dam = x * 2 + u (x / 2)
                     magic += (mdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));
-                } break;
-                case 70000043: break; //When hit with magic attack, damage equal to % of WDEF is ignored. //Clientsided?
-                case 70000044: break; //When hit with physical attack, damage equal to % of MDEF is ignored. //Clientsided?
+                }
+                break;
+                case 70000043:
+                    break; //When hit with magic attack, damage equal to % of WDEF is ignored. //Clientsided?
+                case 70000044:
+                    break; //When hit with physical attack, damage equal to % of MDEF is ignored. //Clientsided?
                 case 70000045: //Cooldown not applied at % Chance should be hooked elsewhere. //Clientsided? TEST.
                 case 70000046: //Increase Skill level of passive skills by # //Pretty sure Clientsided
                 case 70000047: //Number of enemies hit by multi target skills +1 //Clientsided.
                 case 70000048: //Buff skill duration +% Should be hooked elsewhere. //Clientsided? TEST.
-                case 70000049: dropBuff += (MapleStatEffect.parseEval("u(x / 2)", x)); break; //dropR = u (x / 2)	
-                case 70000050: mesoBuff =+ (MapleStatEffect.parseEval("u(x / 2)", x)); break;
+                case 70000049:
+                    dropBuff += (MapleStatEffect.parseEval("u(x / 2)", x));
+                    break; //dropR = u (x / 2)
+                case 70000050:
+                    mesoBuff = +(MapleStatEffect.parseEval("u(x / 2)", x));
+                    break;
                 case 70000051: {
                     localstr += MapleStatEffect.parseEval("x", x);
                     localdex += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
+                }
+                break;
                 case 70000052: {
                     localstr += MapleStatEffect.parseEval("x", x);
                     localint_ += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
+                }
+                break;
                 case 70000053: {
                     localstr += MapleStatEffect.parseEval("x", x);
                     localluk += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
+                }
+                break;
                 case 70000054: {
                     localdex += MapleStatEffect.parseEval("x", x);
                     localint_ += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break; 
+                }
+                break;
                 case 70000055: {
                     localdex += MapleStatEffect.parseEval("x", x);
                     localluk += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
+                }
+                break;
                 case 70000056: {
                     localint_ += MapleStatEffect.parseEval("x", x);
                     localluk += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
+                }
+                break;
                 case 70000057: {
                     localdex += MapleStatEffect.parseEval("x", x);
                     localstr += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
+                }
+                break;
                 case 70000058: {
                     localint_ += MapleStatEffect.parseEval("x", x);
                     localstr += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
+                }
+                break;
                 case 70000059: {
                     localluk += MapleStatEffect.parseEval("x", x);
                     localstr += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
+                }
+                break;
                 case 70000060: {
                     localint_ += MapleStatEffect.parseEval("x", x);
                     localdex += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
-                case 70000061:  {
+                }
+                break;
+                case 70000061: {
                     localluk += MapleStatEffect.parseEval("x", x);
                     localdex += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
-                case 70000062:{
+                }
+                break;
+                case 70000062: {
                     localluk += MapleStatEffect.parseEval("x", x);
                     localint_ += MapleStatEffect.parseEval("u(x / 2)", x);
-                } break;
+                }
+                break;
                 default:
                     break;
             }
         }
     }
-    
-    public List<Triple<Integer, String, Integer>> getPsdSkills(){
+
+    public List<Triple<Integer, String, Integer>> getPsdSkills() {
         return psdSkills;
     }
-    
-    public final int u(int variable){
+
+    public final int u(int variable) {
         return (int) Math.ceil(variable);
     }
-    
-    public final int d(int variable){
+
+    public final int d(int variable) {
         return (int) Math.floor(variable);
     }
 
@@ -2969,9 +3107,9 @@ public class PlayerStats implements Serializable {
             localmaxbasedamage = 1;
             localmaxbasepvpdamage = 1;
         } else if (watk >= Integer.MAX_VALUE) {
-                     localmaxbasedamage = Integer.MAX_VALUE - 1;
-            localmaxbasepvpdamage = Integer.MAX_VALUE - 1;   
-            
+            localmaxbasedamage = Integer.MAX_VALUE - 1;
+            localmaxbasepvpdamage = Integer.MAX_VALUE - 1;
+
         } else {
             Item weapon_item = chra.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11);
             Item weapon_item2 = chra.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -10);
@@ -3098,25 +3236,6 @@ public class PlayerStats implements Serializable {
         mplew.writeInt(maxhp); // maxhp
         mplew.writeInt(mp); // mp
         mplew.writeInt(maxmp); // maxmp
-    }
-    private static int[] allJobs = {0, 10000, 10000000, 20000000, 20010000, 20020000, 30000000, 30010000};
-    public static int[] pvpSkills = {1000007, 2000007, 3000006, 4000010, 5000006, 5010004, 11000006, 12000006, 13000005, 14000006, 15000005, 21000005, 22000002, 23000004, 31000005, 32000012, 33000004, 35000005};
-
-    public static int getSkillByJob(int skillID, int job) {
-        if (GameConstants.isKOC(job)) {
-            return skillID + 10000000;
-        } else if (GameConstants.isAran(job)) {
-            return skillID + 20000000;
-        } else if (GameConstants.isEvan(job)) {
-            return skillID + 20010000;
-        } else if (GameConstants.isMercedes(job)) {
-            return skillID + 20020000;
-        } else if (GameConstants.isDemon(job)) {
-            return skillID + 30010000;
-        } else if (GameConstants.isResist(job)) {
-            return skillID + 30000000;
-        }
-        return skillID;
     }
 
     public int getSkillIncrement(int skillID) {

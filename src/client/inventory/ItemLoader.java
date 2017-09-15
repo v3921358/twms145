@@ -23,13 +23,14 @@ package client.inventory;
 
 import constants.GameConstants;
 import database.DatabaseConnection;
+import server.MapleItemInformationProvider;
+import tools.types.Pair;
+
 import java.sql.*;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import server.MapleItemInformationProvider;
-import tools.types.Pair;
 
 public enum ItemLoader {
 
@@ -53,7 +54,7 @@ public enum ItemLoader {
     public int getValue() {
         return value;
     }
-    
+
 
     //does not need connection con to be auto commit
     public Map<Long, Pair<Item, MapleInventoryType>> loadItems(boolean login, int id) throws SQLException {

@@ -90,10 +90,10 @@ public class MTSOperation {
             c.sendPacket(MTSCSPacket.getMTSConfirmSell());
         } else if (op == 5) { //change page/tab
             cart.changeInfo(slea.readInt(), slea.readInt(), slea.readInt());
-	} else if (op == 6) { //search
-	    cart.changeInfo(slea.readInt(), slea.readInt(), 0);
-	    slea.readInt(); //always 0?
-	    cart.changeCurrentView(MTSStorage.getInstance().getSearch(slea.readInt() > 0, slea.readMapleAsciiString(), cart.getType(), cart.getTab()));
+        } else if (op == 6) { //search
+            cart.changeInfo(slea.readInt(), slea.readInt(), 0);
+            slea.readInt(); //always 0?
+            cart.changeCurrentView(MTSStorage.getInstance().getSearch(slea.readInt() > 0, slea.readMapleAsciiString(), cart.getType(), cart.getTab()));
         } else if (op == 7) { //cancel sale
             if (!MTSStorage.getInstance().removeFromBuyNow(slea.readInt(), c.getPlayer().getId(), true)) {
                 c.sendPacket(MTSCSPacket.getMTSFailCancel());
@@ -172,7 +172,7 @@ public class MTSOperation {
     }
 
     public static void MTSUpdate(final MTSCart cart, final MapleClient c) {
-		final int a = MTSStorage.getInstance().getCart(c.getPlayer().getId()).getSetOwedNX();
+        final int a = MTSStorage.getInstance().getCart(c.getPlayer().getId()).getSetOwedNX();
         c.getPlayer().modifyCSPoints(1, GameConstants.GMS ? (a * 2) : a, false);
         c.sendPacket(MTSCSPacket.getMTSWantedListingOver(0, 0));
         doMTSPackets(cart, c);

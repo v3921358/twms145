@@ -22,7 +22,7 @@ package tools;
 
 import tools.types.Pair;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.List;
 
 public class AttackPair {

@@ -2,10 +2,11 @@ package server;
 
 import client.inventory.Equip;
 import client.inventory.EquipAdditions;
+import tools.types.Pair;
+
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import tools.types.Pair;
 
 public class ItemInformation {
     public List<Integer> scrollReqs = null, questItems = null, incSkill = null;

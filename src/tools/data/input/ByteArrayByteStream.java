@@ -20,21 +20,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools.data.input;
 
-import java.io.IOException;
 import tools.HexTool;
+
+import java.io.IOException;
 
 /**
  * Provides for an abstraction layer for an array of bytes.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 326
  */
 public class ByteArrayByteStream implements SeekableInputStreamBytestream {
 
+    private final byte[] arr;
     private int pos = 0;
     private long bytesRead = 0;
-    private final byte[] arr;
 
     /**
      * Class constructor.

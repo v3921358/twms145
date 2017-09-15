@@ -28,20 +28,22 @@ import handling.netty.ServerConnection;
 import handling.world.World;
 import tools.types.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class LoginServer {
 
     public static final int PORT = 8484;
-
+    private static final ReentrantLock loginLock = new ReentrantLock();
     private static List<World> worlds = new ArrayList<>();
     private static LoginServer instance = null;
     private static ServerConnection acceptor;
     private static boolean finishedShutdown = true, adminOnly = false;
     private static HashMap<Integer, Pair<String, String>> loginAuth = new HashMap<>();
     private static HashSet<String> loginIPAuth = new HashSet<>();
-    private static final ReentrantLock loginLock = new ReentrantLock();
 
     public static LoginServer getInstance() {
         if (instance == null) {
@@ -71,36 +73,9 @@ public class LoginServer {
         loginIPAuth.add(ip);
     }
 
-    public void removeChannel(int worldId, final int channel) {
-        World world = worlds.get(worldId);
-        if (world != null) {
-            world.removeChannel(channel);
-        }
-    }
-
-    public ChannelServer getChannel(int world, int channel) {
-        return getWorld(world).getChannel(channel);
-    }
-
-    public List<ChannelServer> getChannelsFromWorld(int world) {
-        return getWorld(world).getChannels();
-    }
-
-    public List<ChannelServer> getAllChannels() {
-        List<ChannelServer> channelz = new ArrayList<>();
-        for (World world : worlds) {
-            channelz.addAll(world.getChannels());
-        }
-        return channelz;
-    }
-
-    public String getChannelIP(int world, int channel) {
-        return getWorld(world).getChannel(channel).getIP();
-    }
-
     public static void run_startup_configurations() {
 
-        adminOnly = ServerConstants.Admin_Only;
+        adminOnly = ServerConstants.ADMIN_ONLY;
         acceptor = new ServerConnection(PORT, -1, MapleServerHandler.LOGIN_SERVER);
 
         WorldConfig[] worldConfigs = WorldConfig.values();
@@ -122,9 +97,9 @@ public class LoginServer {
     }
 
     public static World getWorld(int id) {
-        for(World world: worlds) {
-            if(world.getWorldId() == id)
-                return  world;
+        for (World world : worlds) {
+            if (world.getWorldId() == id)
+                return world;
         }
         return null;
     }
@@ -160,5 +135,32 @@ public class LoginServer {
 
     public static ReentrantLock getLoginLock() {
         return loginLock;
+    }
+
+    public void removeChannel(int worldId, final int channel) {
+        World world = worlds.get(worldId);
+        if (world != null) {
+            world.removeChannel(channel);
+        }
+    }
+
+    public ChannelServer getChannel(int world, int channel) {
+        return getWorld(world).getChannel(channel);
+    }
+
+    public List<ChannelServer> getChannelsFromWorld(int world) {
+        return getWorld(world).getChannels();
+    }
+
+    public List<ChannelServer> getAllChannels() {
+        List<ChannelServer> channelz = new ArrayList<>();
+        for (World world : worlds) {
+            channelz.addAll(world.getChannels());
+        }
+        return channelz;
+    }
+
+    public String getChannelIP(int world, int channel) {
+        return getWorld(world).getChannel(channel).getIP();
     }
 }

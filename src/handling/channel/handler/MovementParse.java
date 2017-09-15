@@ -20,14 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling.channel.handler;
 
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
-
 import server.maps.AnimatedMapleMapObject;
 import server.movement.*;
 import tools.FileoutputUtil;
 import tools.data.LittleEndianAccessor;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MovementParse {
 
@@ -76,7 +76,7 @@ public class MovementParse {
                     final short duration = lea.readShort();
                     final AbsoluteLifeMovement alm = new AbsoluteLifeMovement(command, new Point(xPos, yPos), duration, newState, kind);
                     alm.setUnk(unk);
-                    alm.setFh((short)0);
+                    alm.setFh((short) 0);
                     alm.setPixelsPerSecond(new Point(xWobble, yWobble));
                     alm.setOffset(new Point(0, 0));
                     res.add(alm);
@@ -91,8 +91,7 @@ public class MovementParse {
                 case 40:
                 case 41:
                 case 42:
-                case 43:
-                {
+                case 43: {
                     final short xMod = lea.readShort();
                     final short yMod = lea.readShort();
                     short unk = 0;
@@ -106,7 +105,7 @@ public class MovementParse {
                     res.add(rlm);
                     break;
                 }
-				case 23:
+                case 23:
                 case 24:
                 case 25:
                 case 26:
@@ -136,8 +135,7 @@ public class MovementParse {
                 case 8:
                 case 9:
                 case 10:
-                case 12:
-                {
+                case 12: {
                     final short xPos = lea.readShort();
                     final short yPos = lea.readShort();
                     final short fh = lea.readShort();
@@ -190,7 +188,7 @@ public class MovementParse {
         }
         return res;
     }
-    
+
     static void updatePosition(final List<ILifeMovementFragment> movement, final AnimatedMapleMapObject target, final int yoffset) {
         if (movement == null) {
             return;

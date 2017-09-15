@@ -12,13 +12,13 @@ public class StructSetItem {
     public Map<Integer, SetItem> items = new LinkedHashMap<>();
     public List<Integer> itemIDs = new ArrayList<>();
 
+    public Map<Integer, SetItem> getItems() {
+        return new LinkedHashMap<>(items);
+    }
+
     public static class SetItem {
 
         public int incPDD, incMDD, incSTR, incDEX, incINT, incLUK, incACC, incPAD, incMAD, incSpeed, incMHP, incMMP, incMHPr, incMMPr, incAllStat,
-		option1, option2, option1Level, option2Level;
-    }
-
-    public Map<Integer, SetItem> getItems() {
-        return new LinkedHashMap<>(items);
+                option1, option2, option1Level, option2Level;
     }
 }

@@ -20,13 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class MapleFootholdTree {
 
+    private static final byte maxDepth = 8;
     private MapleFootholdTree nw = null;
     private MapleFootholdTree ne = null;
     private MapleFootholdTree sw = null;
@@ -36,7 +37,6 @@ public class MapleFootholdTree {
     private Point p2;
     private Point center;
     private int depth = 0;
-    private static final byte maxDepth = 8;
     private int maxDropX;
     private int minDropX;
 
@@ -88,7 +88,7 @@ public class MapleFootholdTree {
             }
         }
     }
-	
+
     public final List<MapleFoothold> getAllRelevants() {
         return getAllRelevants(new LinkedList<MapleFoothold>());
     }
@@ -102,7 +102,7 @@ public class MapleFootholdTree {
             se.getAllRelevants(list);
         }
         return list;
-	}
+    }
 
     private List<MapleFoothold> getRelevants(final Point p) {
         return getRelevants(p, new LinkedList<MapleFoothold>());

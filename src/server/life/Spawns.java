@@ -20,8 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
-import java.awt.Point;
 import server.maps.MapleMap;
+
+import java.awt.*;
 
 public abstract class Spawns {
 

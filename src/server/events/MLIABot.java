@@ -1,15 +1,15 @@
 package server.events;
 
+import server.Randomizer;
+
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Pattern;
-import server.Randomizer;
 
 /**
-*
-* @author Oliver
-*/
+ * @author Oliver
+ */
 public class MLIABot {
 
     private static int getPage() {

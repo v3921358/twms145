@@ -68,7 +68,7 @@ public enum MonsterStatus implements Serializable, IBuffStat {
     EMPTY_4(0x100, 2, GameConstants.GMS), //jump
     EMPTY_5(0x200, 2, GameConstants.GMS),
     EMPTY_6(0x400, 2, GameConstants.GMS),
-     EMPTY_7(0x2000, 2, GameConstants.GMS);
+    EMPTY_7(0x2000, 2, GameConstants.GMS);
     static final long serialVersionUID = 0L;
     private final int i;
     private final int first;
@@ -85,21 +85,6 @@ public enum MonsterStatus implements Serializable, IBuffStat {
         this.first = first;
         this.end = end;
     }
-
-    @Override
-    public int getPosition() {
-        return first;
-    }
-
-    public boolean isEmpty() {
-        return end;
-    }
-
-    @Override
-    public int getValue() {
-        return i;
-    }
-
 
     public static MapleBuffStatus getLinkedDisease(final MonsterStatus skill) {
         switch (skill) {
@@ -120,5 +105,19 @@ public enum MonsterStatus implements Serializable, IBuffStat {
                 return MapleBuffStatus.SLOW;
         }
         return null;
+    }
+
+    @Override
+    public int getPosition() {
+        return first;
+    }
+
+    public boolean isEmpty() {
+        return end;
+    }
+
+    @Override
+    public int getValue() {
+        return i;
     }
 }

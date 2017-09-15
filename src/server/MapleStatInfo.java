@@ -18,7 +18,6 @@
 package server;
 
 /**
- *
  * @author AlphaEta
  */
 public enum MapleStatInfo {
@@ -177,7 +176,7 @@ public enum MapleStatInfo {
     luk(0);
     private final int def;
     private final boolean special;
-	//lt(0) //box stuffs
+    //lt(0) //box stuffs
     //lt2(0) //Tempest has this
     //rb(0) //rectangle box
     //rb2(0) //Tempest has this..
@@ -195,7 +194,7 @@ public enum MapleStatInfo {
     public final int getDefault() {
         return def;
     }
-    
+
     public final boolean isSpecial() {
         return special;
     }

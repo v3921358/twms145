@@ -25,12 +25,9 @@ public enum ElementalEffectiveness {
     NORMAL(1.0), IMMUNE(0.0), STRONG(0.5), WEAK(1.5);
 
     private double value;
-    private ElementalEffectiveness(double val) {
-	this.value = val;
-    }
 
-    public double getValue() {
-	return value;
+    private ElementalEffectiveness(double val) {
+        this.value = val;
     }
 
     public static ElementalEffectiveness getByNumber(int num) {
@@ -44,5 +41,9 @@ public enum ElementalEffectiveness {
             default:
                 throw new IllegalArgumentException("Unkown effectiveness: " + num);
         }
+    }
+
+    public double getValue() {
+        return value;
     }
 }

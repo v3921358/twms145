@@ -17,7 +17,7 @@
  */
 package server.movement;
 
-import java.awt.Point;
+import java.awt.*;
 
 public abstract class AbstractLifeMovement implements ILifeMovement {
 
@@ -56,5 +56,7 @@ public abstract class AbstractLifeMovement implements ILifeMovement {
     }
 
     @Override
-    public MovementKind getKind() { return kind; }
+    public MovementKind getKind() {
+        return kind;
+    }
 }

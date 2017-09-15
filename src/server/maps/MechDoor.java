@@ -28,12 +28,13 @@ package server.maps;
 
 import client.MapleCharacter;
 import client.MapleClient;
-import java.awt.Point;
 import tools.packet.CField;
+
+import java.awt.*;
 
 public class MechDoor extends MapleMapObject {
 
-    private int owner,partyid,id;
+    private int owner, partyid, id;
 
     public MechDoor(MapleCharacter owner, Point pos, int id) {
         super();

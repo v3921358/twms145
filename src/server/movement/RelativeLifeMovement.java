@@ -17,8 +17,9 @@
  */
 package server.movement;
 
-import java.awt.Point;
 import tools.data.MaplePacketLittleEndianWriter;
+
+import java.awt.*;
 
 public class RelativeLifeMovement extends AbstractLifeMovement {
 
@@ -28,12 +29,12 @@ public class RelativeLifeMovement extends AbstractLifeMovement {
         super(type, position, duration, newState, kind);
     }
 
-    public void setUnk(short unk) {
-        this.unk = unk;
-    }
-
     public short getUnk() {
         return unk;
+    }
+
+    public void setUnk(short unk) {
+        this.unk = unk;
     }
 
     @Override

@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package client.inventory;
 
 import database.DatabaseConnection;
+
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,20 +32,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class MapleInventoryIdentifier implements Serializable {
 
     private static final long serialVersionUID = 21830921831301L;
-    private final AtomicInteger runningUID = new AtomicInteger(0);
     private static MapleInventoryIdentifier instance = new MapleInventoryIdentifier();
+    private final AtomicInteger runningUID = new AtomicInteger(0);
 
     public static int getInstance() {
         return instance.getNextUniqueId();
     }
 
     public int getNextUniqueId() {
-	if (runningUID.get() <= 0) {
-	    runningUID.set(initUID());
-	} else {
-            runningUID.set(runningUID.get() + 1); 
-	}
-	return runningUID.get();
+        if (runningUID.get() <= 0) {
+            runningUID.set(initUID());
+        } else {
+            runningUID.set(runningUID.get() + 1);
+        }
+        return runningUID.get();
     }
 
     public int initUID() {

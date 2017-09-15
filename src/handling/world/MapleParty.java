@@ -43,7 +43,7 @@ public class MapleParty implements Serializable {
         this.leader = chrfor;
         this.members.add(this.leader);
         this.id = id;
-	this.expeditionLink = expeditionLink;
+        this.expeditionLink = expeditionLink;
     }
 
     public boolean containsMembers(MaplePartyCharacter member) {
@@ -101,7 +101,7 @@ public class MapleParty implements Serializable {
     }
 
     public int getExpeditionId() {
-	return expeditionLink;
+        return expeditionLink;
     }
 
     @Override
@@ -131,10 +131,10 @@ public class MapleParty implements Serializable {
     }
 
     public boolean isDisbanded() {
-	return disbanded;
+        return disbanded;
     }
 
     public void disband() {
-	this.disbanded = true;
+        this.disbanded = true;
     }
 }

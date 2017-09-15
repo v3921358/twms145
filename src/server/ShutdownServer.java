@@ -16,6 +16,7 @@ import java.sql.SQLException;
 public class ShutdownServer implements ShutdownServerMBean {
 
     public static ShutdownServer instance = new ShutdownServer();
+    public int mode = 0;
 
     public static void registerMBean() {
         MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -31,8 +32,6 @@ public class ShutdownServer implements ShutdownServerMBean {
     public static ShutdownServer getInstance() {
         return instance;
     }
-
-    public int mode = 0;
 
     public void shutdown() {//can execute twice
         run();

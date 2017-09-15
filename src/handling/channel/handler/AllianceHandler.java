@@ -84,11 +84,11 @@ public class AllianceHandler {
                         chr.getClient().sendPacket(AlliancePacket.sendAllianceInvite(World.Alliance.getAlliance(gs.getAllianceId()).getName(), c.getPlayer()));
                         World.Guild.setInvitedId(chr.getGuildId(), gs.getAllianceId());
                     } else {
-		        c.getPlayer().dropMessage(1, "Make sure the leader of the guild is online and in your channel.");
-		    }
+                        c.getPlayer().dropMessage(1, "Make sure the leader of the guild is online and in your channel.");
+                    }
                 } else {
-		    c.getPlayer().dropMessage(1, "That Guild was not found. Please enter the correct Guild Name. (Not the player name)");
-		}
+                    c.getPlayer().dropMessage(1, "That Guild was not found. Please enter the correct Guild Name. (Not the player name)");
+                }
                 break;
             case 4: //accept invite... guildid that invited(int, a/b check) -> guildname that was invited? but we dont care about that
                 inviteid = World.Guild.getInvitedId(c.getPlayer().getGuildId());

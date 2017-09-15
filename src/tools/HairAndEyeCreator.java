@@ -20,18 +20,20 @@
 */
 package tools;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import provider.MapleDataDirectoryEntry;
 import provider.MapleDataFileEntry;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 /*
  * Author: Xerdox
 */
 public class HairAndEyeCreator {
     public static void main(String args[]) throws IOException {
-    MapleDataProvider hairSource = MapleDataProviderFactory.getDataProvider("Character.wz/Hair");
+        MapleDataProvider hairSource = MapleDataProviderFactory.getDataProvider("Character.wz/Hair");
         MapleDataProvider faceSource = MapleDataProviderFactory.getDataProvider("Character.wz/Face");
         final MapleDataDirectoryEntry root = hairSource.getRoot();
         StringBuilder sb = new StringBuilder();
@@ -45,7 +47,7 @@ public class HairAndEyeCreator {
             }
         }
         System.out.println("Loading Female Hairs!");
-        sb.append("\r\n\r\n");        
+        sb.append("\r\n\r\n");
         sb.append("hairFemale:\r\n");
         for (MapleDataFileEntry topDir : root.getFiles()) {
             int id = Integer.parseInt(topDir.getName().substring(0, 8));
@@ -54,7 +56,7 @@ public class HairAndEyeCreator {
             }
         }
         System.out.println("Loading Male Faces!");
-        sb.append("\r\n\r\n");       
+        sb.append("\r\n\r\n");
         sb.append("faceMale:\r\n");
         final MapleDataDirectoryEntry root2 = faceSource.getRoot();
         for (MapleDataFileEntry topDir2 : root2.getFiles()) {
@@ -64,7 +66,7 @@ public class HairAndEyeCreator {
             }
         }
         System.out.println("Loading Female Faces!");
-        sb.append("\r\n\r\n");   
+        sb.append("\r\n\r\n");
         sb.append("faceFemale:\r\n");
         for (MapleDataFileEntry topDir2 : root2.getFiles()) {
             int id = Integer.parseInt(topDir2.getName().substring(0, 8));

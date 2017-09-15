@@ -22,19 +22,20 @@ package handling.channel.handler;
 
 import client.*;
 import constants.GameConstants;
-import java.util.EnumMap;
-import java.util.Map;
 import server.Randomizer;
-import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CWvsContext;
+import tools.types.Pair;
+
+import java.util.EnumMap;
+import java.util.Map;
 
 public class StatsHandling {
 
     public static void DistributeAP(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         Map<MapleStat, Integer> statupdate = new EnumMap<>(MapleStat.class);
         c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
-slea.readInt();
+        slea.readInt();
 
         final PlayerStats stat = chr.getStat();
         final int job = chr.getJob();
@@ -125,7 +126,7 @@ slea.readInt();
                     return;
             }
             chr.setRemainingAp((chr.getRemainingAp() - 1));
-          //  statupdate.put(MapleStat.AVAILABLE_AP, (int) chr.getRemainingAp());
+            //  statupdate.put(MapleStat.AVAILABLE_AP, (int) chr.getRemainingAp());
             c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
         }
     }
@@ -266,7 +267,7 @@ slea.readInt();
                     return;
             }
             chr.setRemainingAp((chr.getRemainingAp() - (amount + amount2)));
-           // statupdate.put(MapleStat.AVAILABLE_AP, (int) chr.getRemainingAp());
+            // statupdate.put(MapleStat.AVAILABLE_AP, (int) chr.getRemainingAp());
             c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
         }
     }

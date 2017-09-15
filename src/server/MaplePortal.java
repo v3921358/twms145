@@ -20,14 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server;
 
-import java.awt.Point;
-
 import client.MapleClient;
-import constants.MapConstants;
 import handling.channel.ChannelServer;
 import scripting.PortalScriptManager;
 import server.maps.MapleMap;
 import tools.packet.CWvsContext;
+
+import java.awt.*;
 
 public class MaplePortal {
 
@@ -43,7 +42,7 @@ public class MaplePortal {
         this.type = type;
     }
 
-    
+
     public final int getId() {
         return id;
     }
@@ -52,62 +51,56 @@ public class MaplePortal {
         this.id = id;
     }
 
-    
+
     public final String getName() {
         return name;
-    }
-
-    
-    public final Point getPosition() {
-        return position;
-    }
-
-    
-    public final String getTarget() {
-        return target;
-    }
-
-    
-    public final int getTargetMapId() {
-        return targetmap;
-    }
-
-    
-    public final int getType() {
-        return type;
-    }
-
-    
-    public final String getScriptName() {
-        return scriptName;
     }
 
     public final void setName(final String name) {
         this.name = name;
     }
 
+    public final Point getPosition() {
+        return position;
+    }
+
     public final void setPosition(final Point position) {
         this.position = position;
+    }
+
+    public final String getTarget() {
+        return target;
     }
 
     public final void setTarget(final String target) {
         this.target = target;
     }
 
+    public final int getTargetMapId() {
+        return targetmap;
+    }
+
     public final void setTargetMapId(final int targetmapid) {
         this.targetmap = targetmapid;
     }
 
-    
+    public final int getType() {
+        return type;
+    }
+
+    public final String getScriptName() {
+        return scriptName;
+    }
+
     public final void setScriptName(final String scriptName) {
         this.scriptName = scriptName;
     }
 
-    
+
     public final void enterPortal(final MapleClient c) {
         if (getPosition().distanceSq(c.getPlayer().getPosition()) > 40000 && !c.getPlayer().isGM()) {
             c.sendPacket(CWvsContext.enableActions());
-	    return;
+            return;
         }
         final MapleMap currentmap = c.getPlayer().getMap();
         // c.getPlayer().setLastMap(currentmap.getWorldId(),this);
@@ -121,10 +114,10 @@ public class MaplePortal {
                 }
             } else if (getTargetMapId() != 999999999) {
                 final MapleMap to = ChannelServer.getInstance(c.getWorld(), c.getChannel()).getMapFactory().getMap(getTargetMapId());
-				if (to == null) {
-            	    c.sendPacket(CWvsContext.enableActions());
-					return;
-				}
+                if (to == null) {
+                    c.sendPacket(CWvsContext.enableActions());
+                    return;
+                }
                 if (!c.getPlayer().isGM()) {
                     if (to.getLevelLimit() > 0 && to.getLevelLimit() > c.getPlayer().getLevel()) {
                         c.getPlayer().dropMessage(-1, "You are too low of a level to enter this place.");
@@ -140,12 +133,12 @@ public class MaplePortal {
         }
     }
 
-    
+
     public boolean getPortalState() {
         return portalState;
     }
 
-    
+
     public void setPortalState(boolean ps) {
         this.portalState = ps;
     }

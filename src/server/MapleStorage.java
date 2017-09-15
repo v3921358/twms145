@@ -7,14 +7,15 @@ import client.inventory.MapleInventoryType;
 import constants.GameConstants;
 import database.DatabaseConnection;
 import database.DatabaseException;
+import tools.packet.CField.NPCPacket;
+import tools.types.Pair;
+
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import tools.types.Pair;
-import tools.packet.CField.NPCPacket;
 
 public class MapleStorage implements Serializable {
 
@@ -177,7 +178,7 @@ public class MapleStorage implements Serializable {
 
     public void sendStorage(MapleClient c, int npcId) {
         // sort by inventorytype to avoid confusion
-	lastNPC = npcId;
+        lastNPC = npcId;
         Collections.sort(items, new Comparator<Item>() {
 
             @Override
@@ -213,6 +214,14 @@ public class MapleStorage implements Serializable {
         return meso;
     }
 
+    public void setMeso(int meso) {
+        if (meso < 0) {
+            return;
+        }
+        changed = true;
+        this.meso = meso;
+    }
+
     public Item findById(int itemId) {
         for (Item item : items) {
             if (item.getItemId() == itemId) {
@@ -220,14 +229,6 @@ public class MapleStorage implements Serializable {
             }
         }
         return null;
-    }
-
-    public void setMeso(int meso) {
-        if (meso < 0) {
-            return;
-        }
-        changed = true;
-        this.meso = meso;
     }
 
     public void sendMeso(MapleClient c) {
@@ -242,14 +243,14 @@ public class MapleStorage implements Serializable {
         return slots;
     }
 
-    public void increaseSlots(byte gain) {
-        changed = true;
-        this.slots += gain;
-    }
-
     public void setSlots(byte set) {
         changed = true;
         this.slots = set;
+    }
+
+    public void increaseSlots(byte gain) {
+        changed = true;
+        this.slots += gain;
     }
 
     public void close() {

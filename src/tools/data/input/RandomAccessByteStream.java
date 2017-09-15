@@ -26,7 +26,7 @@ import java.io.RandomAccessFile;
 /**
  * Provides an abstract layer to a byte stream. This layer can be accessed
  * randomly.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 323
@@ -39,8 +39,7 @@ public class RandomAccessByteStream implements SeekableInputStreamBytestream {
     /**
      * Class constructor. Wraps this object around a RandomAccessFile.
      *
-     * @param raf
-     *            The RandomAccessFile instance to wrap this around.
+     * @param raf The RandomAccessFile instance to wrap this around.
      * @see java.io.RandomAccessFile
      */
     public RandomAccessByteStream(final RandomAccessFile raf) {

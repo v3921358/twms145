@@ -52,23 +52,19 @@ public class MapleServerHandler extends ChannelDuplexHandler {
     public final static int CASH_SHOP_SERVER = -10;
 
     public final static int LOGIN_SERVER = 0;
-
+    private static final EnumSet<RecvPacketOpcode> blocked = EnumSet.noneOf(RecvPacketOpcode.class), sBlocked = EnumSet.noneOf(RecvPacketOpcode.class);
     private int world = -1;
-
     private int channel = -1;
-
     private SessionTracker sessionTracker = new SessionTracker();
 
-    private static final EnumSet<RecvPacketOpcode> blocked = EnumSet.noneOf(RecvPacketOpcode.class), sBlocked = EnumSet.noneOf(RecvPacketOpcode.class);
-
-
-    public static void initiate() {
-
-    }
 
     public MapleServerHandler(final int world, final int channel) {
         this.world = world;
         this.channel = channel;
+    }
+
+    public static void initiate() {
+
     }
 
     public boolean isLoginServer() {
@@ -210,7 +206,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                         FileoutputUtil.log(FileoutputUtil.PacketEx_Log, "Packet: " + opcode + "\n" + slea.toString(true));
                     }
                 } catch (Exception e) {
-                    if(ServerConstants.DEBUG) {
+                    if (ServerConstants.DEBUG) {
                         e.printStackTrace();
                     }
                     FileoutputUtil.outputFileError(FileoutputUtil.PacketEx_Log, e);

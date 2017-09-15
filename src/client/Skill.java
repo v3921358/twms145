@@ -21,9 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package client;
 
 import constants.GameConstants;
-import java.util.ArrayList;
-import java.util.List;
-
 import provider.MapleData;
 import provider.MapleDataTool;
 import server.MapleStatEffect;
@@ -31,13 +28,16 @@ import server.Randomizer;
 import server.life.Element;
 import tools.types.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Skill {
 
-    private String name = "", psdDamR = "";
     private final List<MapleStatEffect> effects = new ArrayList<MapleStatEffect>();
+    private final List<Pair<Integer, Byte>> requiredSkill = new ArrayList<Pair<Integer, Byte>>();
+    private String name = "", psdDamR = "";
     private List<MapleStatEffect> pvpEffects = null;
     private List<Integer> animation = null;
-    private final List<Pair<Integer, Byte>> requiredSkill = new ArrayList<Pair<Integer, Byte>>();
     private Element element = Element.NEUTRAL;
     private int id, animationTime = 0, masterLevel = 0, maxLevel = 0, delay = 0, trueMax = 0, eventTamingMob = 0, skillType = 0, psd = 0, psdSkill = 0;
     private boolean invisible = false, chargeskill = false, timeLimited = false, combatOrders = false, pvpDisabled = false, magic = false, casterMove = false, pushTarget = false, pullTarget = false;
@@ -45,18 +45,6 @@ public class Skill {
     public Skill(final int id) {
         super();
         this.id = id;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public static final Skill loadFromData(final int id, final MapleData data, final MapleData delayData) {
@@ -74,10 +62,9 @@ public class Skill {
         ret.combatOrders = MapleDataTool.getInt("combatOrders", data, 0) > 0;
         ret.masterLevel = MapleDataTool.getInt("masterLevel", data, 0);
         ret.psd = MapleDataTool.getInt("psd", data, 0);
-        if(ret.psd == 1){
+        if (ret.psd == 1) {
             final MapleData psdskill = data.getChildByPath("psdSkill");
-            if (psdskill != null)
-            {
+            if (psdskill != null) {
                 ret.psdSkill = Integer.parseInt(data.getChildByPath("psdSkill").getChildren().get(0).getName());
             }
         }
@@ -179,11 +166,11 @@ public class Skill {
                 case 20001004:
                 case 20011004:
                 case 80001000:
-                    
+
                 case 80001079:
                 case 80001080:
                 case 80001081:
-                    
+
                 case 1026:
                 case 10001026:
                 case 20001026:
@@ -235,10 +222,10 @@ public class Skill {
                 case 22181004:
                 case 22161004:
                 case 22181003: //soul stone
-                //case 22121000:
-                //case 22141003:
-                //case 22151001:
-                //case 22161002:
+                    //case 22121000:
+                    //case 22141003:
+                    //case 22151001:
+                    //case 22161002:
                 case 4331003: //owl spirit
                 case 15101006: //spark
                 case 15111006: //spark
@@ -269,7 +256,7 @@ public class Skill {
                 case 32121003: //twister
                 case 5111007:
                 case 5211007:
-                case 15111011://dice 
+                case 15111011://dice
                 case 5311005:
                 case 5320007:
                 case 5720005:
@@ -284,7 +271,7 @@ public class Skill {
                 case 32110008:
                 case 32110009:
                 case 32111005:
-                case 31121005:		
+                case 31121005:
                 case 35121003:
                 case 35121009:
                 case 35121010:
@@ -316,8 +303,8 @@ public class Skill {
             }
         }
         ret.chargeskill = data.getChildByPath("keydown") != null;
-        //some skills have old system, some new		
-	final MapleData level = data.getChildByPath("common");
+        //some skills have old system, some new
+        final MapleData level = data.getChildByPath("common");
         if (level != null) {
             ret.maxLevel = MapleDataTool.getInt("maxLevel", level, 1); //10 just a failsafe, shouldn't actually happens
             ret.psdDamR = MapleDataTool.getString("damR", level, ""); //for the psdSkill tag
@@ -354,6 +341,18 @@ public class Skill {
             }
         }
         return ret;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 
     public MapleStatEffect getEffect(final int level) {
@@ -413,14 +412,16 @@ public class Skill {
     public boolean hasRequiredSkill() {
         return requiredSkill.size() > 0;
     }
-    
-    public int getPsdSkill(){
+
+    public int getPsdSkill() {
         return psdSkill;
     }
-    public int getPsd(){
+
+    public int getPsd() {
         return psd;
     }
-    public String getPsdDamR(){
+
+    public String getPsdDamR() {
         return psdDamR;
     }
 
@@ -443,7 +444,7 @@ public class Skill {
     public boolean canBeLearnedBy(int job) {
         int jid = job;
         int skillForJob = id / 10000;
-       if (skillForJob == 2001) {
+        if (skillForJob == 2001) {
             return GameConstants.isEvan(job); //special exception for beginner -.-
         } else if (skillForJob == 0) {
             return GameConstants.isAdventurer(job); //special exception for beginner
@@ -459,9 +460,9 @@ public class Skill {
             return GameConstants.isDemon(job); //special exception for beginner
         } else if (skillForJob == 2002) {
             return GameConstants.isMercedes(job); //special exception for beginner
-		} else if (skillForJob == 508) {
+        } else if (skillForJob == 508) {
             return GameConstants.isJett(job); //special exception for beginner
-		} else if (skillForJob == 2003) {
+        } else if (skillForJob == 2003) {
             return GameConstants.isPhantom(job); //special exception for beginner
         } else if (jid / 100 != skillForJob / 100) { // wrong job
             return false;
@@ -469,9 +470,9 @@ public class Skill {
             return false;
         } else if (GameConstants.isPhantom(skillForJob) && !GameConstants.isPhantom(job)) {
             return false;
-		} else if (GameConstants.isJett(skillForJob) && !GameConstants.isJett(job)) {
+        } else if (GameConstants.isJett(skillForJob) && !GameConstants.isJett(job)) {
             return false;
-		} else if (GameConstants.isCannon(skillForJob) && !GameConstants.isCannon(job)) {
+        } else if (GameConstants.isCannon(skillForJob) && !GameConstants.isCannon(job)) {
             return false;
         } else if (GameConstants.isDemon(skillForJob) && !GameConstants.isDemon(job)) {
             return false;
@@ -500,25 +501,26 @@ public class Skill {
     public boolean isTimeLimited() {
         return timeLimited;
     }
+
     public boolean isFourthJobSkill(int skillid) {
-         switch (skillid / 10000) {
-             case 112:
-             case 122:
-             case 132:
-             case 212:
-             case 222:
-             case 232:
-             case 312:
-             case 322:
-             case 412:
-             case 422:
-             case 512:
-             case 522: 
-             return true;
-         }
-         return false;
+        switch (skillid / 10000) {
+            case 112:
+            case 122:
+            case 132:
+            case 212:
+            case 222:
+            case 232:
+            case 312:
+            case 322:
+            case 412:
+            case 422:
+            case 512:
+            case 522:
+                return true;
+        }
+        return false;
     }
-    
+
     public boolean isThirdJobSkill(int skillid) {
         switch (skillid / 10000) {
             case 111:
@@ -537,8 +539,9 @@ public class Skill {
         }
         return false;
     }
+
     public boolean isSecondJobSkill(int skillid) {
-        switch(skillid / 10000) {
+        switch (skillid / 10000) {
             case 110:
             case 120:
             case 130:
@@ -555,31 +558,33 @@ public class Skill {
         }
         return false;
     }
+
     public boolean isFourthJob() {
-		switch (id) { // I guess imma make an sql table to store these, so that we could max them all out.
-			case 3220010:
-			case 3120011:
-			case 33120010:
-                        case 5220014:
-                        case 23120011:
-                        case 23121008:
-                        case 33121005:
-			//case 32120009:
-			case 5321006:
-			case 21120011:
-			case 22181004:
-			case 4340010:
-                        case 4320005:
-                        case 5720008:
-                        case 5120012:
-                        case 5320007:
-                        //case 24121004://Aria Phantom skill
-				return false;
-		}			
+        switch (id) { // I guess imma make an sql table to store these, so that we could max them all out.
+            case 3220010:
+            case 3120011:
+            case 33120010:
+            case 5220014:
+            case 23120011:
+            case 23121008:
+            case 33121005:
+                //case 32120009:
+            case 5321006:
+            case 21120011:
+            case 22181004:
+            case 4340010:
+            case 4320005:
+            case 5720008:
+            case 5120012:
+            case 5320007:
+                //case 24121004://Aria Phantom skill
+                return false;
+        }
         //resurrection has master level while ult.strafe does not.. wtf, impossible to tell from WZ
         if ((id / 10000) == 2312) { //all 10 skills.
             return true;
-        }if (id == 24121009 || id == 24121010) { //LOL WTF U LOSER
+        }
+        if (id == 24121009 || id == 24121010) { //LOL WTF U LOSER
             return true;
         }
         if ((getMaxLevel() <= 15 && !invisible && getMasterLevel() <= 0)) {
@@ -639,8 +644,8 @@ public class Skill {
         int jobId = id / 10000;
         return jobId == 900 || jobId == 800 || jobId == 9000 || jobId == 9200 || jobId == 9201 || jobId == 9202 || jobId == 9203 || jobId == 9204;
     }
-    
-     public boolean isGMSkill(int skillId) {
+
+    public boolean isGMSkill(int skillId) {
         switch (skillId) { //get all the gm skill ids
             case 8001000:
             case 8001001:
@@ -661,15 +666,15 @@ public class Skill {
                 return false;
         }
     }
-    
+
     public boolean isNormalSkill(Skill skillId, boolean isGM) {
         return isNormalSkill(skillId.getId(), isGM);
     }
-    
+
     public boolean isNormalSkill(int skillId) {
         return isNormalSkill(skillId, false);
     }
-    
+
     public boolean isNormalSkill(int skillId, boolean isGM) {
         if (isGMSkill(skillId) && !isGM) {
             return false;
@@ -735,8 +740,8 @@ public class Skill {
             case 4330008: //FIX THIS
             case 14110009: //FIX THIS
             case 22131001: //FIX THIS*/
-            case 1000007: 
-            case 2000007: 
+            case 1000007:
+            case 2000007:
             case 3000006:
             case 4000010:
             case 5000006:
@@ -784,13 +789,13 @@ public class Skill {
             case 35000005:
             case 35121011:
                 return false;
-            default :
+            default:
                 if ((skillId >= 70000000 || skillId < 10000) || (skillId > 10000000 && skillId < 10019999) || (skillId > 20000000 && skillId < 20039999) || (skillId > 30000000 && skillId < 30019999) || (skillId > 50000000 && skillId < 50009999)) {
                     return false;
                 } else {
                     return true;
                 }
         }
-        
+
     }
 }

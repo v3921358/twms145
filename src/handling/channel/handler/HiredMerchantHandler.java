@@ -29,6 +29,14 @@ import constants.GameConstants;
 import constants.ServerConstants;
 import database.DatabaseConnection;
 import handling.world.World;
+import server.MapleInventoryManipulator;
+import server.MerchItemPackage;
+import tools.StringUtil;
+import tools.data.LittleEndianAccessor;
+import tools.packet.CWvsContext;
+import tools.packet.PlayerShopPacket;
+import tools.types.Pair;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,13 +44,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import server.MapleInventoryManipulator;
-import server.MerchItemPackage;
-import tools.types.Pair;
-import tools.StringUtil;
-import tools.data.LittleEndianAccessor;
-import tools.packet.CWvsContext;
-import tools.packet.PlayerShopPacket;
 
 public class HiredMerchantHandler {
 
@@ -131,9 +132,8 @@ public class HiredMerchantHandler {
             }
         }
     }*/
-    
-    
-    
+
+
     public static void displayMerch(MapleClient c) {
         final int conv = c.getPlayer().getConversation();
         boolean merch = World.hasMerchant(c.getPlayer().getAccountID(), c.getPlayer().getId());
@@ -168,11 +168,11 @@ public class HiredMerchantHandler {
                 }
                 c.getPlayer().setConversation(0);
             } else {
-               c.sendPacket(PlayerShopPacket.merchItemStore_ItemData(pack));
+                c.sendPacket(PlayerShopPacket.merchItemStore_ItemData(pack));
                 MapleInventoryManipulator.checkSpace(c, conv, conv, null);
                 for (final Item item : pack.getItems()) {
-                    if(c.getPlayer().getInventory(GameConstants.getInventoryType(item.getItemId())).isFull()){
-                      c.getPlayer().dropMessage(1, "Your inventory is full, please make room before claiming items back.");
+                    if (c.getPlayer().getInventory(GameConstants.getInventoryType(item.getItemId())).isFull()) {
+                        c.getPlayer().dropMessage(1, "Your inventory is full, please make room before claiming items back.");
                         c.getPlayer().setConversation(0);
                         break;
                     }
@@ -185,7 +185,7 @@ public class HiredMerchantHandler {
         }
         c.sendPacket(CWvsContext.enableActions());
     }
-    
+
 
     public static void MerchantItemStore(final LittleEndianAccessor slea, final MapleClient c) {
         if (c.getPlayer() == null) {
@@ -270,8 +270,8 @@ public class HiredMerchantHandler {
                 cash++;
             }
 //            if (MapleItemInformationProvider.getInstance().isPickupRestricted(item.getItemId()) && chr.haveItem(item.getItemId(), 1)) {
-  //              return false;
-    //        }
+            //              return false;
+            //        }
         }
         if (chr.getInventory(MapleInventoryType.EQUIP).getNumFreeSlot() < eq || chr.getInventory(MapleInventoryType.USE).getNumFreeSlot() < use || chr.getInventory(MapleInventoryType.SETUP).getNumFreeSlot() < setup || chr.getInventory(MapleInventoryType.ETC).getNumFreeSlot() < etc || chr.getInventory(MapleInventoryType.CASH).getNumFreeSlot() < cash) {
             return false;

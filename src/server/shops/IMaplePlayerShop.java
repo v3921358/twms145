@@ -22,9 +22,10 @@ package server.shops;
 
 import client.MapleCharacter;
 import client.MapleClient;
-import java.util.List;
 import server.shops.AbstractPlayerStore.BoughtItem;
 import tools.types.Pair;
+
+import java.util.List;
 
 public interface IMaplePlayerShop {
 
@@ -43,6 +44,8 @@ public interface IMaplePlayerShop {
 
     public boolean isOpen();
 
+    public void setOpen(boolean open);
+
     public boolean removeItem(int item);
 
     public boolean isOwner(MapleCharacter chr);
@@ -57,13 +60,11 @@ public interface IMaplePlayerShop {
 
     public int getMeso();
 
+    public void setMeso(int meso);
+
     public int getOwnerId();
 
     public int getOwnerAccId();
-
-    public void setOpen(boolean open);
-
-    public void setMeso(int meso);
 
     public void addItem(MaplePlayerShopItem item);
 
@@ -91,9 +92,9 @@ public interface IMaplePlayerShop {
 
     public void update();
 
-    public void setAvailable(boolean b);
-
     public boolean isAvailable();
+
+    public void setAvailable(boolean b);
 
     public List<BoughtItem> getBoughtItems();
 }

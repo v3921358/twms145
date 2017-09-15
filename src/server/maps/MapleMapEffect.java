@@ -40,12 +40,12 @@ public class MapleMapEffect {
         this.active = active;
     }
 
-    public void setJukebox(boolean actie) {
-        this.jukebox = actie;
-    }
-
     public boolean isJukebox() {
         return this.jukebox;
+    }
+
+    public void setJukebox(boolean actie) {
+        this.jukebox = actie;
     }
 
     public byte[] makeDestroyData() { //jukebox doesn't REALLY have a destroy, but 0 stops all music

@@ -28,11 +28,12 @@ import handling.world.World;
 import handling.world.family.MapleFamily;
 import handling.world.family.MapleFamilyBuff;
 import handling.world.family.MapleFamilyCharacter;
-import java.util.List;
 import server.maps.FieldLimitType;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CWvsContext;
 import tools.packet.CWvsContext.FamilyPacket;
+
+import java.util.List;
 
 public class FamilyHandler {
 
@@ -93,8 +94,8 @@ public class FamilyHandler {
             case EXP_12_15: // exp rate + 50% 15 min
             case Drop_12_30: // drop rate + 100% 15 min
             case EXP_12_30: // exp rate + 100% 15 min
-	    case Drop_15_15:
-	    case Drop_15_30:
+            case Drop_15_15:
+            case Drop_15_30:
                 //c.sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
                 entry.applyTo(c.getPlayer());
                 break;
@@ -116,12 +117,12 @@ public class FamilyHandler {
                     }
                 }
                 break;
-	    case EXP_Party:
+            case EXP_Party:
             case Drop_Party_12: // drop rate + 100% party 30 min
             case Drop_Party_15: // exp rate + 100% party 30 min
                 entry.applyTo(c.getPlayer());
                 //c.sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
-                if (c.getPlayer().getParty() != null ) {
+                if (c.getPlayer().getParty() != null) {
                     for (MaplePartyCharacter mpc : c.getPlayer().getParty().getMembers()) {
                         if (mpc.getId() != c.getPlayer().getId()) {
                             MapleCharacter chr = c.getPlayer().getMap().getCharacterById(mpc.getId());
@@ -210,9 +211,9 @@ public class FamilyHandler {
         //junior is not required to be online.
         final MapleFamily fam = World.Family.getFamily(c.getPlayer().getFamilyId());
         final MapleFamilyCharacter other = fam.getMFC(juniorid);
-	if (other == null) {
-	    return;
-	}
+        if (other == null) {
+            return;
+        }
         final MapleFamilyCharacter oth = c.getPlayer().getMFC();
         boolean junior2 = oth.getJunior2() == juniorid;
         if (junior2) {
@@ -291,16 +292,16 @@ public class FamilyHandler {
                     if (old > 0 && World.Family.getFamily(old) != null) { //has junior
                         MapleFamily.mergeFamily(fam, World.Family.getFamily(old));
                     } else {
-			c.getPlayer().setFamily(inviter.getFamilyId(), inviter.getId(), oldj1 <= 0 ? 0 : oldj1, oldj2 <= 0 ? 0 : oldj2);
+                        c.getPlayer().setFamily(inviter.getFamilyId(), inviter.getId(), oldj1 <= 0 ? 0 : oldj1, oldj2 <= 0 ? 0 : oldj2);
                         fam.setOnline(c.getPlayer().getId(), true, c.getChannel());
                         c.getPlayer().saveFamilyStatus();
                     }
-		    if (fam != null) {
+                    if (fam != null) {
                         if (inviter.getNoJuniors() == 1 || old > 0) {//just got their first junior whoopee
                             fam.resetDescendants();
                         }
                         fam.resetPedigree(); //is this necessary?
-		    }
+                    }
                 } else {
                     int id = MapleFamily.createFamily(inviter.getId());
                     if (id > 0) {

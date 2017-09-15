@@ -29,6 +29,12 @@ import constants.GameConstants;
 import database.DatabaseConnection;
 import handling.channel.ChannelServer;
 import handling.world.World;
+import server.maps.MapleMap;
+import server.maps.MapleMapObject;
+import server.maps.MapleMapObjectType;
+import tools.packet.PlayerShopPacket;
+import tools.types.Pair;
+
 import java.lang.ref.WeakReference;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,11 +44,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import server.maps.MapleMap;
-import server.maps.MapleMapObject;
-import server.maps.MapleMapObjectType;
-import tools.types.Pair;
-import tools.packet.PlayerShopPacket;
 
 public abstract class AbstractPlayerStore extends MapleMapObject implements IMaplePlayerShop {
 
@@ -54,7 +55,7 @@ public abstract class AbstractPlayerStore extends MapleMapObject implements IMap
     protected List<String> visitors = new LinkedList<>();
     protected List<BoughtItem> bought = new LinkedList<>();
     protected List<MaplePlayerShopItem> items = new LinkedList<>();
-    
+
     @SuppressWarnings("unchecked")
     public AbstractPlayerStore(MapleCharacter owner, int itemId, String desc, String pass, int slots) {
         this.setPosition(owner.getTruePosition());
@@ -121,13 +122,13 @@ public abstract class AbstractPlayerStore extends MapleMapObject implements IMap
     }
 
     @Override
-    public void setOpen(boolean open) {
-        this.open = open;
+    public boolean isOpen() {
+        return open;
     }
 
     @Override
-    public boolean isOpen() {
-        return open;
+    public void setOpen(boolean open) {
+        this.open = open;
     }
 
     public boolean saveItems() {

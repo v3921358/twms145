@@ -8,24 +8,21 @@ import client.inventory.MapleInventoryType;
 import client.inventory.MaplePet;
 import constants.GameConstants;
 import database.DatabaseConnection;
+import tools.FileoutputUtil;
+import tools.packet.CField.NPCPacket;
+import tools.packet.CWvsContext;
+import tools.packet.CWvsContext.InventoryPacket;
+import tools.types.Pair;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import tools.FileoutputUtil;
-import tools.types.Pair;
-import tools.packet.CField.NPCPacket;
-import tools.packet.CWvsContext;
-import tools.packet.CWvsContext.InventoryPacket;
 
 public class MapleShop {
 
     private static final Set<Integer> rechargeableItems = new LinkedHashSet<>();
-    private int id;
-    private int npcId;
-    private List<MapleShopItem> items = new LinkedList<>();
-    private List<Pair<Integer, String>> ranks = new ArrayList<>();
 
     static {
         rechargeableItems.add(2070000);
@@ -57,10 +54,78 @@ public class MapleShop {
         rechargeableItems.add(2332000);
     }
 
-    /** Creates a new instance of MapleShop */
+    private int id;
+    private int npcId;
+    private List<MapleShopItem> items = new LinkedList<>();
+    private List<Pair<Integer, String>> ranks = new ArrayList<>();
+
+    /**
+     * Creates a new instance of MapleShop
+     */
     private MapleShop(int id, int npcId) {
         this.id = id;
         this.npcId = npcId;
+    }
+
+    public static MapleShop createFromDB(int id, boolean isShopId) {
+        MapleShop ret = null;
+        int shopId;
+        MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+        try {
+            Connection con = DatabaseConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(isShopId ? "SELECT * FROM shops WHERE shopid = ?" : "SELECT * FROM shops WHERE npcid = ?");
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                shopId = rs.getInt("shopid");
+                ret = new MapleShop(shopId, rs.getInt("npcid"));
+                rs.close();
+                ps.close();
+            } else {
+                rs.close();
+                ps.close();
+                return null;
+            }
+            ps = con.prepareStatement("SELECT * FROM shopitems WHERE shopid = ? ORDER BY position ASC");
+            ps.setInt(1, shopId);
+            rs = ps.executeQuery();
+            List<Integer> recharges = new ArrayList<>(rechargeableItems);
+            while (rs.next()) {
+                if (!ii.itemExists(rs.getInt("itemid"))) {
+                    continue;
+                }
+                if (GameConstants.isThrowingStar(rs.getInt("itemid")) || GameConstants.isBullet(rs.getInt("itemid"))) {
+                    MapleShopItem starItem = new MapleShopItem(rs.getInt("itemid"), rs.getInt("price"), rs.getInt("reqitem"), rs.getInt("reqitemq"), rs.getByte("rank"), rs.getInt("category"), rs.getInt("minLevel"), rs.getInt("expiration"));
+                    ret.addItem(starItem);
+                    if (rechargeableItems.contains(starItem.getItemId())) {
+                        recharges.remove(Integer.valueOf(starItem.getItemId()));
+                    }
+                } else {
+                    ret.addItem(new MapleShopItem(rs.getInt("itemid"), rs.getInt("price"), rs.getInt("reqitem"), rs.getInt("reqitemq"), rs.getByte("rank"), rs.getInt("category"), rs.getInt("minLevel"), rs.getInt("expiration")));
+                }
+            }
+            for (Integer recharge : recharges) {
+                ret.addItem(new MapleShopItem(recharge.intValue(), 0, 0, 0, (byte) 0, 0, 0, 0));
+            }
+            rs.close();
+            ps.close();
+
+            ps = con.prepareStatement("SELECT * FROM shopranks WHERE shopid = ? ORDER BY rank ASC");
+            ps.setInt(1, shopId);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                if (!ii.itemExists(rs.getInt("itemid"))) {
+                    continue;
+                }
+                ret.ranks.add(new Pair<>(rs.getInt("itemid"), rs.getString("name")));
+            }
+            rs.close();
+            ps.close();
+        } catch (SQLException e) {
+            System.err.println("Could not load shop");
+        }
+        return ret;
     }
 
     public void addItem(MapleShopItem item) {
@@ -244,67 +309,6 @@ public class MapleShop {
             }
         }
         return null;
-    }
-
-    public static MapleShop createFromDB(int id, boolean isShopId) {
-        MapleShop ret = null;
-        int shopId;
-        MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        try {
-            Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement(isShopId ? "SELECT * FROM shops WHERE shopid = ?" : "SELECT * FROM shops WHERE npcid = ?");
-
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                shopId = rs.getInt("shopid");
-                ret = new MapleShop(shopId, rs.getInt("npcid"));
-                rs.close();
-                ps.close();
-            } else {
-                rs.close();
-                ps.close();
-                return null;
-            }
-            ps = con.prepareStatement("SELECT * FROM shopitems WHERE shopid = ? ORDER BY position ASC");
-            ps.setInt(1, shopId);
-            rs = ps.executeQuery();
-            List<Integer> recharges = new ArrayList<>(rechargeableItems);
-            while (rs.next()) {
-                if (!ii.itemExists(rs.getInt("itemid"))) {
-                    continue;
-                }
-                if (GameConstants.isThrowingStar(rs.getInt("itemid")) || GameConstants.isBullet(rs.getInt("itemid"))) {
-                    MapleShopItem starItem = new MapleShopItem(rs.getInt("itemid"), rs.getInt("price"), rs.getInt("reqitem"), rs.getInt("reqitemq"), rs.getByte("rank"), rs.getInt("category"), rs.getInt("minLevel"), rs.getInt("expiration"));
-                    ret.addItem(starItem);
-                    if (rechargeableItems.contains(starItem.getItemId())) {
-                        recharges.remove(Integer.valueOf(starItem.getItemId()));
-                    }
-                } else {
-                    ret.addItem(new MapleShopItem(rs.getInt("itemid"), rs.getInt("price"), rs.getInt("reqitem"), rs.getInt("reqitemq"), rs.getByte("rank"), rs.getInt("category"), rs.getInt("minLevel"), rs.getInt("expiration")));
-                }
-            }
-            for (Integer recharge : recharges) {
-                ret.addItem(new MapleShopItem(recharge.intValue(), 0, 0, 0, (byte) 0, 0, 0, 0));
-            }
-            rs.close();
-            ps.close();
-
-            ps = con.prepareStatement("SELECT * FROM shopranks WHERE shopid = ? ORDER BY rank ASC");
-            ps.setInt(1, shopId);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                if (!ii.itemExists(rs.getInt("itemid"))) {
-                    continue;
-                }
-                ret.ranks.add(new Pair<>(rs.getInt("itemid"), rs.getString("name")));
-            }
-            rs.close();
-            ps.close();
-        } catch (SQLException e) {
-            System.err.println("Could not load shop");
-        }
-        return ret;
     }
 
     public int getNpcId() {

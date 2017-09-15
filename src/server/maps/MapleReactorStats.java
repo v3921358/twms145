@@ -20,31 +20,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
-import java.awt.Point;
+import tools.types.Pair;
+
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import tools.types.Pair;
 
 public class MapleReactorStats {
 
     private Point tl;
     private Point br;
     private Map<Byte, StateData> stateInfo = new HashMap<>();
-	
-    public void setTL(Point tl) {
-        this.tl = tl;
-    }
-
-    public void setBR(Point br) {
-        this.br = br;
-    }
 
     public Point getTL() {
         return tl;
     }
 
+    public void setTL(Point tl) {
+        this.tl = tl;
+    }
+
     public Point getBR() {
         return br;
+    }
+
+    public void setBR(Point br) {
+        this.br = br;
     }
 
     public void addState(byte state, int type, Pair<Integer, Integer> reactItem, byte nextState, int timeOut, byte canTouch) {
@@ -86,7 +87,7 @@ public class MapleReactorStats {
             return -1;
         }
     }
-	
+
     public byte canTouch(byte state) {
         StateData nextState = stateInfo.get(state);
         if (nextState != null) {
@@ -107,7 +108,7 @@ public class MapleReactorStats {
             this.reactItem = reactItem;
             this.nextState = nextState;
             this.timeOut = timeOut;
-			this.canTouch = canTouch;
+            this.canTouch = canTouch;
         }
 
         private int getType() {
@@ -125,9 +126,9 @@ public class MapleReactorStats {
         private int getTimeOut() {
             return timeOut;
         }
-		
-		private byte canTouch() {
-			return canTouch;
-		}
+
+        private byte canTouch() {
+            return canTouch;
+        }
     }
 }

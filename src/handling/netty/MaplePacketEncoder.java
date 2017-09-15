@@ -22,7 +22,6 @@ package handling.netty;
 
 import client.MapleClient;
 import constants.ServerConstants;
-import handling.RecvPacketOpcode;
 import handling.SendPacketOpcode;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

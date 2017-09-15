@@ -20,33 +20,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client.messages;
 
-import java.util.ArrayList;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.messages.commands.*;
-import client.messages.commands.GodCommand;
-import client.messages.commands.AdminCommand;
-import client.messages.commands.GMCommand;
-import client.messages.commands.InternCommand;
-import client.messages.commands.PlayerCommand;
 import constants.ServerConstants.CommandType;
 import constants.ServerConstants.PlayerGMRank;
 import database.DatabaseConnection;
-import java.lang.reflect.Modifier;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import tools.FileoutputUtil;
-
-import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
+import tools.FileoutputUtil;
 import tools.types.Pair;
+
+import java.io.File;
+import java.lang.reflect.Modifier;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
 
 
 public class CommandProcessor {
@@ -57,8 +48,8 @@ public class CommandProcessor {
     static {
 
         Class<?>[] CommandFiles = {
-            PlayerCommand.class, InternCommand.class, GMCommand.class, AdminCommand.class, DonatorCommand.class, SuperDonatorCommand.class, SuperGMCommand.class,
-            GodCommand.class
+                PlayerCommand.class, InternCommand.class, GMCommand.class, AdminCommand.class, DonatorCommand.class, SuperDonatorCommand.class, SuperGMCommand.class,
+                GodCommand.class
         };
 
         for (Class<?> clasz : CommandFiles) {
@@ -79,9 +70,9 @@ public class CommandProcessor {
                             if (o instanceof CommandExecute && enabled) {
                                 cL.add(rankNeeded.getCommandPrefix() + c.getSimpleName().toLowerCase());
                                 commands.put(rankNeeded.getCommandPrefix() + c.getSimpleName().toLowerCase(), new CommandObject((CommandExecute) o, rankNeeded.getLevel()));
-				if (rankNeeded.getCommandPrefix() != PlayerGMRank.GM.getCommandPrefix() && rankNeeded.getCommandPrefix() != PlayerGMRank.NORMAL.getCommandPrefix()) { //add it again for GM
+                                if (rankNeeded.getCommandPrefix() != PlayerGMRank.GM.getCommandPrefix() && rankNeeded.getCommandPrefix() != PlayerGMRank.NORMAL.getCommandPrefix()) { //add it again for GM
                                     commands.put("!" + c.getSimpleName().toLowerCase(), new CommandObject((CommandExecute) o, PlayerGMRank.GM.getLevel()));
-				}
+                                }
                             }
                         }
                     } catch (Exception ex) {
@@ -97,9 +88,9 @@ public class CommandProcessor {
     }
 
     private static void sendDisplayMessage(MapleClient c, String msg, CommandType type) {
-	if (c.getPlayer() == null) {
-	    return;
-	}
+        if (c.getPlayer() == null) {
+            return;
+        }
         switch (type) {
             case NORMAL:
                 c.getPlayer().dropMessage(6, msg);
@@ -112,16 +103,16 @@ public class CommandProcessor {
     }
 
     public static void dropHelp(MapleClient c) {
-	final StringBuilder sb = new StringBuilder("Command list: ");
-	for (int i = 0; i <= c.getPlayer().getGMLevel(); i++) {
-	    if (commandList.containsKey(i)) {
-	        for (String s : commandList.get(i)) {
-		    sb.append(s);
-		    sb.append(" ");
-	        }
-	    }
-	}
-	c.getPlayer().dropMessage(6, sb.toString());
+        final StringBuilder sb = new StringBuilder("Command list: ");
+        for (int i = 0; i <= c.getPlayer().getGMLevel(); i++) {
+            if (commandList.containsKey(i)) {
+                for (String s : commandList.get(i)) {
+                    sb.append(s);
+                    sb.append(" ");
+                }
+            }
+        }
+        c.getPlayer().dropMessage(6, sb.toString());
     }
 
     public static boolean processCommand(MapleClient c, String line, CommandType type) {
@@ -145,7 +136,7 @@ public class CommandProcessor {
                 e.printStackTrace();
                 if (c.getPlayer().isGM()) {
                     sendDisplayMessage(c, "Error: " + e, type);
-		    FileoutputUtil.outputFileError(FileoutputUtil.PacketEx_Log, e);
+                    FileoutputUtil.outputFileError(FileoutputUtil.PacketEx_Log, e);
                 }
             }
             return true;
@@ -160,26 +151,26 @@ public class CommandProcessor {
                 if (co == null) {
                     if (splitted[0].equals(line.charAt(0) + "help")) {
                         dropHelp(c);
-		        return true;
-		    }
+                        return true;
+                    }
                     sendDisplayMessage(c, "That command does not exist.", type);
                     return true;
                 }
                 if (c.getPlayer().getGMLevel() >= co.getReqGMLevel()) {
                     int ret = 0;
-		    try {
-			ret = co.execute(c, splitted);
-		    } catch (ArrayIndexOutOfBoundsException x) {
-			sendDisplayMessage(c, "The command was not used properly: " + x, type);
-		    } catch (Exception e) {
-			FileoutputUtil.outputFileError(FileoutputUtil.CommandEx_Log, e);
-		    }
+                    try {
+                        ret = co.execute(c, splitted);
+                    } catch (ArrayIndexOutOfBoundsException x) {
+                        sendDisplayMessage(c, "The command was not used properly: " + x, type);
+                    } catch (Exception e) {
+                        FileoutputUtil.outputFileError(FileoutputUtil.CommandEx_Log, e);
+                    }
                     if (ret > 0 && c.getPlayer() != null) { //incase d/c after command or something
                         if (c.getPlayer().isGM()) {
                             logCommandToDB(c.getPlayer(), line, "gmlog");
-			} else {
+                        } else {
                             logCommandToDB(c.getPlayer(), line, "internlog");
-			}
+                        }
                     }
                 } else {
                     sendDisplayMessage(c, "You do not have the privileges to use that command.", type);
@@ -208,7 +199,7 @@ public class CommandProcessor {
             }
         }
     }
-    
+
     public static ArrayList<Pair<Integer, String>> getMobsIDsFromName(String search) {
         MapleDataProvider dataProvider = MapleDataProviderFactory.getDataProvider(new File("wz/String.wz"));
         ArrayList<Pair<Integer, String>> retMobs = new ArrayList<Pair<Integer, String>>();
@@ -231,7 +222,7 @@ public class CommandProcessor {
         try {
             return "not coded yet";//MapleLifeFactory.getMonster(id).getName();
         } catch (Exception e) {
-            return null; 
+            return null;
         }
     }
 }

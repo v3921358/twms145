@@ -23,11 +23,6 @@ package server.maps;
 import client.*;
 import client.MapleCharacter.DojoMode;
 import constants.GameConstants;
-import handling.world.MaplePartyCharacter;
-import java.awt.Point;
-import java.util.HashMap;
-import java.util.Map;
-import scripting.EventInstanceManager;
 import scripting.EventManager;
 import scripting.NPCScriptManager;
 import server.MapleItemInformationProvider;
@@ -46,288 +41,19 @@ import tools.packet.CField.UIPacket;
 import tools.packet.CWvsContext;
 import tools.packet.MobPacket;
 
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+
 public class MapScriptMethods {
 
     private static final Point witchTowerPos = new Point(-60, 184);
     private static final String[] mulungEffects = {
-        "I have been waiting for you! If you still have any courage left, come on in!",
-        "If you want to taste the bitterness of defeat, come on in!",
-        "You have quite the nerve! Don't mistake recklessness for wisdom!",
-        "I will make you thoroughly regret challenging the Mu Lung Dojo! Hurry up!",
-        "Your courage for challenging the Mu Lung Dojo is commendable!"};
-
-    private static enum onFirstUserEnter {
-
-        dojang_Eff,
-        dojang_Msg,
-        PinkBeen_before,
-        onRewordMap,
-        mpark_mobRegen,
-        StageMsg_together,
-        StageMsg_crack,
-        StageMsg_davy,
-        boss_Ani,
-        hauntedMaskFirstIn,
-        HWguest1stIn,
-        StageMsg_goddess,
-        party6weatherMsg,
-        Saint_eventMob,
-        StageMsg_juliet,
-        StageMsg_romio,
-        moonrabbit_mapEnter,
-        astaroth_summon,
-        boss_Ravana,
-        boss_Ravana_mirror,
-        killing_BonusSetting,
-        enter_secretGarden,
-        killing_MapSetting,
-        metro_firstSetting,
-        balog_bonusSetting,
-        balog_summon,
-        boss_summon,
-        easy_balog_summon,
-        Sky_TrapFEnter,
-        shammos_Fenter,
-        PRaid_D_Fenter,
-        PRaid_B_Fenter,
-        summon_pepeking,
-        Xerxes_summon,
-        VanLeon_Before,
-        cygnus_Summon,
-        storymap_scenario,
-        shammos_FStart,
-        kenta_mapEnter,
-        iceman_FEnter,
-        iceman_Boss,
-        prisonBreak_mapEnter,
-        Visitor_Cube_poison,
-        Visitor_Cube_Hunting_Enter_First,
-        VisitorCubePhase00_Start,
-        spaceGaGa_start,
-        spaceGaGa_sMap,
-        MD_eventMob,
-        visitorCube_addmobEnter,
-        Visitor_Cube_PickAnswer_Enter_First_1,
-        visitorCube_medicroom_Enter,
-        visitorCube_iceyunna_Enter,
-        Visitor_Cube_AreaCheck_Enter_First,
-        visitorCube_boomboom_Enter,
-        visitorCube_boomboom2_Enter,
-        CubeBossbang_Enter,
-        pyramidWeather,
-        MalayBoss_Int,
-        mPark_summonBoss,
-        NULL;
-
-        private static onFirstUserEnter fromString(String Str) {
-            try {
-                return valueOf(Str);
-            } catch (IllegalArgumentException ex) {
-                return NULL;
-            }
-        }
-    };
-
-    private static enum onUserEnter {
-
-        babyPigMap,
-        crash_Dragon,
-        evanleaveD,
-        ht_reward_enter,
-        orbisPQ_1stIn,
-        EnterWaterField,
-        hauntedMaskCheck,
-        getDragonEgg,
-        ludi_time_path,
-        patrty6_1stIn,
-        meetWithDragon,
-        space_first,
-        go1010100,
-        go1010200,
-        go1010300,
-        go1010400,
-        q31165e,
-        evanPromotion,
-        PromiseDragon,
-        evanTogether,
-        incubation_dragon,
-        crossHunter_q1608,
-        q1601_summon,
-        nMC_out0,
-        pyramidEnter,
-        TD_MC_Openning,
-        check_q20748,
-        TD_MC_gasi,
-        TD_MC_title,
-        cygnusJobTutorial,
-        cygnusTest,
-        startEreb,
-        dojang_Msg,
-        dojang_1st,
-        reundodraco,
-        undomorphdarco,
-        explorationPoint,
-        goAdventure,
-        go10000,
-        go20000,
-        go30000,
-        go40000,
-        go50000,
-        go1000000,
-        go1010000,
-        go1020000,
-        go2000000,
-        goArcher,
-        goPirate,
-        goRogue,
-        goMagician,
-        goSwordman,
-        goLith,
-        iceCave,
-        mirrorCave,
-        aranDirection,
-        rienArrow,
-        rien,
-        check_count,
-        Massacre_first,
-        Massacre_result,
-        aranTutorAlone,
-        evanAlone,
-        dojang_QcheckSet,
-        Sky_StageEnter,
-        outCase,
-        balog_buff,
-        balog_dateSet,
-        Sky_BossEnter,
-        Sky_GateMapEnter,
-        shammos_Enter,
-        shammos_Result,
-        shammos_Base,
-        dollCave00,
-        dollCave01,
-        dollCave02,
-        Sky_Quest,
-        enterBlackfrog,
-        onSDI,
-        blackSDI,
-        summonIceWall,
-        metro_firstSetting,
-        start_itemTake,
-        findvioleta,
-        pepeking_effect,
-        TD_MC_keycheck,
-        TD_MC_gasi2,
-        in_secretroom,
-        sealGarden,
-        TD_NC_title,
-        TD_neo_BossEnter,
-        PRaid_D_Enter,
-        PRaid_B_Enter,
-        PRaid_Revive,
-        PRaid_W_Enter,
-        PRaid_WinEnter,
-        PRaid_FailEnter,
-        Resi_tutor10,
-        Resi_tutor20,
-        Resi_tutor30,
-        Resi_tutor40,
-        Resi_tutor50,
-        Resi_tutor60,
-        Resi_tutor70,
-        Resi_tutor80,
-        Resi_tutor50_1,
-        summonSchiller,
-        q31102e,
-        q31103s,
-        jail,
-        VanLeon_ExpeditionEnter,
-        cygnus_ExpeditionEnter,
-        knights_Summon,
-        TCMobrevive,
-        mPark_stageEff,
-        moonrabbit_takeawayitem,
-        StageMsg_crack,
-        shammos_Start,
-        iceman_Enter,
-        prisonBreak_1stageEnter,
-        VisitorleaveDirectionMode,
-        visitorPT_Enter,
-        VisitorCubePhase00_Enter,
-        visitor_ReviveMap,
-        cannon_tuto_01,
-        cannon_tuto_direction,
-        cannon_tuto_direction1,
-        cannon_tuto_direction2,
-        userInBattleSquare,
-        merTutorDrecotion00,
-        merTutorDrecotion10,
-        merTutorDrecotion20,
-        merStandAlone,
-        merOutStandAlone,
-        merTutorSleep00,
-        merTutorSleep01,
-        merTutorSleep02,
-        EntereurelTW,
-        ds_tuto_ill0,
-        ds_tuto_0_0,
-        ds_tuto_1_0,
-        ds_tuto_3_0,
-        ds_tuto_3_1,
-        ds_tuto_4_0,
-        enter_training,
-        achieve_davy,
-        ds_tuto_5_0,
-        ds_tuto_2_prep,
-        ds_tuto_1_before,
-        ds_tuto_2_before,
-        ds_tuto_home_before,
-        ds_tuto_ani,
-        enter_edelstein,
-        NLC_renew_1,
-        henesys_first,
-        q3143_clear,
-        enter_underbase,
-        magicLibrary,
-        enter_park100,
-        d_test01,
-        visitCity,
-        TD_LC_title,
-        boss_summon,
-        standbyAswan,
-        aswan_stageEff,
-        NULL;
-
-        private static onUserEnter fromString(String Str) {
-            try {
-                return valueOf(Str);
-            } catch (IllegalArgumentException ex) {
-                return NULL;
-            }
-        }
-    };
-
-    private static enum directionInfo {
-
-        merTutorDrecotion01,
-        merTutorDrecotion02,
-        merTutorDrecotion03,
-        merTutorDrecotion04,
-        merTutorDrecotion05,
-        merTutorDrecotion12,
-        merTutorDrecotion21,
-        ds_tuto_0_1,
-        ds_tuto_0_2,
-        ds_tuto_0_3,
-        NULL;
-
-        private static directionInfo fromString(String Str) {
-            try {
-                return valueOf(Str);
-            } catch (IllegalArgumentException ex) {
-                return NULL;
-            }
-        }
-    };
+            "I have been waiting for you! If you still have any courage left, come on in!",
+            "If you want to taste the bitterness of defeat, come on in!",
+            "You have quite the nerve! Don't mistake recklessness for wisdom!",
+            "I will make you thoroughly regret challenging the Mu Lung Dojo! Hurry up!",
+            "Your courage for challenging the Mu Lung Dojo is commendable!"};
 
     public static void startScript_FirstUser(MapleClient c, String scriptName) {
         if (c.getPlayer() == null) {
@@ -340,7 +66,7 @@ public class MapScriptMethods {
                 if ((c.getPlayer().getMapId() >= 925020100 && c.getPlayer().getMapId() <= 925020109)) {
                     if (c.getPlayer().getDojoMode() == DojoMode.RANKED)
                         c.getPlayer().getMap().startMapEffect("Don't forget that you have a 10-minute time limit! Defeat the monster quickly, and head to the next floor!", 5120024);
-                    else 
+                    else
                         c.getPlayer().getMap().startMapEffect("Don't forget that you have to clear it within the time limit! Take down the monster and head to the next floor!", 5120024);
                 }
                 c.getPlayer().dojoStartTime = System.currentTimeMillis();
@@ -410,7 +136,7 @@ public class MapScriptMethods {
                         for (int i = 0; i < 5; i++) {
                             q += mf.getMap(922010401 + i).getAllMonstersThreadsafe().size();
                         }
-                       if (q > 0) {
+                        if (q > 0) {
                             c.getPlayer().getMap().broadcastMessage(CWvsContext.getTopMsg("A total of " + q + "Dark Eyes and Shadow Eyes remain. Find and defeat them all!"));
                             c.getPlayer().getMap().broadcastMessage(CWvsContext.getTopMsg("A total of " + q + "Dark Eyes and Shadow Eyes remain. Find and defeat them all!"));
                             c.getPlayer().getMap().broadcastMessage(CWvsContext.getTopMsg("A total of " + q + "Dark Eyes and Shadow Eyes remain. Find and defeat them all!"));
@@ -742,7 +468,7 @@ public class MapScriptMethods {
             case boss_summon: {
                 c.getPlayer().getMap().resetFully();
                 c.getPlayer().getMap().spawnMonsterOnGroundBelow(MapleLifeFactory.getMonster(9400802), c.getPlayer().getPosition());
-                break;   
+                break;
             }
             case summon_pepeking: {
                 c.getPlayer().getMap().resetFully();
@@ -867,6 +593,8 @@ public class MapScriptMethods {
         }
     }
 
+    ;
+
     public static void startScript_User(final MapleClient c, String scriptName) {
         if (c.getPlayer() == null) {
             return;
@@ -874,8 +602,8 @@ public class MapScriptMethods {
         String data = "";
         switch (onUserEnter.fromString(scriptName)) {
             case cannon_tuto_direction: {
-                        showIntro(c, "Effect/Direction4.img/cannonshooter/Scene00");
-                        showIntro(c, "Effect/Direction4.img/cannonshooter/out00");
+                showIntro(c, "Effect/Direction4.img/cannonshooter/Scene00");
+                showIntro(c, "Effect/Direction4.img/cannonshooter/out00");
                 break;
             }
             case cannon_tuto_direction1: {
@@ -942,16 +670,16 @@ public class MapScriptMethods {
                 break;
             }
             case jail: {
-               // if (!c.getPlayer().isIntern()) {
-                    c.getPlayer().getQuestNAdd(MapleQuest.getInstance(GameConstants.JAIL_TIME)).setCustomData(String.valueOf(System.currentTimeMillis()));
-                    final MapleQuestStatus stat = c.getPlayer().getQuestNAdd(MapleQuest.getInstance(GameConstants.JAIL_QUEST));
-                    if (stat.getCustomData() != null) {
-                        final int seconds = Integer.parseInt(stat.getCustomData());
-                        if (seconds > 0) {
-                            c.getPlayer().startMapTimeLimitTask(seconds, c.getChannelServer().getMapFactory().getMap(100000000));
-                        }
+                // if (!c.getPlayer().isIntern()) {
+                c.getPlayer().getQuestNAdd(MapleQuest.getInstance(GameConstants.JAIL_TIME)).setCustomData(String.valueOf(System.currentTimeMillis()));
+                final MapleQuestStatus stat = c.getPlayer().getQuestNAdd(MapleQuest.getInstance(GameConstants.JAIL_QUEST));
+                if (stat.getCustomData() != null) {
+                    final int seconds = Integer.parseInt(stat.getCustomData());
+                    if (seconds > 0) {
+                        c.getPlayer().startMapTimeLimitTask(seconds, c.getChannelServer().getMapFactory().getMap(100000000));
                     }
-            //    }
+                }
+                //    }
                 break;
             }
             case TD_neo_BossEnter:
@@ -1133,7 +861,7 @@ public class MapScriptMethods {
                 c.sendPacket(UIPacket.IntroEnableUI(1));
                 c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/6", 2000, 0, -100, 1));
                 c.sendPacket(UIPacket.getDirectionInfo(1, 2000));
-				c.getPlayer().setDirection(0);
+                c.getPlayer().setDirection(0);
                 break;
             }
             case merTutorDrecotion20: {
@@ -1145,7 +873,7 @@ public class MapScriptMethods {
                 break;
             }
             case ds_tuto_ani: {
-				c.sendPacket(UIPacket.playMovie("DemonSlayer1.avi", true));
+                c.sendPacket(UIPacket.playMovie("DemonSlayer1.avi", true));
                 break;
             }
             case Resi_tutor80:
@@ -1355,7 +1083,7 @@ public class MapScriptMethods {
                 showIntro(c, "Effect/Direction6.img/DemonTutorial/SceneLogo");
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         c.sendPacket(UIPacket.IntroDisableUI(false));
                         c.sendPacket(UIPacket.IntroLock(false));
@@ -1377,7 +1105,7 @@ public class MapScriptMethods {
                 c.sendPacket(UIPacket.getDirectionInfo(1, 4000));
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         showIntro(c, "Effect/Direction6.img/DemonTutorial/Scene2");
                     }
@@ -1391,7 +1119,7 @@ public class MapScriptMethods {
 
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         c.sendPacket(UIPacket.getDirectionInfo(3, 0));
                         c.sendPacket(UIPacket.getDirectionInfo(4, 2159310));
@@ -1438,7 +1166,7 @@ public class MapScriptMethods {
 
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         c.sendPacket(UIPacket.getDirectionInfo(3, 0));
                         c.sendPacket(UIPacket.getDirectionInfo(4, 2159311));
@@ -1461,7 +1189,7 @@ public class MapScriptMethods {
                 c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/tuto/balloonMsg1/3", 2000, 0, -100, 1));
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         c.sendPacket(UIPacket.getDirectionInfo(3, 0));
                         c.sendPacket(UIPacket.getDirectionInfo(4, 2159340));
@@ -1478,7 +1206,7 @@ public class MapScriptMethods {
                 c.sendPacket(UIPacket.getDirectionStatus(true));
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         c.sendPacket(UIPacket.getDirectionInfo(3, 0));
                         c.sendPacket(CField.showEffect("demonSlayer/text13"));
@@ -1487,7 +1215,7 @@ public class MapScriptMethods {
                 }, 1000);
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         c.sendPacket(CField.showEffect("demonSlayer/text14"));
                         c.sendPacket(UIPacket.getDirectionInfo(1, 4000));
@@ -1495,7 +1223,7 @@ public class MapScriptMethods {
                 }, 1500);
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         final MapleMap mapto = c.getChannelServer().getMapFactory().getMap(927000020);
                         c.getPlayer().changeMap(mapto, mapto.getPortal(0));
@@ -1519,7 +1247,7 @@ public class MapScriptMethods {
                 c.sendPacket(UIPacket.getDirectionStatus(true));
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         c.sendPacket(UIPacket.getDirectionInfo(3, 0));
                         c.sendPacket(CField.showEffect("demonSlayer/text8"));
@@ -1528,7 +1256,7 @@ public class MapScriptMethods {
                 }, 1000);
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         c.sendPacket(CField.showEffect("demonSlayer/text9"));
                         c.sendPacket(UIPacket.getDirectionInfo(1, 3000));
@@ -1536,7 +1264,7 @@ public class MapScriptMethods {
                 }, 1500);
                 EventTimer.getInstance().schedule(new Runnable() {
 
-                @Override
+                    @Override
                     public void run() {
                         final MapleMap mapto = c.getChannelServer().getMapFactory().getMap(927000010);
                         c.getPlayer().changeMap(mapto, mapto.getPortal(0));
@@ -1706,6 +1434,8 @@ public class MapScriptMethods {
         }
     }
 
+    ;
+
     private static int getTiming(int ids) {
         if (ids <= 5) {
             return 5;
@@ -1724,6 +1454,8 @@ public class MapScriptMethods {
         }
         return 0;
     }
+
+    ;
 
     private static int getDojoStageDec(int ids) {
         if (ids <= 5) {
@@ -1809,8 +1541,8 @@ public class MapScriptMethods {
     }
 
     public static void startDirectionInfo(MapleCharacter chr, boolean start) {
-		final MapleClient c = chr.getClient();
-		DirectionInfo di = chr.getMap().getDirectionInfo(start ? 0 : chr.getDirection());
+        final MapleClient c = chr.getClient();
+        DirectionInfo di = chr.getMap().getDirectionInfo(start ? 0 : chr.getDirection());
         if (di != null && di.eventQ.size() > 0) {
             if (start) {
                 c.sendPacket(UIPacket.IntroDisableUI(true));
@@ -1822,7 +1554,7 @@ public class MapScriptMethods {
                             c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/0", 2000, 0, -100, 1));
                             break;
                         case merTutorDrecotion02:
-							c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/1", 2000, 0, -100, 1));
+                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/1", 2000, 0, -100, 1));
                             break;
                         case merTutorDrecotion03:
                             c.sendPacket(UIPacket.getDirectionInfo(3, 2));
@@ -1840,7 +1572,7 @@ public class MapScriptMethods {
                             c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/4", 2000, 0, -100, 1));
                             EventTimer.getInstance().schedule(new Runnable() {
 
-                        @Override
+                                @Override
                                 public void run() {
                                     c.sendPacket(UIPacket.getDirectionInfo(3, 2));
                                     c.sendPacket(UIPacket.getDirectionStatus(true));
@@ -1849,7 +1581,7 @@ public class MapScriptMethods {
                             }, 2000);
                             EventTimer.getInstance().schedule(new Runnable() {
 
-                        @Override
+                                @Override
                                 public void run() {
                                     c.sendPacket(UIPacket.IntroEnableUI(0));
                                     c.sendPacket(CWvsContext.enableActions());
@@ -1944,6 +1676,279 @@ public class MapScriptMethods {
                     final MapleMap mapto = c.getChannelServer().getMapFactory().getMap(931050000);
                     chr.changeMap(mapto, mapto.getPortal(0));
                     break;
+            }
+        }
+    }
+
+    private static enum onFirstUserEnter {
+
+        dojang_Eff,
+        dojang_Msg,
+        PinkBeen_before,
+        onRewordMap,
+        mpark_mobRegen,
+        StageMsg_together,
+        StageMsg_crack,
+        StageMsg_davy,
+        boss_Ani,
+        hauntedMaskFirstIn,
+        HWguest1stIn,
+        StageMsg_goddess,
+        party6weatherMsg,
+        Saint_eventMob,
+        StageMsg_juliet,
+        StageMsg_romio,
+        moonrabbit_mapEnter,
+        astaroth_summon,
+        boss_Ravana,
+        boss_Ravana_mirror,
+        killing_BonusSetting,
+        enter_secretGarden,
+        killing_MapSetting,
+        metro_firstSetting,
+        balog_bonusSetting,
+        balog_summon,
+        boss_summon,
+        easy_balog_summon,
+        Sky_TrapFEnter,
+        shammos_Fenter,
+        PRaid_D_Fenter,
+        PRaid_B_Fenter,
+        summon_pepeking,
+        Xerxes_summon,
+        VanLeon_Before,
+        cygnus_Summon,
+        storymap_scenario,
+        shammos_FStart,
+        kenta_mapEnter,
+        iceman_FEnter,
+        iceman_Boss,
+        prisonBreak_mapEnter,
+        Visitor_Cube_poison,
+        Visitor_Cube_Hunting_Enter_First,
+        VisitorCubePhase00_Start,
+        spaceGaGa_start,
+        spaceGaGa_sMap,
+        MD_eventMob,
+        visitorCube_addmobEnter,
+        Visitor_Cube_PickAnswer_Enter_First_1,
+        visitorCube_medicroom_Enter,
+        visitorCube_iceyunna_Enter,
+        Visitor_Cube_AreaCheck_Enter_First,
+        visitorCube_boomboom_Enter,
+        visitorCube_boomboom2_Enter,
+        CubeBossbang_Enter,
+        pyramidWeather,
+        MalayBoss_Int,
+        mPark_summonBoss,
+        NULL;
+
+        private static onFirstUserEnter fromString(String Str) {
+            try {
+                return valueOf(Str);
+            } catch (IllegalArgumentException ex) {
+                return NULL;
+            }
+        }
+    }
+
+    private static enum onUserEnter {
+
+        babyPigMap,
+        crash_Dragon,
+        evanleaveD,
+        ht_reward_enter,
+        orbisPQ_1stIn,
+        EnterWaterField,
+        hauntedMaskCheck,
+        getDragonEgg,
+        ludi_time_path,
+        patrty6_1stIn,
+        meetWithDragon,
+        space_first,
+        go1010100,
+        go1010200,
+        go1010300,
+        go1010400,
+        q31165e,
+        evanPromotion,
+        PromiseDragon,
+        evanTogether,
+        incubation_dragon,
+        crossHunter_q1608,
+        q1601_summon,
+        nMC_out0,
+        pyramidEnter,
+        TD_MC_Openning,
+        check_q20748,
+        TD_MC_gasi,
+        TD_MC_title,
+        cygnusJobTutorial,
+        cygnusTest,
+        startEreb,
+        dojang_Msg,
+        dojang_1st,
+        reundodraco,
+        undomorphdarco,
+        explorationPoint,
+        goAdventure,
+        go10000,
+        go20000,
+        go30000,
+        go40000,
+        go50000,
+        go1000000,
+        go1010000,
+        go1020000,
+        go2000000,
+        goArcher,
+        goPirate,
+        goRogue,
+        goMagician,
+        goSwordman,
+        goLith,
+        iceCave,
+        mirrorCave,
+        aranDirection,
+        rienArrow,
+        rien,
+        check_count,
+        Massacre_first,
+        Massacre_result,
+        aranTutorAlone,
+        evanAlone,
+        dojang_QcheckSet,
+        Sky_StageEnter,
+        outCase,
+        balog_buff,
+        balog_dateSet,
+        Sky_BossEnter,
+        Sky_GateMapEnter,
+        shammos_Enter,
+        shammos_Result,
+        shammos_Base,
+        dollCave00,
+        dollCave01,
+        dollCave02,
+        Sky_Quest,
+        enterBlackfrog,
+        onSDI,
+        blackSDI,
+        summonIceWall,
+        metro_firstSetting,
+        start_itemTake,
+        findvioleta,
+        pepeking_effect,
+        TD_MC_keycheck,
+        TD_MC_gasi2,
+        in_secretroom,
+        sealGarden,
+        TD_NC_title,
+        TD_neo_BossEnter,
+        PRaid_D_Enter,
+        PRaid_B_Enter,
+        PRaid_Revive,
+        PRaid_W_Enter,
+        PRaid_WinEnter,
+        PRaid_FailEnter,
+        Resi_tutor10,
+        Resi_tutor20,
+        Resi_tutor30,
+        Resi_tutor40,
+        Resi_tutor50,
+        Resi_tutor60,
+        Resi_tutor70,
+        Resi_tutor80,
+        Resi_tutor50_1,
+        summonSchiller,
+        q31102e,
+        q31103s,
+        jail,
+        VanLeon_ExpeditionEnter,
+        cygnus_ExpeditionEnter,
+        knights_Summon,
+        TCMobrevive,
+        mPark_stageEff,
+        moonrabbit_takeawayitem,
+        StageMsg_crack,
+        shammos_Start,
+        iceman_Enter,
+        prisonBreak_1stageEnter,
+        VisitorleaveDirectionMode,
+        visitorPT_Enter,
+        VisitorCubePhase00_Enter,
+        visitor_ReviveMap,
+        cannon_tuto_01,
+        cannon_tuto_direction,
+        cannon_tuto_direction1,
+        cannon_tuto_direction2,
+        userInBattleSquare,
+        merTutorDrecotion00,
+        merTutorDrecotion10,
+        merTutorDrecotion20,
+        merStandAlone,
+        merOutStandAlone,
+        merTutorSleep00,
+        merTutorSleep01,
+        merTutorSleep02,
+        EntereurelTW,
+        ds_tuto_ill0,
+        ds_tuto_0_0,
+        ds_tuto_1_0,
+        ds_tuto_3_0,
+        ds_tuto_3_1,
+        ds_tuto_4_0,
+        enter_training,
+        achieve_davy,
+        ds_tuto_5_0,
+        ds_tuto_2_prep,
+        ds_tuto_1_before,
+        ds_tuto_2_before,
+        ds_tuto_home_before,
+        ds_tuto_ani,
+        enter_edelstein,
+        NLC_renew_1,
+        henesys_first,
+        q3143_clear,
+        enter_underbase,
+        magicLibrary,
+        enter_park100,
+        d_test01,
+        visitCity,
+        TD_LC_title,
+        boss_summon,
+        standbyAswan,
+        aswan_stageEff,
+        NULL;
+
+        private static onUserEnter fromString(String Str) {
+            try {
+                return valueOf(Str);
+            } catch (IllegalArgumentException ex) {
+                return NULL;
+            }
+        }
+    }
+
+    private static enum directionInfo {
+
+        merTutorDrecotion01,
+        merTutorDrecotion02,
+        merTutorDrecotion03,
+        merTutorDrecotion04,
+        merTutorDrecotion05,
+        merTutorDrecotion12,
+        merTutorDrecotion21,
+        ds_tuto_0_1,
+        ds_tuto_0_2,
+        ds_tuto_0_3,
+        NULL;
+
+        private static directionInfo fromString(String Str) {
+            try {
+                return valueOf(Str);
+            } catch (IllegalArgumentException ex) {
+                return NULL;
             }
         }
     }

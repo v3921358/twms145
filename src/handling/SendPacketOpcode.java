@@ -441,22 +441,11 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
     GAME_PATCHES,
     SEND_EULA,
     UNKNOWN;
+    static {
+        reloadValues();
+    }
+
     private short code = -2;
-
-    @Override
-    public void set(short code) {
-        this.code = code;
-    }
-
-    @Override
-    public short get() {
-        return code;
-    }
-
-
-    public short getValue() {
-        return code;
-    }
 
     public static final void reloadValues() {
         String fileName = "send.properties";
@@ -490,7 +479,6 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
         }
     }
 
-
     public static String nameOf(int value) {
         for (SendPacketOpcode opcode : SendPacketOpcode.values()) {
             if (opcode.get() == value) {
@@ -500,8 +488,18 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
         return "UNKNOWN";
     }
 
-    static {
-        reloadValues();
+    @Override
+    public void set(short code) {
+        this.code = code;
+    }
+
+    @Override
+    public short get() {
+        return code;
+    }
+
+    public short getValue() {
+        return code;
     }
 
 }

@@ -34,7 +34,7 @@ public enum MapleWeaponType {
     AXE2H(1.32f, 20),
     SWORD2H(1.32f, 20),
     BLUNT2H(1.32f, 20),
-    POLE_ARM(1.49f, 20), 
+    POLE_ARM(1.49f, 20),
     SPEAR(1.49f, 20),
     STAFF(1.0f, 25),
     WAND(1.0f, 25),
@@ -42,14 +42,14 @@ public enum MapleWeaponType {
     GUN(1.5f, 15),
     CANNON(1.35f, 15),
     DUAL_BOW(2.0f, 15), //beyond op
-	MAGIC_ARROW(2.0f, 15),
+    MAGIC_ARROW(2.0f, 15),
     KATARA(1.3f, 20);
     private final float damageMultiplier;
     private final int baseMastery;
 
     private MapleWeaponType(final float maxDamageMultiplier, int baseMastery) {
         this.damageMultiplier = maxDamageMultiplier;
-	this.baseMastery = baseMastery;
+        this.baseMastery = baseMastery;
     }
 
     public final float getMaxDamageMultiplier() {
@@ -57,6 +57,6 @@ public enum MapleWeaponType {
     }
 
     public final int getBaseMastery() {
-	return baseMastery;
+        return baseMastery;
     }
 };

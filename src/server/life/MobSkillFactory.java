@@ -21,27 +21,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
-import java.awt.Point;
+import database.DatabaseConnection;
+import tools.types.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import database.DatabaseConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import tools.types.Pair;
+import java.util.Map;
 
 public class MobSkillFactory {
 
-    private final Map<Pair<Integer, Integer>, MobSkill> mobSkillCache = new HashMap<Pair<Integer, Integer>, MobSkill>();
     private static final MobSkillFactory instance = new MobSkillFactory();
+    private final Map<Pair<Integer, Integer>, MobSkill> mobSkillCache = new HashMap<Pair<Integer, Integer>, MobSkill>();
 
     public MobSkillFactory() {
-	initialize();
+        initialize();
     }
 
     public static MobSkillFactory getInstance() {
@@ -49,7 +48,7 @@ public class MobSkillFactory {
     }
 
     public static MobSkill getMobSkill(int skillId, int level) {
-	return instance.mobSkillCache.get(new Pair<>(skillId, level));
+        return instance.mobSkillCache.get(new Pair<>(skillId, level));
     }
 
     private void initialize() {
@@ -69,35 +68,35 @@ public class MobSkillFactory {
 
     private MobSkill get(ResultSet rs) throws SQLException {
         List<Integer> toSummon = new ArrayList<Integer>();
-	final String[] summs = rs.getString("summons").split(", ");
-	if (summs.length <= 0 && rs.getString("summons").length() > 0) {
-	    toSummon.add(Integer.parseInt(rs.getString("summons")));
-	}
+        final String[] summs = rs.getString("summons").split(", ");
+        if (summs.length <= 0 && rs.getString("summons").length() > 0) {
+            toSummon.add(Integer.parseInt(rs.getString("summons")));
+        }
         for (String s : summs) {
-	    if (s.length() > 0 ){
-            	toSummon.add(Integer.parseInt(s));
-	    }
+            if (s.length() > 0) {
+                toSummon.add(Integer.parseInt(s));
+            }
         }
         Point lt = null;
         Point rb = null;
-	//make sure the points exist before adding it
+        //make sure the points exist before adding it
         if (rs.getInt("ltx") != 0 || rs.getInt("lty") != 0 || rs.getInt("rbx") != 0 || rs.getInt("rby") != 0) {
             lt = new Point(rs.getInt("ltx"), rs.getInt("lty"));
             rb = new Point(rs.getInt("rbx"), rs.getInt("rby"));
         }
-	final MobSkill ret = new MobSkill(rs.getInt("skillid"), rs.getInt("level"));
-	ret.addSummons(toSummon);
-	ret.setCoolTime(rs.getInt("interval") * 1000);
-	ret.setDuration(rs.getInt("time") * 1000);
-	ret.setHp(rs.getInt("hp"));
-	ret.setMpCon(rs.getInt("mpcon"));
-	ret.setSpawnEffect(rs.getInt("spawneffect"));
-	ret.setX(rs.getInt("x"));
-	ret.setY(rs.getInt("y"));
-	ret.setProp(rs.getInt("prop") / 100f);
-	ret.setLimit((short)rs.getInt("limit"));
-	ret.setOnce(rs.getByte("once") > 0);
-	ret.setLtRb(lt,rb);
+        final MobSkill ret = new MobSkill(rs.getInt("skillid"), rs.getInt("level"));
+        ret.addSummons(toSummon);
+        ret.setCoolTime(rs.getInt("interval") * 1000);
+        ret.setDuration(rs.getInt("time") * 1000);
+        ret.setHp(rs.getInt("hp"));
+        ret.setMpCon(rs.getInt("mpcon"));
+        ret.setSpawnEffect(rs.getInt("spawneffect"));
+        ret.setX(rs.getInt("x"));
+        ret.setY(rs.getInt("y"));
+        ret.setProp(rs.getInt("prop") / 100f);
+        ret.setLimit((short) rs.getInt("limit"));
+        ret.setOnce(rs.getByte("once") > 0);
+        ret.setLtRb(lt, rb);
         return ret;
     }
 }

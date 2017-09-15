@@ -20,16 +20,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client.inventory;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
 import server.Randomizer;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PetDataFactory {
 
@@ -38,38 +38,38 @@ public class PetDataFactory {
     private static Map<Integer, Integer> petHunger = new HashMap<>();
 
     public static PetCommand getRandomPetCommand(final int petId) {
-	if (getPetCommand(petId, 0) == null) {
-	    return null;
-	} //loaded, and checked if it existed
-	final List<PetCommand> gg = petCommands.get(Integer.valueOf(petId));
-	return gg.get(Randomizer.nextInt(gg.size()));
+        if (getPetCommand(petId, 0) == null) {
+            return null;
+        } //loaded, and checked if it existed
+        final List<PetCommand> gg = petCommands.get(Integer.valueOf(petId));
+        return gg.get(Randomizer.nextInt(gg.size()));
     }
 
     public static PetCommand getPetCommand(final int petId, final int skillId) {
-	List<PetCommand> gg = petCommands.get(Integer.valueOf(petId));
+        List<PetCommand> gg = petCommands.get(Integer.valueOf(petId));
         if (gg != null) {
-	    if (gg.size() > skillId && gg.size() > 0) {
+            if (gg.size() > skillId && gg.size() > 0) {
                 return gg.get(skillId);
-	    }
-	    return null;
+            }
+            return null;
         }
         final MapleData skillData = dataRoot.getData("Pet/" + petId + ".img");
-	int theSkill = 0;
+        int theSkill = 0;
         gg = new ArrayList<>();
-	while (skillData != null) {
-	    MapleData dd = skillData.getChildByPath("interact/" + theSkill);
-	    if (dd == null) {
-		break;
-	    }
+        while (skillData != null) {
+            MapleData dd = skillData.getChildByPath("interact/" + theSkill);
+            if (dd == null) {
+                break;
+            }
             PetCommand retr = new PetCommand(petId, skillId, MapleDataTool.getInt("prob", dd, 0), MapleDataTool.getInt("inc", dd, 0));
             gg.add(retr);
-	    theSkill++;
-	}
-	petCommands.put(Integer.valueOf(petId), gg);
-	if (gg.size() <= skillId && gg.size() > 0) {
+            theSkill++;
+        }
+        petCommands.put(Integer.valueOf(petId), gg);
+        if (gg.size() <= skillId && gg.size() > 0) {
             return gg.get(skillId);
-	}
-	return null;
+        }
+        return null;
     }
 
     public static int getHunger(final int petId) {

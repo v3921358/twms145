@@ -20,16 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools.data;
 
-import java.awt.Point;
+import java.awt.*;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
 /**
  * Provides a  interface to a Little Endian stream of bytes.
- * 
- * @version 1.0
+ *
  * @author Frz
+ * @version 1.0
  * @since Revision 323
  */
 public class LittleEndianAccessor {
@@ -51,7 +50,7 @@ public class LittleEndianAccessor {
      * @return The byte read.
      * @see net.sf.odinms.tools.data.ByteInputStream#readByte
      */
-    
+
     public final byte readByte() {
         return (byte) bs.readByte();
     }
@@ -61,7 +60,7 @@ public class LittleEndianAccessor {
      *
      * @return The integer read.
      */
-    
+
     public final int readInt() {
         final int byte1 = bs.readByte();
         final int byte2 = bs.readByte();
@@ -75,27 +74,27 @@ public class LittleEndianAccessor {
      *
      * @return The short read.
      */
-    
+
     public final short readShort() {
         final int byte1 = bs.readByte();
         final int byte2 = bs.readByte();
         return (short) ((byte2 << 8) + byte1);
     }
-	
-	public final int readUShort() {
-		int quest = readShort();
+
+    public final int readUShort() {
+        int quest = readShort();
         if (quest < 0) { //questid 50000 and above, TRAIT_WILL cast to negative, this was tested.
             quest += 65536; //probably not the best fix, but whatever
         }
-		return quest;
-	}
+        return quest;
+    }
 
     /**
      * Reads a single character from the stream.
      *
      * @return The character read.
      */
-    
+
     public final char readChar() {
         return (char) readShort();
     }
@@ -105,7 +104,7 @@ public class LittleEndianAccessor {
      *
      * @return The long integer read.
      */
-    
+
     public final long readLong() {
         final int byte1 = bs.readByte();
         final int byte2 = bs.readByte();
@@ -125,7 +124,7 @@ public class LittleEndianAccessor {
      *
      * @return The float-type integer read.
      */
-    
+
     public final float readFloat() {
         return Float.intBitsToFloat(readInt());
     }
@@ -135,7 +134,7 @@ public class LittleEndianAccessor {
      *
      * @return The double-type integer read.
      */
-    
+
     public final double readDouble() {
         return Double.longBitsToDouble(readLong());
     }
@@ -176,7 +175,7 @@ public class LittleEndianAccessor {
      *
      * @return The string read.
      */
-    
+
     public final String readMapleAsciiString() {
         return readAsciiString(readShort());
     }
@@ -187,7 +186,7 @@ public class LittleEndianAccessor {
      *
      * @return The Position read.
      */
-    
+
     public final Point readPos() {
         final int x = readShort();
         final int y = readShort();
@@ -200,7 +199,7 @@ public class LittleEndianAccessor {
      * @param num The number of bytes to read.
      * @return An array of bytes with the length of <code>num</code>
      */
-    
+
     public final byte[] read(final int num) {
         byte[] ret = new byte[num];
         for (int x = 0; x < num; x++) {
@@ -214,7 +213,7 @@ public class LittleEndianAccessor {
      *
      * @param num Number of bytes to skip.
      */
-    
+
     //public void skip(final int num) {
     //    for (int x = 0; x < num; x++) {
     //        readByte();
@@ -224,7 +223,7 @@ public class LittleEndianAccessor {
     /**
      * @see net.sf.odinms.tools.data.ByteInputStream#available
      */
-    
+
     public final long available() {
         return bs.available();
     }
@@ -232,24 +231,24 @@ public class LittleEndianAccessor {
     /**
      * @see java.lang.Object#toString
      */
-    
+
     @Override
     public final String toString() {
         return bs.toString();
     }
 
-    
+
     public final String toString(final boolean b) {
         return bs.toString(b);
     }
-	
+
     /**
      * Seek the pointer to <code>offset</code>
      *
      * @param offset The offset to seek to.
      * @see net.sf.odinms.tools.data.SeekableInputStreamBytestream#seek
      */
-    
+
     public final void seek(final long offset) {
         try {
             bs.seek(offset);
@@ -264,7 +263,7 @@ public class LittleEndianAccessor {
      * @return The current position of the pointer as a long integer.
      * @see net.sf.odinms.tools.data.SeekableInputStreamBytestream#getPosition
      */
-    
+
     public final long getPosition() {
         return bs.getPosition();
     }
@@ -274,7 +273,7 @@ public class LittleEndianAccessor {
      *
      * @param num The number of bytes to skip.
      */
-    
+
     public final void skip(final int num) {
         seek(getPosition() + num);
     }

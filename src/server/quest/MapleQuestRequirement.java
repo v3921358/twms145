@@ -9,13 +9,14 @@ import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import client.inventory.MaplePet;
 import constants.GameConstants;
+import tools.types.Pair;
+
 import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
-import tools.types.Pair;
 
 public class MapleQuestRequirement implements Serializable {
 
@@ -26,7 +27,9 @@ public class MapleQuestRequirement implements Serializable {
     private String stringStore;
     private List<Pair<Integer, Integer>> dataStore;
 
-    /** Creates a new instance of MapleQuestRequirement */
+    /**
+     * Creates a new instance of MapleQuestRequirement
+     */
     public MapleQuestRequirement(MapleQuest quest, MapleQuestRequirementType type, ResultSet rse) throws SQLException {
         this.type = type;
         this.quest = quest;

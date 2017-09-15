@@ -35,8 +35,8 @@ import server.maps.AramiaFireWorks;
 import server.maps.MapleMapFactory;
 import server.maps.MapleMapObject;
 import server.shops.HiredMerchant;
-import tools.types.ConcurrentEnumMap;
 import tools.packet.CWvsContext;
+import tools.types.ConcurrentEnumMap;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -47,22 +47,22 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ChannelServer {
 
     public static long serverStartTime;
-    private int port = 7575;
-    private int world, channel, running_MerchantID = 0;
-    public int eventChannel, eventMap = 0;
-    private String serverMessage, ip;
-    private EventScriptManager eventSM;
-    private boolean shutdown = false, finishedShutdown = false, MegaphoneMuteState = false;
-    public boolean eventOn = false, eventClosed = false;
-    private PlayerStorage players = new PlayerStorage();
-    private ServerConnection acceptor;
     private final MapleMapFactory mapFactory;
-    private AramiaFireWorks works = new AramiaFireWorks();
     private final Map<MapleSquadType, MapleSquad> mapleSquads = new ConcurrentEnumMap<>(MapleSquadType.class);
     private final Map<Integer, HiredMerchant> merchants = new HashMap<>();
     private final List<PlayerNPC> playerNPCs = new LinkedList<>();
     private final ReentrantReadWriteLock merchLock = new ReentrantReadWriteLock(); //merchant
     private final Map<MapleEventType, MapleEvent> events = new EnumMap<>(MapleEventType.class);
+    public int eventChannel, eventMap = 0;
+    public boolean eventOn = false, eventClosed = false;
+    private int port = 7575;
+    private int world, channel, running_MerchantID = 0;
+    private String serverMessage, ip;
+    private EventScriptManager eventSM;
+    private boolean shutdown = false, finishedShutdown = false, MegaphoneMuteState = false;
+    private PlayerStorage players = new PlayerStorage();
+    private ServerConnection acceptor;
+    private AramiaFireWorks works = new AramiaFireWorks();
 
     private ChannelServer(final int world, final int channel) {
         this.world = world;
@@ -74,8 +74,28 @@ public class ChannelServer {
         return new HashSet<>(LoginServer.getWorld(world).getChannels());
     }
 
+    public static ChannelServer newInstance(final int world, final int channel) {
+        return new ChannelServer(world, channel);
+    }
+
+    public static ChannelServer getInstance(int world, int channel) {
+        return LoginServer.getInstance().getChannel(world, channel);
+    }
+
+    public static int getChannelCount(int world) { // needs to be fixed for multi-world
+        return LoginServer.getWorld(world).getChannels().size();
+    }
+
+    public static Map<Integer, Integer> getChannelLoad(int world) { // needs to be fixed for multi-world
+        Map<Integer, Integer> ret = new HashMap<>();
+        for (ChannelServer cs : LoginServer.getWorld(world).getChannels()) {
+            ret.put(cs.getChannel(), cs.getConnectedClients());
+        }
+        return ret;
+    }
+
     public final void init() {
-        serverMessage = ServerConstants.serverMessage;
+        serverMessage = ServerConstants.SERVER_MESSAGE;
         eventSM = new EventScriptManager(this, WorldConstants.Events.split(","));
         port = 7575 + this.channel - 1;
         port += (world * 100);
@@ -120,14 +140,6 @@ public class ChannelServer {
         return mapFactory;
     }
 
-    public static ChannelServer newInstance(final int world, final int channel) {
-        return new ChannelServer(world, channel);
-    }
-
-    public static ChannelServer getInstance(int world, int channel) {
-        return LoginServer.getInstance().getChannel(world, channel);
-    }
-
     public PlayerStorage getPlayerStorage() {
         return players;
     }
@@ -141,7 +153,7 @@ public class ChannelServer {
         players.removePlayer(chr.getId());
     }
 
-    // TODO: Multi-World serverMessage
+    // TODO: Multi-World SERVER_MESSAGE
     public final String getServerMessage() {
         return serverMessage;
     }
@@ -190,7 +202,6 @@ public class ChannelServer {
     public final int getWorld() {
         return world;
     }
-
 
     public final String getIP() {
         return ip;
@@ -425,18 +436,6 @@ public class ChannelServer {
     public final void setFinishShutdown() {
         this.finishedShutdown = true;
         System.out.println("Channel " + channel + " has finished shutdown.");
-    }
-
-    public static int getChannelCount(int world) { // needs to be fixed for multi-world
-        return LoginServer.getWorld(world).getChannels().size();
-    }
-
-    public static Map<Integer, Integer> getChannelLoad(int world) { // needs to be fixed for multi-world
-        Map<Integer, Integer> ret = new HashMap<>();
-        for (ChannelServer cs : LoginServer.getWorld(world).getChannels()) {
-            ret.put(cs.getChannel(), cs.getConnectedClients());
-        }
-        return ret;
     }
 
     public int getConnectedClients() {

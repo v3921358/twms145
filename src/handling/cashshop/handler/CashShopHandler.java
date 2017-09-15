@@ -14,17 +14,23 @@ import handling.channel.ChannelServer;
 import handling.login.LoginServer;
 import handling.world.CharacterTransfer;
 import handling.world.World;
+import server.CashItemFactory;
+import server.CashItemInfo;
+import server.MapleInventoryManipulator;
+import server.MapleItemInformationProvider;
+import server.quest.MapleQuest;
+import tools.FileoutputUtil;
+import tools.data.LittleEndianAccessor;
+import tools.packet.CField;
+import tools.packet.MTSCSPacket;
+import tools.types.Triple;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import server.*;
-import server.quest.MapleQuest;
-import tools.FileoutputUtil;
-import tools.types.Triple;
-import tools.data.LittleEndianAccessor;
-import tools.packet.CField;
-import tools.packet.MTSCSPacket;
 
 public class CashShopHandler {
 
@@ -34,7 +40,9 @@ public class CashShopHandler {
         c.updateLoginState(MapleClient.CHANGE_CHANNEL, c.getSessionIPAddress());
         try {
             World.ChannelChange_Data(new CharacterTransfer(chr), chr.getId(), world, c.getChannel());
-            c.sendPacket(CField.getChannelChange(c, Integer.parseInt(ChannelServer.getInstance(world, c.getChannel()).getIP().split(":")[1])));
+            String socket[] = ChannelServer.getInstance(world, c.getChannel()).getIP().split(":");
+            c.sendPacket(CField.getChannelChange(c, InetAddress.getByName(socket[0]) , Integer.parseInt(socket[1])));
+        } catch (UnknownHostException ignored) {
         } finally {
             final String s = c.getSessionIPAddress();
             LoginServer.addIPAuth(s.substring(s.indexOf('/') + 1, s.length()));
@@ -163,7 +171,7 @@ public class CashShopHandler {
                 }
                 for (int i : GameConstants.cashBlock) {
                     if (item.getId() == i) {
-                     //   c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
+                        //   c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
                         doCSPackets(c);
                         return;
                     }
@@ -205,7 +213,7 @@ public class CashShopHandler {
             } else {
                 for (int i : GameConstants.cashBlock) {
                     if (item.getId() == i) {
-                     //   c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
+                        //   c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
                         doCSPackets(c);
                         return;
                     }
@@ -274,13 +282,13 @@ public class CashShopHandler {
                 doCSPackets(c);
                 return;
             }
-           // if (c.gainCharacterSlot()) {
-             //   c.getPlayer().modifyCSPoints(toCharge, -item.getPrice(), false);
-               // chr.dropMessage(1, "Character slots increased to: " + (slots + 1));
+            // if (c.gainCharacterSlot()) {
+            //   c.getPlayer().modifyCSPoints(toCharge, -item.getPrice(), false);
+            // chr.dropMessage(1, "Character slots increased to: " + (slots + 1));
             //} else {
-                c.sendPacket(MTSCSPacket.sendCSFail(0));
+            c.sendPacket(MTSCSPacket.sendCSFail(0));
             //}
-            } else if (action == 9 || action == 10) { //...10 = pendant slot expansion
+        } else if (action == 9 || action == 10) { //...10 = pendant slot expansion
             //Data: 00 01 00 00 00 DC FE FD 02
             slea.readByte(); //Action is short?
             slea.readInt(); //always 1 - No Idea
@@ -357,7 +365,7 @@ public class CashShopHandler {
             }
             for (int i : GameConstants.cashBlock) { //just incase hacker
                 if (item.getId() == i) {
-                 //   c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
+                    //   c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
                     doCSPackets(c);
                     return;
                 }
@@ -410,7 +418,7 @@ public class CashShopHandler {
             }
             for (int iz : GameConstants.cashBlock) {
                 if (item.getId() == iz) {
-                //    c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
+                    //    c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
                     doCSPackets(c);
                     return;
                 }
@@ -453,7 +461,7 @@ public class CashShopHandler {
             }
             for (int iz : GameConstants.cashBlock) {
                 if (item.getId() == iz) {
-                 //   c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
+                    //   c.getPlayer().dropMessage(1, GameConstants.getCashBlockedMsg(item.getWorldId()));
                     doCSPackets(c);
                     return;
                 }
@@ -468,13 +476,13 @@ public class CashShopHandler {
             c.sendPacket(MTSCSPacket.showBoughtCSQuestItem(item.getPrice(), (short) item.getCount(), pos, item.getId()));
         } else if (action == 48) {
             c.sendPacket(MTSCSPacket.updatePurchaseRecord());
-                    } else if (action == 10) { // Open random box.
+        } else if (action == 10) { // Open random box.
             c.getPlayer().dropMessage(1, "Sorry, this feature is not available.");
-			
+
         } else if (action == 91) { // Open random box.
             final int uniqueid = (int) slea.readLong();
-			
-			//c.sendPacket(MTSCSPacket.sendRandomBox(uniqueid, new Item(1302000, (short) 1, (short) 1, (short) 0, 10), (short) 0));
+
+            //c.sendPacket(MTSCSPacket.sendRandomBox(uniqueid, new Item(1302000, (short) 1, (short) 1, (short) 0, 10), (short) 0));
         } else {
             System.out.println("New Action: " + action + " Remaining: " + slea.toString());
             c.sendPacket(MTSCSPacket.sendCSFail(0));

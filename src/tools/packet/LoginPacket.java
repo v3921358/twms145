@@ -25,15 +25,13 @@ import client.MapleClient;
 import constants.ServerConstants;
 import handling.SendPacketOpcode;
 import handling.channel.ChannelServer;
+import tools.HexTool;
+import tools.KoreanDateUtil;
+import tools.data.MaplePacketLittleEndianWriter;
+import tools.types.Pair;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import server.Randomizer;
-import tools.HexTool;
-import tools.KoreanDateUtil;
-import tools.types.Pair;
-import tools.data.MaplePacketLittleEndianWriter;
 
 public class LoginPacket {
 
@@ -140,7 +138,7 @@ public class LoginPacket {
 
         return mplew.getPacket();
     }
-    
+
     public static byte[] sendToS() {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(16);
         mplew.writeShort(SendPacketOpcode.SEND_EULA.getValue());
@@ -208,14 +206,14 @@ public class LoginPacket {
         mplew.write(1);
         return mplew.getPacket();
     }
-    
+
     public static byte[] enableRecommended() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendPacketOpcode.ENABLE_RECOMMENDED.getValue());
         mplew.writeInt(0); //worldID with most characters
         return mplew.getPacket();
     }
-    
+
     public static byte[] selectWorld(int world) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendPacketOpcode.ENABLE_RECOMMENDED.getValue());
@@ -270,7 +268,7 @@ public class LoginPacket {
 
         return mplew.getPacket();
     }
-    
+
     public static byte[] sendEULA() {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendPacketOpcode.SEND_EULA.getValue());
@@ -283,7 +281,7 @@ public class LoginPacket {
         List<Pair<String, Integer>> flags = new LinkedList<>();
         flags.add(new Pair<>("20120808", 0));
         flags.add(new Pair<>("20120815", 0));
-        
+
         //flags.add(new Pair<>("20120111", 0));
         //flags.add(new Pair<>("returnLegend2", 0));
         return CField.spawnFlags(flags);
@@ -310,16 +308,6 @@ public class LoginPacket {
 
         return mplew.getPacket();
     }
-    
-    public static final byte[] getCustomEncryption(String link) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
-        mplew.writeShort(SendPacketOpcode.LOGIN_STATUS.getValue());
-        mplew.writeInt(ServerConstants.number1);
-        mplew.writeShort(ServerConstants.linkNumber);
-        mplew.writeMapleAsciiString(link);
-        return mplew.getPacket();
-    }  
 
     public static byte[] getCharacterList(final boolean need2ndPassword, final List<MapleCharacter> chars, int charSlots) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
@@ -406,18 +394,29 @@ public class LoginPacket {
         return mplew.getPacket();
     }
 
- /*     */   public static byte[] partTimeJobRequest(int cid, int mode, int jobType, long time, boolean finish, boolean bonus) {
-/* 466 */     MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+    /*     */
+    public static byte[] partTimeJobRequest(int cid, int mode, int jobType, long time, boolean finish, boolean bonus) {
+/* 466 */
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 /*     */ 
-/* 468 */     mplew.writeShort(SendPacketOpcode.PART_TIME_JOB.getValue());
-/* 469 */     mplew.writeInt(cid);
-/* 470 */     mplew.write(mode);
+/* 468 */
+        mplew.writeShort(SendPacketOpcode.PART_TIME_JOB.getValue());
+/* 469 */
+        mplew.writeInt(cid);
+/* 470 */
+        mplew.write(mode);
 /*     */ 
-/* 475 */     mplew.write(jobType);
-/* 476 */     mplew.writeReversedLong(PacketHelper.getTime(time));
-/* 477 */     mplew.writeInt(finish ? 1 : 0);
-/* 478 */     mplew.write(bonus ? 1 : 0);
+/* 475 */
+        mplew.write(jobType);
+/* 476 */
+        mplew.writeReversedLong(PacketHelper.getTime(time));
+/* 477 */
+        mplew.writeInt(finish ? 1 : 0);
+/* 478 */
+        mplew.write(bonus ? 1 : 0);
 /*     */ 
-/* 482 */     return mplew.getPacket();
-/*     */   }
+/* 482 */
+        return mplew.getPacket();
+/*     */
+    }
 }

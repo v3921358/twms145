@@ -27,7 +27,6 @@ import constants.GameConstants;
 import handling.channel.ChannelServer;
 import handling.world.MaplePartyCharacter;
 import handling.world.World;
-import java.awt.Point;
 import server.Randomizer;
 import server.Timer.MapTimer;
 import server.life.MapleLifeFactory;
@@ -36,6 +35,8 @@ import server.life.OverrideMonsterStats;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
 import tools.packet.CWvsContext;
+
+import java.awt.*;
 
 public class Event_DojoAgent {
 
@@ -214,12 +215,12 @@ public class Event_DojoAgent {
                             }
                             chr.changeMap(lastMap, lastMap.getPortal(1));
                             int exp = chr.getLevel() * (2000 * Randomizer.rand(10, 50));
-                            c.dropMessage(5, "Mu Lung Dojo " + 
-                            (c.getDojoMode() == DojoMode.EASY ? "Easy Mode" : 
-                                    c.getDojoMode() == DojoMode.NORMAL ? "Normal Mode" : 
-                                            c.getDojoMode() == DojoMode.HARD ? "Hard Mode" : 
-                                                    c.getDojoMode() == DojoMode.RANKED ? "Ranked Mode" : "Unknown Mode") 
-                            + " cleared! You've earned " + exp + " Exp!");
+                            c.dropMessage(5, "Mu Lung Dojo " +
+                                    (c.getDojoMode() == DojoMode.EASY ? "Easy Mode" :
+                                            c.getDojoMode() == DojoMode.NORMAL ? "Normal Mode" :
+                                                    c.getDojoMode() == DojoMode.HARD ? "Hard Mode" :
+                                                            c.getDojoMode() == DojoMode.RANKED ? "Ranked Mode" : "Unknown Mode")
+                                    + " cleared! You've earned " + exp + " Exp!");
                             final int point = (points * 2);
                             c.getTrait(MapleTraitType.will).addExp(points, c);
                             final int dojo = chr.getIntRecord(GameConstants.DOJO) + point;
@@ -231,11 +232,11 @@ public class Event_DojoAgent {
                     c.changeMap(lastMap, lastMap.getPortal(1));
                     // c.startMapEffect("You have mastered the Mu Lung Dojo. Congratulations!", 5120000);
                     int exp = c.getLevel() * (2000 * Randomizer.rand(10, 50));
-                    c.dropMessage(5, "Mu Lung Dojo " + 
-                            (c.getDojoMode() == DojoMode.EASY ? "Easy Mode" : 
-                                    c.getDojoMode() == DojoMode.NORMAL ? "Normal Mode" : 
-                                            c.getDojoMode() == DojoMode.HARD ? "Hard Mode" : 
-                                                    c.getDojoMode() == DojoMode.RANKED ? "Ranked Mode" : "Unknown Mode") 
+                    c.dropMessage(5, "Mu Lung Dojo " +
+                            (c.getDojoMode() == DojoMode.EASY ? "Easy Mode" :
+                                    c.getDojoMode() == DojoMode.NORMAL ? "Normal Mode" :
+                                            c.getDojoMode() == DojoMode.HARD ? "Hard Mode" :
+                                                    c.getDojoMode() == DojoMode.RANKED ? "Ranked Mode" : "Unknown Mode")
                             + " cleared! You've earned " + exp + " Exp!");
                     if (c.dojoStartTime == 1337) {
                         World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[Mu Lung Dojo] " + c.getName() + " has achieved the best record in Mu Lung Dojo Ranked Mode."));
@@ -476,7 +477,7 @@ public class Event_DojoAgent {
                 public void run() {
                     MapleMonster mob = MapleLifeFactory.getMonster(mobid);
                     OverrideMonsterStats dojoStats = new OverrideMonsterStats();
-                    switch(dojoMode) {
+                    switch (dojoMode) {
                         case 0:
                             dojoStats.setOHp(mob.getMobMaxHp() / 2); // decrease their hp, have same attack
                             dojoStats.setOMp(mob.getMobMaxMp());

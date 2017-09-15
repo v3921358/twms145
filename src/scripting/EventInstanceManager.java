@@ -1,4 +1,3 @@
-
 /*
 This file is part of the OdinMS Maple Story WorldConfig
 Copyright (C) 2008 ~ 2010 Patrick Huy <patrick.huy@frz.cc>
@@ -25,18 +24,12 @@ import client.MapleCharacter;
 import client.MapleQuestStatus;
 import client.MapleTrait.MapleTraitType;
 import client.SkillFactory;
-import constants.WorldConstants;
 import handling.channel.ChannelServer;
 import handling.login.LoginServer;
 import handling.world.MapleParty;
 import handling.world.MaplePartyCharacter;
 import handling.world.World;
 import handling.world.exped.PartySearch;
-import java.util.*;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import javax.script.ScriptException;
 import server.MapleCarnivalParty;
 import server.MapleItemInformationProvider;
 import server.MapleSquad;
@@ -46,12 +39,20 @@ import server.maps.MapleMap;
 import server.maps.MapleMapFactory;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
-import tools.types.Pair;
 import tools.packet.CField;
 import tools.packet.CWvsContext.InfoPacket;
+import tools.types.Pair;
+
+import javax.script.ScriptException;
+import java.util.*;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class EventInstanceManager {
 
+    private final ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
+    private final Lock rL = mutex.readLock(), wL = mutex.writeLock();
     private List<MapleCharacter> chars = new LinkedList<>(); //this is messy
     private List<Integer> dced = new LinkedList<>();
     private List<MapleMonster> mobs = new LinkedList<>();
@@ -66,8 +67,6 @@ public class EventInstanceManager {
     private List<Integer> mapIds = new LinkedList<>();
     private List<Boolean> isInstanced = new LinkedList<>();
     private ScheduledFuture<?> eventTimer;
-    private final ReentrantReadWriteLock mutex = new ReentrantReadWriteLock();
-    private final Lock rL = mutex.readLock(), wL = mutex.writeLock();
     private boolean disposed = false;
 
     public EventInstanceManager(EventManager em, String name, int world, int channel) {
@@ -154,11 +153,11 @@ public class EventInstanceManager {
             final int timesend = (int) time / 1000;
 
             for (MapleCharacter chr : getPlayers()) {
-				if (name.startsWith("PVP")) {
-					chr.getClient().sendPacket(CField.getPVPClock(Integer.parseInt(getProperty("type")), timesend));
-				} else {
-					chr.getClient().sendPacket(CField.getClock(timesend));
-				}
+                if (name.startsWith("PVP")) {
+                    chr.getClient().sendPacket(CField.getPVPClock(Integer.parseInt(getProperty("type")), timesend));
+                } else {
+                    chr.getClient().sendPacket(CField.getClock(timesend));
+                }
             }
             timeOut(time, this);
 
@@ -409,7 +408,6 @@ public class EventInstanceManager {
     }
 
     /**
-     *
      * @param chr
      * @param mob
      */
@@ -545,7 +543,6 @@ public class EventInstanceManager {
     }
 
 
-
     public final void broadcastPlayerMsg(final int type, final String msg) {
         if (disposed) {
             return;
@@ -564,11 +561,11 @@ public class EventInstanceManager {
     public void addToPair(List<Pair<Integer, String>> e, int e1, String e2) {
         e.add(new Pair<>(e1, e2));
     }
-	
+
     public final List<Pair<Integer, MapleCharacter>> newPair_chr() {
         return new ArrayList<>();
     }
-	
+
     public void addToPair_chr(List<Pair<Integer, MapleCharacter>> e, int e1, MapleCharacter e2) {
         e.add(new Pair<>(e1, e2));
     }
@@ -870,7 +867,7 @@ public class EventInstanceManager {
         MapleItemInformationProvider.getInstance().getItemEffect(id).applyTo(chr);
         chr.getClient().sendPacket(InfoPacket.getStatusMsg(id));
     }
-	
+
     public void applySkill(final MapleCharacter chr, final int id) {
         SkillFactory.getSkill(id).getEffect(1).applyTo(chr);
     }

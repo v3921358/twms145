@@ -41,7 +41,7 @@ public class ServernoticeMapleClientMessageCallback implements MessageCallback {
     public void dropMessage(String message) {
         client.sendPacket(CWvsContext.serverNotice(mode, message));
     }
-    
+
     @Override
     public void dropMessage(int type, String message) {
         client.sendPacket(CWvsContext.serverNotice(type, message));

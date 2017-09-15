@@ -21,19 +21,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scripting;
 
 import client.MapleClient;
-import java.util.Map;
-import java.util.WeakHashMap;
-import java.util.concurrent.locks.Lock;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptException;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.concurrent.locks.Lock;
+
 public class NPCScriptManager extends AbstractScriptManager {
 
-    private final Map<MapleClient, NPCConversationManager> cms = new WeakHashMap<>();
     private static final NPCScriptManager instance = new NPCScriptManager();
+    private final Map<MapleClient, NPCConversationManager> cms = new WeakHashMap<>();
 
     public static NPCScriptManager getInstance() {
         return instance;
@@ -43,9 +44,9 @@ public class NPCScriptManager extends AbstractScriptManager {
         final Lock lock = c.getNPCLock();
         lock.lock();
         try {
-              if (cms.containsKey(c)) {
-            dispose(c);
-        }  
+            if (cms.containsKey(c)) {
+                dispose(c);
+            }
             if (!cms.containsKey(c) && c.canClickNPC()) {
                 Invocable iv = getInvocable("npc/" + npc + ".js", c, true);
                 if (iv == null) {
@@ -61,7 +62,7 @@ public class NPCScriptManager extends AbstractScriptManager {
                 scriptengine.put("cm", cm);
 
                 c.getPlayer().setConversation(1);
-		c.setClickedNPC();
+                c.setClickedNPC();
                 //System.out.println("NPCID started: " + npc);
                 try {
                     iv.invokeFunction("start"); // Temporary until I've removed all of start
@@ -91,7 +92,7 @@ public class NPCScriptManager extends AbstractScriptManager {
                 if (cm.pendingDisposal) {
                     dispose(c);
                 } else {
-		    c.setClickedNPC();
+                    c.setClickedNPC();
                     cm.getIv().invokeFunction("action", mode, type, selection);
                 }
             } catch (final ScriptException | NoSuchMethodException e) {
@@ -123,7 +124,7 @@ public class NPCScriptManager extends AbstractScriptManager {
                 scriptengine.put("qm", cm);
 
                 c.getPlayer().setConversation(1);
-		c.setClickedNPC();
+                c.setClickedNPC();
                 //System.out.println("NPCID started: " + npc + " startquest " + quest);
                 iv.invokeFunction("start", (byte) 1, (byte) 0, 0); // start it off as something
             }
@@ -147,7 +148,7 @@ public class NPCScriptManager extends AbstractScriptManager {
             if (cm.pendingDisposal) {
                 dispose(c);
             } else {
-		c.setClickedNPC();
+                c.setClickedNPC();
                 cm.getIv().invokeFunction("start", mode, type, selection);
             }
         } catch (ScriptException | NoSuchMethodException e) {
@@ -178,7 +179,7 @@ public class NPCScriptManager extends AbstractScriptManager {
                 scriptengine.put("qm", cm);
 
                 c.getPlayer().setConversation(1);
-		c.setClickedNPC();
+                c.setClickedNPC();
                 //System.out.println("NPCID started: " + npc + " endquest " + quest);
                 iv.invokeFunction("end", (byte) 1, (byte) 0, 0); // start it off as something
             }
@@ -202,7 +203,7 @@ public class NPCScriptManager extends AbstractScriptManager {
             if (cm.pendingDisposal) {
                 dispose(c);
             } else {
-		c.setClickedNPC();
+                c.setClickedNPC();
                 cm.getIv().invokeFunction("end", mode, type, selection);
             }
         } catch (ScriptException | NoSuchMethodException e) {

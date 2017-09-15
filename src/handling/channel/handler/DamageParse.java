@@ -28,12 +28,6 @@ import client.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.login.LoginServer;
 import handling.world.World;
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import pvp.WizerDual;
 import server.MapleStatEffect;
 import server.Randomizer;
@@ -46,10 +40,14 @@ import server.maps.MapleMapItem;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import tools.AttackPair;
-import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
+import tools.types.Pair;
+
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public class DamageParse {
 
@@ -174,7 +172,7 @@ public class DamageParse {
         MapleMonster monster;
         MapleMonsterStats monsterstats;
         boolean Tempest;
-        
+
         for (final AttackPair oned : attack.allDamage) {
             monster = map.getMonsterByOid(oned.objectId);
 
@@ -194,10 +192,10 @@ public class DamageParse {
                 }
                 overallAttackCount = 0; // Tracking of Shadow Partner additional damage.
                 Integer eachd;
-             if (monster.getBelongsToSomeone() && monster.getBelongsTo() != player.getId() && (player.getParty() == null || player.getParty().getMemberById(monster.getBelongsTo()) == null) && !player.isGM()) {
+                if (monster.getBelongsToSomeone() && monster.getBelongsTo() != player.getId() && (player.getParty() == null || player.getParty().getMemberById(monster.getBelongsTo()) == null) && !player.isGM()) {
                     player.dropMessage("You cannot hit this monster because it belongs to someone else.");
                     continue;
-             }  
+                }
                 for (Pair<Integer, Boolean> eachde : oned.attack) {
                     eachd = eachde.left;
                     overallAttackCount++;
@@ -205,7 +203,7 @@ public class DamageParse {
                     if (useAttackCount && overallAttackCount - 1 == attackCount) { // Is a Shadow partner hit so let's divide it once
                         maxDamagePerHit = (maxDamagePerHit / 100) * (ShdowPartnerAttackPercentage * (monsterstats.isBoss() ? stats.bossdam_r : stats.dam_r) / 100);
                     }
-                     //System.out.println("Client damage : " + eachd + " WorldConfig : " + maxDamagePerHit);
+                    //System.out.println("Client damage : " + eachd + " WorldConfig : " + maxDamagePerHit);
                     if (fixeddmg != -1) {
                         if (monsterstats.getOnlyNoramlAttack()) {
                             eachd = attack.skill != 0 ? 0 : (int) fixeddmg;
@@ -412,35 +410,35 @@ public class DamageParse {
             }
         }
         if (attack.skill != 2301002 && attack.skill != 4201004 && attack.skill != 1111008 && (player.getMapId() == 910010200 || player.getMapId() == 20 || player.getMapId() == 48 || player.getMap().pvpEnabled())) {
-                    switch (World.getPvpState()) {
-                        // 0 - Regular PvP || 1 - Survival PvP | 2 - Guild PvP || 3 - Party PvP
-                        // 4 - Racist PvP || 5 - Occupation PvP || 6 - Job PvP || 7 - Gender PvP
-                        case 0:
-                            WizerDual.doPvP(player, map , attack);
-                            break;
-                        case 1:
-                            WizerDual.doSurvivalPvP(player, map , attack);
-                            break;
-                        case 2:
-                            WizerDual.doGuildPvP(player, map , attack);
-                            break;
-                        case 3:
-                            WizerDual.doPartyPvP(player, map , attack);
-                            break;
-                        case 4:
-                            WizerDual.doRacistPvP(player, map , attack);
-                            break;
-                        case 5:
-                            WizerDual.doOccPvP(player, map , attack);
-                            break;
-                        case 6:
-                            WizerDual.doJobPvP(player, map , attack);
-                            break;
-                        case 7:
-                            WizerDual.doGenderPvP(player, map , attack);
-                            break;
-                    }
-                }
+            switch (World.getPvpState()) {
+                // 0 - Regular PvP || 1 - Survival PvP | 2 - Guild PvP || 3 - Party PvP
+                // 4 - Racist PvP || 5 - Occupation PvP || 6 - Job PvP || 7 - Gender PvP
+                case 0:
+                    WizerDual.doPvP(player, map, attack);
+                    break;
+                case 1:
+                    WizerDual.doSurvivalPvP(player, map, attack);
+                    break;
+                case 2:
+                    WizerDual.doGuildPvP(player, map, attack);
+                    break;
+                case 3:
+                    WizerDual.doPartyPvP(player, map, attack);
+                    break;
+                case 4:
+                    WizerDual.doRacistPvP(player, map, attack);
+                    break;
+                case 5:
+                    WizerDual.doOccPvP(player, map, attack);
+                    break;
+                case 6:
+                    WizerDual.doJobPvP(player, map, attack);
+                    break;
+                case 7:
+                    WizerDual.doGenderPvP(player, map, attack);
+                    break;
+            }
+        }
         if (attack.skill == 4331003 && (hpMob <= 0 || totDamageToOneMonster < hpMob)) {
             return;
         }
@@ -507,7 +505,7 @@ public class DamageParse {
         final int eaterLevel = player.getTotalSkillLevel(eaterSkill);
 
         final MapleMap map = player.getMap();
-         if (!player.isGM()) {
+        if (!player.isGM()) {
             if (attack.skill == 9001001 || attack.skill == 9101006) {
                 World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.serverNotice(6, "[AutoBan] " + player.getName() + " has been banned for packet editing GM Roar!"));
                 player.ban("Packet edited GM Roar!", true, true);
@@ -529,10 +527,10 @@ public class DamageParse {
                     }
                 }
                 overallAttackCount = 0;
-             if (monster.getBelongsToSomeone() && monster.getBelongsTo() != player.getId() && (player.getParty() == null || player.getParty().getMemberById(monster.getBelongsTo()) == null) && !player.isGM()) {
+                if (monster.getBelongsToSomeone() && monster.getBelongsTo() != player.getId() && (player.getParty() == null || player.getParty().getMemberById(monster.getBelongsTo()) == null) && !player.isGM()) {
                     player.dropMessage("You cannot hit this monster because it belongs to someone else.");
                     continue;
-             }  
+                }
                 Integer eachd;
                 for (Pair<Integer, Boolean> eachde : oned.attack) {
                     eachd = eachde.left;
@@ -621,35 +619,35 @@ public class DamageParse {
             }
         }
         if (attack.skill != 2301002 && attack.skill != 4201004 && attack.skill != 1111008 && (player.getMapId() == 910010200 || player.getMapId() == 20 || player.getMapId() == 48 || player.getMap().pvpEnabled())) {
-                    switch (World.getPvpState()) {
-                        // 0 - Regular PvP || 1 - Survival PvP | 2 - Guild PvP || 3 - Party PvP
-                        // 4 - Racist PvP || 5 - Occupation PvP || 6 - Job PvP || 7 - Gender PvP
-                        case 0:
-                            WizerDual.doPvP(player, map , attack);
-                            break;
-                        case 1:
-                            WizerDual.doSurvivalPvP(player, map , attack);
-                            break;
-                        case 2:
-                            WizerDual.doGuildPvP(player, map , attack);
-                            break;
-                        case 3:
-                            WizerDual.doPartyPvP(player, map , attack);
-                            break;
-                        case 4:
-                            WizerDual.doRacistPvP(player, map , attack);
-                            break;
-                        case 5:
-                            WizerDual.doOccPvP(player, map , attack);
-                            break;
-                        case 6:
-                            WizerDual.doJobPvP(player, map , attack);
-                            break;
-                        case 7:
-                            WizerDual.doGenderPvP(player, map , attack);
-                            break;
-                    }
-                }
+            switch (World.getPvpState()) {
+                // 0 - Regular PvP || 1 - Survival PvP | 2 - Guild PvP || 3 - Party PvP
+                // 4 - Racist PvP || 5 - Occupation PvP || 6 - Job PvP || 7 - Gender PvP
+                case 0:
+                    WizerDual.doPvP(player, map, attack);
+                    break;
+                case 1:
+                    WizerDual.doSurvivalPvP(player, map, attack);
+                    break;
+                case 2:
+                    WizerDual.doGuildPvP(player, map, attack);
+                    break;
+                case 3:
+                    WizerDual.doPartyPvP(player, map, attack);
+                    break;
+                case 4:
+                    WizerDual.doRacistPvP(player, map, attack);
+                    break;
+                case 5:
+                    WizerDual.doOccPvP(player, map, attack);
+                    break;
+                case 6:
+                    WizerDual.doJobPvP(player, map, attack);
+                    break;
+                case 7:
+                    WizerDual.doGenderPvP(player, map, attack);
+                    break;
+            }
+        }
         if (attack.skill != 2301002) {
             effect.applyTo(player);
         }
@@ -1113,9 +1111,9 @@ public class DamageParse {
                 ret.position = lea.readPos();
                 return ret;
             case 24121000:// mille
-            // case 24121005://tempest
-            //case 5101004: // Corkscrew
-            //case 15101003: // Cygnus corkscrew
+                // case 24121005://tempest
+                //case 5101004: // Corkscrew
+                //case 15101003: // Cygnus corkscrew
             case 5201002: // Gernard
             case 14111006: // Poison bomb
             case 4341002:

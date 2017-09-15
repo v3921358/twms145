@@ -27,25 +27,17 @@ import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.channel.ChannelServer;
-
-import java.awt.Point;
-import java.util.List;
 import server.*;
 import server.events.MapleEvent;
 import server.events.MapleEventType;
 import server.events.MapleSnowball.MapleSnowballs;
-import server.life.MapleLifeFactory;
-import server.life.MapleMonster;
-import server.life.MobAttackInfo;
-import server.life.MobSkill;
-import server.life.MobSkillFactory;
+import server.life.*;
 import server.maps.FieldLimitType;
 import server.maps.MapleMap;
 import server.movement.ILifeMovementFragment;
 import server.movement.MovementKind;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
-import tools.types.Pair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
@@ -54,8 +46,14 @@ import tools.packet.CWvsContext;
 import tools.packet.CWvsContext.InventoryPacket;
 import tools.packet.MTSCSPacket;
 import tools.packet.MobPacket;
+import tools.types.Pair;
+
+import java.awt.*;
+import java.util.List;
 
 public class PlayerHandler {
+
+    public static byte player_direction;
 
     public static int isFinisher(final int skillid) {
         switch (skillid) {
@@ -223,29 +221,32 @@ public class PlayerHandler {
     }
 
     public static final void CharInfoRequest(int objectid, MapleClient c, MapleCharacter chr) {
-/*  228 */     if ((c.getPlayer() == null) || (c.getPlayer().getMap() == null)) {
-/*  229 */       return;
-/*      */     }
-                MapleCharacter player = c.getPlayer().getMap().getCharacterById(objectid);
-                   if ((player.isGM()) && (player.getCharToggle() == 1)) {
-                    c.sendPacket(CWvsContext.enableActions());
-                } else {
-                       if ((!c.getPlayer().isGM()) && player.isDonator() && player.getTicklePower() == 1) {
-                           if (!c.getPlayer().Spam(60000, player.getId())) {
-                             player.dropMessage(5, "[Tickle]: " + c.getPlayer().getName() + " has clicked on you!");
-                           }
-                       }
-                       if (c.getPlayer().getWatcher() != null) {
-                        c.getPlayer().getWatcher().dropMessage(5, "" + c.getPlayer().getName() + " has clicked on " + player.getName());
-                    }
-                    c.sendPacket(CWvsContext.charInfo(player, c.getPlayer().getId() == objectid));
-                    c.sendPacket(CWvsContext.enableActions());
+/*  228 */
+        if ((c.getPlayer() == null) || (c.getPlayer().getMap() == null)) {
+/*  229 */
+            return;
+/*      */
+        }
+        MapleCharacter player = c.getPlayer().getMap().getCharacterById(objectid);
+        if ((player.isGM()) && (player.getCharToggle() == 1)) {
+            c.sendPacket(CWvsContext.enableActions());
+        } else {
+            if ((!c.getPlayer().isGM()) && player.isDonator() && player.getTicklePower() == 1) {
+                if (!c.getPlayer().Spam(60000, player.getId())) {
+                    player.dropMessage(5, "[Tickle]: " + c.getPlayer().getName() + " has clicked on you!");
                 }
+            }
+            if (c.getPlayer().getWatcher() != null) {
+                c.getPlayer().getWatcher().dropMessage(5, "" + c.getPlayer().getName() + " has clicked on " + player.getName());
+            }
+            c.sendPacket(CWvsContext.charInfo(player, c.getPlayer().getId() == objectid));
+            c.sendPacket(CWvsContext.enableActions());
+        }
 /*  233 */     //if ((player != null) && ((!player.isGM()) || (c.getPlayer().isGM())))
 /*  235 */       //c.sendPacket(CWvsContext.charInfo(player, c.getPlayer().getWorldId() == objectid));
-/*      */   }
+/*      */
+    }
 
-    public static byte player_direction;
     public static void TakeDamage(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         //System.out.println("Take Damage :" + slea.toString());
         slea.skip(4); // randomized
@@ -281,8 +282,8 @@ public class PlayerHandler {
             monsteridfrom = slea.readInt();
             if (MapleLifeFactory.getMonster(monsteridfrom) == null) {
                 System.out.println("Fag trying to dc " + chr.getName());
-return;
-}
+                return;
+            }
             oid = slea.readInt();
             attacker = chr.getMap().getMonsterByOid(oid);
             direction = slea.readByte(); // Knock direction
@@ -295,7 +296,7 @@ return;
                 final MobAttackInfo attackInfo = attacker.getStats().getMobAttack(type);
                 if (attackInfo != null) {
                     if (attackInfo.isElement && stats.TER > 0 && Randomizer.nextInt(100) < stats.TER) {
-                 //       System.out.println("Avoided ER from mob id: " + monsteridfrom);
+                        //       System.out.println("Avoided ER from mob id: " + monsteridfrom);
                         return;
                     }
                     if (attackInfo.isDeadlyAttack()) {
@@ -498,7 +499,7 @@ return;
     public static void UseItemEffect(final int itemId, final MapleClient c, final MapleCharacter chr) {
         if (itemId != 0) {
             final Item toUse = chr.getInventory(MapleInventoryType.CASH).findById(itemId);
-            
+
             if (toUse == null || toUse.getItemId() != itemId || toUse.getQuantity() < 1) {
                 c.sendPacket(CWvsContext.enableActions());
                 return;
@@ -521,13 +522,13 @@ return;
         }
         final Skill skill = SkillFactory.getSkill(sourceid);
         if (skill != null) {
-        if (skill.isChargeSkill()) {
-            chr.setKeyDownSkill_Time(0);
-            chr.getMap().broadcastMessage(chr, CField.skillCancel(chr, sourceid), false);
-        } else {
-            chr.cancelEffect(skill.getEffect(1), false, -1);
+            if (skill.isChargeSkill()) {
+                chr.setKeyDownSkill_Time(0);
+                chr.getMap().broadcastMessage(chr, CField.skillCancel(chr, sourceid), false);
+            } else {
+                chr.cancelEffect(skill.getEffect(1), false, -1);
+            }
         }
-    }
     }
 
     public static void CancelMech(final LittleEndianAccessor slea, final MapleCharacter chr) {
@@ -601,11 +602,11 @@ return;
             skillid += Randomizer.nextInt(2);
         }
         if (skillid == 5211011) { //spirits, hack
-            int bla = Randomizer.nextInt(10); 
+            int bla = Randomizer.nextInt(10);
             if (bla > 5) {
-            skillid += 4 + (int) (Math.random() * ((5 - 4) + 1)); 
+                skillid += 4 + (int) (Math.random() * ((5 - 4) + 1));
             } else {
-               skillid = 5211011;
+                skillid = 5211011;
             }
         }
         int skillLevel = slea.readByte();
@@ -729,7 +730,7 @@ return;
             case 4341003: //monster bomb
                 chr.setKeyDownSkill_Time(0);
                 chr.getMap().broadcastMessage(chr, CField.skillCancel(chr, skillid), false);
-            //fallthrough intended
+                //fallthrough intended
             default:
                 Point pos = null;
                 if (slea.available() == 5 || slea.available() == 7) {
@@ -841,7 +842,7 @@ return;
             chr.getMap().broadcastGMMessage(chr, CField.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, energy, chr.getLevel(), chr.getStat().passive_mastery(), attack.unk, attack.charge), false);
         }
         DamageParse.applyAttack(attack, skill, c.getPlayer(), attackCount, maxdamage, effect, mirror ? AttackType.NON_RANGED_WITH_MIRROR : AttackType.NON_RANGED);
-            
+
     }
 
     public static void rangedAttack(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
@@ -1056,7 +1057,7 @@ return;
             }
         }
         DamageParse.applyAttack(attack, skill, chr, bulletCount, basedamage, effect, ShadowPartner != null ? AttackType.RANGED_WITH_SHADOWPARTNER : AttackType.RANGED);
-    
+
     }
 
     public static void MagicDamage(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
@@ -1114,7 +1115,7 @@ return;
         }
         DamageParse.applyAttackMagic(attack, skill, c.getPlayer(), effect, maxdamage);
     }
-    
+
 
     public static void DropMeso(final int meso, final MapleCharacter chr) {
         if (!chr.isAlive() || (meso < 10 || meso > 50000) || (meso > chr.getMeso())) {
@@ -1123,7 +1124,7 @@ return;
         }
         chr.gainMeso(-meso, false, true);
         chr.getMap().spawnMesoDrop(meso, chr.getTruePosition(), chr, chr, true, (byte) 0);
-       // chr.getCheatTracker().checkDrop(true);
+        // chr.getCheatTracker().checkDrop(true);
     }
 
     public static void ChangeAndroidEmotion(final int emote, final MapleCharacter chr) {
@@ -1135,7 +1136,7 @@ return;
     public static void MoveAndroid(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         slea.skip(8);
 
-        if(chr.getAndroid() == null) {
+        if (chr.getAndroid() == null) {
             return;
         }
         final List<ILifeMovementFragment> res = MovementParse.parseMovement(slea, chr.getAndroid().getPos(), MovementKind.PET_MOVEMENT);
@@ -1179,7 +1180,7 @@ return;
 
         final PlayerStats stats = chr.getStat();
 
-        if(stats.getHp() <= 0) {
+        if (stats.getHp() <= 0) {
             return;
         }
 
@@ -1220,7 +1221,7 @@ return;
         }
 
         int unk = slea.readByte();
-        for (int i = 0;; i += 2) {
+        for (int i = 0; ; i += 2) {
             if (i >= unk) {
                 break;
             }
@@ -1231,8 +1232,6 @@ return;
         slea.readShort();
         slea.readShort();
         slea.readShort();
-
-
 
         if (res != null && c.getPlayer().getMap() != null) {
             if (slea.available() < 11 || slea.available() > 26) { // estimation, should be exact 18
@@ -1262,17 +1261,17 @@ return;
                         fol.setChair(0);
                         fol.getClient().sendPacket(CField.cancelChair(-1));
                         fol.getMap().broadcastMessage(fol, CField.showChair(fol.getId(), 0), false);
-                        fol.getDiseaseBuff(MapleBuffStatus.SEDUCE,MobSkillFactory.getMobSkill(128, 10));
+                        fol.getDiseaseBuff(MapleBuffStatus.SEDUCE, MobSkillFactory.getMobSkill(128, 10));
                     }
                 } else {
                     chr.checkFollow();
                 }
             }
-        if (c.getPlayer().getWatcher() != null) { // todo: update this lol
-            if (!c.getPlayer().Spam(10000, 27)) {
-                c.getPlayer().getWatcher().dropMessage(5, "" + c.getPlayer().getName() + " is moving.");
+            if (c.getPlayer().getWatcher() != null) { // todo: update this lol
+                if (!c.getPlayer().Spam(10000, 27)) {
+                    c.getPlayer().getWatcher().dropMessage(5, "" + c.getPlayer().getName() + " is moving.");
+                }
             }
-        }
             int count = c.getPlayer().getFallCounter();
             final boolean samepos = pos.y > c.getPlayer().getOldPosition().y && Math.abs(pos.x - c.getPlayer().getOldPosition().x) < 5;
             if (samepos && (pos.y > (map.getBottom() + 250) || map.getFootholds().findBelow(pos) == null)) {
@@ -1286,7 +1285,7 @@ return;
                 c.getPlayer().setFallCounter(0);
             }
             c.getPlayer().setOldPosition(pos);
-                 
+
             if (!samepos && c.getPlayer().getBuffSource(MapleBuffStatus.DARK_AURA) == 32120000) { //dark aura
                 c.getPlayer().getStatForBuff(MapleBuffStatus.DARK_AURA).applyMonsterBuff(c.getPlayer());
             } else if (!samepos && c.getPlayer().getBuffSource(MapleBuffStatus.YELLOW_AURA) == 32120001) { //yellow aura
@@ -1445,24 +1444,37 @@ return;
     }
 
     public static final void InnerPortal(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr)
-/*      */   {
-/* 1502 */     if ((chr == null) || (chr.getMap() == null)) {
-                c.sendPacket(CWvsContext.enableActions());
-/* 1503 */       return;
-/*      */     }
-/* 1505 */     MaplePortal portal = chr.getMap().getPortal(slea.readMapleAsciiString());
-/* 1506 */     int toX = slea.readShort();
-/* 1507 */     int toY = slea.readShort();
+/*      */ {
+/* 1502 */
+        if ((chr == null) || (chr.getMap() == null)) {
+            c.sendPacket(CWvsContext.enableActions());
+/* 1503 */
+            return;
+/*      */
+        }
+/* 1505 */
+        MaplePortal portal = chr.getMap().getPortal(slea.readMapleAsciiString());
+/* 1506 */
+        int toX = slea.readShort();
+/* 1507 */
+        int toY = slea.readShort();
 /*      */ 
-/* 1511 */     if (portal == null)
-/* 1512 */       return;
-/* 1513 */     if ((portal.getPosition().distanceSq(chr.getTruePosition()) > 22500.0D) && (!chr.isGM())) {
-                c.sendPacket(CWvsContext.enableActions());
-/* 1515 */       return;
-/*      */     }
-/* 1517 */     chr.getMap().movePlayer(chr, new Point(toX, toY));
-/* 1518 */     chr.checkFollow();
-/*      */   }
+/* 1511 */
+        if (portal == null)
+/* 1512 */ return;
+/* 1513 */
+        if ((portal.getPosition().distanceSq(chr.getTruePosition()) > 22500.0D) && (!chr.isGM())) {
+            c.sendPacket(CWvsContext.enableActions());
+/* 1515 */
+            return;
+/*      */
+        }
+/* 1517 */
+        chr.getMap().movePlayer(chr, new Point(toX, toY));
+/* 1518 */
+        chr.checkFollow();
+/*      */
+    }
 
     public static void snowBall(LittleEndianAccessor slea, MapleClient c) {
         //B2 00

@@ -376,7 +376,7 @@ public enum MapleBuffStatus implements WritableLongValueHolder, IBuffStat {
 
     // 1 unknown	
     // 2 unknown	
-   // DEFENCE_BOOST_R(0x40000000, 6), // weapon def and magic def
+    // DEFENCE_BOOST_R(0x40000000, 6), // weapon def and magic def
     // 8 unknown
 
     // 0x1
@@ -451,10 +451,6 @@ public enum MapleBuffStatus implements WritableLongValueHolder, IBuffStat {
         this.stacked = stacked;
     }
 
-    public final int getPosition() {
-        return pos;
-    }
-
     public static String nameOf(int value) {
         for (MapleBuffStatus buffstatus : MapleBuffStatus.values()) {
             if (buffstatus.getValue() == value) {
@@ -483,6 +479,10 @@ public enum MapleBuffStatus implements WritableLongValueHolder, IBuffStat {
             }
         }
         ExternalCodeLongTableGetter.populateValues(props, values());
+    }
+
+    public final int getPosition() {
+        return pos;
     }
 
     @Override

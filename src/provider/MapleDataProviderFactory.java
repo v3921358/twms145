@@ -28,11 +28,11 @@ public class MapleDataProviderFactory {
 
     private final static String wzPath = ServerConstants.WZ_PATH;
 
-    public static MapleDataProvider getDataProvider(String file)  {
+    public static MapleDataProvider getDataProvider(String file) {
         return getWZ(fileInWZPath(file));
     }
 
-    private static MapleDataProvider getWZ(Object in)  {
+    private static MapleDataProvider getWZ(Object in) {
         if (in instanceof File) {
             return new MapleDataProvider((File) in);
         }

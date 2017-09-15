@@ -20,16 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools;
 
+import tools.packet.PacketHelper;
+
 import java.util.Date;
 import java.util.SimpleTimeZone;
-import tools.packet.PacketHelper;
 
 /**
  * Provides a suite of tools for manipulating Korean Timestamps.
  *
  * @author Frz
- * @since Revision 746
  * @version 1.0
+ * @since Revision 746
  */
 public class KoreanDateUtil {
 

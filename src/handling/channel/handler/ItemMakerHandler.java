@@ -21,28 +21,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.channel.handler;
 
 import client.*;
-import client.inventory.MapleImp.ImpFlag;
 import client.inventory.*;
+import client.inventory.MapleImp.ImpFlag;
 import constants.GameConstants;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import server.*;
 import server.ItemMakerFactory.GemCreateEntry;
 import server.ItemMakerFactory.ItemMakerCreateEntry;
-import server.*;
 import server.maps.MapleExtractor;
 import server.maps.MapleReactor;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
-import tools.types.Pair;
-import tools.types.Triple;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
 import tools.packet.CWvsContext;
 import tools.packet.CWvsContext.InventoryPacket;
+import tools.types.Pair;
+import tools.types.Triple;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ItemMakerHandler {
 
@@ -59,19 +59,6 @@ public class ItemMakerHandler {
         craftingEffects.put("Effect/BasicEff.img/professions/alchemy", 92040000);
         * 
         */
-    }
-
-    public static enum CraftRanking {
-
-        SOSO(19, 30),
-        GOOD(20, 40),
-        COOL(21, 50);
-        public int i, craft;
-
-        private CraftRanking(int i, int craft) {
-            this.i = i;
-            this.craft = craft;
-        }
     }
 
     public static void ItemMaker(final LittleEndianAccessor slea, final MapleClient c) {
@@ -436,7 +423,7 @@ public class ItemMakerHandler {
             c.sendPacket(CWvsContext.enableActions());
             return;
         }
-       slea.readInt();
+        slea.readInt();
         final byte slot = (byte) slea.readShort();
         final int itemId = slea.readInt();
         final Item toUse = chr.getInventory(MapleInventoryType.ETC).getItem(slot);
@@ -538,226 +525,441 @@ public class ItemMakerHandler {
         //}
     }
 
-/*     */   public static final void CraftComplete(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr)
-/*     */   {
-/* 556 */     int craftID = slea.readInt();
-/* 557 */     SkillFactory.CraftingEntry ce = SkillFactory.getCraft(craftID);
-/* 558 */     MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-/* 559 */     if (((chr.getMapId() == 910001000) || ((craftID == 92049000) && (chr.getMap().getExtractorSize() > 0))) && (ce != null)) { if (chr.getFatigue() < (GameConstants.GMS ? 200 : 100)); } else return;
-/*     */ 
-/* 562 */     int theLevl = c.getPlayer().getProfessionLevel(craftID / 10000 * 10000);
-/* 563 */     if ((theLevl <= 0) && (craftID != 92049000)) {
-/* 564 */       return;
-/*     */     }
-/* 566 */     int toGet = 0; int expGain = 0; int fatigue = 0;
-/* 567 */     short quantity = 1;
-/* 568 */     CraftRanking cr = CraftRanking.GOOD;
-/* 569 */     if (craftID == 92049000) {
-/* 570 */       int extractorId = slea.readInt();
-/* 571 */       int itemId = slea.readInt();
-/* 572 */       long invId = slea.readLong();
-/* 573 */       int reqLevel = ii.getReqLevel(itemId);
-/* 574 */       Item item = chr.getInventory(MapleInventoryType.EQUIP).findByInventoryId(invId, itemId);
-/* 575 */       if ((item == null) || (chr.getInventory(MapleInventoryType.ETC).isFull())) {
-/* 576 */         return;
-/*     */       }
-/* 578 */       if (extractorId <= 0) if (theLevl != 0) { if (theLevl >= (reqLevel > 130 ? 6 : (reqLevel - 30) / 20)); } else return;
-/* 580 */       if (extractorId > 0) {
-/* 581 */         MapleCharacter extract = chr.getMap().getCharacterById(extractorId);
-/* 582 */         if ((extract == null) || (extract.getExtractor() == null)) {
-/* 583 */           return;
-/*     */         }
-/* 585 */         MapleExtractor extractor = extract.getExtractor();
-/* 586 */         if (extractor.owner != chr.getId()) {
-/* 587 */           if (chr.getMeso() < extractor.fee) {
-/* 588 */             return;
-/*     */           }
-/* 590 */           MapleStatEffect eff = ii.getItemEffect(extractor.itemId);
-/* 591 */           if ((eff != null) && (eff.getUseLevel() < reqLevel)) {
-/* 592 */             return;
-/*     */           }
-/* 594 */           chr.gainMeso(-extractor.fee, true);
-/* 595 */           MapleCharacter owner = chr.getMap().getCharacterById(extractor.owner);
-/* 596 */           if ((owner != null) && (owner.getMeso() < 2147483647 - extractor.fee)) {
-/* 597 */             owner.gainMeso(extractor.fee, false);
-/*     */           }
-/*     */         }
-/*     */       }
-/* 601 */       toGet = 4031016;
-/* 602 */       quantity = (short)Randomizer.rand(3, (GameConstants.isWeapon(itemId)) || (GameConstants.isOverall(itemId)) ? 11 : 7);
-/* 603 */       if (reqLevel <= 60)
-/* 604 */         toGet = 4021013;
-/* 605 */       else if (reqLevel <= 90)
-/* 606 */         toGet = 4021014;
-/* 607 */       else if (reqLevel <= 120) {
-/* 608 */         toGet = 4021015;
-/*     */       }
-/* 610 */       if (quantity <= 5) {
-/* 611 */         cr = CraftRanking.SOSO;
-/*     */       }
-/* 613 */       if ((Randomizer.nextInt(5) == 0) && (toGet != 4031016)) {
-/* 614 */         toGet++;
-/* 615 */         quantity = 1;
-/* 616 */         cr = CraftRanking.COOL;
-/*     */       }
-/* 618 */       fatigue = 3;
-/* 619 */       MapleInventoryManipulator.addById(c, toGet, quantity, "Made by disassemble " + itemId + " on " + FileoutputUtil.CurrentReadable_Date());
-/* 620 */       MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.EQUIP, item.getPosition(), (byte) 1, false);
-/* 621 */     } else if (craftID == 92049001) {
-/* 622 */       int itemId = slea.readInt();
-/* 623 */       long invId1 = slea.readLong();
-/* 624 */       long invId2 = slea.readLong();
-/* 625 */       int reqLevel = ii.getReqLevel(itemId);
-/* 626 */       Equip item1 = (Equip)chr.getInventory(MapleInventoryType.EQUIP).findByInventoryIdOnly(invId1, itemId);
-/* 627 */       Equip item2 = (Equip)chr.getInventory(MapleInventoryType.EQUIP).findByInventoryIdOnly(invId2, itemId);
-/* 628 */       for (short i = 0; i < chr.getInventory(MapleInventoryType.EQUIP).getSlotLimit(); i = (short)(i + 1)) {
-/* 629 */         Item item = chr.getInventory(MapleInventoryType.EQUIP).getItem(i);
-/* 630 */         if ((item != null) && (item.getItemId() == itemId) && (item != item1) && (item != item2)) {
-/* 631 */           if (item1 == null) {
-/* 632 */             item1 = (Equip)item;
-/* 633 */           } else if (item2 == null) {
-/* 634 */             item2 = (Equip)item;
-/* 635 */             break;
-/*     */           }
-/*     */         }
-/*     */       }
-/* 639 */       if ((item1 == null) || (item2 == null)) {
-/* 640 */         return;
-/*     */       }
-/* 642 */       if (theLevl < (reqLevel > 130 ? 6 : (reqLevel - 30) / 20)) {
-/* 643 */         return;
-/*     */       }
-/* 645 */       int potentialState = 17; int potentialChance = theLevl * 2;
-/* 646 */       if ((item1.getState() > 0) && (item2.getState() > 0))
-/* 647 */         potentialChance = 100;
-/* 648 */       else if ((item1.getState() > 0) || (item2.getState() > 0)) {
-/* 649 */         potentialChance *= 2;
-/*     */       }
-/* 651 */       if ((item1.getState() == item2.getState()) && (item1.getState() > 17)) {
-/* 652 */         potentialState = item1.getState();
-/*     */       }
-/*     */ 
-/* 655 */       Equip newEquip = ii.fuse(item1.getLevel() > 0 ? (Equip)ii.getEquipById(itemId) : item1, item2.getLevel() > 0 ? (Equip)ii.getEquipById(itemId) : item2);
-/* 656 */       int newStat = ii.getTotalStat(newEquip);
-/* 657 */       if ((newStat > ii.getTotalStat(item1)) || (newStat > ii.getTotalStat(item2)))
-/* 658 */         cr = CraftRanking.COOL;
-/* 659 */       else if ((newStat < ii.getTotalStat(item1)) || (newStat < ii.getTotalStat(item2))) {
-/* 660 */         cr = CraftRanking.SOSO;
-/*     */       }
-/* 662 */       if (Randomizer.nextInt(100) < ((newEquip.getUpgradeSlots() > 0) || (potentialChance >= 100) ? potentialChance : potentialChance / 2)) {
-/* 663 */         newEquip.resetPotential_Fuse(theLevl > 5, potentialState);
-/*     */       }
-/* 665 */       newEquip.setFlag((short)ItemFlag.CRAFTED.getValue());
-/* 666 */       newEquip.setOwner(chr.getName());
-/* 667 */       toGet = newEquip.getItemId();
-/* 668 */       expGain = (60 - (theLevl - 1) * 2) * (GameConstants.GMS ? 2 : 1);
-/* 669 */       fatigue = 3;
+    /*     */
+    public static final void CraftComplete(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr)
+/*     */ {
+/* 556 */
+        int craftID = slea.readInt();
+/* 557 */
+        SkillFactory.CraftingEntry ce = SkillFactory.getCraft(craftID);
+/* 558 */
+        MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
+/* 559 */
+        if (((chr.getMapId() == 910001000) || ((craftID == 92049000) && (chr.getMap().getExtractorSize() > 0))) && (ce != null)) {
+            if (chr.getFatigue() < (GameConstants.GMS ? 200 : 100)) ;
+        } else return;
+/*     */
+/* 562 */
+        int theLevl = c.getPlayer().getProfessionLevel(craftID / 10000 * 10000);
+/* 563 */
+        if ((theLevl <= 0) && (craftID != 92049000)) {
+/* 564 */
+            return;
+/*     */
+        }
+/* 566 */
+        int toGet = 0;
+        int expGain = 0;
+        int fatigue = 0;
+/* 567 */
+        short quantity = 1;
+/* 568 */
+        CraftRanking cr = CraftRanking.GOOD;
+/* 569 */
+        if (craftID == 92049000) {
+/* 570 */
+            int extractorId = slea.readInt();
+/* 571 */
+            int itemId = slea.readInt();
+/* 572 */
+            long invId = slea.readLong();
+/* 573 */
+            int reqLevel = ii.getReqLevel(itemId);
+/* 574 */
+            Item item = chr.getInventory(MapleInventoryType.EQUIP).findByInventoryId(invId, itemId);
+/* 575 */
+            if ((item == null) || (chr.getInventory(MapleInventoryType.ETC).isFull())) {
+/* 576 */
+                return;
+/*     */
+            }
+/* 578 */
+            if (extractorId <= 0) if (theLevl != 0) {
+                if (theLevl >= (reqLevel > 130 ? 6 : (reqLevel - 30) / 20)) ;
+            } else return;
+/* 580 */
+            if (extractorId > 0) {
+/* 581 */
+                MapleCharacter extract = chr.getMap().getCharacterById(extractorId);
+/* 582 */
+                if ((extract == null) || (extract.getExtractor() == null)) {
+/* 583 */
+                    return;
+/*     */
+                }
+/* 585 */
+                MapleExtractor extractor = extract.getExtractor();
+/* 586 */
+                if (extractor.owner != chr.getId()) {
+/* 587 */
+                    if (chr.getMeso() < extractor.fee) {
+/* 588 */
+                        return;
+/*     */
+                    }
+/* 590 */
+                    MapleStatEffect eff = ii.getItemEffect(extractor.itemId);
+/* 591 */
+                    if ((eff != null) && (eff.getUseLevel() < reqLevel)) {
+/* 592 */
+                        return;
+/*     */
+                    }
+/* 594 */
+                    chr.gainMeso(-extractor.fee, true);
+/* 595 */
+                    MapleCharacter owner = chr.getMap().getCharacterById(extractor.owner);
+/* 596 */
+                    if ((owner != null) && (owner.getMeso() < 2147483647 - extractor.fee)) {
+/* 597 */
+                        owner.gainMeso(extractor.fee, false);
+/*     */
+                    }
+/*     */
+                }
+/*     */
+            }
+/* 601 */
+            toGet = 4031016;
+/* 602 */
+            quantity = (short) Randomizer.rand(3, (GameConstants.isWeapon(itemId)) || (GameConstants.isOverall(itemId)) ? 11 : 7);
+/* 603 */
+            if (reqLevel <= 60)
+/* 604 */ toGet = 4021013;
+/* 605 */
+            else if (reqLevel <= 90)
+/* 606 */ toGet = 4021014;
+/* 607 */
+            else if (reqLevel <= 120) {
+/* 608 */
+                toGet = 4021015;
+/*     */
+            }
+/* 610 */
+            if (quantity <= 5) {
+/* 611 */
+                cr = CraftRanking.SOSO;
+/*     */
+            }
+/* 613 */
+            if ((Randomizer.nextInt(5) == 0) && (toGet != 4031016)) {
+/* 614 */
+                toGet++;
+/* 615 */
+                quantity = 1;
+/* 616 */
+                cr = CraftRanking.COOL;
+/*     */
+            }
+/* 618 */
+            fatigue = 3;
+/* 619 */
+            MapleInventoryManipulator.addById(c, toGet, quantity, "Made by disassemble " + itemId + " on " + FileoutputUtil.CurrentReadable_Date());
+/* 620 */
+            MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.EQUIP, item.getPosition(), (byte) 1, false);
+/* 621 */
+        } else if (craftID == 92049001) {
+/* 622 */
+            int itemId = slea.readInt();
+/* 623 */
+            long invId1 = slea.readLong();
+/* 624 */
+            long invId2 = slea.readLong();
+/* 625 */
+            int reqLevel = ii.getReqLevel(itemId);
+/* 626 */
+            Equip item1 = (Equip) chr.getInventory(MapleInventoryType.EQUIP).findByInventoryIdOnly(invId1, itemId);
+/* 627 */
+            Equip item2 = (Equip) chr.getInventory(MapleInventoryType.EQUIP).findByInventoryIdOnly(invId2, itemId);
+/* 628 */
+            for (short i = 0; i < chr.getInventory(MapleInventoryType.EQUIP).getSlotLimit(); i = (short) (i + 1)) {
+/* 629 */
+                Item item = chr.getInventory(MapleInventoryType.EQUIP).getItem(i);
+/* 630 */
+                if ((item != null) && (item.getItemId() == itemId) && (item != item1) && (item != item2)) {
+/* 631 */
+                    if (item1 == null) {
+/* 632 */
+                        item1 = (Equip) item;
+/* 633 */
+                    } else if (item2 == null) {
+/* 634 */
+                        item2 = (Equip) item;
+/* 635 */
+                        break;
+/*     */
+                    }
+/*     */
+                }
+/*     */
+            }
+/* 639 */
+            if ((item1 == null) || (item2 == null)) {
+/* 640 */
+                return;
+/*     */
+            }
+/* 642 */
+            if (theLevl < (reqLevel > 130 ? 6 : (reqLevel - 30) / 20)) {
+/* 643 */
+                return;
+/*     */
+            }
+/* 645 */
+            int potentialState = 17;
+            int potentialChance = theLevl * 2;
+/* 646 */
+            if ((item1.getState() > 0) && (item2.getState() > 0))
+/* 647 */ potentialChance = 100;
+/* 648 */
+            else if ((item1.getState() > 0) || (item2.getState() > 0)) {
+/* 649 */
+                potentialChance *= 2;
+/*     */
+            }
+/* 651 */
+            if ((item1.getState() == item2.getState()) && (item1.getState() > 17)) {
+/* 652 */
+                potentialState = item1.getState();
+/*     */
+            }
+/*     */
+/* 655 */
+            Equip newEquip = ii.fuse(item1.getLevel() > 0 ? (Equip) ii.getEquipById(itemId) : item1, item2.getLevel() > 0 ? (Equip) ii.getEquipById(itemId) : item2);
+/* 656 */
+            int newStat = ii.getTotalStat(newEquip);
+/* 657 */
+            if ((newStat > ii.getTotalStat(item1)) || (newStat > ii.getTotalStat(item2)))
+/* 658 */ cr = CraftRanking.COOL;
+/* 659 */
+            else if ((newStat < ii.getTotalStat(item1)) || (newStat < ii.getTotalStat(item2))) {
+/* 660 */
+                cr = CraftRanking.SOSO;
+/*     */
+            }
+/* 662 */
+            if (Randomizer.nextInt(100) < ((newEquip.getUpgradeSlots() > 0) || (potentialChance >= 100) ? potentialChance : potentialChance / 2)) {
+/* 663 */
+                newEquip.resetPotential_Fuse(theLevl > 5, potentialState);
+/*     */
+            }
+/* 665 */
+            newEquip.setFlag((short) ItemFlag.CRAFTED.getValue());
+/* 666 */
+            newEquip.setOwner(chr.getName());
+/* 667 */
+            toGet = newEquip.getItemId();
+/* 668 */
+            expGain = (60 - (theLevl - 1) * 2) * (GameConstants.GMS ? 2 : 1);
+/* 669 */
+            fatigue = 3;
             MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.EQUIP, item1.getPosition(), (byte) 1, false);
             MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.EQUIP, item2.getPosition(), (byte) 1, false);
-/* 672 */       MapleInventoryManipulator.addbyItem(c, newEquip);
-/*     */     } else {
-/* 674 */       if ((ce.needOpenItem) && (chr.getSkillLevel(craftID) <= 0)) {
-/* 675 */         return;
-/*     */       }
-/* 677 */       for (Map.Entry e : ce.reqItems.entrySet()) {
-/* 678 */         if (!chr.haveItem(((Integer)e.getKey()).intValue(), ((Integer)e.getValue()).intValue())) {
-/* 679 */           return;
-/*     */         }
-/*     */       }
-/* 682 */       for (Triple i : ce.targetItems) {
-/* 683 */         if (!MapleInventoryManipulator.checkSpace(c, ((Integer)i.left).intValue(), ((Integer)i.mid).intValue(), "")) {
-/* 684 */           return;
-/*     */         }
-/*     */       }
-/* 687 */       for (Map.Entry e : ce.reqItems.entrySet()) {
-/* 688 */         MapleInventoryManipulator.removeById(c, GameConstants.getInventoryType(((Integer)e.getKey()).intValue()), ((Integer)e.getKey()).intValue(), ((Integer)e.getValue()).intValue(), false, false);
-/*     */       }
-/* 690 */       if ((Randomizer.nextInt(100) < 100 - (ce.reqSkillLevel - theLevl) * 20) || (craftID / 10000 <= 9201)) {
-/* 691 */         Map sa = new HashMap();
-/*     */         while (true) {
-/* 693 */           boolean passed = false;
-/* 694 */           for (Triple i : ce.targetItems) {
-/* 695 */             if (Randomizer.nextInt(100) < ((Integer)i.right).intValue()) {
-/* 696 */               toGet = ((Integer)i.left).intValue();
-/* 697 */               quantity = ((Integer)i.mid).shortValue();
-/* 698 */               Item receive = null;
-/* 699 */               if (GameConstants.getInventoryType(toGet) == MapleInventoryType.EQUIP) {
-/* 700 */                 Equip first = (Equip)ii.getEquipById(toGet);
-/* 701 */                 if (Randomizer.nextInt(100) < theLevl * 2) {
-/* 702 */                   first = ii.randomizeStats(first);
-/* 703 */                   cr = CraftRanking.COOL;
-/*     */                 }
-/* 705 */                 if (Randomizer.nextInt(100) < theLevl * (first.getUpgradeSlots() > 0 ? 2 : 1)) {
-/* 706 */                   first.resetPotential();
-/* 707 */                   cr = CraftRanking.COOL;
-/*     */                 }
-/* 709 */                 receive = first;
-/* 710 */                 receive.setFlag((short)ItemFlag.CRAFTED.getValue());
-/*     */               } else {
-/* 712 */                 receive = new Item(toGet, (short) 0, quantity, (short) (ItemFlag.CRAFTED_USE.getValue()));
-/*     */               }
-/* 714 */               if (ce.period > 0) {
-/* 715 */                 receive.setExpiration(System.currentTimeMillis() + ce.period * 60000);
-/*     */               }
-/* 717 */               receive.setOwner(chr.getName());
-/* 718 */               receive.setGMLog("Crafted from " + craftID + " on " + FileoutputUtil.CurrentReadable_Date());
-/* 719 */               MapleInventoryManipulator.addFromDrop(c, receive, true, false);
-/* 720 */               if (ce.needOpenItem) {
-/* 721 */                 int mLevel = chr.getMasterLevel(craftID);
-/* 722 */                 if (mLevel == 1)
-/* 723 */                   sa.put(ce, new SkillEntry(0, 0, SkillFactory.getDefaultSExpiry(ce)));
-/* 724 */                 else if (mLevel > 1) {
-/* 725 */                   sa.put(ce, new SkillEntry(2147483647,(chr.getMasterLevel(craftID) - 1), SkillFactory.getDefaultSExpiry(ce)));
-/*     */                 }
-/*     */               }
-/* 728 */               fatigue = ce.incFatigability;
-/* 729 */               expGain = ce.incSkillProficiency == 0 ? (fatigue * 20 - (ce.reqSkillLevel - theLevl) * 2) * (GameConstants.GMS ? 2 : 1) : ce.incSkillProficiency;
-/* 730 */               chr.getTrait(MapleTrait.MapleTraitType.craft).addExp(cr.craft, chr);
-/* 731 */               passed = true;
-/* 732 */               break;
-/*     */             }
-/*     */           }
-/* 735 */           if (passed) {
-/*     */             break;
-/*     */           }
-/*     */         }
-/* 739 */         chr.changeSkillsLevel(sa);
-/*     */       } else {
-/* 741 */         quantity = 0;
-/* 742 */         cr = CraftRanking.SOSO;
-/*     */       }
-/*     */     }
-/* 745 */     if ((expGain > 0) && (theLevl < 10)) {
-/* 746 */       expGain *= chr.getClient().getWorldServer().getTraitRate();
-/* 747 */       if (Randomizer.nextInt(100) < chr.getTrait(MapleTrait.MapleTraitType.craft).getLevel() / 5) {
-/* 748 */         expGain *= 2;
-/*     */       }
-/* 750 */       String s = "Alchemy";
-/* 751 */       switch (craftID / 10000) {
-/*     */       case 9200:
-/* 753 */         s = "Herbalism";
-/* 754 */         break;
-/*     */       case 9201:
-/* 756 */         s = "Mining";
-/* 757 */         break;
-/*     */       case 9202:
-/* 759 */         s = "Smithing";
-/* 760 */         break;
-/*     */       case 9203:
-/* 762 */         s = "Accessory Crafting";
-/*     */       }
-/*     */ 
-/* 765 */       chr.dropMessage(-5, s + "'s mastery increased. (+" + expGain + ")");
-/* 766 */       if (chr.addProfessionExp(craftID / 10000 * 10000, expGain))
-/* 767 */         chr.dropMessage(-5, s + " has gained a level.");
-/*     */     }
-/*     */     else {
-/* 770 */       expGain = 0;
-/*     */     }
-/* 772 */     MapleQuest.getInstance(2550).forceStart(c.getPlayer(), 9031000, "1");
-/* 773 */     chr.setFatigue((byte)(chr.getFatigue() + fatigue));
-/* 774 */     chr.getMap().broadcastMessage(CField.craftFinished(chr.getId(), craftID, cr.i, toGet, quantity, expGain));
-/*     */   }
+/* 672 */
+            MapleInventoryManipulator.addbyItem(c, newEquip);
+/*     */
+        } else {
+/* 674 */
+            if ((ce.needOpenItem) && (chr.getSkillLevel(craftID) <= 0)) {
+/* 675 */
+                return;
+/*     */
+            }
+/* 677 */
+            for (Map.Entry e : ce.reqItems.entrySet()) {
+/* 678 */
+                if (!chr.haveItem(((Integer) e.getKey()).intValue(), ((Integer) e.getValue()).intValue())) {
+/* 679 */
+                    return;
+/*     */
+                }
+/*     */
+            }
+/* 682 */
+            for (Triple i : ce.targetItems) {
+/* 683 */
+                if (!MapleInventoryManipulator.checkSpace(c, ((Integer) i.left).intValue(), ((Integer) i.mid).intValue(), "")) {
+/* 684 */
+                    return;
+/*     */
+                }
+/*     */
+            }
+/* 687 */
+            for (Map.Entry e : ce.reqItems.entrySet()) {
+/* 688 */
+                MapleInventoryManipulator.removeById(c, GameConstants.getInventoryType(((Integer) e.getKey()).intValue()), ((Integer) e.getKey()).intValue(), ((Integer) e.getValue()).intValue(), false, false);
+/*     */
+            }
+/* 690 */
+            if ((Randomizer.nextInt(100) < 100 - (ce.reqSkillLevel - theLevl) * 20) || (craftID / 10000 <= 9201)) {
+/* 691 */
+                Map sa = new HashMap();
+/*     */
+                while (true) {
+/* 693 */
+                    boolean passed = false;
+/* 694 */
+                    for (Triple i : ce.targetItems) {
+/* 695 */
+                        if (Randomizer.nextInt(100) < ((Integer) i.right).intValue()) {
+/* 696 */
+                            toGet = ((Integer) i.left).intValue();
+/* 697 */
+                            quantity = ((Integer) i.mid).shortValue();
+/* 698 */
+                            Item receive = null;
+/* 699 */
+                            if (GameConstants.getInventoryType(toGet) == MapleInventoryType.EQUIP) {
+/* 700 */
+                                Equip first = (Equip) ii.getEquipById(toGet);
+/* 701 */
+                                if (Randomizer.nextInt(100) < theLevl * 2) {
+/* 702 */
+                                    first = ii.randomizeStats(first);
+/* 703 */
+                                    cr = CraftRanking.COOL;
+/*     */
+                                }
+/* 705 */
+                                if (Randomizer.nextInt(100) < theLevl * (first.getUpgradeSlots() > 0 ? 2 : 1)) {
+/* 706 */
+                                    first.resetPotential();
+/* 707 */
+                                    cr = CraftRanking.COOL;
+/*     */
+                                }
+/* 709 */
+                                receive = first;
+/* 710 */
+                                receive.setFlag((short) ItemFlag.CRAFTED.getValue());
+/*     */
+                            } else {
+/* 712 */
+                                receive = new Item(toGet, (short) 0, quantity, (short) (ItemFlag.CRAFTED_USE.getValue()));
+/*     */
+                            }
+/* 714 */
+                            if (ce.period > 0) {
+/* 715 */
+                                receive.setExpiration(System.currentTimeMillis() + ce.period * 60000);
+/*     */
+                            }
+/* 717 */
+                            receive.setOwner(chr.getName());
+/* 718 */
+                            receive.setGMLog("Crafted from " + craftID + " on " + FileoutputUtil.CurrentReadable_Date());
+/* 719 */
+                            MapleInventoryManipulator.addFromDrop(c, receive, true, false);
+/* 720 */
+                            if (ce.needOpenItem) {
+/* 721 */
+                                int mLevel = chr.getMasterLevel(craftID);
+/* 722 */
+                                if (mLevel == 1)
+/* 723 */ sa.put(ce, new SkillEntry(0, 0, SkillFactory.getDefaultSExpiry(ce)));
+/* 724 */
+                                else if (mLevel > 1) {
+/* 725 */
+                                    sa.put(ce, new SkillEntry(2147483647, (chr.getMasterLevel(craftID) - 1), SkillFactory.getDefaultSExpiry(ce)));
+/*     */
+                                }
+/*     */
+                            }
+/* 728 */
+                            fatigue = ce.incFatigability;
+/* 729 */
+                            expGain = ce.incSkillProficiency == 0 ? (fatigue * 20 - (ce.reqSkillLevel - theLevl) * 2) * (GameConstants.GMS ? 2 : 1) : ce.incSkillProficiency;
+/* 730 */
+                            chr.getTrait(MapleTrait.MapleTraitType.craft).addExp(cr.craft, chr);
+/* 731 */
+                            passed = true;
+/* 732 */
+                            break;
+/*     */
+                        }
+/*     */
+                    }
+/* 735 */
+                    if (passed) {
+/*     */
+                        break;
+/*     */
+                    }
+/*     */
+                }
+/* 739 */
+                chr.changeSkillsLevel(sa);
+/*     */
+            } else {
+/* 741 */
+                quantity = 0;
+/* 742 */
+                cr = CraftRanking.SOSO;
+/*     */
+            }
+/*     */
+        }
+/* 745 */
+        if ((expGain > 0) && (theLevl < 10)) {
+/* 746 */
+            expGain *= chr.getClient().getWorldServer().getTraitRate();
+/* 747 */
+            if (Randomizer.nextInt(100) < chr.getTrait(MapleTrait.MapleTraitType.craft).getLevel() / 5) {
+/* 748 */
+                expGain *= 2;
+/*     */
+            }
+/* 750 */
+            String s = "Alchemy";
+/* 751 */
+            switch (craftID / 10000) {
+/*     */
+                case 9200:
+/* 753 */
+                    s = "Herbalism";
+/* 754 */
+                    break;
+/*     */
+                case 9201:
+/* 756 */
+                    s = "Mining";
+/* 757 */
+                    break;
+/*     */
+                case 9202:
+/* 759 */
+                    s = "Smithing";
+/* 760 */
+                    break;
+/*     */
+                case 9203:
+/* 762 */
+                    s = "Accessory Crafting";
+/*     */
+            }
+/*     */
+/* 765 */
+            chr.dropMessage(-5, s + "'s mastery increased. (+" + expGain + ")");
+/* 766 */
+            if (chr.addProfessionExp(craftID / 10000 * 10000, expGain))
+/* 767 */ chr.dropMessage(-5, s + " has gained a level.");
+/*     */
+        }
+/*     */
+        else {
+/* 770 */
+            expGain = 0;
+/*     */
+        }
+/* 772 */
+        MapleQuest.getInstance(2550).forceStart(c.getPlayer(), 9031000, "1");
+/* 773 */
+        chr.setFatigue((byte) (chr.getFatigue() + fatigue));
+/* 774 */
+        chr.getMap().broadcastMessage(CField.craftFinished(chr.getId(), craftID, cr.i, toGet, quantity, expGain));
+/*     */
+    }
 
     public static void UsePot(final LittleEndianAccessor slea, final MapleClient c) {
         final int itemid = slea.readInt();
@@ -864,5 +1066,18 @@ public class ItemMakerHandler {
         MapleInventoryManipulator.addById(c, itemid, (short) 1, "Item Pot from " + c.getPlayer().getImps()[index].getItemId() + " on " + FileoutputUtil.CurrentReadable_Date());
         c.sendPacket(CWvsContext.updateImp(c.getPlayer().getImps()[index], ImpFlag.REMOVED.getValue(), index, false));
         c.getPlayer().getImps()[index] = null;
+    }
+
+    public static enum CraftRanking {
+
+        SOSO(19, 30),
+        GOOD(20, 40),
+        COOL(21, 50);
+        public int i, craft;
+
+        private CraftRanking(int i, int craft) {
+            this.i = i;
+            this.craft = craft;
+        }
     }
 }

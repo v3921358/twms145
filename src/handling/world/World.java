@@ -1,8 +1,11 @@
 package handling.world;
 
-import client.*;
+import client.BuddyList;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
+import client.BuddylistEntry;
+import client.MapleBuffStatus;
+import client.MapleCharacter;
 import client.inventory.MapleInventoryType;
 import constants.WorldConfig;
 import database.DatabaseConnection;
@@ -36,10 +39,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class World {
-    private WorldConfig worldConfig;
-    private int cashRate = 3, traitRate = 3, flags = 0;
-    private List<ChannelServer> channels = new ArrayList<>();
-
     private static final PlayerStorage players = new PlayerStorage();
     private static final HashMap magicWheelCache = new HashMap();
     // AutoJQ and Event Maps
@@ -56,131 +55,13 @@ public class World {
     private static long lastPresident;
     // PvP System -- TODO: Map based not world O_o
     private static int pvpState = 0;
+    private WorldConfig worldConfig;
+    private int cashRate = 3, traitRate = 3, flags = 0;
+    private List<ChannelServer> channels = new ArrayList<>();
 
     public World(WorldConfig worldConfig) {
         this.worldConfig = worldConfig;
     }
-
-    public void initWorld()
-    {
-        for (int i = 0; i < worldConfig.getChnnaelCount(); i++) {
-            int channelId = i + 1;
-            ChannelServer channel = ChannelServer.newInstance(worldConfig.getWorldId(), channelId);
-            this.addChannel(channel);
-            channel.init(); // initialize
-        }
-        this.registerRespawn();
-    }
-
-    public List<ChannelServer> getChannels() {
-        return channels;
-    }
-
-    public ChannelServer getChannel(int channel) {
-        return channels.get(channel - 1);
-    }
-
-    public void addChannel(ChannelServer channel) {
-        channels.add(channel);
-    }
-
-    public void removeChannel(int channel) {
-        channels.remove(channel);
-    }
-
-    public PlayerStorage getPlayerStorage() {
-        return players;
-    }
-
-    public void removePlayer(MapleCharacter chr) {
-        channels.get(chr.getClient().getChannel() - 1).removePlayer(chr);
-        players.deregisterPlayer(chr);
-    }
-
-    public int getCashRate() {
-        return cashRate;
-    }
-
-    public void setCashRate(int cash) {
-        this.cashRate = cash;
-    }
-
-    public int getTraitRate() {
-        return traitRate;
-    }
-
-    public void setTraitRate(int trait) {
-        this.traitRate = trait;
-    }
-
-    public int getTempFlag() {
-        return flags;
-    }
-
-    // This will be disabled as according to original
-    // source info it's for enabling/disabling of PQs. 
-    // We will instead be using all PQs, even old ones.
-    public void setTempFlag(int flag) {
-        this.flags = flag;
-    }
-
-    public int getWorldId() {
-        return worldConfig.getWorldId();
-    }
-
-    public String getWorldName() {
-        return worldConfig.name();
-    }
-
-    public int getUserLimit() {
-        return worldConfig.getUserLimit();
-    }
-
-    public void setUserLimit(final int newLimit) {
-        worldConfig.setUserLimit(getUserLimit());
-    }
-
-    public void setMonsterRushOn(boolean onoff) {
-        MonsterRush = onoff;
-    }
-
-    public int getFlag() {
-        return worldConfig.getFlag().getId();
-    }
-
-    public String getEventMessage() {
-        return worldConfig.getEventMessage();
-    }
-
-    public int getExpRate() {
-        return worldConfig.getExpRate();
-    }
-
-    public int getDropRate() {
-        return worldConfig.getDropRate();
-    }
-
-    public int getMesoRate() {
-        return worldConfig.getMesoRate();
-    }
-
-    public int getMaxCharacter() {
-        return  worldConfig.getMaxCharacters();
-    }
-
-    public void setMesoRate(int rate) {
-        worldConfig.setMesoRate(rate);
-    }
-
-    public void setDropRate(int rate) {
-        worldConfig.setDropRate(rate);
-    }
-
-    public void setExpRate(int rate) {
-        worldConfig.setExpRate(rate);
-    }
-
-    //---------------------------------------------------------------------------------------------------------
 
     //Touch everything...
     public static void init() {
@@ -356,20 +237,20 @@ public class World {
         return false;
     }
 
-    public static void setEventMap(int map) {
-        eventMap = map;
-    }
-
     public static int getEventMap() {
         return eventMap;
     }
 
-    public static void setEventOn(boolean onoff) {
-        eventOn = onoff;
+    public static void setEventMap(int map) {
+        eventMap = map;
     }
 
     public static boolean getEventOn() {
         return eventOn;
+    }
+
+    public static void setEventOn(boolean onoff) {
+        eventOn = onoff;
     }
 
     public static boolean MonsterRushOn() {
@@ -380,16 +261,18 @@ public class World {
         return pvpState;
     }
 
+    //---------------------------------------------------------------------------------------------------------
+
     public static void setPvpState(int state) {
         pvpState = state;
     }
 
-    public static void setJQChannel(int channel) {
-        AutoJQ_Channel = channel;
-    }
-
     public static int getJQChannel() {
         return AutoJQ_Channel;
+    }
+
+    public static void setJQChannel(int channel) {
+        AutoJQ_Channel = channel;
     }
 
     public static long getLastPresident() {
@@ -400,17 +283,256 @@ public class World {
         return lastPresident = System.currentTimeMillis() / 60000;
     }
 
+    private static void handleMap(final MapleMap map, final int numTimes, final int size, final long now) {
+        if (map.getItemsSize() > 0) {
+            for (MapleMapItem item : map.getAllItemsThreadsafe()) {
+                if (item.shouldExpire(now)) {
+                    item.expire(map);
+                } else if (item.shouldFFA(now)) {
+                    item.setDropType((byte) 2);
+                }
+            }
+        }
+        if (map.characterSize() > 0 || map.getId() == 931000500) { //jaira hack
+            if (map.canSpawn(now)) {
+                map.respawn(false, now);
+            }
+            boolean hurt = map.canHurt(now);
+            for (MapleCharacter chr : map.getCharactersThreadsafe()) {
+                handleCooldowns(chr, numTimes, hurt, now);
+            }
+            if (map.getMobsSize() > 0) {
+                for (MapleMonster mons : map.getAllMonstersThreadsafe()) {
+                    if (mons.isAlive() && mons.shouldKill(now)) {
+                        map.killMonster(mons);
+                    } else if (mons.isAlive() && mons.shouldDrop(now)) {
+                        mons.doDropItem(now);
+                    } else if (mons.isAlive() && mons.getStatiSize() > 0) {
+                        mons.getAllBuffs().stream().filter(mse -> mse.shouldCancel(now)).forEach(mons::cancelSingleStatus);
+                    }
+                }
+            }
+        }
+    }
 
+    public static void handleCooldowns(final MapleCharacter chr, final int numTimes, final boolean hurt, final long now) { //is putting it here a good idea? expensive?
+        if (chr.getCooldownSize() > 0) {
+            chr.getCooldowns().stream().filter(m -> m.startTime + m.length < now).forEach(m -> {
+                final int skillId = m.skillId;
+                chr.removeCooldown(skillId);
+                chr.getClient().sendPacket(CField.skillCooldown(skillId, 0));
+            });
+        }
+        if (chr.isAlive()) {
+            if (chr.getJob() == 131 || chr.getJob() == 132) {
+                if (chr.canBlood(now)) {
+                    chr.doDragonBlood();
+                }
+            }
+            if (chr.canRecover(now)) {
+                chr.doRecovery();
+            }
+            if (chr.canHPRecover(now)) {
+                chr.addHP((int) chr.getStat().getHealHP());
+            }
+            if (chr.canMPRecover(now)) {
+                chr.addMP((int) chr.getStat().getHealMP());
+            }
+            if (chr.canFairy(now)) {
+                chr.doFairy();
+            }
+            if (chr.canFish(now)) {
+                chr.doFish(now);
+            }
+            if (chr.canDOT(now)) {
+                chr.doDOT();
+            }
+        }
+
+        if (chr.getDiseaseSize() > 0) {
+            chr.getAllDiseases().stream().filter(m -> m != null && m.startTime + m.length < now).forEach(m -> {
+                chr.cancelDeiseaseBuff(m.disease);
+            });
+        }
+        if (numTimes % 7 == 0 && chr.getMount() != null && chr.getMount().canTire(now)) {
+            chr.getMount().increaseFatigue();
+        }
+        if (numTimes % 13 == 0) { //we're parsing through the characters anyway (:
+            chr.doFamiliarSchedule(now);
+      /*      for (MaplePet pet : chr.getSummonedPets()) {
+                if (pet.getPetItemId() == 5000054 && pet.getSecondsLeft() > 0) {
+                    pet.setSecondsLeft(pet.getSecondsLeft() - 1);
+                    if (pet.getSecondsLeft() <= 0) {
+                        chr.unequipPet(pet, true, true);
+                        return;
+                    }
+                }
+                int newFullness = pet.getFullness() - PetDataFactory.getHunger(pet.getPetItemId());
+                if (newFullness <= 5) {
+                    pet.setFullness(15);
+                    chr.unequipPet(pet, true, true);
+                } else {
+                    pet.setFullness(newFullness);
+                    chr.getClient().sendPacket(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem(pet.getInventoryPosition()), true));
+                }
+            }*/
+        }
+        if (hurt && chr.isAlive()) {
+            if (chr.getInventory(MapleInventoryType.EQUIPPED).findById(chr.getMap().getHPDecProtect()) == null) {
+                if (chr.getMapId() == 749040100 && chr.getInventory(MapleInventoryType.CASH).findById(5451000) == null) { //minidungeon
+                    chr.addHP(-chr.getMap().getHPDec());
+                } else if (chr.getMapId() != 749040100) {
+                    chr.addHP(-(chr.getMap().getHPDec() - (chr.getBuffedValue(MapleBuffStatus.WEAKEN) == null ? 0 : chr.getBuffedValue(MapleBuffStatus.WEAKEN))));
+                }
+            }
+        }
+    }
+
+    public static List<MapleCharacter> getAllCharacters() {
+        List<MapleCharacter> chrlist = new ArrayList<>();
+        for (World worlds : LoginServer.getWorlds()) {
+            for (ChannelServer cs : worlds.getChannels()) {
+                chrlist.addAll(cs.getPlayerStorage().getAllCharacters());
+            }
+        }
+        return chrlist;
+    }
+
+    public static List<MapleCharacter> getAllCharacters(int world) {
+        List<MapleCharacter> chrlist = new ArrayList<>();
+        for (ChannelServer cs : LoginServer.getInstance().getWorld(world).getChannels()) {
+            chrlist.addAll(cs.getPlayerStorage().getAllCharacters());
+        }
+        return chrlist;
+    }
+
+    public void initWorld() {
+        for (int i = 0; i < worldConfig.getChnnaelCount(); i++) {
+            int channelId = i + 1;
+            ChannelServer channel = ChannelServer.newInstance(worldConfig.getWorldId(), channelId);
+            this.addChannel(channel);
+            channel.init(); // initialize
+        }
+        this.registerRespawn();
+    }
+
+    public List<ChannelServer> getChannels() {
+        return channels;
+    }
+
+    public ChannelServer getChannel(int channel) {
+        return channels.get(channel - 1);
+    }
+
+    public void addChannel(ChannelServer channel) {
+        channels.add(channel);
+    }
+
+    public void removeChannel(int channel) {
+        channels.remove(channel);
+    }
+
+    public PlayerStorage getPlayerStorage() {
+        return players;
+    }
+
+    public void removePlayer(MapleCharacter chr) {
+        channels.get(chr.getClient().getChannel() - 1).removePlayer(chr);
+        players.deregisterPlayer(chr);
+    }
+
+    public int getCashRate() {
+        return cashRate;
+    }
+
+    public void setCashRate(int cash) {
+        this.cashRate = cash;
+    }
+
+    public int getTraitRate() {
+        return traitRate;
+    }
+
+    public void setTraitRate(int trait) {
+        this.traitRate = trait;
+    }
+
+    public int getTempFlag() {
+        return flags;
+    }
+
+    // This will be disabled as according to original
+    // source info it's for enabling/disabling of PQs.
+    // We will instead be using all PQs, even old ones.
+    public void setTempFlag(int flag) {
+        this.flags = flag;
+    }
+
+    public int getWorldId() {
+        return worldConfig.getWorldId();
+    }
+
+    public String getWorldName() {
+        return worldConfig.name();
+    }
+
+    public int getUserLimit() {
+        return worldConfig.getUserLimit();
+    }
+
+    public void setUserLimit(final int newLimit) {
+        worldConfig.setUserLimit(getUserLimit());
+    }
+
+    public void setMonsterRushOn(boolean onoff) {
+        MonsterRush = onoff;
+    }
+
+    public int getFlag() {
+        return worldConfig.getFlag().getId();
+    }
+
+    public String getEventMessage() {
+        return worldConfig.getEventMessage();
+    }
+
+    public int getExpRate() {
+        return worldConfig.getExpRate();
+    }
+
+    public void setExpRate(int rate) {
+        worldConfig.setExpRate(rate);
+    }
+
+    public int getDropRate() {
+        return worldConfig.getDropRate();
+    }
+
+    public void setDropRate(int rate) {
+        worldConfig.setDropRate(rate);
+    }
+
+    public int getMesoRate() {
+        return worldConfig.getMesoRate();
+    }
+
+    public void setMesoRate(int rate) {
+        worldConfig.setMesoRate(rate);
+    }
+
+    public int getMaxCharacter() {
+        return worldConfig.getMaxCharacters();
+    }
+
+    public void registerRespawn() {
+        WorldTimer.getInstance().register(new Respawn(this), 4500); //divisible by 9000 if possible.
+    }
 
     public static class AutoJQ {
         private static AutoJQ instance = null;
-        private boolean autojq = false;
         private static boolean autojqOn = false;
         private static int autojqWaitingMap = 109060001;
-
-        public boolean getAutoJQ() {
-            return autojq;
-        }
+        private boolean autojq = false;
 
         public static int getWaitingMap() {
             return autojqWaitingMap;
@@ -425,6 +547,10 @@ public class World {
 
         public static boolean getAutoJQStatus() {
             return autojqOn;
+        }
+
+        public boolean getAutoJQ() {
+            return autojq;
         }
 
         public void openAutoJQ() {
@@ -466,10 +592,10 @@ public class World {
 
     public static class Party {
 
+        private static final AtomicInteger runningPartyId = new AtomicInteger(1), runningExpedId = new AtomicInteger(1);
         private static Map<Integer, MapleParty> parties = new HashMap<>();
         private static Map<Integer, MapleExpedition> expeds = new HashMap<>();
         private static Map<PartySearchType, List<PartySearch>> searches = new EnumMap<>(PartySearchType.class);
-        private static final AtomicInteger runningPartyId = new AtomicInteger(1), runningExpedId = new AtomicInteger(1);
 
         static {
             try {
@@ -908,8 +1034,8 @@ public class World {
 
     public static class Messenger {
 
-        private static Map<Integer, MapleMessenger> messengers = new HashMap<>();
         private static final AtomicInteger runningMessengerId = new AtomicInteger();
+        private static Map<Integer, MapleMessenger> messengers = new HashMap<>();
 
         static {
             runningMessengerId.set(1);
@@ -2020,11 +2146,6 @@ public class World {
         }
     }
 
-
-    public void registerRespawn() {
-        WorldTimer.getInstance().register(new Respawn(this), 4500); //divisible by 9000 if possible.
-    }
-
     private static class Respawn implements Runnable { //is putting it here a good idea?
 
         private int numTimes = 0;
@@ -2044,128 +2165,5 @@ public class World {
                 }
             });
         }
-    }
-
-    private static void handleMap(final MapleMap map, final int numTimes, final int size, final long now) {
-        if (map.getItemsSize() > 0) {
-            for (MapleMapItem item : map.getAllItemsThreadsafe()) {
-                if (item.shouldExpire(now)) {
-                    item.expire(map);
-                } else if (item.shouldFFA(now)) {
-                    item.setDropType((byte) 2);
-                }
-            }
-        }
-        if (map.characterSize() > 0 || map.getId() == 931000500) { //jaira hack
-            if (map.canSpawn(now)) {
-                map.respawn(false, now);
-            }
-            boolean hurt = map.canHurt(now);
-            for (MapleCharacter chr : map.getCharactersThreadsafe()) {
-                handleCooldowns(chr, numTimes, hurt, now);
-            }
-            if (map.getMobsSize() > 0) {
-                for (MapleMonster mons : map.getAllMonstersThreadsafe()) {
-                    if (mons.isAlive() && mons.shouldKill(now)) {
-                        map.killMonster(mons);
-                    } else if (mons.isAlive() && mons.shouldDrop(now)) {
-                        mons.doDropItem(now);
-                    } else if (mons.isAlive() && mons.getStatiSize() > 0) {
-                        mons.getAllBuffs().stream().filter(mse -> mse.shouldCancel(now)).forEach(mons::cancelSingleStatus);
-                    }
-                }
-            }
-        }
-    }
-
-    public static void handleCooldowns(final MapleCharacter chr, final int numTimes, final boolean hurt, final long now) { //is putting it here a good idea? expensive?
-        if (chr.getCooldownSize() > 0) {
-            chr.getCooldowns().stream().filter(m -> m.startTime + m.length < now).forEach(m -> {
-                final int skillId = m.skillId;
-                chr.removeCooldown(skillId);
-                chr.getClient().sendPacket(CField.skillCooldown(skillId, 0));
-            });
-        }
-        if (chr.isAlive()) {
-            if (chr.getJob() == 131 || chr.getJob() == 132) {
-                if (chr.canBlood(now)) {
-                    chr.doDragonBlood();
-                }
-            }
-            if (chr.canRecover(now)) {
-                chr.doRecovery();
-            }
-            if (chr.canHPRecover(now)) {
-                chr.addHP((int) chr.getStat().getHealHP());
-            }
-            if (chr.canMPRecover(now)) {
-                chr.addMP((int) chr.getStat().getHealMP());
-            }
-            if (chr.canFairy(now)) {
-                chr.doFairy();
-            }
-            if (chr.canFish(now)) {
-                chr.doFish(now);
-            }
-            if (chr.canDOT(now)) {
-                chr.doDOT();
-            }
-        }
-
-        if (chr.getDiseaseSize() > 0) {
-            chr.getAllDiseases().stream().filter(m -> m != null && m.startTime + m.length < now).forEach(m -> {
-                chr.cancelDeiseaseBuff(m.disease);
-            });
-        }
-        if (numTimes % 7 == 0 && chr.getMount() != null && chr.getMount().canTire(now)) {
-            chr.getMount().increaseFatigue();
-        }
-        if (numTimes % 13 == 0) { //we're parsing through the characters anyway (:
-            chr.doFamiliarSchedule(now);
-      /*      for (MaplePet pet : chr.getSummonedPets()) {
-                if (pet.getPetItemId() == 5000054 && pet.getSecondsLeft() > 0) {
-                    pet.setSecondsLeft(pet.getSecondsLeft() - 1);
-                    if (pet.getSecondsLeft() <= 0) {
-                        chr.unequipPet(pet, true, true);
-                        return;
-                    }
-                }
-                int newFullness = pet.getFullness() - PetDataFactory.getHunger(pet.getPetItemId());
-                if (newFullness <= 5) {
-                    pet.setFullness(15);
-                    chr.unequipPet(pet, true, true);
-                } else {
-                    pet.setFullness(newFullness);
-                    chr.getClient().sendPacket(PetPacket.updatePet(pet, chr.getInventory(MapleInventoryType.CASH).getItem(pet.getInventoryPosition()), true));
-                }
-            }*/
-        }
-        if (hurt && chr.isAlive()) {
-            if (chr.getInventory(MapleInventoryType.EQUIPPED).findById(chr.getMap().getHPDecProtect()) == null) {
-                if (chr.getMapId() == 749040100 && chr.getInventory(MapleInventoryType.CASH).findById(5451000) == null) { //minidungeon
-                    chr.addHP(-chr.getMap().getHPDec());
-                } else if (chr.getMapId() != 749040100) {
-                    chr.addHP(-(chr.getMap().getHPDec() - (chr.getBuffedValue(MapleBuffStatus.WEAKEN) == null ? 0 : chr.getBuffedValue(MapleBuffStatus.WEAKEN))));
-                }
-            }
-        }
-    }
-
-    public static List<MapleCharacter> getAllCharacters() {
-        List<MapleCharacter> chrlist = new ArrayList<>();
-        for (World worlds : LoginServer.getWorlds()) {
-            for (ChannelServer cs : worlds.getChannels()) {
-                chrlist.addAll(cs.getPlayerStorage().getAllCharacters());
-            }
-        }
-        return chrlist;
-    }
-
-    public static List<MapleCharacter> getAllCharacters(int world) {
-        List<MapleCharacter> chrlist = new ArrayList<>();
-        for (ChannelServer cs : LoginServer.getInstance().getWorld(world).getChannels()) {
-            chrlist.addAll(cs.getPlayerStorage().getAllCharacters());
-        }
-        return chrlist;
     }
 }

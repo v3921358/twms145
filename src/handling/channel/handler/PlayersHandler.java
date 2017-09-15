@@ -29,14 +29,6 @@ import client.status.MonsterStatus;
 import constants.GameConstants;
 import handling.world.MaplePartyCharacter;
 import handling.world.World;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import scripting.EventInstanceManager;
 import scripting.EventManager;
 import scripting.ReactorScriptManager;
@@ -55,11 +47,19 @@ import server.maps.*;
 import server.quest.MapleQuest;
 import tools.AttackPair;
 import tools.FileoutputUtil;
-import tools.types.Pair;
-import tools.types.Triple;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
+import tools.types.Pair;
+import tools.types.Triple;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PlayersHandler {
 
@@ -97,96 +97,96 @@ public class PlayersHandler {
                 System.out.println("Unhandled note action, " + type + "");
         }
     }
-    
+
     // Lie Detector Test - Original Code Credits to AuroX
     public static void LieDetector(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr, final boolean isItem) { // Person who used 
-        if (chr == null || chr.getMap() == null) { 
-            return; 
-        } 
-        final String target = slea.readMapleAsciiString(); 
-        byte slot = 0; 
-        if (isItem) { 
+        if (chr == null || chr.getMap() == null) {
+            return;
+        }
+        final String target = slea.readMapleAsciiString();
+        byte slot = 0;
+        if (isItem) {
             slot = (byte) slea.readShort(); // 01 00 (first pos in use) 
             final int itemId = slea.readInt(); // B0 6A 21 00 
-            final Item toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot); 
-            if (toUse == null || toUse.getQuantity() <= 0 || toUse.getItemId() != itemId || itemId != 2190000) { 
+            final Item toUse = chr.getInventory(MapleInventoryType.USE).getItem(slot);
+            if (toUse == null || toUse.getQuantity() <= 0 || toUse.getItemId() != itemId || itemId != 2190000) {
                 c.sendPacket(CWvsContext.enableActions());
-                return; 
-            } 
+                return;
+            }
         } else if (!chr.isGM() && chr.getJob() != 800) { // Manager using skill. Lie Detector Skill 
-            c.getSession().close(); 
-            return; 
-        } 
-        if ((FieldLimitType.PotionUse.check(chr.getMap().getFieldLimit()) && isItem) || chr.getMap().getReturnMapId() == chr.getMapId() || chr.getMap().getReturnMapId() == 999999999) { 
-            chr.dropMessage(5, "You may not use the Lie Detector on this area."); 
+            c.getSession().close();
+            return;
+        }
+        if ((FieldLimitType.PotionUse.check(chr.getMap().getFieldLimit()) && isItem) || chr.getMap().getReturnMapId() == chr.getMapId() || chr.getMap().getReturnMapId() == 999999999) {
+            chr.dropMessage(5, "You may not use the Lie Detector on this area.");
             c.sendPacket(CWvsContext.enableActions());
-            return; 
-        } 
-        final MapleCharacter search_chr = chr.getMap().getCharacterByName(target); 
-        if (search_chr == null || search_chr.getId() == chr.getId() || search_chr.isGM() && !chr.isGM()) { 
-            chr.dropMessage(1, "The user cannot be found."); 
+            return;
+        }
+        final MapleCharacter search_chr = chr.getMap().getCharacterByName(target);
+        if (search_chr == null || search_chr.getId() == chr.getId() || search_chr.isGM() && !chr.isGM()) {
+            chr.dropMessage(1, "The user cannot be found.");
             c.sendPacket(CWvsContext.enableActions());
-            return; 
-        } 
-        if (search_chr.getEventInstance() != null) { 
-            chr.dropMessage(5, "You may not use the Lie Detector on this area."); 
+            return;
+        }
+        if (search_chr.getEventInstance() != null) {
+            chr.dropMessage(5, "You may not use the Lie Detector on this area.");
             c.sendPacket(CWvsContext.enableActions());
-            return; 
-        } 
-        if (search_chr.getAntiMacro().inProgress()) { 
+            return;
+        }
+        if (search_chr.getAntiMacro().inProgress()) {
             c.sendPacket(CWvsContext.LieDetectorResponse((byte) 3));
             c.sendPacket(CWvsContext.enableActions());
-            return; 
-        } 
-        if (search_chr.getAntiMacro().isPassed() && isItem || search_chr.getAntiMacro().getAttempt() == 2) { 
+            return;
+        }
+        if (search_chr.getAntiMacro().isPassed() && isItem || search_chr.getAntiMacro().getAttempt() == 2) {
             c.sendPacket(CWvsContext.LieDetectorResponse((byte) 2));
             c.sendPacket(CWvsContext.enableActions());
-            return; 
-        } 
-        if (!search_chr.getAntiMacro().startLieDetector(chr.getName(), isItem, false)) { 
+            return;
+        }
+        if (!search_chr.getAntiMacro().startLieDetector(chr.getName(), isItem, false)) {
             chr.dropMessage(5, "Sorry! The Captcha WorldConfig is not available now, please try again later."); //error occured, usually cannot access to captcha server
             c.sendPacket(CWvsContext.enableActions());
-            return; 
-        } 
-        if (isItem) { 
-            MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false); 
-        } 
-        search_chr.dropMessage(5, chr.getName() + " has used the Lie Detector Test."); 
-    } 
+            return;
+        }
+        if (isItem) {
+            MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, false);
+        }
+        search_chr.dropMessage(5, chr.getName() + " has used the Lie Detector Test.");
+    }
 
     public static void LieDetectorResponse(final LittleEndianAccessor slea, final MapleClient c) { // Person who typed 
-        if (c.getPlayer() == null || c.getPlayer().getMap() == null) { 
-            return; 
-        } 
-        final String answer = slea.readMapleAsciiString(); 
+        if (c.getPlayer() == null || c.getPlayer().getMap() == null) {
+            return;
+        }
+        final String answer = slea.readMapleAsciiString();
 
-        final MapleLieDetector ld = c.getPlayer().getAntiMacro(); 
-        if (!ld.inProgress() || (ld.isPassed() && ld.getLastType() == 0) || ld.getAnswer() == null || answer.length() <= 0) { 
+        final MapleLieDetector ld = c.getPlayer().getAntiMacro();
+        if (!ld.inProgress() || (ld.isPassed() && ld.getLastType() == 0) || ld.getAnswer() == null || answer.length() <= 0) {
             c.sendPacket(CWvsContext.enableActions());
-            return; 
-        } 
-        if (answer.equals(ld.getAnswer())) { 
-            final MapleCharacter search_chr = c.getPlayer().getMap().getCharacterByName(ld.getTester()); 
-            if (search_chr != null && search_chr.getId() != c.getPlayer().getId()) { 
-                search_chr.dropMessage(5, "The user have passed the Lie Detector Test."); 
-            } 
+            return;
+        }
+        if (answer.equals(ld.getAnswer())) {
+            final MapleCharacter search_chr = c.getPlayer().getMap().getCharacterByName(ld.getTester());
+            if (search_chr != null && search_chr.getId() != c.getPlayer().getId()) {
+                search_chr.dropMessage(5, "The user have passed the Lie Detector Test.");
+            }
             c.sendPacket(CWvsContext.LieDetectorResponse((byte) 9, (byte) 1));
-            c.getPlayer().gainMeso(5000, true); 
-            ld.end(); 
+            c.getPlayer().gainMeso(5000, true);
+            ld.end();
         } else if (ld.getAttempt() < 2) { // redo again 
             ld.startLieDetector(ld.getTester(), ld.getLastType() == 0, true); // new attempt 
-        } else { 
-            final MapleCharacter search_chr = c.getPlayer().getMap().getCharacterByName(ld.getTester()); 
-            if (search_chr != null && search_chr.getId() != c.getPlayer().getId()) { 
-                search_chr.dropMessage(5, "The user has failed the Lie Detector Test. You'll be rewarded 7000 mesos from the user."); 
-                search_chr.gainMeso(7000, true); 
-            } 
-            ld.end(); 
+        } else {
+            final MapleCharacter search_chr = c.getPlayer().getMap().getCharacterByName(ld.getTester());
+            if (search_chr != null && search_chr.getId() != c.getPlayer().getId()) {
+                search_chr.dropMessage(5, "The user has failed the Lie Detector Test. You'll be rewarded 7000 mesos from the user.");
+                search_chr.gainMeso(7000, true);
+            }
+            ld.end();
             c.getPlayer().getClient().sendPacket(CWvsContext.LieDetectorResponse((byte) 7, (byte) 4));
-            final MapleMap to = c.getPlayer().getMap().getReturnMap(); 
-            c.getPlayer().changeMap(to, to.getPortal(0)); 
-        } 
-    }  
+            final MapleMap to = c.getPlayer().getMap().getReturnMap();
+            c.getPlayer().changeMap(to, to.getPortal(0));
+        }
+    }
 
     public static void GiveFame(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         final int who = slea.readInt();
@@ -562,13 +562,13 @@ public class PlayersHandler {
         c.getPlayer().updateSingleStat(MapleStat.GACHAPON_EXP, 0);
     }
 
-   public static void Report(final LittleEndianAccessor slea, final MapleClient c) {
-       //0 = success 1 = unable to locate 2 = once a day 3 = you've been reported 4+ = unknown reason
-       ReportType type = ReportType.getById(slea.readByte());
-       MapleCharacter cheater = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
-       byte a = slea.readByte(); // 09 00? unk
-       String reason = slea.readMapleAsciiString();
-       if (cheater == null || type == null || cheater.isGM()) {
+    public static void Report(final LittleEndianAccessor slea, final MapleClient c) {
+        //0 = success 1 = unable to locate 2 = once a day 3 = you've been reported 4+ = unknown reason
+        ReportType type = ReportType.getById(slea.readByte());
+        MapleCharacter cheater = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
+        byte a = slea.readByte(); // 09 00? unk
+        String reason = slea.readMapleAsciiString();
+        if (cheater == null || type == null || cheater.isGM()) {
             c.sendPacket(CWvsContext.report(4));
             return;
         }
@@ -654,7 +654,7 @@ public class PlayersHandler {
         if (boob != 1) {
             if (chr.getBIRTHDAY() == 0 && chr.getTODO() == 0 && chr.getLOCATION() == 0 && chr.getFOUND() == 0) {
                 chr.gainItem(5390009); // in gms you get this lol
-            }    
+            }
             int location = slea.readInt();
             int birthday = slea.readInt();
             int todo = slea.readInt();
@@ -680,7 +680,7 @@ public class PlayersHandler {
             c.sendPacket(CWvsContext.changeCardSet(set));
         }
     }
-    
+
     public static final void EnterAzwan(final LittleEndianAccessor slea, final MapleClient c) {
         if (c.getPlayer() == null || c.getPlayer().getMap() == null || c.getPlayer().getMapId() != 262000300) {
             c.sendPacket(CField.pvpBlocked(1));

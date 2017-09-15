@@ -479,10 +479,6 @@ public class GMCommand {
                     sb.append(c.getPlayer().getName()).append(" banned ").append(splitted[1]).append(": ").append(StringUtil.joinStringFrom(splitted, 2));
                     target = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
                     if (target != null) {
-                        if (target.getAccountID() == ServerConstants.ERIC_ACC_ID) {
-                            player.getClient().sendPacket(HexTool.getByteArrayFromHexString("1A 00"));
-                            return true; // hehe
-                        }
                         if (c.getPlayer().getGMLevel() > target.getGMLevel() || c.getPlayer().isAdmin()) {
                             sb.append(" (IP: ").append(target.getClient().getSessionIPAddress()).append(")");
                             if (target.ban(sb.toString(), false || false, false, false)) {
@@ -515,10 +511,6 @@ public class GMCommand {
                     sb.append(c.getPlayer().getName()).append(" banned ").append(splitted[1]).append(": ").append(StringUtil.joinStringFrom(splitted, 2));
                     target = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);
                     if (target != null) {
-                        if (target.getAccountID() == ServerConstants.ERIC_ACC_ID) {
-                            player.getClient().sendPacket(HexTool.getByteArrayFromHexString("1A 00"));
-                            return true; // hehe
-                        }
                         if (c.getPlayer().getGMLevel() > target.getGMLevel() || c.getPlayer().isAdmin()) {
                             sb.append(" (IP: ").append(target.getClient().getSessionIPAddress()).append(")");
                             if (target.ban(sb.toString(), false || true, false, false)) {
@@ -566,10 +558,6 @@ public class GMCommand {
                     if (victim == null || reason < 0 || reason >= types.length) {
                         c.getPlayer().dropMessage(6, "Unable to find character or reason was not valid, type tempban to see reasons");
                         return true;
-                    }
-                    if (victim.getAccountID() == ServerConstants.ERIC_ACC_ID) {
-                        player.getClient().sendPacket(HexTool.getByteArrayFromHexString("1A 00"));
-                        return true; // hehe
                     }
                     victim.tempban("Temp banned by " + c.getPlayer().getName() + " for " + types[reason] + " reason", cal, reason, ipBan);
                     c.getPlayer().dropMessage(6, "The character " + splitted[1] + " has been successfully tempbanned till " + df.format(cal.getTime()));
@@ -632,7 +620,7 @@ public class GMCommand {
                     return true;
                 case "dc":
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[splitted.length - 1]);
-                    if (victim != null && victim.getAccountID() != ServerConstants.ERIC_ACC_ID && c.getPlayer().getGMLevel() >= victim.getGMLevel()) {
+                    if (victim != null && c.getPlayer().getGMLevel() >= victim.getGMLevel()) {
                         victim.getClient().getSession().close();
                         victim.getClient().disconnect(true, false);
                         return true;
@@ -1048,18 +1036,16 @@ public class GMCommand {
                     c.getPlayer().dropMessage(6, "All items with the ID " + splitted[2] + " has been locked from the inventory of " + splitted[1] + ".");
                     return true;
                 case "killmap":
-                    for (MapleCharacter map2 : c.getPlayer().getMap().getCharacters()) {
-                        if (map2 != null && map2 != player) {
-                            if (map2.isEric() || (!player.isAdmin() && map2.isGM())) {
-                                player.dropMessage(map2.getName() + " is a GM.");
-                            } else {
-                                map2.getStat().setHp((short) 0, c.getPlayer());
-                                map2.getStat().setMp((short) 0, c.getPlayer());
-                                map2.updateSingleStat(MapleStat.HP, 0);
-                                map2.updateSingleStat(MapleStat.MP, 0);
-                            }
+                    c.getPlayer().getMap().getCharacters().stream().filter(map2 -> map2 != null && map2 != player).forEach(map2 -> {
+                        if ((!player.isAdmin() && map2.isGM())) {
+                            player.dropMessage(map2.getName() + " is a GM.");
+                        } else {
+                            map2.getStat().setHp((short) 0, c.getPlayer());
+                            map2.getStat().setMp((short) 0, c.getPlayer());
+                            map2.updateSingleStat(MapleStat.HP, 0);
+                            map2.updateSingleStat(MapleStat.MP, 0);
                         }
-                    }
+                    });
                     return true;
                 case "smegaplayer":
                     victim = c.getChannelServer().getPlayerStorage().getCharacterByName(splitted[1]);

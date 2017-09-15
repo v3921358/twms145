@@ -5,42 +5,35 @@ import java.util.List;
 
 public class ServerConstants {
 
-    public static boolean DEBUG = true;
-    public static boolean TESPIA = false; // true = uses GMS test server, for MSEA it does nothing though
     public static final short MAPLE_VERSION = 145;
     public static final String MAPLE_PATCH = "1";
     public static final int MAPLE_LOCLE = 6;
-    public static String SERVER_IP = "10.10.1.199";
-    public static String SERVER_NAME = "啾咪谷 v145";
     public static final String WZ_PATH = "./wz";
-    public static String WzRevision = "1.0";
-    public static String SourceRev = "1.0"; // initial revision
     public static final String MasterPass = "ericftw";
-    public static boolean dropUndroppables = true;
-    public static boolean moreThanOne = true;
     public static final boolean BlockCS = false;
     public static final int Currency = 4000999;
     public static final boolean MerchantsUseCurrency = false; // Log Packets = true | Allow people to connect = false
-    public static boolean Use_Localhost = false; // Only allow accounted admins to connect pass login server
-    public static boolean USE_SECOND_PASSWORD_AUTH = false;
-    public static boolean Admin_Only = false; 
-    public static boolean release = true;
-    public static int ERIC_ACC_ID = 2197;
-    public static final boolean TRIPLE_TRIO = true;
-    public static int CHANNEL_LOAD = 150; // players per channel
-    public static final int number1 = (142449577 + 753356065 + 611816275);
-    public static final short number2 = 18773, updateNumber = 18774, linkNumber = 18775, messageNumber = 18776;
-    public static final long number3 = 202227478981090217L;
-    public static int[] VIP_ROCK_BLOCK = {180000000, 180000001};
-    public static final byte[] NEXON_IP = new byte[]{(byte) 8, (byte) 31, (byte) 98, (byte) 53};
-    // TODO: messages handled per world:)
-    public static String serverMessage = "Welcome to Development v117.2 Closed Alpha! * Type @commands for a list of commands * Report all bugs to our forums, or to Eric.";
-    public static String WELCOME_MESSAGE = "Welcome to #rDevelopment#k - Closed Alpha!\r\n#gReport #ebugs#n to the forums!#k\r\n#bFacebook - #ehttp://www.facebook.com/Development#n#k";
-
+    public static boolean DEBUG = true;
+    public static boolean TESPIA = false; // true = uses GMS test server, for MSEA it does nothing though
+    public static String SERVER_IP = "10.10.1.199";
+    public static String SERVER_NAME = "啾咪谷 v145";
     private static final List<MapleLoginBalloon> mapleLoginBalloonList = Arrays.asList(
             new MapleLoginBalloon("歡迎來到" + ServerConstants.SERVER_NAME, 240, 140),
             new MapleLoginBalloon("禁止開外掛", 100, 150),
             new MapleLoginBalloon("遊戲愉快", 370, 150));
+    public static String WzRevision = "1.0";
+    public static String SourceRev = "1.0"; // initial revision
+    public static boolean dropUndroppables = true;
+    public static boolean moreThanOne = true;
+    public static boolean Use_Localhost = false; // Only allow accounted admins to connect pass login server
+    public static boolean USE_SECOND_PASSWORD_AUTH = false;
+    public static boolean ADMIN_ONLY = false;
+    public static int CHANNEL_LOAD = 150; // players per channel
+    // 瞬移之石限制區域
+    public static int[] VIP_ROCK_BLOCK = {180000000, 180000001};
+    // 歡迎訊息
+    public static String SERVER_MESSAGE = "歡迎來到啾咪谷v145.1，此端正在開發中 OuO/";
+    public static String WELCOME_MESSAGE = "【歡迎訊息】";
 
     public static List<MapleLoginBalloon> getBalloons() {
         return mapleLoginBalloonList;
@@ -49,13 +42,13 @@ public class ServerConstants {
     public static String getTip() {
         // Update these occasionally <3
         String[] tips = {
-            "#rNEW items are available!#k", "#bNEW commands are available!#k", "#rVote for Munny!#k",
-            "#bWe love our beauties! <3#k", "#rAuto Events#k give you Munny!", "#bMinigames are now available!#k",
-            "#We support #rWindows 8#k!", ("Our #bWZ's REV#k is #r" + WzRevision),
-            ("Our #bSource's REV#k is #r" + SourceRev), "#bDuh hello?#k", "Follow us on #bFacebook!#k",
-            "#rY#k#bO#k#rL#k#bO#k", "#ruw0tm8?#k", "ALL HAIL #rTROLLS#k!!!", "#rEric#k is cool", "#bKevin#k is cool", "#rPaul#k is cool"
+                "#rNEW items are available!#k", "#bNEW commands are available!#k", "#rVote for Munny!#k",
+                "#bWe love our beauties! <3#k", "#rAuto Events#k give you Munny!", "#bMinigames are now available!#k",
+                "#We support #rWindows 8#k!", ("Our #bWZ's REV#k is #r" + WzRevision),
+                ("Our #bSource's REV#k is #r" + SourceRev), "#bDuh hello?#k", "Follow us on #bFacebook!#k",
+                "#rY#k#bO#k#rL#k#bO#k", "#ruw0tm8?#k", "ALL HAIL #rTROLLS#k!!!", "#rEric#k is cool", "#bKevin#k is cool", "#rPaul#k is cool"
         };
-        int tip = (int)Math.floor(Math.random() * tips.length);
+        int tip = (int) Math.floor(Math.random() * tips.length);
         return tips[tip];
     }
 
@@ -67,7 +60,7 @@ public class ServerConstants {
         INTERN('!', 3),
         GM('!', 4),
         SUPERGM('!', 5),
-        ADMIN('!', 6), 
+        ADMIN('!', 6),
         GOD('!', 100);
         private char commandPrefix;
         private int level;
@@ -102,7 +95,7 @@ public class ServerConstants {
     }
 
     public static class MapleLoginBalloon {
-        public int nX,nY;
+        public int nX, nY;
         public String sMessage;
 
         public MapleLoginBalloon(String sMessage, int nX, int nY) {

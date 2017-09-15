@@ -27,6 +27,10 @@ import client.inventory.ItemLoader;
 import client.inventory.MapleInventoryType;
 import constants.GameConstants;
 import database.DatabaseConnection;
+import server.MapleDueyActions;
+import tools.data.LittleEndianAccessor;
+import tools.types.Pair;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,9 +39,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import server.MapleDueyActions;
-import tools.types.Pair;
-import tools.data.LittleEndianAccessor;
 
 public class DueyHandler {
 

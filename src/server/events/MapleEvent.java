@@ -38,8 +38,8 @@ import tools.packet.CField;
 import tools.packet.CWvsContext;
 
 public abstract class MapleEvent {
-    protected MapleEventType type;
     static int worldSt;
+    protected MapleEventType type;
     protected int world, channel, playerCount = 0;
     protected boolean isRunning = false;
 
@@ -48,35 +48,6 @@ public abstract class MapleEvent {
         worldSt = world;
         this.channel = channel;
         this.type = type;
-    }
-
-    public void incrementPlayerCount() {
-        playerCount++;
-        if (playerCount == 250) {
-            setEvent(ChannelServer.getInstance(world, channel), true);
-        }
-    }
-
-    public MapleEventType getType() {
-        return type;
-    }
-
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public MapleMap getMap(final int i) {
-        return getChannelServer().getMapFactory().getMap(type.mapids[i]);
-    }
-
-    public ChannelServer getChannelServer() {
-        return ChannelServer.getInstance(world, channel);
-    }
-
-    public void broadcast(final byte[] packet) {
-        for (int i = 0; i < type.mapids.length; i++) {
-            getMap(i).broadcastMessage(packet);
-        }
     }
 
     public static void givePrize(final MapleCharacter chr) {
@@ -126,35 +97,6 @@ public abstract class MapleEvent {
             //2022121 = 1-10
             //4031307 = 1-5
         }
-    }
-
-    public abstract void finished(MapleCharacter chr); //most dont do shit here
-
-    public abstract void startEvent();
-
-    public void onMapLoad(MapleCharacter chr) { //most dont do shit here
-        if (GameConstants.isEventMap(chr.getMapId()) && FieldLimitType.Event.check(chr.getMap().getFieldLimit()) && FieldLimitType.Event2.check(chr.getMap().getFieldLimit())) {
-            chr.getClient().sendPacket(CField.showEventInstructions());
-        }
-    }
-
-    public void warpBack(MapleCharacter chr) {
-        int map = chr.getSavedLocation(SavedLocationType.EVENT);
-        if (map <= -1) {
-            map = 104000000;
-        }
-        final MapleMap mapp = chr.getClient().getChannelServer().getMapFactory().getMap(map);
-        chr.changeMap(mapp, mapp.getPortal(0));
-    }
-
-    public void reset() {
-        isRunning = true;
-        playerCount = 0;
-    }
-
-    public void unreset() {
-        isRunning = false;
-        playerCount = 0;
     }
 
     public static void setEvent(final ChannelServer cserv, final boolean auto) {
@@ -233,5 +175,63 @@ public abstract class MapleEvent {
         cserv.getEvent(event).reset();
         World.Broadcast.broadcastMessage(worldSt, CWvsContext.serverNotice(0, "Hey guys! Let's play a " + StringUtil.makeEnumHumanReadable(event.name()) + " event in channel " + cserv.getChannel() + "! Change to channel " + cserv.getChannel() + " and use @event command!"));
         return "";
+    }
+
+    public void incrementPlayerCount() {
+        playerCount++;
+        if (playerCount == 250) {
+            setEvent(ChannelServer.getInstance(world, channel), true);
+        }
+    }
+
+    public MapleEventType getType() {
+        return type;
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public MapleMap getMap(final int i) {
+        return getChannelServer().getMapFactory().getMap(type.mapids[i]);
+    }
+
+    public ChannelServer getChannelServer() {
+        return ChannelServer.getInstance(world, channel);
+    }
+
+    public void broadcast(final byte[] packet) {
+        for (int i = 0; i < type.mapids.length; i++) {
+            getMap(i).broadcastMessage(packet);
+        }
+    }
+
+    public abstract void finished(MapleCharacter chr); //most dont do shit here
+
+    public abstract void startEvent();
+
+    public void onMapLoad(MapleCharacter chr) { //most dont do shit here
+        if (GameConstants.isEventMap(chr.getMapId()) && FieldLimitType.Event.check(chr.getMap().getFieldLimit()) && FieldLimitType.Event2.check(chr.getMap().getFieldLimit())) {
+            chr.getClient().sendPacket(CField.showEventInstructions());
+        }
+    }
+
+    public void warpBack(MapleCharacter chr) {
+        int map = chr.getSavedLocation(SavedLocationType.EVENT);
+        if (map <= -1) {
+            map = 104000000;
+        }
+        final MapleMap mapp = chr.getClient().getChannelServer().getMapFactory().getMap(map);
+        chr.changeMap(mapp, mapp.getPortal(0));
+    }
+
+    public void reset() {
+        isRunning = true;
+        playerCount = 0;
+    }
+
+    public void unreset() {
+        isRunning = false;
+        playerCount = 0;
     }
 }

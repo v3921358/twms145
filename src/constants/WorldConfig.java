@@ -46,10 +46,6 @@ public enum WorldConfig {
         this.worldSwitch = false;
     }
 
-    public int getWorldId() {
-        return worldId;
-    }
-
     public static WorldConfig getById(int id) {
         for (WorldConfig worldConfig : values()) {
             if (worldConfig.getWorldId() == id) {
@@ -57,6 +53,10 @@ public enum WorldConfig {
             }
         }
         return null;
+    }
+
+    public int getWorldId() {
+        return worldId;
     }
 
     public int getExpRate() {

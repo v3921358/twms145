@@ -26,24 +26,25 @@ import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import constants.GameConstants;
 import handling.SendPacketOpcode;
+import server.CashItemFactory;
+import server.CashItemInfo.CashModInfo;
+import server.CashShop;
+import server.MTSStorage.MTSItemInfo;
+import tools.HexTool;
+import tools.data.MaplePacketLittleEndianWriter;
+import tools.types.Pair;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import server.CashItemFactory;
-import server.CashItemInfo.CashModInfo;
-import server.CashShop;
-import server.MTSStorage.MTSItemInfo;
-import tools.HexTool;
-import tools.types.Pair;
-import tools.data.MaplePacketLittleEndianWriter;
 
 public class MTSCSPacket {
 
-    private static byte Operation_Code = 100; // We could just change this everytime a version updates
     private static final byte[] bestItems = HexTool.getByteArrayFromHexString("02 00 00 00 31 00 00 00 0A 00 10 00 12 00 0E 07 E0 3B 8B 0B 60 CE 8A 0B 69 00 6C 00 6C 00 2F 00 35 00 33 00 32 00 30 00 30 00 31 00 31 00 2F 00 73 00 75 00 6D 00 6D 00 6F 00 6E 00 2F 00 61 00 74 00 74 00 61 00 63 00 6B 00 31 00 2F 00 31 0000 00 00 00 00 00 00 00 02 00 1A 00 04 01 08 07 02 00 00 00 32 00 00 00 05 00 1C 00 06 00 08 07 A0 01 2E 00 58 CD 8A 0B");
+    private static byte Operation_Code = 100; // We could just change this everytime a version updates
 
     public static byte[] warpCS(MapleClient c) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
@@ -323,7 +324,7 @@ public class MTSCSPacket {
         if (mode == 29 || mode == 30) { // Limit Goods update. this item is out of stock, and therefore not available for sale.
             mplew.writeInt(sn);
         } else if (mode == 69) { // You cannot make any more purchases in %d.\r\nPlease try again in (%d + 1).
-            mplew.write(1);	// Hour?	
+            mplew.write(1);    // Hour?
         } else if (mode == 85) { // %s can only be purchased once a month.
             mplew.writeInt(sn);
             mplew.writeLong(System.currentTimeMillis());
@@ -696,8 +697,8 @@ public class MTSCSPacket {
     public static byte[] useAlienSocket(boolean start) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-       mplew.writeShort(SendPacketOpcode.ALIEN_SOCKET_CREATOR.getValue());
-       mplew.write(start ? 0 : 2);
+        mplew.writeShort(SendPacketOpcode.ALIEN_SOCKET_CREATOR.getValue());
+        mplew.write(start ? 0 : 2);
 
         return mplew.getPacket();
     }
@@ -863,16 +864,16 @@ public class MTSCSPacket {
     }
     * 
     */
-    
+
     public static byte[] sendCSFail(int err) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.CS_OPERATION.getValue());
         mplew.write(Operation_Code + 95);
         mplew.write(err);
-		
-	return mplew.getPacket();
-}
+
+        return mplew.getPacket();
+    }
 
     public static byte[] enableCSUse() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();

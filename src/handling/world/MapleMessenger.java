@@ -160,16 +160,16 @@ public final class MapleMessenger implements Serializable {
     }
     * 
     */
-    
+
     public String getMemberNamesDEBUG() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0;i < members.length;i++) {
-	    if (members[i] != null) {
+        for (int i = 0; i < members.length; i++) {
+            if (members[i] != null) {
                 sb.append(members[i].getName());
                 if (i != members.length - 1) {
                     sb.append(',');
                 }
-	    }
+            }
         }
         return sb.toString();
     }

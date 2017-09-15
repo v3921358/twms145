@@ -5,37 +5,36 @@
  */
 package pvp;
 
-import java.util.Collections;
-
 import client.*;
-import client.MapleBuffStatus;
 import constants.GameConstants;
 import handling.channel.handler.AttackInfo;
 import handling.channel.handler.PlayerHandler;
-import java.awt.Point;
-import java.util.EnumMap;
-import java.util.Map;
 import server.MapleInventoryManipulator;
 import server.MapleStatEffect;
-import server.life.MapleMonster;
 import server.life.MapleLifeFactory;
+import server.life.MapleMonster;
 import server.maps.MapleMap;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
 import tools.packet.MobPacket;
 
+import java.awt.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+
 public class WizerDual {
+    public static final int pvp_TargetId = 9400310;
     public static int PVP_MAP = 910010200;
     public static int PVP_LOBBY = 910010400;
+    public static boolean isLeft;
+    public static boolean isRight;
+    public static double pvp_Difficulty = 10 / 3;
     private static int pvpDamage;
     private static int maxDis;
     private static int maxHeight;
     private static boolean isAoe;
-    public static boolean isLeft;
-    public static boolean isRight;
     private static int[] PVP_MAPS = {910010200, 20, 48};
-    public static final int pvp_TargetId = 9400310;
-    public static double pvp_Difficulty = 10 / 3;
 
     public static boolean isPvPMap(int mapid) {
         for (int i : PVP_MAPS) {
@@ -48,7 +47,7 @@ public class WizerDual {
 
     // Check ranges heights and directions with specific attacks
     private static boolean isMeleeAttack(AttackInfo attack) {
-                switch(attack.skill) {
+        switch (attack.skill) {
             case 1001004:    //Power Strike
             case 1001005:    //Slash Blast
             case 4001334:    //Double Stab
@@ -94,13 +93,13 @@ public class WizerDual {
             case 21100002:   //Final Charge
             case 21120005:   //Final Blow
             case 21110003:   //Final Cross
-                        return true;
-                }
-                return false;
+                return true;
         }
+        return false;
+    }
 
-        private static boolean isRangeAttack(AttackInfo attack) {
-                switch(attack.skill) {
+    private static boolean isRangeAttack(AttackInfo attack) {
+        switch (attack.skill) {
             case 1000:       //Three Snails
             case 10001000:   //Three Snails
             case 20001000:   //Three Snails
@@ -174,13 +173,13 @@ public class WizerDual {
             case 15111003:   //Shockwave
             case 21100004:   //Combo Smash
             case 21110004:   //Combo Fenrir?
-                        return true;
-                }
-                return false;
+                return true;
         }
+        return false;
+    }
 
-        private static boolean isAoeAttack(AttackInfo attack) {
-                switch(attack.skill) {
+    private static boolean isAoeAttack(AttackInfo attack) {
+        switch (attack.skill) {
             case 2201005:    //Thunderbolt
             case 1311006:    //Dragon Roar
             case 2111002:    //Explosion
@@ -211,11 +210,11 @@ public class WizerDual {
             case 14101006:   //Vampire
             case 14111006:   //Poison Bomb
             case 21110006:   //Rolling Spin
-            return true;
-          }
-            return false;
+                return true;
         }
-    
+        return false;
+    }
+
     // Run direction checks (not fully used)
     private static void getDirection(MapleCharacter player) {
         //System.out.println("getDirection CALLED IN PVP");
@@ -287,7 +286,7 @@ public class WizerDual {
             }
         }
     }
-    
+
     // Attack Handling. Balances, buffs/perks, and declaration here
     public static void monsterBomb(MapleCharacter player, MapleCharacter attackedPlayers, MapleMap map, AttackInfo attack) {
         // Damage Calculation from Skill
@@ -326,7 +325,7 @@ public class WizerDual {
         if (mguard != null) {
             Map<MapleStat, Integer> stats = new EnumMap<>(MapleStat.class);
             int mploss = (int) (damageCount / .5);
-                damageCount *= .70;
+            damageCount *= .70;
             if (mploss > attackedPlayers.getStat().getMp()) {
                 damageCount /= .70;
                 attackedPlayers.cancelBuffStats(MapleBuffStatus.MAGIC_GUARD);
@@ -338,86 +337,86 @@ public class WizerDual {
         } else if (mesoguard != null) {
             int mesoloss = (int) (damageCount * .75);
             damageCount *= .75;
-                if(mesoloss > attackedPlayers.getMeso()) {
-                    damageCount /= .75;
-                    attackedPlayers.cancelBuffStats(MapleBuffStatus.MESOGUARD);
-                } else {
-                    attackedPlayers.gainMeso(-mesoloss, false);
-                }
+            if (mesoloss > attackedPlayers.getMeso()) {
+                damageCount /= .75;
+                attackedPlayers.cancelBuffStats(MapleBuffStatus.MESOGUARD);
+            } else {
+                attackedPlayers.gainMeso(-mesoloss, false);
+            }
         }
-                MapleMonster pvpMob = MapleLifeFactory.getMonster(9400711);
-                player.getClient().sendPacket(player.makeHPBarPacket(attackedPlayers)); // HP Bar
-                if (!attackedPlayers.wantHit()) { // GM Perk - Godmode
-                    pvpDamage = 0; // yes, we don't use this value. 
-                    damageCount = 0; // (smirk)
-                    attackedPlayers.setMp(attackedPlayers.getStat().getMaxMp());
-                    attackedPlayers.updateSingleStat(MapleStat.MP, attackedPlayers.getStat().getMaxMp());
-                    attackedPlayers.setHp(attackedPlayers.getStat().getMaxHp());
-                    attackedPlayers.updateSingleStat(MapleStat.HP, attackedPlayers.getStat().getMaxHp());
-                    attackedPlayers.getClient().sendPacket(CWvsContext.serverNotice(5, player.getName() + " has done 0 damage!"));
-                    return;
-                }
-                if (player.fakeDamage() && attackedPlayers != player) { // GM Perk - Fake Damage
-                    pvpDamage = Integer.MAX_VALUE - 147483647; // hitting 2.1b damage to a player
-                    damageCount = Integer.MAX_VALUE; // hitting 2.1b damage to a player
-                }
-                int type = -2, monsteridfrom = player.getId(), skillid = skill.getId(), pID = player.getId(), offset_d = 0, fake = 0;
-                Point pPos = new Point(player.getPosition().x, player.getPosition().y);
-                byte direction = PlayerHandler.player_direction, pType = 0, offset = 0;
-                boolean pPhysical = false;
-                for (MapleCharacter obj : player.getMap().getCharacters()) {
-                    obj.getMap().broadcastMessage(MobPacket.showMonsterHP(attackedPlayers.getObjectId(), attackedPlayers.getStat().getHPPercent()));
-                    obj.getMap().broadcastMessage(attackedPlayers, CField.damagePlayer(attackedPlayers.getId(), type, (damageCount * effect.getAttackCount()), monsteridfrom, direction, skillid, (damageCount * effect.getAttackCount()), pPhysical, pID, pType, pPos, offset, offset_d, fake), false);
-                }
-                for (int attacks = 0; attacks < effect.getAttackCount(); attacks++) {
-                    map.broadcastMessage(MobPacket.damageMonster(attackedPlayers.getObjectId(), damageCount));
-                    attackedPlayers.addHP(-damageCount);
-                }
-                // Health Notifications
-                if (attackedPlayers.getStat().getHp() <= 100) {
-                    player.dropMessage(5, attackedPlayers.getName() + " is near death at only " + attackedPlayers.getStat().getHp() + " HP! Finish " + attackedPlayers.getPvPGender() + " off!");
-                }
-                attackedPlayers.getClient().sendPacket(CWvsContext.serverNotice(5, player.getName() + " has done " + (damageCount * effect.getAttackCount()) + " damage!"));
-                // EXP, Currency, and PvP Kill Rewards
-                if (attackedPlayers.getStat().getHp() <= 0 && !attackedPlayers.isAlive()) {
-                        int expReward = attackedPlayers.getLevel() * 1000;
-                        if (player.getPvpKills() * .25 >= player.getPvpDeaths()) {
-                                expReward *= 20;
-                        }
-                        player.gainExp(expReward, true, false, true);
-                        player.gainPvpKill();
-                        MapleInventoryManipulator.addById(player.getClient(), 4000252, (short) 1, "");
-                        player.getClient().sendPacket(CWvsContext.serverNotice(6, "You have killed " + attackedPlayers.getName() + " gaining a pvp kill!"));
-                        attackedPlayers.gainPvpDeath();
-                        attackedPlayers.setHpMp(0);
-                        attackedPlayers.getClient().sendPacket(CWvsContext.serverNotice(6, getKillMessage(player)));
-                }
-                map.killMonster(pvpMob);
+        MapleMonster pvpMob = MapleLifeFactory.getMonster(9400711);
+        player.getClient().sendPacket(player.makeHPBarPacket(attackedPlayers)); // HP Bar
+        if (!attackedPlayers.wantHit()) { // GM Perk - Godmode
+            pvpDamage = 0; // yes, we don't use this value.
+            damageCount = 0; // (smirk)
+            attackedPlayers.setMp(attackedPlayers.getStat().getMaxMp());
+            attackedPlayers.updateSingleStat(MapleStat.MP, attackedPlayers.getStat().getMaxMp());
+            attackedPlayers.setHp(attackedPlayers.getStat().getMaxHp());
+            attackedPlayers.updateSingleStat(MapleStat.HP, attackedPlayers.getStat().getMaxHp());
+            attackedPlayers.getClient().sendPacket(CWvsContext.serverNotice(5, player.getName() + " has done 0 damage!"));
+            return;
         }
-    
+        if (player.fakeDamage() && attackedPlayers != player) { // GM Perk - Fake Damage
+            pvpDamage = Integer.MAX_VALUE - 147483647; // hitting 2.1b damage to a player
+            damageCount = Integer.MAX_VALUE; // hitting 2.1b damage to a player
+        }
+        int type = -2, monsteridfrom = player.getId(), skillid = skill.getId(), pID = player.getId(), offset_d = 0, fake = 0;
+        Point pPos = new Point(player.getPosition().x, player.getPosition().y);
+        byte direction = PlayerHandler.player_direction, pType = 0, offset = 0;
+        boolean pPhysical = false;
+        for (MapleCharacter obj : player.getMap().getCharacters()) {
+            obj.getMap().broadcastMessage(MobPacket.showMonsterHP(attackedPlayers.getObjectId(), attackedPlayers.getStat().getHPPercent()));
+            obj.getMap().broadcastMessage(attackedPlayers, CField.damagePlayer(attackedPlayers.getId(), type, (damageCount * effect.getAttackCount()), monsteridfrom, direction, skillid, (damageCount * effect.getAttackCount()), pPhysical, pID, pType, pPos, offset, offset_d, fake), false);
+        }
+        for (int attacks = 0; attacks < effect.getAttackCount(); attacks++) {
+            map.broadcastMessage(MobPacket.damageMonster(attackedPlayers.getObjectId(), damageCount));
+            attackedPlayers.addHP(-damageCount);
+        }
+        // Health Notifications
+        if (attackedPlayers.getStat().getHp() <= 100) {
+            player.dropMessage(5, attackedPlayers.getName() + " is near death at only " + attackedPlayers.getStat().getHp() + " HP! Finish " + attackedPlayers.getPvPGender() + " off!");
+        }
+        attackedPlayers.getClient().sendPacket(CWvsContext.serverNotice(5, player.getName() + " has done " + (damageCount * effect.getAttackCount()) + " damage!"));
+        // EXP, Currency, and PvP Kill Rewards
+        if (attackedPlayers.getStat().getHp() <= 0 && !attackedPlayers.isAlive()) {
+            int expReward = attackedPlayers.getLevel() * 1000;
+            if (player.getPvpKills() * .25 >= player.getPvpDeaths()) {
+                expReward *= 20;
+            }
+            player.gainExp(expReward, true, false, true);
+            player.gainPvpKill();
+            MapleInventoryManipulator.addById(player.getClient(), 4000252, (short) 1, "");
+            player.getClient().sendPacket(CWvsContext.serverNotice(6, "You have killed " + attackedPlayers.getName() + " gaining a pvp kill!"));
+            attackedPlayers.gainPvpDeath();
+            attackedPlayers.setHpMp(0);
+            attackedPlayers.getClient().sendPacket(CWvsContext.serverNotice(6, getKillMessage(player)));
+        }
+        map.killMonster(pvpMob);
+    }
+
     private static String getKillMessage(MapleCharacter killer) {
         // Suggested by Paul to add silly kill messages, haha. ;)
         String[] msgs = {
-            (killer.getName() + " has killed you!"), (killer.getName() + " De-gutted your ass"),
-            (killer.getName() + " Curb stomped your ass to china"), (killer.getName() + " Tore your ass apart"),
-            (killer.getName() + " Fucked your shit up"), (killer.getName() + " Splattered your brain over the floor"),
-            (killer.getName() + " Mushroom stamped you to death"), ("You got mutilated by " + killer.getName()),
-            (killer.getName() + " Stole your lunch money")
+                (killer.getName() + " has killed you!"), (killer.getName() + " De-gutted your ass"),
+                (killer.getName() + " Curb stomped your ass to china"), (killer.getName() + " Tore your ass apart"),
+                (killer.getName() + " Fucked your shit up"), (killer.getName() + " Splattered your brain over the floor"),
+                (killer.getName() + " Mushroom stamped you to death"), ("You got mutilated by " + killer.getName()),
+                (killer.getName() + " Stole your lunch money")
         };
-        String message = msgs[(int)Math.floor(Math.random() * msgs.length)];
+        String message = msgs[(int) Math.floor(Math.random() * msgs.length)];
         return message;
     }
-    
+
     public static void doPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
-            DamageBalancer(attack);
-            getDirection(player);
-              for (MapleCharacter attackedPlayers : player.getMap().getNearestPvpChar(player.getPosition(), maxDis, maxHeight, Collections.unmodifiableCollection(player.getMap().getCharacters()))) {
-                if (attackedPlayers.isAlive() && (player.getParty() == null || player.getParty() != attackedPlayers.getParty())) {
-                   monsterBomb(player, attackedPlayers, map, attack);
-              } 
-           } 
+        DamageBalancer(attack);
+        getDirection(player);
+        for (MapleCharacter attackedPlayers : player.getMap().getNearestPvpChar(player.getPosition(), maxDis, maxHeight, Collections.unmodifiableCollection(player.getMap().getCharacters()))) {
+            if (attackedPlayers.isAlive() && (player.getParty() == null || player.getParty() != attackedPlayers.getParty())) {
+                monsterBomb(player, attackedPlayers, map, attack);
+            }
         }
-    
+    }
+
     public static void doGuildPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
         DamageBalancer(attack);
         getDirection(player);
@@ -426,9 +425,9 @@ public class WizerDual {
                 monsterBomb(player, attackedPlayers, map, attack);
             }
         }
-    } 
-      
-      public static void doRacistPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
+    }
+
+    public static void doRacistPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
         DamageBalancer(attack);
         getDirection(player);
         for (MapleCharacter attackedPlayers : player.getMap().getNearestPvpChar(player.getPosition(), maxDis, maxHeight, player.getMap().getCharacters())) {
@@ -436,9 +435,9 @@ public class WizerDual {
                 monsterBomb(player, attackedPlayers, map, attack);
             }
         }
-    } 
-      
-      public static void doOccPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
+    }
+
+    public static void doOccPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
         DamageBalancer(attack);
         getDirection(player);
         for (MapleCharacter attackedPlayers : player.getMap().getNearestPvpChar(player.getPosition(), maxDis, maxHeight, player.getMap().getCharacters())) {
@@ -446,9 +445,9 @@ public class WizerDual {
                 monsterBomb(player, attackedPlayers, map, attack);
             }
         }
-    } 
-      
-      public static void doJobPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
+    }
+
+    public static void doJobPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
         DamageBalancer(attack);
         getDirection(player);
         for (MapleCharacter attackedPlayers : player.getMap().getNearestPvpChar(player.getPosition(), maxDis, maxHeight, player.getMap().getCharacters())) {
@@ -456,9 +455,9 @@ public class WizerDual {
                 monsterBomb(player, attackedPlayers, map, attack);
             }
         }
-    } 
-      
-      public static void doSurvivalPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
+    }
+
+    public static void doSurvivalPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
         DamageBalancer(attack);
         getDirection(player);
         for (MapleCharacter attackedPlayers : player.getMap().getNearestPvpChar(player.getPosition(), maxDis, maxHeight, player.getMap().getCharacters())) {
@@ -466,9 +465,9 @@ public class WizerDual {
                 monsterBomb(player, attackedPlayers, map, attack);
             }
         }
-    } 
-      
-       public static void doGenderPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
+    }
+
+    public static void doGenderPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
         DamageBalancer(attack);
         getDirection(player);
         for (MapleCharacter attackedPlayers : player.getMap().getNearestPvpChar(player.getPosition(), maxDis, maxHeight, player.getMap().getCharacters())) {
@@ -476,9 +475,9 @@ public class WizerDual {
                 monsterBomb(player, attackedPlayers, map, attack);
             }
         }
-    } 
-       
-       public static void doPartyPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
+    }
+
+    public static void doPartyPvP(MapleCharacter player, MapleMap map, AttackInfo attack) {
         DamageBalancer(attack);
         getDirection(player);
         for (MapleCharacter attackedPlayers : player.getMap().getNearestPvpChar(player.getPosition(), maxDis, maxHeight, player.getMap().getCharacters())) {
@@ -486,7 +485,7 @@ public class WizerDual {
                 monsterBomb(player, attackedPlayers, map, attack);
             }
         }
-    } 
+    }
 
     public static int getPvPMap() {
         for (int i : PVP_MAPS) {

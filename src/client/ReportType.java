@@ -30,26 +30,27 @@ public enum ReportType {
 
     public byte i;
     public String theId;
+
     private ReportType(int i, String theId) {
-	this.i = (byte)i;
-	this.theId = theId;
+        this.i = (byte) i;
+        this.theId = theId;
     }
 
     public static ReportType getById(int z) {
-	for (ReportType t : ReportType.values()) {
-	    if (t.i == z) {
-		return t;
-	    }
-	}
-	return null;
+        for (ReportType t : ReportType.values()) {
+            if (t.i == z) {
+                return t;
+            }
+        }
+        return null;
     }
 
     public static ReportType getByString(String z) {
-	for (ReportType t : ReportType.values()) {
-	    if (z.contains(t.theId)) {
-		return t;
-	    }
-	}
-	return null;
+        for (ReportType t : ReportType.values()) {
+            if (z.contains(t.theId)) {
+                return t;
+            }
+        }
+        return null;
     }
 }

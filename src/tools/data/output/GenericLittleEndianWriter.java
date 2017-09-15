@@ -20,12 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools.data.output;
 
-import java.awt.Point;
+import java.awt.*;
 import java.nio.charset.Charset;
 
 /**
  * Provides a generic writer of a little-endian sequence of bytes.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 323
@@ -44,20 +44,20 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
     }
 
     /**
-     * Sets the byte-output stream for this instance of the object.
-     *
-     * @param bos The new output stream to set.
-     */
-    protected void setByteOutputStream(final ByteOutputStream bos) {
-        this.bos = bos;
-    }
-
-    /**
      * Class constructor - only this one can be used.
      *
      * @param bos The stream to wrap this objecr around.
      */
     public GenericLittleEndianWriter(final ByteOutputStream bos) {
+        this.bos = bos;
+    }
+
+    /**
+     * Sets the byte-output stream for this instance of the object.
+     *
+     * @param bos The new output stream to set.
+     */
+    protected void setByteOutputStream(final ByteOutputStream bos) {
         this.bos = bos;
     }
 
@@ -175,6 +175,7 @@ public class GenericLittleEndianWriter implements LittleEndianWriter {
 
     /**
      * Write a long integer to the stream.
+     *
      * @param l The long integer to write.
      */
     @Override

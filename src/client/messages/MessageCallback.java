@@ -11,5 +11,6 @@ package client.messages;
 public interface MessageCallback {
 
     void dropMessage(String message);
+
     void dropMessage(int type, String message);
 }

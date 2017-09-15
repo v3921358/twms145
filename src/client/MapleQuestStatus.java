@@ -21,12 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package client;
 
 import constants.GameConstants;
+import server.life.MapleLifeFactory;
+import server.quest.MapleQuest;
+
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import server.life.MapleLifeFactory;
-import server.quest.MapleQuest;
 
 public class MapleQuestStatus implements Serializable {
 
@@ -39,10 +40,12 @@ public class MapleQuestStatus implements Serializable {
     private int forfeited = 0;
     private String customData;
 
-    /** Creates a new instance of MapleQuestStatus */
+    /**
+     * Creates a new instance of MapleQuestStatus
+     */
     public MapleQuestStatus(final MapleQuest quest, final int status) {
         this.quest = quest;
-        this.setStatus((byte)status);
+        this.setStatus((byte) status);
         this.completionTime = System.currentTimeMillis();
         if (status == 1) { // Started
             if (!quest.getRelevantMobs().isEmpty()) {
@@ -63,12 +66,12 @@ public class MapleQuestStatus implements Serializable {
         }
     }
 
-    public final void setQuest(int qid) {
-	this.quest = MapleQuest.getInstance(qid);
-    }
-
     public final MapleQuest getQuest() {
         return quest;
+    }
+
+    public final void setQuest(int qid) {
+        this.quest = MapleQuest.getInstance(qid);
     }
 
     public final byte getStatus() {
@@ -89,7 +92,7 @@ public class MapleQuestStatus implements Serializable {
 
 
     public boolean isCustom() {
-	return GameConstants.isCustomQuest(quest.getId());
+        return GameConstants.isCustomQuest(quest.getId());
     }
 
     private void registerMobs() {
@@ -193,11 +196,11 @@ public class MapleQuestStatus implements Serializable {
         }
     }
 
-    public final void setCustomData(final String customData) {
-        this.customData = customData;
-    }
-
     public final String getCustomData() {
         return customData;
+    }
+
+    public final void setCustomData(final String customData) {
+        this.customData = customData;
     }
 }

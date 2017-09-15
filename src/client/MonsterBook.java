@@ -25,6 +25,13 @@ import client.inventory.MapleInventoryType;
 import constants.GameConstants;
 import database.DatabaseConnection;
 import handling.RecvPacketOpcode;
+import server.MapleItemInformationProvider;
+import server.quest.MapleQuest;
+import tools.data.MaplePacketLittleEndianWriter;
+import tools.packet.CField.EffectPacket;
+import tools.types.Pair;
+import tools.types.Triple;
+
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -32,12 +39,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
-import server.MapleItemInformationProvider;
-import server.quest.MapleQuest;
-import tools.types.Pair;
-import tools.types.Triple;
-import tools.data.MaplePacketLittleEndianWriter;
-import tools.packet.CField.EffectPacket;
 
 public final class MonsterBook implements Serializable {
 
@@ -61,6 +62,20 @@ public final class MonsterBook implements Serializable {
             }
         }
         applyBook(chr, true);
+    }
+
+    public static MonsterBook loadCards(final int charid, final MapleCharacter chr) throws SQLException {
+        Map<Integer, Integer> cards;
+        try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM monsterbook WHERE charid = ? ORDER BY cardid ASC")) {
+            ps.setInt(1, charid);
+            try (ResultSet rs = ps.executeQuery()) {
+                cards = new LinkedHashMap<>();
+                while (rs.next()) {
+                    cards.put(rs.getInt("cardid"), rs.getInt("level"));
+                }
+            }
+        }
+        return new MonsterBook(cards, chr);
     }
 
     public void applyBook(MapleCharacter chr, boolean first_login) {
@@ -275,20 +290,6 @@ public final class MonsterBook implements Serializable {
 
     public final int getLevelByCard(final int cardid) {
         return cards.get(cardid) == null ? 0 : cards.get(cardid);
-    }
-
-    public static MonsterBook loadCards(final int charid, final MapleCharacter chr) throws SQLException {
-        Map<Integer, Integer> cards;
-        try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM monsterbook WHERE charid = ? ORDER BY cardid ASC")) {
-            ps.setInt(1, charid);
-            try (ResultSet rs = ps.executeQuery()) {
-                cards = new LinkedHashMap<>();
-                while (rs.next()) {
-                    cards.put(rs.getInt("cardid"), rs.getInt("level"));
-                }
-            }
-        }
-        return new MonsterBook(cards, chr);
     }
 
     public final void saveCards(final int charid) throws SQLException {

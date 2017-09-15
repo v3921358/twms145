@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package server.maps;
 
 import client.MapleClient;
-import java.awt.Rectangle;
 import scripting.ReactorScriptManager;
 import server.Timer.MapTimer;
-import tools.types.Pair;
 import tools.packet.CField;
+import tools.types.Pair;
+
+import java.awt.*;
 
 public class MapleReactor extends MapleMapObject {
 
@@ -41,41 +42,41 @@ public class MapleReactor extends MapleMapObject {
         this.stats = stats;
         this.rid = rid;
     }
-	
-	public void setCustom(boolean c) {
-		this.custom = c;
-	}
-	
-	public boolean isCustom() {
-		return custom;
-	}
 
-    public final void setFacingDirection(final byte facingDirection) {
-        this.facingDirection = facingDirection;
+    public boolean isCustom() {
+        return custom;
+    }
+
+    public void setCustom(boolean c) {
+        this.custom = c;
     }
 
     public final byte getFacingDirection() {
         return facingDirection;
     }
 
-    public void setTimerActive(boolean active) {
-        this.timerActive = active;
+    public final void setFacingDirection(final byte facingDirection) {
+        this.facingDirection = facingDirection;
     }
 
     public boolean isTimerActive() {
         return timerActive;
     }
 
+    public void setTimerActive(boolean active) {
+        this.timerActive = active;
+    }
+
     public int getReactorId() {
         return rid;
     }
 
-    public void setState(byte state) {
-        this.state = state;
-    }
-
     public byte getState() {
         return state;
+    }
+
+    public void setState(byte state) {
+        this.state = state;
     }
 
     public boolean isAlive() {
@@ -86,12 +87,12 @@ public class MapleReactor extends MapleMapObject {
         this.alive = alive;
     }
 
-    public void setDelay(int delay) {
-        this.delay = delay;
-    }
-
     public int getDelay() {
         return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 
     @Override
@@ -102,17 +103,17 @@ public class MapleReactor extends MapleMapObject {
     public int getReactorType() {
         return stats.getType(state);
     }
-	
+
     public byte getTouch() {
         return stats.canTouch(state);
     }
 
-    public void setMap(MapleMap map) {
-        this.map = map;
-    }
-
     public MapleMap getMap() {
         return map;
+    }
+
+    public void setMap(MapleMap map) {
+        this.map = map;
     }
 
     public Pair<Integer, Integer> getReactItem() {
@@ -170,17 +171,17 @@ public class MapleReactor extends MapleMapObject {
                         map.destroyReactor(getObjectId());
                     } else { //item-triggered on final step
                         map.broadcastMessage(CField.triggerReactor(this, stance));
-					}
-					//if (rid > 200011) {
-						ReactorScriptManager.getInstance().act(c, this);
-					//}
+                    }
+                    //if (rid > 200011) {
+                    ReactorScriptManager.getInstance().act(c, this);
+                    //}
                 } else { //reactor not broken yet
                     boolean done = false;
                     map.broadcastMessage(CField.triggerReactor(this, stance)); //magatia is weird cause full beaker can be activated by gm hat o.o
                     if (state == stats.getNextState(state) || rid == 2618000 || rid == 2309000) { //current state = next state, looping reactor
-						if (rid > 200011) {
-							ReactorScriptManager.getInstance().act(c, this);
-						}
+                        if (rid > 200011) {
+                            ReactorScriptManager.getInstance().act(c, this);
+                        }
                         done = true;
                     }
                     if (stats.getTimeOut(state) > 0) {

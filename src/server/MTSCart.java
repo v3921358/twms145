@@ -26,6 +26,8 @@ import client.inventory.ItemLoader;
 import client.inventory.MapleInventoryType;
 import constants.GameConstants;
 import database.DatabaseConnection;
+import tools.types.Pair;
+
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +35,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import tools.types.Pair;
 
 public final class MTSCart implements Serializable {
 
@@ -175,9 +176,9 @@ public final class MTSCart implements Serializable {
     }
 
     public void changeInfo(final int tab, final int type, final int page) {
-	if (tab != this.tab || type != this.type) { //changed
-	    refreshCurrentView(tab, type);
-	}
+        if (tab != this.tab || type != this.type) { //changed
+            refreshCurrentView(tab, type);
+        }
         this.tab = tab;
         this.type = type;
         this.page = page;
@@ -196,45 +197,45 @@ public final class MTSCart implements Serializable {
     }
 
     public List<Integer> getCurrentViewPage() {
-	final List<Integer> ret = new ArrayList<>();
-	final int size = currentViewingItems.size() / 16 + (currentViewingItems.size() % 16 > 0 ? 1 : 0);
-	if (page > size) {
-	    page = 0;
-	}
-	for (int i = page * 16; i < page * 16 + 16; i++) {
-	    if (currentViewingItems.size() > i) {
-		ret.add(currentViewingItems.get(i));
-	    } else {
-		break;
-	    }
-	}
-	return ret;
+        final List<Integer> ret = new ArrayList<>();
+        final int size = currentViewingItems.size() / 16 + (currentViewingItems.size() % 16 > 0 ? 1 : 0);
+        if (page > size) {
+            page = 0;
+        }
+        for (int i = page * 16; i < page * 16 + 16; i++) {
+            if (currentViewingItems.size() > i) {
+                ret.add(currentViewingItems.get(i));
+            } else {
+                break;
+            }
+        }
+        return ret;
     }
 
     public List<Integer> getCurrentView() {
-	return currentViewingItems;
+        return currentViewingItems;
     }
 
 
     public void refreshCurrentView() {
-	refreshCurrentView(tab, type);
+        refreshCurrentView(tab, type);
     }
 
     public void refreshCurrentView(final int newTab, final int newType) {
-	currentViewingItems.clear();
-	if (newTab == 1) {
-	    currentViewingItems = MTSStorage.getInstance().getBuyNow(newType);
-	} else if (newTab == 4) {
-	    for (int i : cart) {
-		if (newType == 0 || (GameConstants.getInventoryType(i).getType() == newType)) {
-		    currentViewingItems.add(i);
-		}
-	    }
-	}
+        currentViewingItems.clear();
+        if (newTab == 1) {
+            currentViewingItems = MTSStorage.getInstance().getBuyNow(newType);
+        } else if (newTab == 4) {
+            for (int i : cart) {
+                if (newType == 0 || (GameConstants.getInventoryType(i).getType() == newType)) {
+                    currentViewingItems.add(i);
+                }
+            }
+        }
     }
 
     public void changeCurrentView(List<Integer> items) {
-	currentViewingItems.clear();
-	currentViewingItems = items;
+        currentViewingItems.clear();
+        currentViewingItems = items;
     }
 }

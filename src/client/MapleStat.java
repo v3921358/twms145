@@ -33,9 +33,9 @@ public enum MapleStat {
 
     TRAIT_LIMIT(0x4000000), // 12 bytes
 
-	BATTLE_EXP(0x8000000), // int
-	BATTLE_RANK(0x10000000), // byte
-	BATTLE_POINTS(0x20000000),
+    BATTLE_EXP(0x8000000), // int
+    BATTLE_RANK(0x10000000), // byte
+    BATTLE_POINTS(0x20000000),
     ICE_GAGE(0x40000000), // byte byte
     VIRTUE(0x80000000), // int
     GACHAPON_EXP(0x100000000L), // 4 byte
@@ -47,10 +47,6 @@ public enum MapleStat {
         this.i = i;
     }
 
-    public long getValue() {
-        return i;
-    }
-
     public static MapleStat getByValue(final long value) {
         for (final MapleStat stat : MapleStat.values()) {
             if (stat.i == value) {
@@ -58,6 +54,10 @@ public enum MapleStat {
             }
         }
         return null;
+    }
+
+    public long getValue() {
+        return i;
     }
 
     public static enum Temp {
@@ -74,8 +74,8 @@ public enum MapleStat {
         AVOID(0x200),
         SPEED(0x400), // byte
         JUMP(0x800), // byte
-		UNKNOWN(0x1000); // byte
-		
+        UNKNOWN(0x1000); // byte
+
         private final int i;
 
         private Temp(int i) {

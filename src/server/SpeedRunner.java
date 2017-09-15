@@ -2,13 +2,14 @@ package server;
 
 import database.DatabaseConnection;
 import handling.world.exped.ExpeditionType;
+import tools.StringUtil;
+import tools.types.Pair;
+import tools.types.Triple;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import tools.types.Pair;
-import tools.StringUtil;
-import tools.types.Triple;
 
 public class SpeedRunner {
     private static final Map<ExpeditionType, Triple<String, Map<Integer, String>, Long>> speedRunData = new EnumMap<>(ExpeditionType.class);
@@ -35,11 +36,11 @@ public class SpeedRunner {
     }
 
     public static String getPreamble(ExpeditionType type) {
-	return "#rThese are the speedrun times for " + StringUtil.makeEnumHumanReadable(type.name()).toUpperCase() + ".#k\r\n\r\n";
+        return "#rThese are the speedrun times for " + StringUtil.makeEnumHumanReadable(type.name()).toUpperCase() + ".#k\r\n\r\n";
     }
 
     public static void loadSpeedRunData(ExpeditionType type) {
-	try {
+        try {
             StringBuilder ret;
             Map<Integer, String> rett;
             boolean changed;
@@ -68,8 +69,8 @@ public class SpeedRunner {
             if (changed) {
                 speedRunData.put(type, new Triple<>(ret.toString(), rett, tmp));
             }
-	} catch (SQLException e) {
-	}
+        } catch (SQLException e) {
+        }
     }
 
     public static Pair<StringBuilder, Map<Integer, String>> addSpeedRunData(StringBuilder ret, Map<Integer, String> rett, String members, String leader, int rank, String timestring) {

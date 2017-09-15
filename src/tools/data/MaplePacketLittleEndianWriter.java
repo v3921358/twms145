@@ -21,11 +21,11 @@
 package tools.data;
 
 import constants.ServerConstants;
-import java.awt.Point;
-import java.awt.Rectangle;
+import tools.HexTool;
+
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
-import tools.HexTool;
 
 /**
  * Writes a maplestory-packet little-endian stream of bytes.
@@ -36,8 +36,8 @@ import tools.HexTool;
  */
 public class MaplePacketLittleEndianWriter {
 
-    private final ByteArrayOutputStream baos;
     private static final Charset ASCII = Charset.forName("big5");
+    private final ByteArrayOutputStream baos;
 
     /**
      * Constructor - initializes this stream with a default size.

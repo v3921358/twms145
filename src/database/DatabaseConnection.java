@@ -34,7 +34,6 @@ import java.util.Properties;
  */
 public class DatabaseConnection {
 
-    private static final ThreadLocal<Connection> con = new ThreadLocalConnection();
     public static final int CLOSE_CURRENT_RESULT = 1;
     /**
      * The constant indicating that the current <code>ResultSet</code> object
@@ -79,6 +78,7 @@ public class DatabaseConnection {
      * @since 1.4
      */
     public static final int NO_GENERATED_KEYS = 2;
+    private static final ThreadLocal<Connection> con = new ThreadLocalConnection();
 
     public static Connection getConnection() {
         return con.get();

@@ -20,14 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
-import java.util.HashMap;
-import java.util.Map;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 import provider.MapleDataTool;
-import tools.types.Pair;
 import tools.StringUtil;
+import tools.types.Pair;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapleReactorFactory {
 
@@ -101,7 +102,7 @@ public class MapleReactorFactory {
                         foundState = true;
                         stats.addState(i, type, reactItem, (byte) MapleDataTool.getIntConvert("state", reactorInfoData), MapleDataTool.getIntConvert("timeOut", reactorInfoData_, -1), (byte) (canTouch ? 2 : (MapleDataTool.getIntConvert("2", reactorInfoData, 0) > 0 || reactorInfoData.getChildByPath("clickArea") != null || type == 9 ? 1 : 0)));
                     } else {
-                        stats.addState(i, 999, null, (byte) (foundState ? -1 : (i + 1)), 0, (byte)0);
+                        stats.addState(i, 999, null, (byte) (foundState ? -1 : (i + 1)), 0, (byte) 0);
                     }
                 }
                 reactorStats.put(Integer.valueOf(infoId), stats);

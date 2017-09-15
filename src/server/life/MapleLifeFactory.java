@@ -23,8 +23,8 @@ package server.life;
 import constants.GameConstants;
 import provider.*;
 import server.Randomizer;
-import tools.types.Pair;
 import tools.StringUtil;
+import tools.types.Pair;
 
 import java.awt.*;
 import java.util.*;

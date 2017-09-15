@@ -1,6 +1,7 @@
 package server;
 
 import constants.GameConstants;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,8 +9,8 @@ import java.util.List;
 public class RandomRewards {
 
     private static List<Integer> compiledGold = null, compiledSilver = null, compiledFishing = null, compiledPeanut = null,
-	compiledEvent = null, compiledEventC = null, compiledEventB = null, compiledEventA = null,
-	compiledDrops = null, compiledDropsB = null, compiledDropsA = null, tenPercent = null;
+            compiledEvent = null, compiledEventC = null, compiledEventB = null, compiledEventA = null,
+            compiledDrops = null, compiledDropsB = null, compiledDropsA = null, tenPercent = null;
 
     static {
         // Gold Box
@@ -68,27 +69,27 @@ public class RandomRewards {
 
         returnArray = new ArrayList<>();
 
-	processRewardsSimple(returnArray, GameConstants.normalDrops);
-	
-	compiledDrops = returnArray;
+        processRewardsSimple(returnArray, GameConstants.normalDrops);
+
+        compiledDrops = returnArray;
 
         returnArray = new ArrayList<>();
 
-	processRewardsSimple(returnArray, GameConstants.rareDrops);
-	
-	compiledDropsB = returnArray;
+        processRewardsSimple(returnArray, GameConstants.rareDrops);
+
+        compiledDropsB = returnArray;
 
         returnArray = new ArrayList<>();
 
-	processRewardsSimple(returnArray, GameConstants.superDrops);
-	
-	compiledDropsA = returnArray;
+        processRewardsSimple(returnArray, GameConstants.superDrops);
+
+        compiledDropsA = returnArray;
 
         returnArray = new ArrayList<>();
 
         processRewardsSimple(returnArray, GameConstants.tenPercent);
 
-	tenPercent = returnArray;
+        tenPercent = returnArray;
     }
 
     private static void processRewards(final List<Integer> returnArray, final int[] list) {
@@ -111,7 +112,6 @@ public class RandomRewards {
         }
         Collections.shuffle(returnArray);
     }
-
 
 
     public static int getGoldBoxReward() {
@@ -156,7 +156,7 @@ public class RandomRewards {
     }
 
     public static List<Integer> getTenPercent() {
-	return tenPercent;
+        return tenPercent;
     }
 
     static void load() {

@@ -28,8 +28,8 @@ import java.nio.ByteBuffer;
  * Provides a class for manipulating hexadecimal numbers.
  *
  * @author Frz
- * @since Revision 206
  * @version 1.0
+ * @since Revision 206
  */
 public class HexTool {
 
@@ -76,8 +76,7 @@ public class HexTool {
     }
 
 
-    public static String toString(final long longValue)
-    {
+    public static String toString(final long longValue) {
         return Long.toHexString(longValue);
     }
 
@@ -87,7 +86,7 @@ public class HexTool {
      * @param bytes The bytes to convert.
      * @return The hexadecimal representation of <code>bytes</code>
      */
-        public static String toString(final byte[] bytes) {
+    public static String toString(final byte[] bytes) {
         StringBuilder hexed = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
             hexed.append(toString(bytes[i]));
@@ -138,7 +137,7 @@ public class HexTool {
         int nextb = 0;
         boolean highoc = true;
         outer:
-        for (;;) {
+        for (; ; ) {
             int number = -1;
             while (number == -1) {
                 if (nexti == hex.length()) {

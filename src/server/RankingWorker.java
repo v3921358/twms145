@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package server;
 
 import database.DatabaseConnection;
+import tools.FileoutputUtil;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
-import tools.FileoutputUtil;
 
 public class RankingWorker {
 
@@ -46,17 +47,17 @@ public class RankingWorker {
 
 
     public static void run() {
-       // System.out.println("Loading Rankings::");
+        // System.out.println("Loading Rankings::");
         long startTime = System.currentTimeMillis();
         loadJobCommands();
         try {
             Connection con = DatabaseConnection.getConnection();
             updateRanking(con);
         } catch (Exception ex) {
-	    FileoutputUtil.outputFileError(FileoutputUtil.ScriptEx_Log, ex);
+            FileoutputUtil.outputFileError(FileoutputUtil.ScriptEx_Log, ex);
             System.err.println("Could not update rankings");
         }
-      //  System.out.println("Done loading Rankings in " + ((System.currentTimeMillis() - startTime) / 1000) + " seconds :::"); //keep
+        //  System.out.println("Done loading Rankings in " + ((System.currentTimeMillis() - startTime) / 1000) + " seconds :::"); //keep
     }
 
     private static void updateRanking(Connection con) throws Exception {
@@ -64,8 +65,8 @@ public class RankingWorker {
         sb.append(" FROM characters AS c LEFT JOIN accounts AS a ON c.accountid = a.id WHERE c.gm <= 3 AND a.banned = 0");
         sb.append(" ORDER BY c.reborns DESC, c.rank ASC");
         PreparedStatement ps;
-        try (PreparedStatement charSelect = con.prepareStatement(sb.toString()); 
-                ResultSet rs = charSelect.executeQuery()) {
+        try (PreparedStatement charSelect = con.prepareStatement(sb.toString());
+             ResultSet rs = charSelect.executeQuery()) {
             ps = con.prepareStatement("UPDATE characters SET jobRank = ?, jobRankMove = ?, rank = ?, rankMove = ? WHERE id = ?");
             int rank = 0;
             final Map<Integer, Integer> rankMap = new LinkedHashMap<>();
@@ -95,7 +96,6 @@ public class RankingWorker {
         ps.close();
     }
 
-  
 
     public static void loadJobCommands() {
         //messy, cleanup
@@ -149,7 +149,4 @@ public class RankingWorker {
     }
 
 
-
-    
-    
 }

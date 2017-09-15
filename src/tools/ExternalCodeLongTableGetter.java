@@ -1,11 +1,6 @@
 package tools;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 
 public class ExternalCodeLongTableGetter {
@@ -23,31 +18,6 @@ public class ExternalCodeLongTableGetter {
             }
         }
         return null;
-    }
-
-    private <T extends Enum<? extends WritableLongValueHolder> & WritableLongValueHolder> long getValue(final String name, T[] values, final long def) {
-        String prop = props.getProperty(name);
-        if (prop != null && prop.length() > 0) {
-            String trimmed = prop.trim();
-            String[] args = trimmed.split(" ");
-            long base = 0;
-            String offset;
-            if (args.length == 2) {
-                base = valueOf(args[0], values).get();
-                if (base == def) {
-                    base = getValue(args[0], values, def);
-                }
-                offset = args[1];
-            } else {
-                offset = args[0];
-            }
-            if (offset.length() > 2 && offset.substring(0, 2).equals("0x")) {
-                return (long) (Long.parseLong(offset.substring(2), 16) + base);
-            } else {
-                return (long) (Long.parseLong(offset) + base);
-            }
-        }
-        return def;
     }
 
     public final static <T extends Enum<? extends WritableLongValueHolder> & WritableLongValueHolder> String getOpcodeTable(T[] enumeration) {
@@ -77,5 +47,30 @@ public class ExternalCodeLongTableGetter {
         for (T code : values) {
             code.set(exc.getValue(code.name(), values, (long) -2));
         }
+    }
+
+    private <T extends Enum<? extends WritableLongValueHolder> & WritableLongValueHolder> long getValue(final String name, T[] values, final long def) {
+        String prop = props.getProperty(name);
+        if (prop != null && prop.length() > 0) {
+            String trimmed = prop.trim();
+            String[] args = trimmed.split(" ");
+            long base = 0;
+            String offset;
+            if (args.length == 2) {
+                base = valueOf(args[0], values).get();
+                if (base == def) {
+                    base = getValue(args[0], values, def);
+                }
+                offset = args[1];
+            } else {
+                offset = args[0];
+            }
+            if (offset.length() > 2 && offset.substring(0, 2).equals("0x")) {
+                return (long) (Long.parseLong(offset.substring(2), 16) + base);
+            } else {
+                return (long) (Long.parseLong(offset) + base);
+            }
+        }
+        return def;
     }
 }

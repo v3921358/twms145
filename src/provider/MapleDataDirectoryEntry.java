@@ -23,7 +23,6 @@ package provider;
 import java.util.*;
 
 /**
- *
  * @author Matze
  */
 public class MapleDataDirectoryEntry extends MapleDataEntry {

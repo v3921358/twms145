@@ -24,11 +24,11 @@ import java.util.concurrent.TimeUnit;
 public class ServerConnection {
 
     private final int port;
+    private final EventLoopGroup bossGroup = new NioEventLoopGroup(1); //The initial connection thread where all the new connections go to
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup(); //Once the connection thread has finished it will be moved over to this group where the thread will be managed
     private int world = -1;
     private int channels = -1;
     private ServerBootstrap boot;
-    private final EventLoopGroup bossGroup = new NioEventLoopGroup(1); //The initial connection thread where all the new connections go to
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup(); //Once the connection thread has finished it will be moved over to this group where the thread will be managed
     private Channel channel;
 
     public ServerConnection(int port) {

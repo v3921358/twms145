@@ -20,21 +20,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools.data;
 
-import java.io.IOException;
 import tools.HexTool;
+
+import java.io.IOException;
 
 /**
  * Provides for an abstraction layer for an array of bytes.
- * 
+ *
  * @author Frz
  * @version 1.0
  * @since Revision 326
  */
 public class ByteArrayByteStream {
 
+    private final byte[] arr;
     private int pos = 0;
     private long bytesRead = 0;
-    private final byte[] arr;
 
     /**
      * Class constructor.
@@ -51,7 +52,7 @@ public class ByteArrayByteStream {
      * @return The current position of the stream.
      * @see net.sf.odinms.tools.data.SeekableInputStreamBytestream#getPosition()
      */
-    
+
     public long getPosition() {
         return pos;
     }
@@ -62,7 +63,7 @@ public class ByteArrayByteStream {
      * @param offset The position you wish to seek to.
      * @see net.sf.odinms.tools.data.SeekableInputStreamBytestream#seek(long)
      */
-    
+
     public void seek(final long offset) throws IOException {
         pos = (int) offset;
     }
@@ -73,7 +74,7 @@ public class ByteArrayByteStream {
      * @return The number of bytes read.
      * @see net.sf.odinms.tools.data.ByteInputStream#getBytesRead()
      */
-    
+
     public long getBytesRead() {
         return bytesRead;
     }
@@ -84,7 +85,7 @@ public class ByteArrayByteStream {
      * @return The byte as an integer.
      * @see net.sf.odinms.tools.data.ByteInputStream#readByte()
      */
-    
+
     public int readByte() {
         bytesRead++;
         return ((int) arr[pos++]) & 0xFF;
@@ -97,13 +98,13 @@ public class ByteArrayByteStream {
      * @return The current stream as a string.
      * @see java.lang.Object#toString()
      */
-    
+
     @Override
     public String toString() {
         return toString(false);
     }
 
-    
+
     public String toString(final boolean b) {
         String nows = "";
         if (arr.length - pos > 0) {
@@ -124,7 +125,7 @@ public class ByteArrayByteStream {
      * @return Number of bytes available as a long integer.
      * @see net.sf.odinms.tools.data.ByteInputStream#available()
      */
-    
+
     public long available() {
         return arr.length - pos;
     }

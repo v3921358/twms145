@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package server.life;
 
 import constants.GameConstants;
+import tools.types.Pair;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
-import tools.types.Pair;
 
 public class MapleMonsterStats {
 
@@ -40,14 +41,14 @@ public class MapleMonsterStats {
     private List<Pair<Integer, Integer>> skills = new ArrayList<Pair<Integer, Integer>>();
     private List<MobAttackInfo> mai = new ArrayList<MobAttackInfo>();
     private BanishInfo banish;
-	
-	public MapleMonsterStats(int id) {
-		this.id = id;
-	}
-	
-	public int getId() {
-		return id;
-	}
+
+    public MapleMonsterStats(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
 
     public int getExp() {
         return exp;
@@ -89,12 +90,12 @@ public class MapleMonsterStats {
         this.charismaEXP = leve;
     }
 
-    public void setSelfD(byte selfDestruction_action) {
-        this.selfDestruction_action = selfDestruction_action;
-    }
-
     public byte getSelfD() {
         return selfDestruction_action;
+    }
+
+    public void setSelfD(byte selfDestruction_action) {
+        this.selfDestruction_action = selfDestruction_action;
     }
 
     public void setSelfDHP(int selfDestruction_hp) {
@@ -105,70 +106,68 @@ public class MapleMonsterStats {
         return selfDestruction_hp;
     }
 
-    public void setFixedDamage(int damage) {
-        this.fixedDamage = damage;
-    }
-
     public int getFixedDamage() {
         return fixedDamage;
     }
 
-    public void setPushed(int damage) {
-        this.pushed = damage;
+    public void setFixedDamage(int damage) {
+        this.fixedDamage = damage;
     }
 
     public int getPushed() {
         return pushed;
     }
 
-	
-    public void setPhysicalAttack(final int PhysicalAttack) {
-        this.PhysicalAttack = PhysicalAttack;
+    public void setPushed(int damage) {
+        this.pushed = damage;
     }
 
     public int getPhysicalAttack() {
         return PhysicalAttack;
     }
 
-    public final void setMagicAttack(final int MagicAttack) {
-        this.MagicAttack = MagicAttack;
+    public void setPhysicalAttack(final int PhysicalAttack) {
+        this.PhysicalAttack = PhysicalAttack;
     }
 
     public final int getMagicAttack() {
         return MagicAttack;
     }
 
-    public final void setEva(final int eva) {
-        this.eva = eva;
+    public final void setMagicAttack(final int MagicAttack) {
+        this.MagicAttack = MagicAttack;
     }
 
     public final int getEva() {
         return eva;
     }
 
-
-    public final void setAcc(final int acc) {
-        this.acc = acc;
+    public final void setEva(final int eva) {
+        this.eva = eva;
     }
 
     public final int getAcc() {
         return acc;
     }
 
-    public final void setSpeed(final int speed) {
-        this.speed = speed;
+    public final void setAcc(final int acc) {
+        this.acc = acc;
     }
 
     public final int getSpeed() {
         return speed;
     }
 
-    public final void setPartyBonusRate(final int speed) {
-        this.partyBonusR = speed;
+    public final void setSpeed(final int speed) {
+        this.speed = speed;
     }
 
     public final int getPartyBonusRate() {
         return partyBonusR;
+    }
+
+    public final void setPartyBonusRate(final int speed) {
+        this.partyBonusR = speed;
     }
 
     public void setOnlyNormalAttack(boolean onlyNormalAttack) {
@@ -203,52 +202,52 @@ public class MapleMonsterStats {
         this.rareItemDropLevel = rareItemDropLevel;
     }
 
+    public boolean isBoss() {
+        return boss;
+    }
+
     public void setBoss(boolean boss) {
         this.boss = boss;
     }
 
-    public boolean isBoss() {
-        return boss;
+    public boolean isFfaLoot() {
+        return ffaLoot;
     }
 
     public void setFfaLoot(boolean ffaLoot) {
         this.ffaLoot = ffaLoot;
     }
 
-    public boolean isFfaLoot() {
-        return ffaLoot;
-    }
-	
-    public void setEscort(boolean ffaL) {
-        this.escort = ffaL;
-    }
-
     public boolean isEscort() {
         return escort;
     }
 
-    public void setExplosiveReward(boolean isExplosiveReward) {
-        this.isExplosiveReward = isExplosiveReward;
+    public void setEscort(boolean ffaL) {
+        this.escort = ffaL;
     }
 
     public boolean isExplosiveReward() {
         return isExplosiveReward;
     }
 
-    public void setMobile(boolean mobile) {
-        this.mobile = mobile;
+    public void setExplosiveReward(boolean isExplosiveReward) {
+        this.isExplosiveReward = isExplosiveReward;
     }
 
     public boolean getMobile() {
         return mobile;
     }
 
-    public void setFly(boolean fly) {
-        this.fly = fly;
+    public void setMobile(boolean mobile) {
+        this.mobile = mobile;
     }
 
     public boolean getFly() {
         return fly;
+    }
+
+    public void setFly(boolean fly) {
+        this.fly = fly;
     }
 
     public List<Integer> getRevives() {
@@ -259,48 +258,48 @@ public class MapleMonsterStats {
         this.revives = revives;
     }
 
-    public void setUndead(boolean undead) {
-        this.undead = undead;
-    }
-
     public boolean getUndead() {
         return undead;
     }
 
-    public void setSummonType(byte selfDestruction) {
-        this.summonType = selfDestruction;
+    public void setUndead(boolean undead) {
+        this.undead = undead;
     }
 
     public byte getSummonType() {
         return summonType;
     }
 
-    public void setCategory(byte selfDestruction) {
-        this.category = selfDestruction;
+    public void setSummonType(byte selfDestruction) {
+        this.summonType = selfDestruction;
     }
 
     public byte getCategory() {
         return category;
     }
 
-    public void setPDRate(byte selfDestruction) {
-        this.PDRate = selfDestruction;
+    public void setCategory(byte selfDestruction) {
+        this.category = selfDestruction;
     }
 
     public byte getPDRate() {
         return PDRate;
     }
 
-    public void setMDRate(byte selfDestruction) {
-        this.MDRate = selfDestruction;
+    public void setPDRate(byte selfDestruction) {
+        this.PDRate = selfDestruction;
     }
 
     public byte getMDRate() {
         return MDRate;
     }
 
+    public void setMDRate(byte selfDestruction) {
+        this.MDRate = selfDestruction;
+    }
+
     public EnumMap<Element, ElementalEffectiveness> getElements() {
-	return resistance;
+        return resistance;
     }
 
     public void setEffectiveness(Element e, ElementalEffectiveness ee) {
@@ -352,14 +351,14 @@ public class MapleMonsterStats {
         this.tagBgColor = (byte) tagBgColor;
     }
 
+    public List<Pair<Integer, Integer>> getSkills() {
+        return Collections.unmodifiableList(this.skills);
+    }
+
     public void setSkills(List<Pair<Integer, Integer>> skill_) {
         for (Pair<Integer, Integer> skill : skill_) {
             skills.add(skill);
         }
-    }
-
-    public List<Pair<Integer, Integer>> getSkills() {
-        return Collections.unmodifiableList(this.skills);
     }
 
     public byte getNoSkills() {
@@ -375,46 +374,46 @@ public class MapleMonsterStats {
         return false;
     }
 
-    public void setFirstAttack(boolean firstAttack) {
-        this.firstAttack = firstAttack;
-    }
-
     public boolean isFirstAttack() {
         return firstAttack;
     }
 
-    public void setCP(byte cp) {
-        this.cp = cp;
+    public void setFirstAttack(boolean firstAttack) {
+        this.firstAttack = firstAttack;
     }
 
     public byte getCP() {
         return cp;
     }
 
-    public void setPoint(int cp) {
-        this.point = cp;
+    public void setCP(byte cp) {
+        this.cp = cp;
     }
 
     public int getPoint() {
         return point;
     }
 
-    public void setFriendly(boolean friendly) {
-        this.friendly = friendly;
+    public void setPoint(int cp) {
+        this.point = cp;
     }
 
     public boolean isFriendly() {
         return friendly;
     }
 
-    public void setInvincible(boolean invin) {
-        this.invincible = invin;
+    public void setFriendly(boolean friendly) {
+        this.friendly = friendly;
     }
 
     public boolean isInvincible() {
         return invincible;
     }
-	
+
+    public void setInvincible(boolean invin) {
+        this.invincible = invin;
+    }
+
     public void setChange(boolean invin) {
         this.changeable = invin;
     }
@@ -423,28 +422,28 @@ public class MapleMonsterStats {
         return changeable;
     }
 
-    public void setPartyBonus(boolean invin) {
-        this.partyBonusMob = invin;
-    }
-
     public boolean isPartyBonus() {
         return partyBonusMob;
     }
 
-    public void setNoDoom(boolean doom) {
-        this.noDoom = doom;
+    public void setPartyBonus(boolean invin) {
+        this.partyBonusMob = invin;
     }
 
     public boolean isNoDoom() {
         return noDoom;
     }
 
-    public void setBuffToGive(int buff) {
-        this.buffToGive = buff;
+    public void setNoDoom(boolean doom) {
+        this.noDoom = doom;
     }
 
     public int getBuffToGive() {
         return buffToGive;
+    }
+
+    public void setBuffToGive(int buff) {
+        this.buffToGive = buff;
     }
 
     public byte getHPDisplayType() {
@@ -464,20 +463,20 @@ public class MapleMonsterStats {
     }
 
     public void addMobAttack(MobAttackInfo ma) {
-	this.mai.add(ma);
+        this.mai.add(ma);
     }
 
     public MobAttackInfo getMobAttack(int attack) {
-	if (attack >= this.mai.size() || attack < 0) {
-	    return null;
-	}
-	return this.mai.get(attack);
+        if (attack >= this.mai.size() || attack < 0) {
+            return null;
+        }
+        return this.mai.get(attack);
     }
 
     public List<MobAttackInfo> getMobAttacks() {
-	return this.mai;
+        return this.mai;
     }
-	
+
     public int dropsMeso() {
         if (getRemoveAfter() != 0 || isInvincible() || getOnlyNoramlAttack() || getDropItemPeriod() > 0 || getCP() > 0 || getPoint() > 0 || getFixedDamage() > 0 || getSelfD() != -1 || getPDRate() <= 0 || getMDRate() <= 0) {
             return 0;

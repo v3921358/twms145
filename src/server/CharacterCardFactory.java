@@ -20,17 +20,6 @@ package server;
 import client.CardData;
 import constants.GameConstants;
 import database.DatabaseConnection;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
@@ -38,8 +27,14 @@ import provider.MapleDataTool;
 import tools.types.Pair;
 import tools.types.Triple;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.Map.Entry;
+
 /**
- *
  * @author AlphaEta
  */
 public class CharacterCardFactory {

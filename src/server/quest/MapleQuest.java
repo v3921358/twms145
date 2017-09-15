@@ -4,121 +4,102 @@ import client.MapleCharacter;
 import client.MapleQuestStatus;
 import constants.GameConstants;
 import database.DatabaseConnection;
+import scripting.NPCScriptManager;
+import tools.packet.CField.EffectPacket;
+import tools.types.Pair;
+
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import scripting.NPCScriptManager;
-import tools.types.Pair;
-import tools.packet.CField.EffectPacket;
 
 public class MapleQuest implements Serializable {
 
     private static final long serialVersionUID = 9179541993413738569L;
     private static final Map<Integer, MapleQuest> quests = new LinkedHashMap<>();
-    protected int id;
     protected final List<MapleQuestRequirement> startReqs = new LinkedList<>();
     protected final List<MapleQuestRequirement> completeReqs = new LinkedList<>();
     protected final List<MapleQuestAction> startActs = new LinkedList<>();
     protected final List<MapleQuestAction> completeActs = new LinkedList<>();
     protected final Map<String, List<Pair<String, Pair<String, Integer>>>> partyQuestInfo = new LinkedHashMap<>(); //[rank, [more/less/equal, [property, value]]]
     protected final Map<Integer, Integer> relevantMobs = new LinkedHashMap<>();
+    protected int id;
+    protected String name = "";
     private boolean autoStart = false, autoPreComplete = false, repeatable = false, customend = false, blocked = false, autoAccept = false, autoComplete = false, scriptedStart = false;
     private int viewMedalItem = 0, selectedSkillID = 0;
-    protected String name = "";
 
     protected MapleQuest(final int id) {
         this.id = id;
     }
 
     private static MapleQuest loadQuest(ResultSet rs, PreparedStatement psr, PreparedStatement psa, PreparedStatement pss, PreparedStatement psq, PreparedStatement psi, PreparedStatement psp) throws SQLException {
-	final MapleQuest ret = new MapleQuest(rs.getInt("questid"));
-	ret.name = rs.getString("name");
-	ret.autoStart = rs.getInt("autoStart") > 0;
-	ret.autoPreComplete = rs.getInt("autoPreComplete") > 0;
-	ret.autoAccept = rs.getInt("autoAccept") > 0;
-	ret.autoComplete = rs.getInt("autoComplete") > 0;
-	ret.viewMedalItem = rs.getInt("viewMedalItem");
-	ret.selectedSkillID = rs.getInt("selectedSkillID");
-	ret.blocked = rs.getInt("blocked") > 0; //ult.explorer quests will dc as the item isn't there...
+        final MapleQuest ret = new MapleQuest(rs.getInt("questid"));
+        ret.name = rs.getString("name");
+        ret.autoStart = rs.getInt("autoStart") > 0;
+        ret.autoPreComplete = rs.getInt("autoPreComplete") > 0;
+        ret.autoAccept = rs.getInt("autoAccept") > 0;
+        ret.autoComplete = rs.getInt("autoComplete") > 0;
+        ret.viewMedalItem = rs.getInt("viewMedalItem");
+        ret.selectedSkillID = rs.getInt("selectedSkillID");
+        ret.blocked = rs.getInt("blocked") > 0; //ult.explorer quests will dc as the item isn't there...
 
-	psr.setInt(1, ret.id);
-	ResultSet rse = psr.executeQuery();
-	while (rse.next()) {
-		final MapleQuestRequirementType type = MapleQuestRequirementType.getByWZName(rse.getString("name"));
-		final MapleQuestRequirement req = new MapleQuestRequirement(ret, type, rse);
-                if (type.equals(MapleQuestRequirementType.interval)) {
-                        ret.repeatable = true;
-		} else if (type.equals(MapleQuestRequirementType.normalAutoStart)) {
-			ret.repeatable = true;
-			ret.autoStart = true;
-                } else if (type.equals(MapleQuestRequirementType.startscript)) {
-                        ret.scriptedStart = true;
-                } else if (type.equals(MapleQuestRequirementType.endscript)) {
-                        ret.customend = true;
-                } else if (type.equals(MapleQuestRequirementType.mob)) {
-			for (Pair<Integer, Integer> mob : req.getDataStore()) {
-				ret.relevantMobs.put(mob.left, mob.right);
-			}
-		}	
-		if (rse.getInt("type") == 0) {
-			ret.startReqs.add(req);
-		} else {
-			ret.completeReqs.add(req);
-		}
-	}
-	rse.close();
-
-	psa.setInt(1, ret.id);
-	rse = psa.executeQuery();
-	while (rse.next()) {
-		final MapleQuestActionType ty = MapleQuestActionType.getByWZName(rse.getString("name"));
-		if (rse.getInt("type") == 0) { //pass it over so it will set ID + type once done
-			if (ty == MapleQuestActionType.item && ret.id == 7103) { //pap glitch
-				continue;
-			}
-			ret.startActs.add(new MapleQuestAction(ty, rse, ret, pss, psq, psi));
-		} else {
-			if (ty == MapleQuestActionType.item && ret.id == 7102) { //pap glitch
-				continue;
-			}
-			ret.completeActs.add(new MapleQuestAction(ty, rse, ret, pss, psq, psi));
-		}
-	}
-	rse.close();
-
-	psp.setInt(1, ret.id);
-	rse = psp.executeQuery();
-	while (rse.next()) {
-		if (!ret.partyQuestInfo.containsKey(rse.getString("rank"))) {
-			ret.partyQuestInfo.put(rse.getString("rank"), new ArrayList<Pair<String, Pair<String, Integer>>>());
-		}
-		ret.partyQuestInfo.get(rse.getString("rank")).add(new Pair<>(rse.getString("mode"), new Pair<>(rse.getString("property"), rse.getInt("value"))));
+        psr.setInt(1, ret.id);
+        ResultSet rse = psr.executeQuery();
+        while (rse.next()) {
+            final MapleQuestRequirementType type = MapleQuestRequirementType.getByWZName(rse.getString("name"));
+            final MapleQuestRequirement req = new MapleQuestRequirement(ret, type, rse);
+            if (type.equals(MapleQuestRequirementType.interval)) {
+                ret.repeatable = true;
+            } else if (type.equals(MapleQuestRequirementType.normalAutoStart)) {
+                ret.repeatable = true;
+                ret.autoStart = true;
+            } else if (type.equals(MapleQuestRequirementType.startscript)) {
+                ret.scriptedStart = true;
+            } else if (type.equals(MapleQuestRequirementType.endscript)) {
+                ret.customend = true;
+            } else if (type.equals(MapleQuestRequirementType.mob)) {
+                for (Pair<Integer, Integer> mob : req.getDataStore()) {
+                    ret.relevantMobs.put(mob.left, mob.right);
+                }
+            }
+            if (rse.getInt("type") == 0) {
+                ret.startReqs.add(req);
+            } else {
+                ret.completeReqs.add(req);
+            }
         }
-	rse.close();
+        rse.close();
+
+        psa.setInt(1, ret.id);
+        rse = psa.executeQuery();
+        while (rse.next()) {
+            final MapleQuestActionType ty = MapleQuestActionType.getByWZName(rse.getString("name"));
+            if (rse.getInt("type") == 0) { //pass it over so it will set ID + type once done
+                if (ty == MapleQuestActionType.item && ret.id == 7103) { //pap glitch
+                    continue;
+                }
+                ret.startActs.add(new MapleQuestAction(ty, rse, ret, pss, psq, psi));
+            } else {
+                if (ty == MapleQuestActionType.item && ret.id == 7102) { //pap glitch
+                    continue;
+                }
+                ret.completeActs.add(new MapleQuestAction(ty, rse, ret, pss, psq, psi));
+            }
+        }
+        rse.close();
+
+        psp.setInt(1, ret.id);
+        rse = psp.executeQuery();
+        while (rse.next()) {
+            if (!ret.partyQuestInfo.containsKey(rse.getString("rank"))) {
+                ret.partyQuestInfo.put(rse.getString("rank"), new ArrayList<Pair<String, Pair<String, Integer>>>());
+            }
+            ret.partyQuestInfo.get(rse.getString("rank")).add(new Pair<>(rse.getString("mode"), new Pair<>(rse.getString("property"), rse.getInt("value"))));
+        }
+        rse.close();
         return ret;
-    }
-
-    public List<Pair<String, Pair<String, Integer>>> getInfoByRank(final String rank) {
-        return partyQuestInfo.get(rank);
-    }
-	
-	public boolean isPartyQuest() {
-	     return partyQuestInfo.size() > 0;
-	}
-
-    public final int getSkillID() {
-        return selectedSkillID;
-    }
-
-    public final String getName() {
-        return name;
-    }
-
-    public final List<MapleQuestAction> getCompleteActs() {
-	return completeActs;
     }
 
     public static void initQuests() {
@@ -143,12 +124,12 @@ public class MapleQuest implements Serializable {
                     }
                 }
             }
-	    psr.close();
-	    psa.close();
-	    pss.close();
-	    psq.close();
-	    psi.close();
-	    psp.close();
+            psr.close();
+            psa.close();
+            pss.close();
+            psq.close();
+            psi.close();
+            psp.close();
         } catch (Exception e) {
         }
     }
@@ -163,24 +144,44 @@ public class MapleQuest implements Serializable {
     }
 
     public static Collection<MapleQuest> getAllInstances() {
-	return quests.values();
+        return quests.values();
+    }
+
+    public List<Pair<String, Pair<String, Integer>>> getInfoByRank(final String rank) {
+        return partyQuestInfo.get(rank);
+    }
+
+    public boolean isPartyQuest() {
+        return partyQuestInfo.size() > 0;
+    }
+
+    public final int getSkillID() {
+        return selectedSkillID;
+    }
+
+    public final String getName() {
+        return name;
+    }
+
+    public final List<MapleQuestAction> getCompleteActs() {
+        return completeActs;
     }
 
     public boolean canStart(MapleCharacter c, Integer npcid) {
         if (c.getQuest(this).getStatus() != 0 && !(c.getQuest(this).getStatus() == 2 && repeatable)) {
             return false;
         }
-	if (blocked && !c.isGM()) {
-	    return false;
-	}
-	//if (autoAccept) {
-	//    return true; //need script
-	//}
+        if (blocked && !c.isGM()) {
+            return false;
+        }
+        //if (autoAccept) {
+        //    return true; //need script
+        //}
         for (MapleQuestRequirement r : startReqs) {
-	    if (r.getType() == MapleQuestRequirementType.dayByDay && npcid != null) { //everyday. we don't want ok
-		forceComplete(c, npcid);
-		return false;
-	    }
+            if (r.getType() == MapleQuestRequirementType.dayByDay && npcid != null) { //everyday. we don't want ok
+                forceComplete(c, npcid);
+                return false;
+            }
             if (!r.check(c, npcid)) {
                 return false;
             }
@@ -192,13 +193,13 @@ public class MapleQuest implements Serializable {
         if (c.getQuest(this).getStatus() != 1) {
             return false;
         }
-	if (blocked && !c.isGM()) {
-	    return false;
-	}
-	if (autoComplete && npcid != null && viewMedalItem <= 0) {
-	    forceComplete(c, npcid);
-	    return false; //skip script
-	}
+        if (blocked && !c.isGM()) {
+            return false;
+        }
+        if (autoComplete && npcid != null && viewMedalItem <= 0) {
+            forceComplete(c, npcid);
+            return false; //skip script
+        }
         for (MapleQuestRequirement r : completeReqs) {
             if (!r.check(c, npcid)) {
                 return false;
@@ -208,9 +209,9 @@ public class MapleQuest implements Serializable {
     }
 
     public final void RestoreLostItem(final MapleCharacter c, final int itemid) {
-	if (blocked && !c.isGM()) {
-	    return;
-	}
+        if (blocked && !c.isGM()) {
+            return;
+        }
         for (final MapleQuestAction a : startActs) {
             if (a.RestoreLostItem(c, itemid)) {
                 break;
@@ -302,7 +303,15 @@ public class MapleQuest implements Serializable {
     }
 
     public boolean isBlocked() {
-	return blocked;
+        return blocked;
+    }
+
+    public boolean hasStartScript() {
+        return scriptedStart;
+    }
+
+    public boolean hasEndScript() {
+        return customend;
     }
 
     public static enum MedalQuest {
@@ -324,13 +333,5 @@ public class MapleQuest implements Serializable {
             this.lquestid = lquestid;
             this.maps = maps; //note # of maps
         }
-    }
-
-    public boolean hasStartScript() {
-	return scriptedStart;
-    }
-
-    public boolean hasEndScript() {
-	return customend;
     }
 }

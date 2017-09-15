@@ -4,18 +4,17 @@
  */
 package tools.wztosql;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import provider.MapleDataDirectoryEntry;
 import provider.MapleDataFileEntry;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
- *
  * @author Itzik
  */
 public class DumpHairs {

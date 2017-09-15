@@ -23,13 +23,14 @@ package client.inventory;
 import client.MapleBuffStatus;
 import client.MapleCharacter;
 import database.DatabaseConnection;
+import server.Randomizer;
+import tools.packet.CWvsContext;
+
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import server.Randomizer;
-import tools.packet.CWvsContext;
 
 public class MapleMount implements Serializable {
 
@@ -67,25 +68,17 @@ public class MapleMount implements Serializable {
         return itemid;
     }
 
+    public void setItemId(int c) {
+        changed = true;
+        this.itemid = c;
+    }
+
     public int getSkillId() {
         return skillid;
     }
 
     public byte getFatigue() {
         return fatigue;
-    }
-
-    public int getExp() {
-        return exp;
-    }
-
-    public byte getLevel() {
-        return level;
-    }
-
-    public void setItemId(int c) {
-        changed = true;
-        this.itemid = c;
     }
 
     public void setFatigue(byte amount) {
@@ -96,9 +89,17 @@ public class MapleMount implements Serializable {
         }
     }
 
+    public int getExp() {
+        return exp;
+    }
+
     public void setExp(int c) {
         changed = true;
         this.exp = c;
+    }
+
+    public byte getLevel() {
+        return level;
     }
 
     public void setLevel(byte c) {
@@ -116,15 +117,15 @@ public class MapleMount implements Serializable {
     }
 
     public final boolean canTire(long now) {
-	return lastFatigue > 0 && lastFatigue + 30000 < now;
+        return lastFatigue > 0 && lastFatigue + 30000 < now;
     }
 
     public void startSchedule() {
-	lastFatigue = System.currentTimeMillis();
+        lastFatigue = System.currentTimeMillis();
     }
 
     public void cancelSchedule() {
-	lastFatigue = 0;
+        lastFatigue = 0;
     }
 
     public void increaseExp() {

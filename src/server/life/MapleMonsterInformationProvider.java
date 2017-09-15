@@ -20,20 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
-import constants.GameConstants;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-
 import client.inventory.MapleInventoryType;
+import constants.GameConstants;
 import database.DatabaseConnection;
-import java.io.File;
-import java.util.Map.Entry;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;
@@ -41,13 +30,23 @@ import provider.MapleDataTool;
 import server.MapleItemInformationProvider;
 import server.StructFamiliar;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 public class MapleMonsterInformationProvider {
 
     private static final MapleMonsterInformationProvider instance = new MapleMonsterInformationProvider();
-    private final Map<Integer, ArrayList<MonsterDropEntry>> drops = new HashMap<Integer, ArrayList<MonsterDropEntry>>();
-    private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<MonsterGlobalDropEntry>();
     private static final MapleDataProvider stringDataWZ = MapleDataProviderFactory.getDataProvider("String.wz");
     private static final MapleData mobStringData = stringDataWZ.getData("MonsterBook.img");
+    private final Map<Integer, ArrayList<MonsterDropEntry>> drops = new HashMap<Integer, ArrayList<MonsterDropEntry>>();
+    private final List<MonsterGlobalDropEntry> globaldrops = new ArrayList<MonsterGlobalDropEntry>();
 
     public static MapleMonsterInformationProvider getInstance() {
         return instance;
@@ -69,13 +68,13 @@ public class MapleMonsterInformationProvider {
             while (rs.next()) {
                 globaldrops.add(
                         new MonsterGlobalDropEntry(
-                        rs.getInt("itemid"),
-                        rs.getInt("chance"),
-                        rs.getInt("continent"),
-                        rs.getByte("dropType"),
-                        rs.getInt("minimum_quantity"),
-                        rs.getInt("maximum_quantity"),
-                        rs.getInt("questid")));
+                                rs.getInt("itemid"),
+                                rs.getInt("chance"),
+                                rs.getInt("continent"),
+                                rs.getByte("dropType"),
+                                rs.getInt("minimum_quantity"),
+                                rs.getInt("maximum_quantity"),
+                                rs.getInt("questid")));
             }
             rs.close();
             ps.close();

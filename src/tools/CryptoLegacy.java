@@ -1,14 +1,13 @@
 package tools;
 
-import java.util.Random;
-
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
 /**
  * Provides cryptographic functions for password hashing.
- *
+ * <p>
  * Legacy purpose as the method done here is insecure by hashing multiple times
  * and overly complicated. Will go away when/if official oms has no more users
  * with legacy passhashes.
@@ -58,7 +57,7 @@ public class CryptoLegacy {
      * Check a password against a hash.
      *
      * @param password The password to validate.
-     * @param hash The hash to validate against.
+     * @param hash     The hash to validate against.
      * @return <code>true</code> if the password is correct, <code>false</code>
      * otherwise.
      */
@@ -74,7 +73,7 @@ public class CryptoLegacy {
      * Encrypt a string with <code>Seed</code> as a seed code.
      *
      * @param password Password to encrypt.
-     * @param seed Seed to use.
+     * @param seed     Seed to use.
      * @return The salted SHA1 hash of password.
      * @throws RuntimeException
      */

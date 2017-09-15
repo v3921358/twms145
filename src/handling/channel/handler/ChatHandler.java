@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling.channel.handler;
 
-import client.MapleClient;
 import client.MapleCharacter;
+import client.MapleClient;
 import client.inventory.Item;
 import client.messages.CommandProcessor;
 import client.messages.commands.AbstractCommandScriptManager;
@@ -34,30 +34,31 @@ import handling.channel.ChannelServer;
 import handling.world.MapleMessenger;
 import handling.world.MapleMessengerCharacter;
 import handling.world.World;
-import java.util.LinkedList;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
 import server.MapleItemInformationProvider;
 import server.WordFilter;
 import tools.StringUtil;
-import tools.packet.CField;
 import tools.data.LittleEndianAccessor;
+import tools.packet.CField;
 import tools.packet.CWvsContext;
+
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import java.util.LinkedList;
 
 public class ChatHandler {
 
     public static final void GeneralChat(String text, final byte unk, final MapleClient c, final MapleCharacter chr) {
         MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
-        text = WordFilter.illegalArrayCheck(text, c.getPlayer()); 
+        text = WordFilter.illegalArrayCheck(text, c.getPlayer());
         if (c.getPlayer().getLeetness()) {
             String normal = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
             String leet = "48(d3f9h1jk1mn0PQR57uvwxyz@6cD3F9hiJk|Mn0pqr$+uvWXy2";
-        for (int i = 0; i < 52; i++) {
-            text = text.replace(normal.charAt(i), leet.charAt(i));
-        }
+            for (int i = 0; i < 52; i++) {
+                text = text.replace(normal.charAt(i), leet.charAt(i));
+            }
             text = text.replaceAll("y0u", "j00");
         }
-        if ((StringUtil.countCharacters(text, '@') > 5) || (StringUtil.countCharacters(text, '!') > 4) || (StringUtil.countCharacters(text, '#') > 6) || (StringUtil.countCharacters(text, '%') > 6) || (StringUtil.countCharacters(text, '&') > 6) || (StringUtil.countCharacters(text, '~') > 6)){
+        if ((StringUtil.countCharacters(text, '@') > 5) || (StringUtil.countCharacters(text, '!') > 4) || (StringUtil.countCharacters(text, '#') > 6) || (StringUtil.countCharacters(text, '%') > 6) || (StringUtil.countCharacters(text, '&') > 6) || (StringUtil.countCharacters(text, '~') > 6)) {
             text = "Development FTW! Trolls Rule!!!!!!!!1111111one111111\r\n-Eric";
         }
         if (!c.getPlayer().isAdmin() && c.getPlayer().getMuteLevel() == 1) { // we don't mute admins :(
@@ -73,93 +74,93 @@ public class ChatHandler {
         if (text.startsWith("@@") || text.startsWith("!!")) {
             tryingToTalk = 1; // they tried
             //chr.getMap().broadcastMessage(CField.getChatText(chr.getWorldId(), text, c.getPlayer().isSuperGM(), unk), c.getPlayer().getTruePosition());
-	}
-            boolean commandWorked = false;
-            // @ for players, and ! allowed if isGM(), allow SKIP if a player goes "!!" or "@@"++ for fun. :)
-            if (tryingToTalk == 1) {
-                tryingToTalk = 2; // looks like they're being silly, we'll skip using commands to allow them to say !!!111 or @@@
-            } else if ((text.startsWith("@")) || (text.startsWith("!") && c.getPlayer().isGM())) { // this way players can use ! and not access commands. :)
-                boolean allowed = true;
-                String[] args = text.split(" ");
-                int domain;
-                String commandType;
-                if (args[0].charAt(0) == '@') { // player
-                    domain = PlayerGMRank.NORMAL.getLevel();
-                    commandType = "player";
-                } else if (args[0].charAt(0) == '!') { // donor and above = ! 
-                    domain = PlayerGMRank.DONATOR.getLevel();
-                    commandType = "donor";
-                    if (c.getPlayer().getGMLevel() < 1) { // this isn't fucking points omfg.
-                        allowed = false;
-                    }
-                } else if (args[0].charAt(0) == '!') {
-                    domain = PlayerGMRank.SUPERDONATOR.getLevel();
-                    commandType = "sdonor";
-                    if (c.getPlayer().getGMLevel() < 2) { // ./rage -.-
-                        allowed = false;
-                    }
-                } else if (args[0].charAt(0) == '!') { // intern = 3, right? o-o
-                    domain = PlayerGMRank.INTERN.getLevel();
-                    commandType = "intern";
-                    if (c.getPlayer().getGMLevel() < 3) {
-                        allowed = false;
-                    }
-                } else if (args[0].charAt(0) == '!' && c.getPlayer().getGMLevel() >= 4) { // GM = 4? i think so anyways lol
-                    domain = PlayerGMRank.GM.getLevel();
-                    commandType = "gm";
-                    if (c.getPlayer().getGMLevel() < 4) {
-                        allowed = false;
-                    }
-                } else { //impossible but just in case
-                    return;
-                }
-                //String[] commandTypes = {"player", "donor", "sdonor", "intern", "gm"};
-                //String prefix = "@#$%!";
-                //int domain = prefix.indexOf(args[0].substring(0, 1));
-                String name = args[0].replace(args[0].substring(0, 1), "");
-                //String commandType = commandTypes[domain];
-                if (!chr.hasGmLevel(domain)) {
-                    //chr.showMessage("You do not have the privileges to use that command.");
-                    //return;
+        }
+        boolean commandWorked = false;
+        // @ for players, and ! allowed if isGM(), allow SKIP if a player goes "!!" or "@@"++ for fun. :)
+        if (tryingToTalk == 1) {
+            tryingToTalk = 2; // looks like they're being silly, we'll skip using commands to allow them to say !!!111 or @@@
+        } else if ((text.startsWith("@")) || (text.startsWith("!") && c.getPlayer().isGM())) { // this way players can use ! and not access commands. :)
+            boolean allowed = true;
+            String[] args = text.split(" ");
+            int domain;
+            String commandType;
+            if (args[0].charAt(0) == '@') { // player
+                domain = PlayerGMRank.NORMAL.getLevel();
+                commandType = "player";
+            } else if (args[0].charAt(0) == '!') { // donor and above = !
+                domain = PlayerGMRank.DONATOR.getLevel();
+                commandType = "donor";
+                if (c.getPlayer().getGMLevel() < 1) { // this isn't fucking points omfg.
                     allowed = false;
                 }
-                if (allowed) {
-                    c.getPlayer().setCommandArgs(args);
-                    Invocable iv = AbstractCommandScriptManager.getInvocableCommand(commandType, name, c);
-                    final ScriptEngine scriptengine = (ScriptEngine) iv;
-                    final AbstractCommandScriptManager acm = new AbstractCommandScriptManager();
-                    try {
-                        if (iv != null) {
-                            acm.putCms(c, acm);
-                            scriptengine.put("c", c);
-                            scriptengine.put("acm", acm);
-                            scriptengine.put("args", args);
-                            iv.invokeFunction("start");
-                            commandWorked = true;
-                        } else {
-                            commandWorked = false;
-                            iv = AbstractCommandScriptManager.getInvocableCommand(commandType, "nocommand", c); //safe disposal
+            } else if (args[0].charAt(0) == '!') {
+                domain = PlayerGMRank.SUPERDONATOR.getLevel();
+                commandType = "sdonor";
+                if (c.getPlayer().getGMLevel() < 2) { // ./rage -.-
+                    allowed = false;
+                }
+            } else if (args[0].charAt(0) == '!') { // intern = 3, right? o-o
+                domain = PlayerGMRank.INTERN.getLevel();
+                commandType = "intern";
+                if (c.getPlayer().getGMLevel() < 3) {
+                    allowed = false;
+                }
+            } else if (args[0].charAt(0) == '!' && c.getPlayer().getGMLevel() >= 4) { // GM = 4? i think so anyways lol
+                domain = PlayerGMRank.GM.getLevel();
+                commandType = "gm";
+                if (c.getPlayer().getGMLevel() < 4) {
+                    allowed = false;
+                }
+            } else { //impossible but just in case
+                return;
+            }
+            //String[] commandTypes = {"player", "donor", "sdonor", "intern", "gm"};
+            //String prefix = "@#$%!";
+            //int domain = prefix.indexOf(args[0].substring(0, 1));
+            String name = args[0].replace(args[0].substring(0, 1), "");
+            //String commandType = commandTypes[domain];
+            if (!chr.hasGmLevel(domain)) {
+                //chr.showMessage("You do not have the privileges to use that command.");
+                //return;
+                allowed = false;
+            }
+            if (allowed) {
+                c.getPlayer().setCommandArgs(args);
+                Invocable iv = AbstractCommandScriptManager.getInvocableCommand(commandType, name, c);
+                final ScriptEngine scriptengine = (ScriptEngine) iv;
+                final AbstractCommandScriptManager acm = new AbstractCommandScriptManager();
+                try {
+                    if (iv != null) {
+                        acm.putCms(c, acm);
+                        scriptengine.put("c", c);
+                        scriptengine.put("acm", acm);
+                        scriptengine.put("args", args);
+                        iv.invokeFunction("start");
+                        commandWorked = true;
+                    } else {
+                        commandWorked = false;
+                        iv = AbstractCommandScriptManager.getInvocableCommand(commandType, "nocommand", c); //safe disposal
 
-                        }
-                    } catch (final Exception e) {
-                        System.err.println("Error executing Command script, Command : " + name + "." + e);
-                    } finally {
-                        acm.dispose(c, commandType, name);
                     }
+                } catch (final Exception e) {
+                    System.err.println("Error executing Command script, Command : " + name + "." + e);
+                } finally {
+                    acm.dispose(c, commandType, name);
                 }
             }
-            if (tryingToTalk > 0)
-                commandWorked = false;
-            if (!commandWorked) {
-                switch (text.charAt(0)) {
-                    case '@':
-                        PlayerCommand.executePlayerCommands(c, text.split(" "));
-                        commandWorked = true;
-                        break;
-                    case '!': // should make Donor+ all ! o-o
-                        DonatorCommand.executeDonatorCommand(c, text.split(" "));
-                        commandWorked = true;
-                        break;
+        }
+        if (tryingToTalk > 0)
+            commandWorked = false;
+        if (!commandWorked) {
+            switch (text.charAt(0)) {
+                case '@':
+                    PlayerCommand.executePlayerCommands(c, text.split(" "));
+                    commandWorked = true;
+                    break;
+                case '!': // should make Donor+ all ! o-o
+                    DonatorCommand.executeDonatorCommand(c, text.split(" "));
+                    commandWorked = true;
+                    break;
                    /* case '$':
                         SuperDonatorCommand.executeSuperDonatorCommand(c, text.split(" "));
                         commandWorked = true;
@@ -172,161 +173,156 @@ public class ChatHandler {
                         GMCommand.executeGMCommand(c, text.split(" "));
                         commandWorked = true;
                         break;*/
-                    default:
-                        commandWorked = false;
-                        break;
-                }
+                default:
+                    commandWorked = false;
+                    break;
             }
-            if (tryingToTalk > 0)
-                commandWorked = false;
-            if (!commandWorked || tryingToTalk > 0) {
-                if (text.length() > 0 && chr != null && chr.getMap() != null) {
-                    if (!chr.isIntern() && text.length() >= 80) {
-                        return;
-                    }
-                       if (chr.getCanTalk() || chr.isStaff()) {
-                            //Note: This patch is needed to prevent chat packet from being broadcast to people who might be packet sniffing.
-                            if (chr.isHidden()) {
-                                if (chr.isIntern() && !chr.isSuperGM() && unk == 0) {
-                                    chr.getMap().broadcastGMMessage(chr, CField.getChatText(chr.getId(), text, false, (byte) 1), true);
-                                    if (unk == 0) {
-                                        chr.getMap().broadcastGMMessage(chr, CWvsContext.serverNotice(2, chr.getName() + " : " + text), true);
-                                    }
-                                } else {
-                                    chr.getMap().broadcastGMMessage(chr, CField.getChatText(chr.getId(), text, c.getPlayer().isSuperGM(), unk), true);
-                                }
-                            } else {
-                                if ((c.getPlayer().getGMLevel() == 1 && c.getPlayer().getGMText() == 0) && unk == 0) {
-                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                  if (unk == 0) {
-                                    chr.getMap().broadcastMessage(CWvsContext.yellowChat("[Donor]" + c.getPlayer().getName() + ": " + text));
-                                }
-                       } else if (chr.getGMText() > 1) {
+        }
+        if (tryingToTalk > 0)
+            commandWorked = false;
+        if (!commandWorked || tryingToTalk > 0) {
+            if (text.length() > 0 && chr != null && chr.getMap() != null) {
+                if (!chr.isIntern() && text.length() >= 80) {
+                    return;
+                }
+                if (chr.getCanTalk() || chr.isStaff()) {
+                    //Note: This patch is needed to prevent chat packet from being broadcast to people who might be packet sniffing.
+                    if (chr.isHidden()) {
+                        if (chr.isIntern() && !chr.isSuperGM() && unk == 0) {
+                            chr.getMap().broadcastGMMessage(chr, CField.getChatText(chr.getId(), text, false, (byte) 1), true);
+                            if (unk == 0) {
+                                chr.getMap().broadcastGMMessage(chr, CWvsContext.serverNotice(2, chr.getName() + " : " + text), true);
+                            }
+                        } else {
+                            chr.getMap().broadcastGMMessage(chr, CField.getChatText(chr.getId(), text, c.getPlayer().isSuperGM(), unk), true);
+                        }
+                    } else {
+                        if ((c.getPlayer().getGMLevel() == 1 && c.getPlayer().getGMText() == 0) && unk == 0) {
+                            c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                            if (unk == 0) {
+                                chr.getMap().broadcastMessage(CWvsContext.yellowChat("[Donor]" + c.getPlayer().getName() + ": " + text));
+                            }
+                        } else if (chr.getGMText() > 1) {
                             switch (c.getPlayer().getGMText()) {
                                 case 1:
                                     c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                if (unk == 0) {
-                                    c.getPlayer().getMap().broadcastMessage(CWvsContext.getBuddy(c.getPlayer().getName(), text));
-                                }
+                                    if (unk == 0) {
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.getBuddy(c.getPlayer().getName(), text));
+                                    }
                                     break;
                                 case 2:
                                 case 3:
                                 case 4:
                                     c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                if (unk == 0) {
-                                    c.getPlayer().getMap().broadcastMessage(CWvsContext.multiChat(c.getPlayer().getName(), text, c.getPlayer().getGMText() - 1));
-                                }
+                                    if (unk == 0) {
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.multiChat(c.getPlayer().getName(), text, c.getPlayer().getGMText() - 1));
+                                    }
                                     break;
                                 case 5:
                                 case 6:
                                     c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                if (unk == 0) {
-                                    c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(c.getPlayer().getGMText(), c.getPlayer().getName() + " Says : " + text));
-                                }
+                                    if (unk == 0) {
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(c.getPlayer().getGMText(), c.getPlayer().getName() + " Says : " + text));
+                                    }
                                     break;
                                 case 7: // gm text 
-                                     chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, true, (byte) 1));
-                                         if (unk == 0) {
-                                              chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, c.getPlayer().isSuperGM(), unk), c.getPlayer().getTruePosition());
-                                          }
-                                       // c.getPlayer().dropMessage(5, "Please use !gmtext normal. ");
-                                        break;
+                                    chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, true, (byte) 1));
+                                    if (unk == 0) {
+                                        chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, c.getPlayer().isSuperGM(), unk), c.getPlayer().getTruePosition());
+                                    }
+                                    // c.getPlayer().dropMessage(5, "Please use !gmtext normal. ");
+                                    break;
                                 case 8:
                                     c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                if (unk == 0) {
-                                    c.getPlayer().getMap().broadcastMessage(CWvsContext.getWhisper(c.getPlayer().getName(), c.getChannel(), text));
-                                }
+                                    if (unk == 0) {
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.getWhisper(c.getPlayer().getName(), c.getChannel(), text));
+                                    }
                                     break;
                                 case 9:
-                                        if (c.getPlayer().getAccountID() == ServerConstants.ERIC_ACC_ID) {
-                                            c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+
+                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
                                         if (unk == 0) {
-                                            c.getPlayer().getMap().broadcastMessage(CWvsContext.yellowChat(c.getPlayer().getName() + " Tweets: " + text));   
-                                          }
-                                        } else {
-                                            c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        if (unk == 0) {
-                                               c.getPlayer().getMap().broadcastMessage(CWvsContext.yellowChat(c.getPlayer().getName() + " Says : " + text));
-                                            }
+                                            c.getPlayer().getMap().broadcastMessage(CWvsContext.yellowChat(c.getPlayer().getName() + " Says : " + text));
                                         }
-                                        break;
+
+                                    break;
                                 case 10: // normal text 
-                                     chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, true, (byte) 1));
-                                         if (unk == 0) {
-                                              chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, false, unk), c.getPlayer().getTruePosition());
-                                          }
-                                        //c.getPlayer().dropMessage(5, "Please use !gmtext normal. ");
-                                        break;
+                                    chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, true, (byte) 1));
+                                    if (unk == 0) {
+                                        chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, false, unk), c.getPlayer().getTruePosition());
+                                    }
+                                    //c.getPlayer().dropMessage(5, "Please use !gmtext normal. ");
+                                    break;
                                 case 90: // only a chat bubble, no chat text broadcasts to map.
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        break;
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    break;
                                 case 94:
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        if (unk == 0) {
-                                            Item test = ii.getEquipById(1302000); // test for now :/
-                                            byte rareness = 0; // this isn't needed because it doesn't use this in the packet
-                                            c.getPlayer().getMap().broadcastMessage(CWvsContext.getGachaponMega(c.getPlayer().getName(), text, test, rareness, false, "Test"));
-                                        }
-                                        break;
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    if (unk == 0) {
+                                        Item test = ii.getEquipById(1302000); // test for now :/
+                                        byte rareness = 0; // this isn't needed because it doesn't use this in the packet
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.getGachaponMega(c.getPlayer().getName(), text, test, rareness, false, "Test"));
+                                    }
+                                    break;
                                 case 95: // item mega
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        if (unk == 0) {
-                                            c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(9, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
-                                        }
-                                        break;
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    if (unk == 0) {
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(9, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
+                                    }
+                                    break;
                                 case 96: // skull mega
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        if (unk == 0) {
-                                            c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(22, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
-                                        }
-                                        break;
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    if (unk == 0) {
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(22, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
+                                    }
+                                    break;
                                 case 97: // orange text
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        if (unk == 0) {
-                                            c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(14, c.getPlayer().getName() + " : " + text));
-                                        }
-                                        break;
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    if (unk == 0) {
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(14, c.getPlayer().getName() + " : " + text));
+                                    }
+                                    break;
                                 case 98: // cake mega
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        if (unk == 0) {
-                                            c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(25, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
-                                        }
-                                        break;
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    if (unk == 0) {
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(25, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
+                                    }
+                                    break;
                                 case 99: // pie mega
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        if (unk == 0) {
-                                            c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(26, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
-                                        }
-                                        break;
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    if (unk == 0) {
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(26, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
+                                    }
+                                    break;
                                 case 100: //Megaphone
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
                                     if (unk == 0) {
                                         c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(2, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
                                     }
-                                        break;
+                                    break;
                                 case 101: //Avatar Mega LOL
-                                        String[] lines = {"", "", "", ""};
-                                        if(text.length() > 30) {
-                                            lines[0] = text.substring(0, 10);
-                                            lines[1] = text.substring(10, 20);
-                                            lines[2] = text.substring(20, 30);
-                                            lines[3] = text.substring(30);
-                                        } else if(text.length() > 20) {
-                                            lines[0] = text.substring(0, 10);
-                                            lines[1] = text.substring(10, 20);
-                                            lines[2] = text.substring(20);
-                                        } else if(text.length() > 10) {
-                                            lines[0] = text.substring(0, 10);
-                                            lines[1] = text.substring(10);
-                                        } else if(text.length() <= 10) {
-                                            lines[0] = text;
-                                        }
-                                        LinkedList<String> list = new LinkedList<String>();
-                                        list.add(lines[0]);
-                                        list.add(lines[1]);
-                                        list.add(lines[2]);
-                                        list.add(lines[3]);
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    String[] lines = {"", "", "", ""};
+                                    if (text.length() > 30) {
+                                        lines[0] = text.substring(0, 10);
+                                        lines[1] = text.substring(10, 20);
+                                        lines[2] = text.substring(20, 30);
+                                        lines[3] = text.substring(30);
+                                    } else if (text.length() > 20) {
+                                        lines[0] = text.substring(0, 10);
+                                        lines[1] = text.substring(10, 20);
+                                        lines[2] = text.substring(20);
+                                    } else if (text.length() > 10) {
+                                        lines[0] = text.substring(0, 10);
+                                        lines[1] = text.substring(10);
+                                    } else if (text.length() <= 10) {
+                                        lines[0] = text;
+                                    }
+                                    LinkedList<String> list = new LinkedList<String>();
+                                    list.add(lines[0]);
+                                    list.add(lines[1]);
+                                    list.add(lines[2]);
+                                    list.add(lines[3]);
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
                                     if (unk == 0) {
                                         int random = MapleCharacter.rand(0, 6);
                                         int smega;
@@ -356,61 +352,54 @@ public class ChatHandler {
                                                 smega = 5390000;
                                                 break;
                                         }
-                                            c.getPlayer().getMap().broadcastMessage(CWvsContext.getAvatarMega(c.getPlayer(), c.getChannel(), smega, list, Math.random() > 0.5));
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.getAvatarMega(c.getPlayer(), c.getChannel(), smega, list, Math.random() > 0.5));
                                     }
-                                        break;
+                                    break;
                                 case 102: //Spouse chat (Y)
-                                        c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
                                     if (unk == 0) {
                                         c.getPlayer().getMap().broadcastMessage(CWvsContext.toSpouse(c.getPlayer().getName(), text, 4));
                                     }
-                                        break;
+                                    break;
                                 case 103: //Super Megaphone
-                                        if (c.getPlayer().getAccountID() == ServerConstants.ERIC_ACC_ID || c.getPlayer().getId() == 1731) { // kevin
-                                            c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        if (unk == 0) {
-                                                c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(3, 99, "<Master Of Love> " + c.getPlayer().getName() + " : " + text, Math.random() > 0.5));  
-                                            }
-                                        } else {
-                                            c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
-                                        if (unk == 0) {
-                                                c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(3, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
-                                            }
-                                        }
-                                            break;
-                                        }
-                            } else if (chr.isIntern() && !chr.isSuperGM() && unk == 0) {
-                                    chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, false, (byte) 1), c.getPlayer().getTruePosition());
+                                    c.getPlayer().getMap().broadcastMessage(CField.getChatText(c.getPlayer().getId(), text, false, 1));
                                     if (unk == 0) {
-                                        chr.getMap().broadcastMessage(CWvsContext.serverNotice(2, chr.getName() + " : " + text), c.getPlayer().getTruePosition());
+                                        c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(3, c.getChannel(), c.getPlayer().getName() + " : " + text, Math.random() > 0.5));
                                     }
-                                } else {
-                                    chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, c.getPlayer().isSuperGM(), unk), c.getPlayer().getTruePosition());
-                                }
+                                    break;
+                            }
+                        } else if (chr.isIntern() && !chr.isSuperGM() && unk == 0) {
+                            chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, false, (byte) 1), c.getPlayer().getTruePosition());
+                            if (unk == 0) {
+                                chr.getMap().broadcastMessage(CWvsContext.serverNotice(2, chr.getName() + " : " + text), c.getPlayer().getTruePosition());
                             }
                         } else {
-                            c.sendPacket(CWvsContext.serverNotice(6, "You have been muted and are therefore unable to talk."));
+                            chr.getMap().broadcastMessage(CField.getChatText(chr.getId(), text, c.getPlayer().isSuperGM(), unk), c.getPlayer().getTruePosition());
                         }
                     }
-               }
-    }
-    
-    public static final String getChatType(int type) {
-            switch (type) {
-                case 0:
-                    return "Buddy";
-                case 1:
-                    return "Party";
-                case 2:
-                    return "Guild";
-                case 3:
-                    return "Alliance";
-                case 4:
-                    return "Expedition";
+                } else {
+                    c.sendPacket(CWvsContext.serverNotice(6, "You have been muted and are therefore unable to talk."));
+                }
             }
-            return "Unknown";
+        }
     }
-    
+
+    public static final String getChatType(int type) {
+        switch (type) {
+            case 0:
+                return "Buddy";
+            case 1:
+                return "Party";
+            case 2:
+                return "Guild";
+            case 3:
+                return "Alliance";
+            case 4:
+                return "Expedition";
+        }
+        return "Unknown";
+    }
+
     public static final void Spouse_Chat(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         /* 
         02 00 // size of the spouse's name
@@ -465,11 +454,11 @@ public class ChatHandler {
             c.getPlayer().dropMessage(5, "You have been muted, therefore you can't talk.");
             return;
         }
-        
+
         if (c.getPlayer().getWatcher() != null) {
             c.getPlayer().getWatcher().dropMessage(5, "[" + c.getPlayer().getName() + " - Chat: " + getChatType(type) + "] : " + chattext);
         }
-        
+
         if (chattext.length() <= 0 || CommandProcessor.processCommand(c, chattext, CommandType.NORMAL)) {
             return;
         }
@@ -505,7 +494,7 @@ public class ChatHandler {
     }
 
     public static final void Messenger(final LittleEndianAccessor slea, final MapleClient c) {
-		String input;
+        String input;
         MapleMessenger messenger = c.getPlayer().getMessenger();
 
         switch (slea.readByte()) {
@@ -580,7 +569,7 @@ public class ChatHandler {
                 if (messenger != null) {
                     final String charname = slea.readMapleAsciiString();
                     final String text = slea.readMapleAsciiString();
-		    final String chattext = charname + "" + text;
+                    final String chattext = charname + "" + text;
                     if (c.getPlayer().getWatcher() != null) {
                         if (text.equals("0") || text.equals("1")) {
                             return;
@@ -589,7 +578,7 @@ public class ChatHandler {
                         }
                     }
                     World.Messenger.messengerChat(messenger.getId(), charname, text, c.getPlayer().getName());
-                  
+
                 }
                 break;
         }
@@ -652,7 +641,7 @@ public class ChatHandler {
                         break;
                     }
                     if (c.getPlayer().getWatcher() != null) {
-                       c.getPlayer().getWatcher().dropMessage(5, "[" + c.getPlayer().getName() + "] Whispered to [" + recipient + "] : " + text);
+                        c.getPlayer().getWatcher().dropMessage(5, "[" + c.getPlayer().getName() + "] Whispered to [" + recipient + "] : " + text);
                     }
                     player.getClient().sendPacket(CField.getWhisper(c.getPlayer().getName(), c.getChannel(), text));
                     if (!c.getPlayer().isIntern() && player.isIntern()) {

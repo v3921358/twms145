@@ -23,16 +23,12 @@ package handling.channel.handler;
 import client.MapleBuffStatus;
 import client.MapleCharacter;
 import client.MapleClient;
-
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import client.inventory.MaplePet;
 import client.inventory.PetCommand;
 import constants.GameConstants;
 import constants.Occupations;
-
-import java.util.List;
-
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.Randomizer;
@@ -45,6 +41,8 @@ import tools.packet.CField.EffectPacket;
 import tools.packet.CWvsContext;
 import tools.packet.MobPacket;
 import tools.packet.PetPacket;
+
+import java.util.List;
 
 public class PetHandler {
 
@@ -190,33 +188,33 @@ public class PetHandler {
         MapleInventoryManipulator.removeFromSlot(c, MapleInventoryType.USE, slot, (short) 1, true, false);
         c.sendPacket(CWvsContext.enableActions());
     }
-    
+
     public static void conductPetAttacking(MapleCharacter chr, boolean perk) {
         if (chr.getPets() != null) {
             String[] monsterDialog = {"BOOM! HEADSHOT!", "fyte mi!", "FALCOOOON PAWNCH!", "attack_4", "attack_5"};
-            
-            for(int i = 0; i < chr.getPets().size(); i++){
+
+            for (int i = 0; i < chr.getPets().size(); i++) {
                 List<server.life.MapleMonster> moInRange = chr.getMap().getMapMonstersInRange(chr.getPet(i).getPos(), 15000.0, MapleMapObjectType.MONSTER);
-                int damage = (int)(((chr.getPet(i).getLevel() * 5)* (int)(2.0 * Math.random() + 2)));
+                int damage = (int) (((chr.getPet(i).getLevel() * 5) * (int) (2.0 * Math.random() + 2)));
                 int level = chr.getLevel();
-                int chance = (int)(100.0 * Math.random());
-                int attackAmount = (int)(100.0 * Math.random());
-                if(level >= 10 && level < 30){
+                int chance = (int) (100.0 * Math.random());
+                int attackAmount = (int) (100.0 * Math.random());
+                if (level >= 10 && level < 30) {
                     damage *= 5;
-                } else if(level >= 30 && level < 70){
+                } else if (level >= 30 && level < 70) {
                     damage *= 12;
-                } else if(level >= 70 && level < 120){
+                } else if (level >= 70 && level < 120) {
                     damage *= 17;
-                } else if(level >= 120 && level < 150){
+                } else if (level >= 120 && level < 150) {
                     damage *= 27;
-                } else if(level >= 120){
+                } else if (level >= 120) {
                     damage *= 40;
                 }
                 if (attackAmount >= 95) {
-                    attackAmount = (int)(3.0 * Math.random()) + 1;
+                    attackAmount = (int) (3.0 * Math.random()) + 1;
                 } else {
                     attackAmount = 1;
-                } 
+                }
                 if (perk) { // should technically just remove this xD
                     attackAmount *= 2;
                     damage *= 20;
@@ -225,16 +223,19 @@ public class PetHandler {
                     moInRange = null;
                     return;
                 }
-                if(chr.getPet(i).getCloseness() >= constants.GameConstants.getClosenessNeededForLevel(chr.getPet(i).getLevel())){
-                    chr.announce(PetPacket.showPetLevelUp(chr, (byte)i));
-                    chr.getMap().broadcastMessage(chr, PetPacket.showPetLevelUp(chr, (byte)i), false);
-                    chr.getPet(i).setLevel((byte)(chr.getPet(i).getLevel() + 1));
-                } if(chance >= 70 && attackAmount == 1){
-                    chr.getMap().broadcastMessage(PetPacket.petChat(chr.getId(), 1, monsterDialog[(int)(monsterDialog.length * Math.random())], (byte)i));
-                } if(attackAmount > 1) {
-                    chr.getMap().broadcastMessage(PetPacket.petChat(chr.getId(), 1, "Critical hit!!", (byte)i));
-                } for(int e = 0; e < attackAmount; e++){
-                    if(moInRange.get(1) != null){
+                if (chr.getPet(i).getCloseness() >= constants.GameConstants.getClosenessNeededForLevel(chr.getPet(i).getLevel())) {
+                    chr.announce(PetPacket.showPetLevelUp(chr, (byte) i));
+                    chr.getMap().broadcastMessage(chr, PetPacket.showPetLevelUp(chr, (byte) i), false);
+                    chr.getPet(i).setLevel((byte) (chr.getPet(i).getLevel() + 1));
+                }
+                if (chance >= 70 && attackAmount == 1) {
+                    chr.getMap().broadcastMessage(PetPacket.petChat(chr.getId(), 1, monsterDialog[(int) (monsterDialog.length * Math.random())], (byte) i));
+                }
+                if (attackAmount > 1) {
+                    chr.getMap().broadcastMessage(PetPacket.petChat(chr.getId(), 1, "Critical hit!!", (byte) i));
+                }
+                for (int e = 0; e < attackAmount; e++) {
+                    if (moInRange.get(1) != null) {
                         server.life.MapleMonster locked_on = moInRange.get(1);
                         chr.getMap().broadcastMessage(chr, MobPacket.damageMonster(locked_on.getObjectId(), damage), true);
                         locked_on.damage(chr, damage, true);
@@ -243,9 +244,9 @@ public class PetHandler {
                 }
                 chr.getPet(i).gainCloseness(1);
                 moInRange = null; // dispose
+            }
         }
     }
-}
 
     public static void MovePet(final LittleEndianAccessor slea, final MapleCharacter chr) {
         if (chr == null) {
@@ -259,14 +260,14 @@ public class PetHandler {
 
         slea.skip(9); // byte(index?), int(pos), int
         final List<ILifeMovementFragment> res = MovementParse.parseMovement(slea, pet.getPos(), MovementKind.PET_MOVEMENT);
-        if (res != null  && !res.isEmpty() && chr.getMap() != null) { // map crash hack
+        if (res != null && !res.isEmpty() && chr.getMap() != null) { // map crash hack
 
             pet.updatePosition(res);
-	    chr.getMap().broadcastMessage(chr, PetPacket.movePet(chr.getId(), petId, chr.getPetIndex(petId), res), false);
+            chr.getMap().broadcastMessage(chr, PetPacket.movePet(chr.getId(), petId, chr.getPetIndex(petId), res), false);
             if (chr.getOccupation().is(Occupations.Hacker)) { // the question is, should we make this level 2 or something
                 // Handle Pet Attacking System Here
                 if (chr.getMap().getMobsSize() > 0) { // TODO: check if mobs are in range automatically.. rather then spamming this method
-                    conductPetAttacking(chr, Math.random() > 0.5); 
+                    conductPetAttacking(chr, Math.random() > 0.5);
                 }      // will change the way PERKs are ran, we'll use this as a sort of "critical" hit?
             }
         }
