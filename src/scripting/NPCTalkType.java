@@ -15,8 +15,8 @@ public enum NPCTalkType {
     ANDROID(0xA),
     PET(0xB),
     PET_ALL(0xC),
-    ACCEPT_DECLINE(0xD),
-    MULTI_TEXT(0xE),
+    ACCEPT_DECLINE(0xE),
+    MULTI_TEXT(0xF),
     UNK_10(0x10),
     UNK_14(0x14),
     UNK_15(0x15);

@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package scripting;
 
 import client.MapleClient;
+import constants.ServerConstants;
 import server.quest.MapleQuest;
 import tools.FileoutputUtil;
 
@@ -107,6 +108,9 @@ public class NPCScriptManager extends AbstractScriptManager {
 
     public final void startQuest(final MapleClient c, final int npc, final int quest) {
         if (!MapleQuest.getInstance(quest).canStart(c.getPlayer(), null)) {
+            if(ServerConstants.DEBUG) {
+                c.getPlayer().showInfo("任務開始腳本", true, "無法開始任務 NPC：" + npc + " 任務：" + MapleQuest.getInstance(quest));
+            }
             return;
         }
         final Lock lock = c.getNPCLock();
@@ -140,7 +144,7 @@ public class NPCScriptManager extends AbstractScriptManager {
     public final void startQuest(final MapleClient c, final byte mode, final byte type, final int selection) {
         final Lock lock = c.getNPCLock();
         final NPCConversationManager cm = cms.get(c);
-        if (cm == null || cm.getLastMsg() == null) {
+        if (cm == null || cm.getLastMsg() != null) {
             return;
         }
         lock.lock();
@@ -195,7 +199,7 @@ public class NPCScriptManager extends AbstractScriptManager {
     public final void endQuest(final MapleClient c, final byte mode, final byte type, final int selection) {
         final Lock lock = c.getNPCLock();
         final NPCConversationManager cm = cms.get(c);
-        if (cm == null || cm.getLastMsg() == null) {
+        if (cm == null || cm.getLastMsg() != null) {
             return;
         }
         lock.lock();

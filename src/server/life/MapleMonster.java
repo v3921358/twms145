@@ -27,15 +27,16 @@ import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import client.status.MonsterStatus;
 import client.status.MonsterStatusEffect;
+import com.sun.corba.se.spi.activation.Server;
 import constants.GameConstants;
 import constants.Occupations;
+import constants.ServerConstants;
 import handling.world.MapleParty;
 import handling.world.MaplePartyCharacter;
 import pvp.WizerDual;
 import scripting.EventInstanceManager;
-import server.MapleItemInformationProvider;
-import server.MapleStatEffect;
-import server.Randomizer;
+import server.*;
+import server.Timer;
 import server.Timer.EtcTimer;
 import server.maps.MapleMap;
 import server.maps.MapleMapObject;
@@ -1053,7 +1054,31 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         }
     }
 
-    public final void applyMonsterBuff(final Map<MonsterStatus, Integer> effect, final int skillId, final long duration, final MobSkill skill, final List<Integer> reflection) {
+    public void applyMonsterBuff(final Map<MonsterStatus, Integer> effect, final int x, final int skillId, final long duration, final MobSkill skill, final List<Integer> reflection) {
+        final MapleCharacter con = getController();
+        Timer.BuffTimer BuffTimer = Timer.BuffTimer.getInstance();
+        final Runnable cancelTask = new Runnable() {
+            @Override
+            public void run() {
+                if (isAlive()) {
+                    List<MonsterStatusEffect> mse = new ArrayList<>();
+                    for (Entry<MonsterStatus, Integer> z : effect.entrySet()) {
+                        mse.add(new MonsterStatusEffect(z.getKey(), z.getValue(), skillId, skill, true, reflection.size() > 0));
+                    }
+                    map.broadcastMessage(con, MobPacket.cancelMonsterStatus(MapleMonster.this, mse), getPosition());
+                    if (getController() != null && !getController().isMapObjectVisible(MapleMonster.this)) {
+                        getController().getClient().getSession().writeAndFlush(MobPacket.cancelMonsterStatus(MapleMonster.this, mse));
+                    }
+                    for (final MonsterStatus stat : effect.keySet()) {
+                        stati.remove(stat);
+                    }
+                    reflection.clear();
+                }
+                if (con != null && ServerConstants.DEBUG) {
+                    con.dropMessage(10, "結束 => 持續傷害: 結束時間[" + System.currentTimeMillis() + "]");
+                }
+            }
+        };
         for (Entry<MonsterStatus, Integer> z : effect.entrySet()) {
             if (stati.containsKey(z.getKey())) {
                 cancelStatus(z.getKey());
@@ -1062,26 +1087,39 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             effectz.setCancelTask(duration);
             stati.put(z.getKey(), effectz);
         }
-        final MapleCharacter con = getController();
         if (reflection.size() > 0) {
-            this.reflectpack = MobPacket.applyMonsterStatus(getObjectId(), effect, reflection, skill);
+            List<MonsterStatusEffect> mse = new ArrayList<>();
+            for (Entry<MonsterStatus, Integer> z : effect.entrySet()) {
+                mse.add(new MonsterStatusEffect(z.getKey(), z.getValue(), 0, skill, true, reflection.size() > 0));
+            }
+            this.reflectpack = MobPacket.applyMonsterStatus(this, mse);
             if (con != null) {
                 map.broadcastMessage(con, reflectpack, getTruePosition());
-                con.getClient().sendPacket(this.reflectpack);
+                con.getClient().getSession().writeAndFlush(this.reflectpack);
             } else {
                 map.broadcastMessage(reflectpack, getTruePosition());
             }
         } else {
             for (Entry<MonsterStatus, Integer> z : effect.entrySet()) {
+                final MonsterStatusEffect effectz = new MonsterStatusEffect(z.getKey(), z.getValue(), 0, skill, true, reflection.size() > 0);
                 if (con != null) {
-                    map.broadcastMessage(con, MobPacket.applyMonsterStatus(getObjectId(), z.getKey(), z.getValue(), skill), getTruePosition());
-                    con.getClient().sendPacket(MobPacket.applyMonsterStatus(getObjectId(), z.getKey(), z.getValue(), skill));
+                    map.broadcastMessage(con, MobPacket.applyMonsterStatus(this, effectz), getTruePosition());
+                    con.getClient().getSession().writeAndFlush(MobPacket.applyMonsterStatus(this, effectz));
                 } else {
-                    map.broadcastMessage(MobPacket.applyMonsterStatus(getObjectId(), z.getKey(), z.getValue(), skill), getTruePosition());
+                    map.broadcastMessage(MobPacket.applyMonsterStatus(this, effectz), getTruePosition());
                 }
             }
         }
+        BuffTimer.schedule(cancelTask, duration);
+        if (con != null && ServerConstants.DEBUG) {
+            String bfn = "";
+            for (Entry<MonsterStatus, Integer> z : effect.entrySet()) {
+                bfn += "[" + z.getKey().name() + "] ";
+            }
+            con.dropMessage(10, "開始 => 怪物施放狀態: 持續時間[" + duration + "] 開始時間[" + System.currentTimeMillis() + "] 狀態效果:" + bfn);
+        }
     }
+
 
     public final void setTempEffectiveness(final Element e, final long milli) {
         stats.setEffectiveness(e, ElementalEffectiveness.WEAK);
@@ -1224,7 +1262,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
 
     public void addEmpty() {
         for (MonsterStatus stat : MonsterStatus.values()) {
-            if (stat.isEmpty()) {
+            if (stat.isDefault()) {
                 stati.put(stat, new MonsterStatusEffect(stat, 0, 0, null, false));
             }
         }
@@ -1284,7 +1322,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     public final void cancelStatus(final MonsterStatus stat) {
-        if (stat == MonsterStatus.EMPTY || stat == MonsterStatus.SUMMON) {
+        if (stat == MonsterStatus.BLEED || stat == MonsterStatus.SUMMON) {
             return;
         }
         final MonsterStatusEffect mse = stati.get(stat);
@@ -1297,19 +1335,20 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         mse.cancelPoisonSchedule(this);
         final MapleCharacter con = getController();
         if (con != null) {
-            map.broadcastMessage(con, MobPacket.cancelMonsterStatus(getObjectId(), stat), getTruePosition());
-            con.getClient().sendPacket(MobPacket.cancelMonsterStatus(getObjectId(), stat));
+            map.broadcastMessage(con, MobPacket.cancelMonsterStatus(this, mse), getTruePosition());
+            con.getClient().getSession().writeAndFlush(MobPacket.cancelMonsterStatus(this, mse));
         } else {
-            map.broadcastMessage(MobPacket.cancelMonsterStatus(getObjectId(), stat), getTruePosition());
+            map.broadcastMessage(MobPacket.cancelMonsterStatus(this, mse), getTruePosition());
         }
         stati.remove(stat);
     }
 
+
     public final void cancelSingleStatus(final MonsterStatusEffect stat) {
-        if (stat == null || stat.getStati() == MonsterStatus.EMPTY || stat.getStati() == MonsterStatus.SUMMON || !isAlive()) {
+        if (stat == null || stat.getStati() == MonsterStatus.BLEED || stat.getStati() == MonsterStatus.SUMMON || !isAlive()) {
             return;
         }
-        if (stat.getStati() != MonsterStatus.POISON && stat.getStati() != MonsterStatus.BURN) {
+        if (stat.getStati() != MonsterStatus.POISON && stat.getStati() != MonsterStatus.VENOMOUS_WEAPON) {
             cancelStatus(stat.getStati());
             return;
         }
@@ -1325,10 +1364,10 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             stat.cancelPoisonSchedule(this);
             final MapleCharacter con = getController();
             if (con != null) {
-                map.broadcastMessage(con, MobPacket.cancelPoison(this.getObjectId(), stat), getTruePosition());
-                con.getClient().sendPacket(MobPacket.cancelPoison(this.getObjectId(), stat));
+                map.broadcastMessage(con, MobPacket.cancelMonsterStatus(this, stat), getTruePosition());
+                con.getClient().getSession().writeAndFlush(MobPacket.cancelMonsterStatus(this, stat));
             } else {
-                map.broadcastMessage(MobPacket.cancelPoison(this.getObjectId(), stat), getTruePosition());
+                map.broadcastMessage(MobPacket.cancelMonsterStatus(this, stat), getTruePosition());
             }
         } finally {
             poisonsLock.writeLock().unlock();

@@ -22,20 +22,18 @@ package handling.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
+import handling.RecvPacketOpcode;
 import handling.SendPacketOpcode;
 import handling.channel.ChannelServer;
 import handling.world.MapleMessenger;
 import handling.world.MapleMessengerCharacter;
 import handling.world.World;
+import scripting.NPCConversationManager;
+import scripting.NPCScriptManager;
 import server.WordFilter;
-import tools.HexTool;
 import tools.data.LittleEndianAccessor;
-import tools.data.MaplePacketLittleEndianWriter;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ChatHandler {
 
@@ -55,21 +53,6 @@ public class ChatHandler {
         text = WordFilter.illegalArrayCheck(text, client.getPlayer());
 
         if (text.equals("s")) {
-            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-            mplew.writeShort(SendPacketOpcode.NPC_TALK.getValue());
-            mplew.write(4);
-            mplew.writeInt(0x7D0);
-            mplew.write(0x14);
-            mplew.write(0);
-            ///
-            mplew.write(0);
-            mplew.writeMapleAsciiString("123");
-            mplew.writeInt(10);
-            mplew.writeInt(10);
-            mplew.writeInt(10);
-            mplew.writeInt(10);
-            mplew.writeInt(30);
-            client.sendPacket(mplew.getPacket());
             return;
         }
 

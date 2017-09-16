@@ -214,8 +214,7 @@ public class NPCHandler {
                 }
                 //c.getPlayer().updateTick(slea.readInt());
                 NPCScriptManager.getInstance().endQuest(c, npc, quest, false);
-                c.sendPacket(EffectPacket.showForeignEffect(12)); // Quest completion
-                chr.getMap().broadcastMessage(chr, EffectPacket.showForeignEffect(chr.getId(), 12), false);
+
                 break;
             }
         }

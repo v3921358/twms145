@@ -2155,8 +2155,10 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     public void setHpMp(int hpmp) {
         getStat().setHp(hpmp, this);
         updateSingleStat(MapleStat.HP, hpmp);
+        updateSingleStat(MapleStat.MAX_HP, getStat().getCurrentMaxHp());
         getStat().setMp(hpmp, this);
         updateSingleStat(MapleStat.MP, hpmp);
+        updateSingleStat(MapleStat.MAX_MP, getStat().getCurrentMaxMp(this.job));
     }
 
     public int pvpVictim() {
@@ -4011,10 +4013,10 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                 }
                 stats.setInfo(maxhp, maxmp, maxhp, maxmp);
                 Map<MapleStat, Integer> statup = new EnumMap<>(MapleStat.class);
-                statup.put(MapleStat.MAX_HP, Integer.valueOf(maxhp));
-                statup.put(MapleStat.MAX_MP, Integer.valueOf(maxmp));
-                statup.put(MapleStat.HP, Integer.valueOf(maxhp));
-                statup.put(MapleStat.MP, Integer.valueOf(maxmp));
+                statup.put(MapleStat.MAX_HP, maxhp);
+                statup.put(MapleStat.MAX_MP, maxmp);
+                statup.put(MapleStat.HP, maxhp);
+                statup.put(MapleStat.MP, maxmp);
                 characterCard.recalcLocalStats(this);
                 stats.recalcLocalStats(this);
                 client.sendPacket(CWvsContext.updatePlayerStats(statup, this));

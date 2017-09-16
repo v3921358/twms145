@@ -257,17 +257,15 @@ public class MobSkill {
 
             case 129: // Banish
                 if (monster != null && monster.getMap().getSquadByMap() == null) { //not pb/vonleon map
-                    if (monster.getEventInstance() != null && monster.getEventInstance().getName().indexOf("BossQuest") != -1) {
+                    if (monster.getEventInstance() != null && monster.getEventInstance().getName().contains("BossQuest")) {
                         break;
                     }
                     final BanishInfo info = monster.getStats().getBanishInfo();
                     if (info != null) {
                         if (lt != null && rb != null && skill && player != null) {
-                            for (MapleCharacter chr : getPlayersInRange(monster, player)) {
-                                if (!chr.hasBlockedInventory()) {
-                                    chr.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
-                                }
-                            }
+                            getPlayersInRange(monster, player).stream().filter(chr -> !chr.hasBlockedInventory()).forEach(chr -> {
+                                chr.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
+                            });
                         } else if (player != null && !player.hasBlockedInventory()) {
                             player.changeMapBanish(info.getMap(), info.getPortal(), info.getMsg());
                         }
@@ -370,10 +368,10 @@ public class MobSkill {
         if (stats.size() > 0 && monster != null) {
             if (lt != null && rb != null && skill) {
                 for (MapleMapObject mons : getObjectsInRange(monster, MapleMapObjectType.MONSTER)) {
-                    ((MapleMonster) mons).applyMonsterBuff(stats, getSkillId(), getDuration(), this, reflection);
+                    ((MapleMonster) mons).applyMonsterBuff(stats, getX(), getSkillId(), getDuration(), this, reflection);
                 }
             } else {
-                monster.applyMonsterBuff(stats, getSkillId(), getDuration(), this, reflection);
+                monster.applyMonsterBuff(stats, getX(), getSkillId(), getDuration(), this, reflection);
             }
         }
         if (disease != null && player != null) {

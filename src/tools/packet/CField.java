@@ -2911,7 +2911,7 @@ public class CField {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
             mplew.writeShort(SendPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
-            mplew.write(26);
+            mplew.write(0x19);
             mplew.writeMapleAsciiString(data);
             mplew.writeInt(1);
 
