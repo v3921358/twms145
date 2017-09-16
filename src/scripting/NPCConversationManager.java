@@ -46,7 +46,7 @@ import server.quest.MapleQuest;
 import tools.FileoutputUtil;
 import tools.StringUtil;
 import tools.packet.CField;
-import tools.packet.CField.NPCPacket;
+import tools.packet.CField.NPCTalkPacket;
 import tools.packet.CField.UIPacket;
 import tools.packet.CWvsContext;
 import tools.packet.CWvsContext.GuildPacket;
@@ -75,11 +75,11 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     public long MRushAmount = 700000000000L;
     public long Mesos = getPlayer().getMeso();
     private String getText;
-    private byte type; // -1 = NPC, 0 = start quest, 1 = end quest
-    private byte lastMsg = -1;
+    private final ScriptType type; // -1 = NPC, 0 = start quest, 1 = end quest
+    private NPCTalkType lastMsg = null;
     private Invocable iv;
 
-    public NPCConversationManager(MapleClient c, int npc, int questid, byte type, Invocable iv) {
+    public NPCConversationManager(MapleClient c, int npc, int questid, ScriptType type, Invocable iv) {
         super(c, npc, questid);
         this.type = type;
         this.iv = iv;
@@ -119,7 +119,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return ret.toString();
     }
 
-    public byte getType() {
+    public ScriptType getType() {
         return type;
     }
 
@@ -135,37 +135,19 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         NPCScriptManager.getInstance().dispose(c);
     }
 
-    public void askMapSelection(final String sel) {
-        if (lastMsg > -1) {
-            return;
-        }
-        c.sendPacket(NPCPacket.getMapSelection(id, sel));
-        lastMsg = (byte) (GameConstants.GMS ? 0x11 : 0x10);
-    }
-
-    public void askBuffSelection(final String sel) {
-        if (lastMsg > -1) {
-            return;
-        }
-        c.sendPacket(NPCPacket.getBuffSelection(id, sel));
-        lastMsg = (byte) 17;
-    }
-
     public void sendNext(String text) {
         sendNext(text, id);
     }
 
     public void sendNext(String text, int id) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { //sendNext will dc otherwise!
             sendSimple(text);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 0, text, "00 01", (byte) 0));
-        lastMsg = 0;
+        lastMsg = NPCTalkType.NEXT_PREV;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "00 01", (byte) 0));
     }
+
 
     public void sendPlayerToNpc(String text) {
         sendNextS(text, (byte) 3, id);
@@ -183,16 +165,13 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         sendNextS(text, type, id);
     }
 
-    public void sendNextS(String text, byte type, int idd) {
-        if (lastMsg > -1) {
-            return;
-        }
+    public void sendNextS(String text, byte type, int npcid) {
         if (text.contains("#L")) { // will dc otherwise!
             sendSimpleS(text, type);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 0, text, "00 01", type, idd));
-        lastMsg = 0;
+        lastMsg = NPCTalkType.NEXT_PREV;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(npcid, lastMsg, text, "00 01", type, npcid));
     }
 
     public void sendPrev(String text) {
@@ -200,15 +179,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendPrev(String text, int id) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimple(text);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 0, text, "01 00", (byte) 0));
-        lastMsg = 0;
+        lastMsg = NPCTalkType.NEXT_PREV;
+        c.getSession().writeAndFlush(CField.NPCTalkPacket.getNPCTalk(id, lastMsg, text, "01 00", (byte) 0));
     }
 
     public void sendPrevS(String text, byte type) {
@@ -216,15 +192,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendPrevS(String text, byte type, int idd) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimpleS(text, type);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 0, text, "01 00", type, idd));
-        lastMsg = 0;
+        lastMsg = NPCTalkType.NEXT_PREV;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "01 00", type, idd));
     }
 
     public void sendNextPrev(String text) {
@@ -232,15 +205,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendNextPrev(String text, int id) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimple(text);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 0, text, "01 01", (byte) 0));
-        lastMsg = 0;
+        lastMsg = NPCTalkType.NEXT_PREV;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "01 01", (byte) 0));
     }
 
     public void PlayerToNpc(String text) {
@@ -255,16 +225,13 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         sendNextPrevS(text, type, id);
     }
 
-    public void sendNextPrevS(String text, byte type, int idd) {
-        if (lastMsg > -1) {
-            return;
-        }
+    public void sendNextPrevS(String text, byte type, int npcid) {
         if (text.contains("#L")) { // will dc otherwise!
             sendSimpleS(text, type);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 0, text, "01 01", type, idd));
-        lastMsg = 0;
+        lastMsg = NPCTalkType.NEXT_PREV;
+        c.getSession().writeAndFlush(CField.NPCTalkPacket.getNPCTalk(npcid, lastMsg, text, "01 01", type, npcid));
     }
 
     public void sendOk(String text) {
@@ -272,15 +239,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendOk(String text, int id) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimple(text);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 0, text, "00 00", (byte) 0));
-        lastMsg = 0;
+        lastMsg = NPCTalkType.NEXT_PREV;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "00 00", (byte) 0));
     }
 
     public void sendOkS(String text, byte type) {
@@ -288,15 +252,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendOkS(String text, byte type, int idd) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimpleS(text, type);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 0, text, "00 00", type, idd));
-        lastMsg = 0;
+        lastMsg = NPCTalkType.NEXT_PREV;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "00 00", type, idd));
     }
 
     public void sendYesNo(String text) {
@@ -304,15 +265,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendYesNo(String text, int id) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimple(text);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 2, text, "", (byte) 0));
-        lastMsg = 2;
+        lastMsg = NPCTalkType.YES_NO;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "", (byte) 0));
     }
 
     public void sendYesNoS(String text, byte type) {
@@ -320,15 +278,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendYesNoS(String text, byte type, int idd) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimpleS(text, type);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 2, text, "", type, idd));
-        lastMsg = 2;
+        lastMsg = NPCTalkType.YES_NO;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "", type, idd));
     }
 
     public void sendAcceptDecline(String text) {
@@ -344,15 +299,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void askAcceptDecline(String text, int id) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimple(text);
             return;
         }
-        lastMsg = (byte) (GameConstants.GMS ? 0xF : 0xE);
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) lastMsg, text, "", (byte) 0));
+        lastMsg = NPCTalkType.ACCEPT_DECLINE;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "", (byte) 0));
     }
 
     public void askAcceptDeclineNoESC(String text) {
@@ -360,23 +312,17 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void askAcceptDeclineNoESC(String text, int id) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimple(text);
             return;
         }
-        lastMsg = (byte) (GameConstants.GMS ? 0xF : 0xE);
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) lastMsg, text, "", (byte) 1));
+        lastMsg = NPCTalkType.ACCEPT_DECLINE;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "", (byte) 1));
     }
 
     public void askAvatar(String text, int... args) {
-        if (lastMsg > -1) {
-            return;
-        }
-        c.sendPacket(NPCPacket.getNPCTalkStyle(id, text, args));
-        lastMsg = 9;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalkStyle(id, text, args));
+        lastMsg = NPCTalkType.PET;
     }
 
     public void sendSimple(String text) {
@@ -384,15 +330,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendSimple(String text, int id) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (!text.contains("#L")) { //sendSimple will dc otherwise!
             sendNext(text);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 5, text, "", (byte) 0));
-        lastMsg = 5;
+        lastMsg = NPCTalkType.SELECTION;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, lastMsg, text, "", (byte) 0));
     }
 
     public void sendSimpleS(String text, byte type) {
@@ -400,43 +343,31 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendSimpleS(String text, byte type, int idd) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (!text.contains("#L")) { //sendSimple will dc otherwise!
             sendNextS(text, type);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalk(id, (byte) 5, text, "", (byte) type, idd));
-        lastMsg = 5;
+        lastMsg = NPCTalkType.SELECTION;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalk(id, NPCTalkType.SELECTION, text, "", type, idd));
     }
 
     public void sendStyle(String text, int styles[]) {
-        if (lastMsg > -1) {
-            return;
-        }
-        c.sendPacket(NPCPacket.getNPCTalkStyle(id, text, styles));
-        lastMsg = 9;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalkStyle(id, text, styles));
+        lastMsg = NPCTalkType.ANDROID;
     }
 
     public void askAndroid(String text, int... args) {
-        if (lastMsg > -1) {
-            return;
-        }
-        c.sendPacket(NPCPacket.getAndroidTalkStyle(id, text, args));
-        lastMsg = 10;
+        c.getSession().writeAndFlush(CField.NPCTalkPacket.getAndroidTalkStyle(id, text, args));
+        lastMsg = NPCTalkType.PET;
     }
 
     public void sendGetNumber(String text, int def, int min, int max) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimple(text);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalkNum(id, text, def, min, max));
-        lastMsg = 4;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalkNum(id, text, def, min, max));
+        lastMsg = NPCTalkType.INPUT_NUMBER;
     }
 
     public void sendGetText(String text) {
@@ -444,15 +375,12 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void sendGetText(String text, int id) {
-        if (lastMsg > -1) {
-            return;
-        }
         if (text.contains("#L")) { // will dc otherwise!
             sendSimple(text);
             return;
         }
-        c.sendPacket(NPCPacket.getNPCTalkText(id, text));
-        lastMsg = 3;
+        c.getSession().writeAndFlush(NPCTalkPacket.getNPCTalkText(id, text));
+        lastMsg = NPCTalkType.INPUT_TEXT;
     }
 
     public void setGetText(String text) {
@@ -2096,11 +2024,11 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         return false;
     }
 
-    public byte getLastMsg() {
+    public NPCTalkType getLastMsg() {
         return lastMsg;
     }
 
-    public final void setLastMsg(final byte last) {
+    public final void setLastMsg(final NPCTalkType last) {
         this.lastMsg = last;
     }
 
@@ -2436,8 +2364,8 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         for (MapleMapObject npcs : c.getPlayer().getMap().getAllNPCsThreadsafe()) {
             MapleNPC npc = (MapleNPC) npcs;
             if (npc.getId() == npcid) {
-                c.sendPacket(NPCPacket.removeNPCController(npc.getObjectId()));
-                c.sendPacket(NPCPacket.removeNPC(npc.getObjectId()));
+                c.sendPacket(NPCTalkPacket.removeNPCController(npc.getObjectId()));
+                c.sendPacket(NPCTalkPacket.removeNPC(npc.getObjectId()));
             }
         }
     }

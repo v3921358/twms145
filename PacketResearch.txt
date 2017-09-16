@@ -3,3 +3,81 @@ CStage::OnPacket 可追蹤到 CLogin::OnPacket
 
 "1F 00" 出現更改角色名稱的選單
 
+
+NPC_TALKE
+
+msgType :
+
+0 : 下一頁、上一頁
+
+1 : 圖片顯示
+
+2 : 是、否
+
+3 : 輸入字串
+
+    [str] [str] [short] [short]
+    內容、預設值、最小、最大長度
+
+4 : 輸入數字
+
+   [str] [int] [int] [int]
+
+   內容、預設值、最小、最大
+
+5 : NEXT
+
+6 : 計時輸入字串
+
+   [byte] [str] [str] [str] [int] [int] [int]
+   開關、字串、題目、提示、某種長度、某種長度、時間(秒)
+
+7 : 怪物、NPC猜猜樂
+
+   [byte] [int] [int]
+   開關、種類(1:Mob,0:NPC)、NPC or MOB ID、分數、剩下幾題、時間(秒)
+
+8 :
+
+9 : 臉型?
+
+    [str] [byte] * [int]
+
+    字串、造型數量、造型ID
+
+10 : 髮型
+
+     [str] [byte] * [int]
+
+        字串、造型數量、造型ID
+
+11 : PET
+     [str] [byte1] byte1*( [long] [byte] )
+
+12 : PET_ANDROID
+
+    [str] [byte1] [byte2] byte1*( [long] [byte] )
+
+14 : 接受、拒絕
+   [str]
+   內容
+
+15 : 輸入多行文字
+
+   [str] [str] [short] [short]
+
+   內容、預設字串、長度、高度
+
+
+16 :
+
+    [4]
+
+
+
+
+
+
+
+
+

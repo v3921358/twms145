@@ -57,7 +57,7 @@ public class NPCScriptManager extends AbstractScriptManager {
                     }
                 }
                 final ScriptEngine scriptengine = (ScriptEngine) iv;
-                final NPCConversationManager cm = new NPCConversationManager(c, npc, -1, (byte) -1, iv);
+                final NPCConversationManager cm = new NPCConversationManager(c, npc, -1, ScriptType.NPC, iv);
                 cms.put(c, cm);
                 scriptengine.put("cm", cm);
 
@@ -82,7 +82,7 @@ public class NPCScriptManager extends AbstractScriptManager {
     public final void action(final MapleClient c, final byte mode, final byte type, final int selection) {
         if (mode != -1) {
             final NPCConversationManager cm = cms.get(c);
-            if (cm == null || cm.getLastMsg() > -1) {
+            if (cm == null || cm.getLastMsg() != null) {
                 return;
             }
             final Lock lock = c.getNPCLock();
@@ -119,7 +119,7 @@ public class NPCScriptManager extends AbstractScriptManager {
                     return;
                 }
                 final ScriptEngine scriptengine = (ScriptEngine) iv;
-                final NPCConversationManager cm = new NPCConversationManager(c, npc, quest, (byte) 0, iv);
+                final NPCConversationManager cm = new NPCConversationManager(c, npc, quest, ScriptType.QUEST_START, iv);
                 cms.put(c, cm);
                 scriptengine.put("qm", cm);
 
@@ -140,7 +140,7 @@ public class NPCScriptManager extends AbstractScriptManager {
     public final void startQuest(final MapleClient c, final byte mode, final byte type, final int selection) {
         final Lock lock = c.getNPCLock();
         final NPCConversationManager cm = cms.get(c);
-        if (cm == null || cm.getLastMsg() > -1) {
+        if (cm == null || cm.getLastMsg() == null) {
             return;
         }
         lock.lock();
@@ -174,7 +174,7 @@ public class NPCScriptManager extends AbstractScriptManager {
                     return;
                 }
                 final ScriptEngine scriptengine = (ScriptEngine) iv;
-                final NPCConversationManager cm = new NPCConversationManager(c, npc, quest, (byte) 1, iv);
+                final NPCConversationManager cm = new NPCConversationManager(c, npc, quest, ScriptType.QUEST_END, iv);
                 cms.put(c, cm);
                 scriptengine.put("qm", cm);
 
@@ -195,7 +195,7 @@ public class NPCScriptManager extends AbstractScriptManager {
     public final void endQuest(final MapleClient c, final byte mode, final byte type, final int selection) {
         final Lock lock = c.getNPCLock();
         final NPCConversationManager cm = cms.get(c);
-        if (cm == null || cm.getLastMsg() > -1) {
+        if (cm == null || cm.getLastMsg() == null) {
             return;
         }
         lock.lock();
@@ -219,7 +219,7 @@ public class NPCScriptManager extends AbstractScriptManager {
         final NPCConversationManager npccm = cms.get(c);
         if (npccm != null) {
             cms.remove(c);
-            if (npccm.getType() == -1) {
+            if (npccm.getType() == null) {
                 c.removeScriptEngine("scripts/npc/" + npccm.getNpc() + ".js");
                 c.removeScriptEngine("scripts/npc/notcoded.js");
             } else {

@@ -7,7 +7,7 @@ import client.inventory.MapleInventoryType;
 import constants.GameConstants;
 import database.DatabaseConnection;
 import database.DatabaseException;
-import tools.packet.CField.NPCPacket;
+import tools.packet.CField.NPCTalkPacket;
 import tools.types.Pair;
 
 import java.io.Serializable;
@@ -195,19 +195,19 @@ public class MapleStorage implements Serializable {
         for (MapleInventoryType type : MapleInventoryType.values()) {
             typeItems.put(type, items);
         }
-        c.sendPacket(NPCPacket.getStorage(npcId, slots, items, meso));
+        c.sendPacket(NPCTalkPacket.getStorage(npcId, slots, items, meso));
     }
 
     public void update(MapleClient c) {
-        c.sendPacket(NPCPacket.arrangeStorage(slots, items, true));
+        c.sendPacket(NPCTalkPacket.arrangeStorage(slots, items, true));
     }
 
     public void sendStored(MapleClient c, MapleInventoryType type) {
-        c.sendPacket(NPCPacket.storeStorage(slots, type, typeItems.get(type)));
+        c.sendPacket(NPCTalkPacket.storeStorage(slots, type, typeItems.get(type)));
     }
 
     public void sendTakenOut(MapleClient c, MapleInventoryType type) {
-        c.sendPacket(NPCPacket.takeOutStorage(slots, type, typeItems.get(type)));
+        c.sendPacket(NPCTalkPacket.takeOutStorage(slots, type, typeItems.get(type)));
     }
 
     public int getMeso() {
@@ -232,7 +232,7 @@ public class MapleStorage implements Serializable {
     }
 
     public void sendMeso(MapleClient c) {
-        c.sendPacket(NPCPacket.mesoStorage(slots, meso));
+        c.sendPacket(NPCTalkPacket.mesoStorage(slots, meso));
     }
 
     public boolean isFull() {

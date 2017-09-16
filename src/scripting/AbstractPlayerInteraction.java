@@ -44,7 +44,6 @@ import server.quest.MapleQuest;
 import tools.FileoutputUtil;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
-import tools.packet.CField.NPCPacket;
 import tools.packet.CField.UIPacket;
 import tools.packet.CWvsContext;
 import tools.packet.CWvsContext.InfoPacket;
@@ -1104,7 +1103,7 @@ public abstract class AbstractPlayerInteraction {
     }
 
     // public final void evanTutorial(final String data, final int v1) {
-    //   c.sendPacket(NPCPacket.getEvanTutorial(data));
+    //   c.sendPacket(NPCTalkPacket.getEvanTutorial(data));
     // }
 
     public final void AranTutInstructionalBubble(final String data) {
@@ -1238,7 +1237,7 @@ public abstract class AbstractPlayerInteraction {
     }
 
     public void sendNPCText(final String text, final int npc) {
-        getMap().broadcastMessage(NPCPacket.getNPCTalk(npc, (byte) 0, text, "00 00", (byte) 0));
+        getMap().broadcastMessage(CField.NPCTalkPacket.getNPCTalk(npc, NPCTalkType.NEXT_PREV, text, "00 00", (byte) 0));
     }
 
     public boolean getTempFlag(final int flag) {

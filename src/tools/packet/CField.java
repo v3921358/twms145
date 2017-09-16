@@ -24,6 +24,7 @@ import constants.GameConstants;
 import handling.SendPacketOpcode;
 import handling.world.World;
 import handling.world.guild.MapleGuild;
+import scripting.NPCTalkType;
 import server.MapleDueyActions;
 import server.MapleShop;
 import server.MapleTrade;
@@ -3323,7 +3324,7 @@ public class CField {
         }
     }
 
-    public static class NPCPacket {
+    public static class NPCTalkPacket {
 
         public static byte[] spawnNPC(MapleNPC life, boolean show) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
@@ -3392,17 +3393,17 @@ public class CField {
             return mplew.getPacket();
         }
 
-        public static byte[] getNPCTalk(int npc, byte msgType, String talk, String endBytes, byte type) {
+        public static byte[] getNPCTalk(int npc, NPCTalkType msgType, String talk, String endBytes, byte type) {
             return getNPCTalk(npc, msgType, talk, endBytes, type, npc);
         }
 
-        public static byte[] getNPCTalk(int npc, byte msgType, String talk, String endBytes, byte type, int diffNPC) {
+        public static byte[] getNPCTalk(int npc, NPCTalkType msgType, String talk, String endBytes, byte type, int diffNPC) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
             mplew.writeShort(SendPacketOpcode.NPC_TALK.getValue());
             mplew.write(4);
             mplew.writeInt(npc);
-            mplew.write(msgType);
+            mplew.write(msgType.getType());
             mplew.write(type); // mask; 1 = no ESC, 2 = playerspeaks, 4 = diff NPC 8 = something, ty KDMS
             if ((type & 0x4) != 0) {
                 mplew.writeInt(diffNPC);

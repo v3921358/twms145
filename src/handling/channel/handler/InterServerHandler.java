@@ -295,7 +295,7 @@ public class InterServerHandler {
         player.saveToDB(false, false);
         //final List<Pair<Integer, String>> ii = new LinkedList<>();
         //ii.add(new Pair<>(10000, "Pio"));
-        //player.getClient().sendPacket(CField.NPCPacket.setNPCScriptable(ii));
+        //player.getClient().sendPacket(CField.NPCTalkPacket.setNPCScriptable(ii));
     }
 
     public static void ChangeChannel(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr, final boolean room) {

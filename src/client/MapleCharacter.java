@@ -3927,7 +3927,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                  //  expandInventory((byte) 2, 4);
                  //  expandInventory((byte) 3, 4);
                  //  expandInventory((byte) 4, 4);
-                 client.sendPacket(NPCPacket.getEvanTutorial("UI/tutorial/evan/14/0"));
+                 client.sendPacket(NPCTalkPacket.getEvanTutorial("UI/tutorial/evan/14/0"));
                  dropMessage(5, "The baby Dragon hatched and appears to have something to tell you. Click the baby Dragon to start a conversation.");
                  }
                  }
@@ -10735,5 +10735,13 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         }
     }
 
+
+    public void showInfo(String caption, boolean pink, String msg) {
+        short type = (short) (pink ? 11 : 6);
+        if (caption != null && !caption.isEmpty()) {
+            msg = "[" + caption + "] " + msg;
+        }
+        dropMessage(-1, msg);
+    }
 
 }

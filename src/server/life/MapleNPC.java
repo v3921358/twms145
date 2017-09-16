@@ -23,7 +23,8 @@ package server.life;
 import client.MapleClient;
 import server.MapleShopFactory;
 import server.maps.MapleMapObjectType;
-import tools.packet.CField.NPCPacket;
+import tools.packet.CField;
+import tools.packet.CField.NPCTalkPacket;
 
 public class MapleNPC extends AbstractLoadedMapleLife {
 
@@ -48,15 +49,15 @@ public class MapleNPC extends AbstractLoadedMapleLife {
         if (getId() >= 9901000) {
             return;
         } else {
-            client.sendPacket(NPCPacket.spawnNPC(this, true));
-            client.sendPacket(NPCPacket.spawnNPCRequestController(this, true));
+            client.sendPacket(CField.NPCTalkPacket.spawnNPC(this, true));
+            client.sendPacket(CField.NPCTalkPacket.spawnNPCRequestController(this, true));
         }
     }
 
     @Override
     public final void sendDestroyData(final MapleClient client) {
-        client.sendPacket(NPCPacket.removeNPCController(getObjectId()));
-        client.sendPacket(NPCPacket.removeNPC(getObjectId()));
+        client.sendPacket(NPCTalkPacket.removeNPCController(getObjectId()));
+        client.sendPacket(CField.NPCTalkPacket.removeNPC(getObjectId()));
     }
 
     @Override

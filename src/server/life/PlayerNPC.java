@@ -33,7 +33,7 @@ import handling.login.LoginServer;
 import handling.world.MapleCharacterLook;
 import handling.world.World;
 import server.maps.MapleMap;
-import tools.packet.CField.NPCPacket;
+import tools.packet.CField.NPCTalkPacket;
 import tools.packet.CWvsContext;
 
 import java.awt.*;
@@ -310,9 +310,9 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
 
     @Override
     public void sendSpawnData(MapleClient client) {
-        client.sendPacket(NPCPacket.spawnNPC(this, true));
+        client.sendPacket(NPCTalkPacket.spawnNPC(this, true));
         client.sendPacket(CWvsContext.spawnPlayerNPC(this, client));
-        client.sendPacket(NPCPacket.spawnNPCRequestController(this, true));
+        client.sendPacket(NPCTalkPacket.spawnNPCRequestController(this, true));
     }
 
     public MapleNPC getNPCFromWZ() {

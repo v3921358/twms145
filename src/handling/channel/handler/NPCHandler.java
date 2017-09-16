@@ -28,9 +28,12 @@ import client.inventory.Equip;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import constants.GameConstants;
+import constants.ServerConstants;
 import handling.SendPacketOpcode;
 import scripting.NPCConversationManager;
 import scripting.NPCScriptManager;
+import scripting.NPCTalkType;
+import scripting.ScriptType;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
 import server.MapleShop;
@@ -41,7 +44,7 @@ import tools.data.LittleEndianAccessor;
 import tools.data.MaplePacketLittleEndianWriter;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
-import tools.packet.CField.NPCPacket;
+import tools.packet.CField.NPCTalkPacket;
 import tools.packet.CWvsContext;
 import tools.types.Pair;
 
@@ -260,7 +263,7 @@ public class NPCHandler {
                     return;
                 }
                 if (storage.isFull()) {
-                    c.sendPacket(NPCPacket.getStorageFull());
+                    c.sendPacket(NPCTalkPacket.getStorageFull());
                     return;
                 }
                 if (chr.getInventory(type).getItem(slot) == null) {
@@ -361,51 +364,73 @@ public class NPCHandler {
     }
 
     public static void NPCMoreTalk(final LittleEndianAccessor slea, final MapleClient c) {
-        final byte lastMsg = slea.readByte(); // 00 (last msg type I think)
-        final byte action = slea.readByte(); // 00 = end chat, 01 == follow
+        final NPCTalkType lastMsg = NPCTalkType.getNPCTalkType(slea.readByte()); // 00 (last msg type I think)
 
+        if (lastMsg == NPCTalkType.AVATAR && slea.available() >= 4) {
+            slea.readShort();
+        }
+
+        byte action = -1;
+
+        if (slea.available() > 0) {
+            action = slea.readByte(); // 00 = end chat, 01 == follow
+        }
 
         final NPCConversationManager cm = NPCScriptManager.getInstance().getCM(c);
 
         if (cm == null || c.getPlayer().getConversation() == 0 || cm.getLastMsg() != lastMsg) {
+            if (ServerConstants.DEBUG) {
+                c.getPlayer().showInfo("NPC交談", true, "cm(=null:" + (cm == null) + ") Conversation(" + c.getPlayer().getConversation() + ") lastMsg(cm.lastMsg:" + (cm == null ? 0 : cm.getLastMsg()) + " lastMsg:" + lastMsg + ")");
+            }
             return;
         }
-        cm.setLastMsg((byte) -1);
-        if (lastMsg == 3) {
-            if (action != 0) {
-                cm.setGetText(slea.readMapleAsciiString());
-                if (cm.getType() == 0) {
-                    NPCScriptManager.getInstance().startQuest(c, action, lastMsg, -1);
-                } else if (cm.getType() == 1) {
-                    NPCScriptManager.getInstance().endQuest(c, action, lastMsg, -1);
-                } else {
-                    NPCScriptManager.getInstance().action(c, action, lastMsg, -1);
-                }
-            } else {
-                cm.dispose();
+        cm.setLastMsg(null);
+
+        int selection = -1;
+        if (lastMsg == NPCTalkType.INPUT_TEXT) {
+        } else if (slea.available() >= 4) {
+            selection = slea.readInt();
+        } else if (slea.available() > 0) {
+            selection = slea.readByte();
+        }
+
+        if(lastMsg == null )
+            return;
+
+        switch (lastMsg) {
+            case IMAGE: {
+                break;
             }
+            case INPUT_TEXT: {
+                if (action != 0) {
+                    cm.setGetText(slea.readMapleAsciiString());
+                } else {
+                    cm.dispose();
+                    return;
+                }
+                break;
+            }
+            case INPUT_NUMBER: {
+                if (selection == -1) {
+                    cm.dispose();
+                    return;
+                }
+                break;
+            }
+            default: {
+                if (selection < -1 || action == -1) {
+                    cm.dispose();
+                    return;
+                }
+            }
+        }
+
+        if (cm.getType() == ScriptType.QUEST_START) {
+            NPCScriptManager.getInstance().startQuest(c, action, lastMsg.getType(), selection);
+        } else if (cm.getType() == ScriptType.QUEST_END) {
+            NPCScriptManager.getInstance().endQuest(c, action, lastMsg.getType(), selection);
         } else {
-            int selection = -1;
-            if (slea.available() >= 4) {
-                selection = slea.readInt();
-            } else if (slea.available() > 0) {
-                selection = slea.readByte();
-            }
-            if (lastMsg == 4 && selection == -1) {
-                cm.dispose();
-                return;//h4x
-            }
-            if (selection >= -1 && action != -1) {
-                if (cm.getType() == 0) {
-                    NPCScriptManager.getInstance().startQuest(c, action, lastMsg, selection);
-                } else if (cm.getType() == 1) {
-                    NPCScriptManager.getInstance().endQuest(c, action, lastMsg, selection);
-                } else {
-                    NPCScriptManager.getInstance().action(c, action, lastMsg, selection);
-                }
-            } else {
-                cm.dispose();
-            }
+            NPCScriptManager.getInstance().action(c, action, lastMsg.getType(), selection);
         }
     }
 

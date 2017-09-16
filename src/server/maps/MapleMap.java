@@ -56,7 +56,7 @@ import tools.FileoutputUtil;
 import tools.StringUtil;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
-import tools.packet.CField.NPCPacket;
+import tools.packet.CField.NPCTalkPacket;
 import tools.packet.CField.SummonPacket;
 import tools.packet.CWvsContext;
 import tools.packet.CWvsContext.PartyPacket;
@@ -1533,7 +1533,7 @@ public final class MapleMap {
         npc.setFh(getFootholds().findBelow(pos).getId());
         npc.setCustom(true);
         addMapObject(npc);
-        broadcastMessage(NPCPacket.spawnNPC(npc, true));
+        broadcastMessage(NPCTalkPacket.spawnNPC(npc, true));
     }
 
     public final void removeNpc(final int npcid) {
@@ -1543,8 +1543,8 @@ public final class MapleMap {
             while (itr.hasNext()) {
                 MapleNPC npc = (MapleNPC) itr.next();
                 if (npc.isCustom() && (npcid == -1 || npc.getId() == npcid)) {
-                    broadcastMessage(NPCPacket.removeNPCController(npc.getObjectId()));
-                    broadcastMessage(NPCPacket.removeNPC(npc.getObjectId()));
+                    broadcastMessage(NPCTalkPacket.removeNPCController(npc.getObjectId()));
+                    broadcastMessage(NPCTalkPacket.removeNPC(npc.getObjectId()));
                     itr.remove();
                 }
             }
@@ -1560,8 +1560,8 @@ public final class MapleMap {
             while (itr.hasNext()) {
                 MapleNPC npc = (MapleNPC) itr.next();
                 if (npcid == -1 || npc.getId() == npcid) {
-                    broadcastMessage(NPCPacket.removeNPCController(npc.getObjectId()));
-                    broadcastMessage(NPCPacket.removeNPC(npc.getObjectId()));
+                    broadcastMessage(NPCTalkPacket.removeNPCController(npc.getObjectId()));
+                    broadcastMessage(NPCTalkPacket.removeNPC(npc.getObjectId()));
                 }
             }
         } finally {
