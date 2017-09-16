@@ -1824,9 +1824,10 @@ public class PlayerStats implements Serializable {
         ignoreTargetDEF += chra.getTrait(MapleTraitType.charisma).getLevel() / 10;
         pvpDamage += chra.getTrait(MapleTraitType.charisma).getLevel() / 10;
 
-        localmaxmp_ += chra.getTrait(MapleTraitType.sense).getLevel() * 20;
 
-        localmaxhp_ += chra.getTrait(MapleTraitType.will).getLevel() * 20;
+        localmaxhp_ += (chra.getTrait(MapleTraitType.will).getLevel() / 5) * 100;// 性向系統血量百分比後處理
+        localmaxhp_ += Math.floor((percent_hp * localmaxhp_) / 100.0f);
+
         ASR += chra.getTrait(MapleTraitType.will).getLevel() / 5;
 
         accuracy += chra.getTrait(MapleTraitType.insight).getLevel() * 15 / 10;
