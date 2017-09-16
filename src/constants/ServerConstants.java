@@ -44,11 +44,9 @@ public class ServerConstants {
     public enum PlayerGMRank {
 
         NORMAL('@', 0),
-        DONATOR('!', 1),
-        SUPERDONATOR('!', 2),
         INTERN('!', 3),
         GM('!', 4),
-        SUPERGM('!', 5),
+        SUPER_GM('!', 5),
         ADMIN('!', 6),
         GOD('!', 100);
         private char commandPrefix;
@@ -68,7 +66,7 @@ public class ServerConstants {
         }
     }
 
-    public static enum CommandType {
+    public enum CommandType {
 
         NORMAL(0),
         TRADE(1);

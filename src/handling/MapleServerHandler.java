@@ -185,7 +185,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
         }
         final short opcode = slea.readShort();
 
-        if (ServerConstants.DEBUG) {
+        if (opcode == RecvPacketOpcode.GENERAL_CHAT.getValue()) {
             RecvPacketOpcode.reloadValues();
             SendPacketOpcode.reloadValues();
         }
@@ -247,13 +247,9 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                     CharLoginHandler.GenderSet(slea, client);
                     break;
                 case VIEW_SERVERLIST:
-//                    if (slea.readByte() == 0) {
-//                        CharLoginHandler.ServerListRequest(client);
-//                    }
                     break;
                 case REDISPLAY_SERVERLIST:
                 case SERVERLIST_REQUEST:
-//                    CharLoginHandler.ServerListRequest(client);
                     break;
                 case CHARLIST_REQUEST:
                     CharLoginHandler.CharlistRequest(slea, client);
@@ -386,13 +382,10 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 PlayerHandler.closeRangeAttack(slea, client, client.getPlayer(), false);
                 break;
             case PART_TIME_JOB:
-                //   /* 652 */       CharLoginHandler.PartTimeJob(slea, c);
-/* 653 */
+                //CharLoginHandler.PartTimeJob(slea, c);
                 break;
             case MAGIC_WHEEL:
-                /* 1301 */
                 InventoryHandler.UseMagicWheel(slea, client, client.getPlayer());
-/* 1302 */
                 break;
             case RANGED_ATTACK:
                 PlayerHandler.rangedAttack(slea, client, client.getPlayer());
@@ -420,7 +413,6 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 PlayersHandler.findFriend(slea, client, client.getPlayer());
                 break;
             case CHANGE_CODEX_SET:
-
                 // 41 = honor level up
                 PlayersHandler.ChangeSet(slea, client, client.getPlayer());
                 break;
@@ -709,11 +701,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 NPCHandler.Storage(slea, client, client.getPlayer());
                 break;
             case GENERAL_CHAT:
-                //System.out.println(HexTool.toString(slea.read((int) slea.available())));
-                if (client.getPlayer() != null && client.getPlayer().getMap() != null) {
-                    slea.readInt();
-                    ChatHandler.GeneralChat(slea.readMapleAsciiString(), slea.readByte(), client, client.getPlayer());
-                }
+                ChatHandler.GeneralChat(slea, client);
                 break;
             case PARTYCHAT:
                 slea.readInt();

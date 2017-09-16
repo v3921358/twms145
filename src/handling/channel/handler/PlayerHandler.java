@@ -1234,9 +1234,6 @@ public class PlayerHandler {
         slea.readShort();
 
         if (res != null && c.getPlayer().getMap() != null) {
-            if (slea.available() < 11 || slea.available() > 26) { // estimation, should be exact 18
-                return;
-            }
             final MapleMap map = c.getPlayer().getMap();
 
             if (chr.isHidden()) {
@@ -1309,24 +1306,26 @@ public class PlayerHandler {
     }
 
     public static void ChangeMap(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+        /**
+         *
+         * 40 00
+         * 01
+         * FF FF FF FF
+         * 05 00 6F 75 74 30 30 36 04 E5 01 00 00 00 00 00 00
+         *
+         * **/
         if (chr == null || chr.getMap() == null) {
             return;
         }
         if (slea.available() != 0) {
             //slea.skip(6); //D3 75 00 00 00 00
             slea.readByte(); // 1 = from dying 2 = regular portals
-            int targetid = slea.readInt(); // FF FF FF FF
-            if (GameConstants.GMS) { //todo jump?
-                slea.readInt();
-            }
+            int targetId = slea.readInt(); // FF FF FF FF
+
             final MaplePortal portal = chr.getMap().getPortal(slea.readMapleAsciiString());
-            if (slea.available() >= 7) {
-                slea.readInt();
-            }
             slea.skip(1);
             final boolean wheel = slea.readShort() > 0 && !GameConstants.isEventMap(chr.getMapId()) && chr.haveItem(5510000, 1, false, true) && chr.getMapId() / 1000000 != 925;
-
-            if (targetid != -1 && !chr.isAlive()) {
+            if (targetId != -1 && !chr.isAlive()) {
                 chr.setStance(0);
                 if (chr.getEventInstance() != null && chr.getEventInstance().revivePlayer(chr) && chr.isAlive()) {
                     return;
@@ -1350,8 +1349,8 @@ public class PlayerHandler {
                     final MapleMap to = chr.getMap();
                     chr.changeMap(to, to.getPortal(0));
                 }
-            } else if (targetid != -1 && chr.isIntern()) {
-                final MapleMap to = ChannelServer.getInstance(c.getWorld(), c.getChannel()).getMapFactory().getMap(targetid);
+            } else if (targetId != -1 && chr.isIntern()) {
+                final MapleMap to = ChannelServer.getInstance(c.getWorld(), c.getChannel()).getMapFactory().getMap(targetId);
                 if (to != null) {
                     chr.changeMap(to, to.getPortal(0));
                 } else {

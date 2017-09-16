@@ -4799,31 +4799,23 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     }
 
     public boolean isSuperGM() {
-        return true;
+        return gmLevel >= PlayerGMRank.SUPER_GM.getLevel();
     }
 
     public boolean isIntern() {
-        return gmLevel >= 3;
+        return gmLevel  >= PlayerGMRank.INTERN.getLevel();
     }
 
     public boolean isGM() {
-        return gmLevel >= 3;
-    }
-
-    public boolean superGM() {
-        return gmLevel >= 5;
+        return gmLevel  >= PlayerGMRank.GM.getLevel();
     }
 
     public boolean isAdmin() {
         return gmLevel >= PlayerGMRank.ADMIN.getLevel();
     }
 
-    public boolean isOwner() {
-        return gmLevel >= 6;
-    }
-
     public boolean isGod() {
-        return gmLevel >= 100;
+        return gmLevel >= PlayerGMRank.GOD.getLevel();
     }
 
     public void toggleHide(boolean login, boolean yes) {

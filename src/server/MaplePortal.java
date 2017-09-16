@@ -98,7 +98,7 @@ public class MaplePortal {
 
 
     public final void enterPortal(final MapleClient c) {
-        if (getPosition().distanceSq(c.getPlayer().getPosition()) > 40000 && !c.getPlayer().isGM()) {
+        if (getPosition().distanceSq(c.getPlayer().getPosition()) > 40000) {
             c.sendPacket(CWvsContext.enableActions());
             return;
         }

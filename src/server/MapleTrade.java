@@ -208,23 +208,23 @@ public class MapleTrade {
     }
 
     public final void chat(String message) {
-        message = WordFilter.illegalArrayCheck(message, chr.get());
-        if (chr.get().getMap().getId() == GameConstants.JAIL) {
-            chr.get().dropMessage(5, "You're in jail, herp derp.");
-            chr.get().getClient().sendPacket(CWvsContext.enableActions());
-            return;
-        }
-        if (chr.get().isMuted() || (chr.get().getMap().getMuted() && !chr.get().isGM())) {
-            chr.get().dropMessage(5, chr.get().isMuted() ? "You are Muted, therefore you are unable to talk. " : "The map is Muted, therefore you are unable to talk.");
-            chr.get().getClient().sendPacket(CWvsContext.enableActions());
-            return;
-        }
-        if (!CommandProcessor.processCommand(chr.get().getClient(), message, CommandType.TRADE)) {
-            chr.get().dropMessage(-2, chr.get().getName() + " : " + message);
-            if (partner != null) {
-                partner.getChr().getClient().sendPacket(PlayerShopPacket.shopChat(chr.get().getName() + " : " + message, 1));
+        MapleCharacter player = chr.get();
+        if(player != null){
+            message = WordFilter.illegalArrayCheck(message, chr.get());
+            if (player.getMap().getId() == GameConstants.JAIL) {
+                player.dropMessage(5, "You're in jail, herp derp.");
+                player.getClient().sendPacket(CWvsContext.enableActions());
+            } else if (player.isMuted() || (player.getMap().getMuted() && !player.isGM())) {
+                player.dropMessage(5, player.isMuted() ? "You are Muted, therefore you are unable to talk. " : "The map is Muted, therefore you are unable to talk.");
+                player.getClient().sendPacket(CWvsContext.enableActions());
             }
         }
+//        if (!CommandProcessor.processCommand(chr.get().getClient(), message, CommandType.TRADE)) {
+//            chr.get().dropMessage(-2, chr.get().getName() + " : " + message);
+//            if (partner != null) {
+//                partner.getChr().getClient().sendPacket(PlayerShopPacket.shopChat(chr.get().getName() + " : " + message, 1));
+//            }
+//        }
     }
 
     public final void chatAuto(String message) {

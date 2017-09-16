@@ -384,6 +384,9 @@ public class CWvsContext {
                 case GENDER:
                     mplew.write(statUpdate.getValue().byteValue());
                     break;
+                case BATTLE_EXP:
+                case BATTLE_POINTS:
+                case EXP:
                 case HP:
                 case MAX_HP:
                 case MP:

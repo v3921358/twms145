@@ -3239,7 +3239,7 @@ public final class MapleMap {
     public void broadcastNONAdminMessage(MapleCharacter source, byte[] packet, boolean repeatToSource) {
         synchronized (characters) {
             for (MapleCharacter chr : characters) {
-                if (chr != source && !chr.superGM()) {
+                if (chr != source && !chr.isSuperGM()) {
                     chr.getClient().sendPacket(packet);
                 }
             }

@@ -1044,13 +1044,11 @@ public class CField {
 
     public static byte[] getChatText(int cidfrom, String text, boolean whiteBG, int show) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
         mplew.writeShort(SendPacketOpcode.CHATTEXT.getValue());
         mplew.writeInt(cidfrom);
         mplew.write(whiteBG ? 1 : 0);
         mplew.writeMapleAsciiString(text);
         mplew.write(show);
-
         return mplew.getPacket();
     }
 
