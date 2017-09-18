@@ -20,9 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling;
 
+import client.MapleBuffStatus;
 import client.MapleClient;
 import client.inventory.MaplePet;
 import client.inventory.PetDataFactory;
+import com.sun.org.apache.regexp.internal.RE;
 import constants.GameConstants;
 import constants.ServerConstants;
 import handling.cashshop.CashShopServer;
@@ -150,16 +152,12 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 if (!(client.getLoginState() == MapleClient.CHANGE_CHANNEL
                         || client.getLoginState() == MapleClient.LOGIN_SERVER_TRANSITION)) {
                     client.getPlayer().saveToDB(true, channel == MapleServerHandler.CASH_SHOP_SERVER);
-                    if (channel != MapleServerHandler.CASH_SHOP_SERVER) {
-                        int wd = World.Find.findWorld(client.getPlayer().getId());
-                        int ch = World.Find.findChannel(client.getPlayer().getId());
-                        ChannelServer channel = ChannelServer.getInstance(wd, ch);
-                        if (channel != null) {
-                            channel.removePlayer(client.getPlayer());
-                        }
-                    } else {
+                    if (isChannelServer()) {
+                        client.disconnect(true, false, false);
+                    } else if (isCashShopServer()){
                         CashShopServer.getPlayerStorage().deregisterPlayer(client.getPlayer());
                         CashShopServer.getPlayerStorageMTS().deregisterPlayer(client.getPlayer());
+                        client.disconnect(true, true, false);
                     }
                 }
             }
@@ -188,6 +186,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
         if (opcode == RecvPacketOpcode.GENERAL_CHAT.getValue()) {
             RecvPacketOpcode.reloadValues();
             SendPacketOpcode.reloadValues();
+            MapleBuffStatus.reloadValues();
         }
 
         for (final RecvPacketOpcode recv : RecvPacketOpcode.values()) {
@@ -663,7 +662,6 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 MobHandler.DisplayNode(slea, client.getPlayer());
                 break;
             case MOVE_LIFE:
-                // System.out.println("ddd");
                 MobHandler.MoveMonster(slea, client, client.getPlayer());
                 break;
             case AUTO_AGGRO:
