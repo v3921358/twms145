@@ -62,7 +62,7 @@ public class BuddyListHandler {
         if (mode == 1) { // add
             final String addName = slea.readMapleAsciiString();
             final String groupName = slea.readMapleAsciiString();
-            final BuddylistEntry ble = buddylist.get(addName);
+            final BuddyListEntry ble = buddylist.get(addName);
 
             if (addName.length() > 13 || groupName.length() > 16) {
                 return;
@@ -141,7 +141,7 @@ public class BuddyListHandler {
                                     ps.executeUpdate();
                                 }
                             }
-                            buddylist.put(new BuddylistEntry(charWithId.getName(), otherCid, groupName, displayChannel, true));
+                            buddylist.put(new BuddyListEntry(charWithId.getName(), otherCid, groupName, displayChannel, true));
                             c.sendPacket(BuddylistPacket.updateBuddylist(buddylist.getBuddies(), 10));
                         }
                     } else {
@@ -153,10 +153,10 @@ public class BuddyListHandler {
             }
         } else if (mode == 2) { // accept buddy
             int otherCid = slea.readInt();
-            final BuddylistEntry ble = buddylist.get(otherCid);
+            final BuddyListEntry ble = buddylist.get(otherCid);
             if (!buddylist.isFull() && ble != null && !ble.isVisible()) {
                 final int channel = World.Find.findChannel(otherCid);
-                buddylist.put(new BuddylistEntry(ble.getName(), otherCid, "ETC", channel, true));
+                buddylist.put(new BuddyListEntry(ble.getName(), otherCid, "ETC", channel, true));
                 c.sendPacket(BuddylistPacket.updateBuddylist(buddylist.getBuddies(), 10));
                 notifyRemoteChannel(c, channel, otherCid, "ETC", ADDED);
             } else {
@@ -164,7 +164,7 @@ public class BuddyListHandler {
             }
         } else if (mode == 3) { // delete
             final int otherCid = slea.readInt();
-            final BuddylistEntry blz = buddylist.get(otherCid);
+            final BuddyListEntry blz = buddylist.get(otherCid);
             if (blz != null && blz.isVisible()) {
                 notifyRemoteChannel(c, World.Find.findChannel(otherCid), otherCid, blz.getGroup(), DELETED);
             }

@@ -431,6 +431,7 @@ public class MapleStatEffect implements Serializable {
         ret.itemConNo = parseEval("itemConNo", source, 0, variables, level);
         ret.moveTo = parseEval("moveTo", source, -1, variables, level);
         ret.monsterStatus = new EnumMap<>(MonsterStatus.class);
+
         if (ret.overTime && ret.getSummonMovementType() == null && !ret.isEnergyCharge()) {
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.WATK, (int) ret.watk);
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.WDEF, (int) ret.wdef);
@@ -464,9 +465,7 @@ public class MapleStatEffect implements Serializable {
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ANGEL_ATK, (int) ret.indiePad);
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.ANGEL_MATK, (int) ret.indieMad);
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.HP_BOOST, (int) ret.imhp);
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MP_BOOST, Integer.valueOf(ret.immp)); //same one? lol
-//            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.HP_BOOST_PERCENT, Integer.valueOf(ret.indieMhpR));
-//            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MP_BOOST_PERCENT, Integer.valueOf(ret.indieMmpR));
+            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MP_BOOST, (int) ret.immp); //same one? lol
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.HP_BOOST, (int) ret.indieMhp);
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.MP_BOOST, (int) ret.indieMmp);
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.PVP_DAMAGE, (int) ret.incPVPdamage);
@@ -479,7 +478,6 @@ public class MapleStatEffect implements Serializable {
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.INVINCIBILITY, (int) ret.immortal);
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.NO_SLIP, (int) ret.preventslip);
             addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.FAMILIAR_SHADOW, ret.charColor > 0 ? 1 : 0);
-            addBuffStatPairToListIfNotZero(ret.statups, MapleBuffStatus.DARK_SIGHT, ret.x);
             if (sourceid == 5221006 || ret.isPirateMorph()) { //HACK: add stance :D and also this buffstat has to be the first one..
                 ret.statups.put(MapleBuffStatus.STANCE, 100); //100% :D:D:D
             }
@@ -3628,6 +3626,15 @@ public class MapleStatEffect implements Serializable {
 
     public short getMDEFRate() {
         return mddR;
+    }
+
+    public String getName() {
+        String Name = "";
+        try {
+            Name = SkillFactory.getSkillName(getSourceId());
+        } catch (Exception localException) {
+        }
+        return Name;
     }
 
     public final boolean isUnstealable() {

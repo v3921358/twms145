@@ -442,7 +442,7 @@ public enum MapleBuffStatus implements WritableLongValueHolder, IBuffStat {
 
     MapleBuffStatus(int i) {
         this.buffStatus = 1 << (i % 32);
-        this.pos = GameConstants.MAX_BUFFSTAT - 1 - (int) Math.floor(i / 32);
+        this.pos = (GameConstants.MAX_BUFFSTAT - 1) - (int) Math.floor(i / 32);
     }
 
     MapleBuffStatus(int i, boolean stacked) {

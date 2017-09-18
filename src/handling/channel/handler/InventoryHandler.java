@@ -31,7 +31,6 @@ import database.DatabaseConnection;
 import handling.channel.ChannelServer;
 import handling.world.MaplePartyCharacter;
 import handling.world.World;
-import pvp.WizerDual;
 import scripting.EventInstanceManager;
 import scripting.NPCScriptManager;
 import server.*;
@@ -416,11 +415,11 @@ public class InventoryHandler {
             c.sendPacket(CWvsContext.enableActions());
             return;
         }
-        if (chr.getMapId() == WizerDual.getPvPMap() || chr.getMap().pvpEnabled()) {
-            c.sendPacket(CWvsContext.serverNotice(5, "You may not use potions in PvP."));
-            c.sendPacket(CWvsContext.enableActions());
-            return;
-        }
+//        if (chr.getMapId() == WizerDual.getPvPMap() || chr.getMap().pvpEnabled()) {
+//            c.sendPacket(CWvsContext.serverNotice(5, "You may not use potions in PvP."));
+//            c.sendPacket(CWvsContext.enableActions());
+//            return;
+//        }
         final long time = System.currentTimeMillis();
         if (chr.getNextConsume() > time) {
             chr.dropMessage(5, "The potion is still taking effect, please wait " + ((chr.getNextConsume() - time) / 1000) + " seconds.");

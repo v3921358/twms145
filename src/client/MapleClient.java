@@ -77,7 +77,7 @@ public class MapleClient implements Serializable {
     private transient MapleAESOFB send, receive;
     private transient Channel session;
     private MapleCharacter player;
-    private int channel = 1, accountId = -1, world, birthday;
+    private int channel = 1, accountId = -1, world = -1, birthday;
     private Map<Integer, Pair<Short, Short>> charInfo = new LinkedHashMap<>();
     private int charslots = DEFAULT_CHAR_SLOT;
     private boolean loggedIn = false, serverTransition = false;
@@ -1383,7 +1383,7 @@ public class MapleClient implements Serializable {
     }
 
     public World getWorldServer() {
-        return LoginServer.getInstance().getWorld(world);
+        return LoginServer.getWorld(world);
     }
 
     public final int deleteCharacter(final int cid) {

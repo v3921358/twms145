@@ -38,34 +38,35 @@ public class MobHandler {
         if ((chr == null) || (chr.getMap() == null)) {
             return;
         }
-        int oid = slea.readInt();
-        MapleMonster monster = chr.getMap().getMonsterByOid(oid);
-        slea.readByte();
+        int objectId = slea.readInt();
+        MapleMonster monster = chr.getMap().getMonsterByOid(objectId);
         if (monster == null) {
             return;
         }
         if (monster.getLinkCID() > 0) {
             return;
         }
-        short moveid = slea.readShort();
+        short moveId = slea.readShort();
         boolean useSkill = slea.readByte() > 0;
         byte skill = slea.readByte();
         int unk = slea.readInt();
-        int realskill = 0;
+
+        int realSkill = 0;
         int level = 0;
+
         if (useSkill) {
             byte size = monster.getNoSkills();
             boolean used = false;
             if (size > 0) {
                 final Pair<Integer, Integer> skillToUse = monster.getSkills().get((byte) Randomizer.nextInt(size));
-                realskill = ((Integer) skillToUse.getLeft()).intValue();
-                level = ((Integer) skillToUse.getRight()).intValue();
-                MobSkill mobSkill = MobSkillFactory.getMobSkill(realskill, level);
+                realSkill = skillToUse.getLeft();
+                level = skillToUse.getRight();
+                MobSkill mobSkill = MobSkillFactory.getMobSkill(realSkill, level);
                 if ((mobSkill != null) && (!mobSkill.checkCurrentBuff(chr, monster))) {
                     long now = System.currentTimeMillis();
-                    long ls = monster.getLastSkillUsed(realskill);
+                    long ls = monster.getLastSkillUsed(realSkill);
                     if ((ls == 0L) || ((now - ls > mobSkill.getCoolTime()) && (!mobSkill.onlyOnce()))) {
-                        monster.setLastSkillUsed(realskill, now, mobSkill.getCoolTime());
+                        monster.setLastSkillUsed(realSkill, now, mobSkill.getCoolTime());
                         int reqHp = (int) ((float) monster.getHp() / (float) monster.getMobMaxHp() * 100.0F);
                         if (reqHp <= mobSkill.getHP()) {
                             used = true;
@@ -75,39 +76,63 @@ public class MobHandler {
                 }
             }
             if (!used) {
-                realskill = 0;
+                realSkill = 0;
                 level = 0;
             }
         }
         final List<Pair<Integer, Integer>> unk3 = new ArrayList<>();
         byte size1 = slea.readByte();
         for (int i = 0; i < size1; i++) {
-            unk3.add(new Pair(Integer.valueOf(slea.readShort()), Integer.valueOf(slea.readShort())));
+            unk3.add(new Pair<>((int) slea.readShort(), (int) slea.readShort()));
         }
         final List<Integer> unk2 = new ArrayList<>();
         byte size = slea.readByte();
         for (int i = 0; i < size; i++) {
-            unk2.add(Integer.valueOf(slea.readShort()));
+            unk2.add((int) slea.readShort());
         }
-        slea.skip(1);
+        slea.read(1);
+        int unk4 = slea.readInt();
+        slea.read(4);
+        slea.read(4);
+        slea.read(4);
+        if (unk4 == 0x12) {
+            slea.readMapleAsciiString();
+        }
+        slea.read(1);
+        final Point startPos = slea.readPos();
+        final List<ILifeMovementFragment> res;
         slea.skip(4);
-        slea.skip(4);
-        slea.skip(4);
-        slea.skip(4);
-        slea.skip(1);
-        slea.skip(4);
-        slea.skip(4);
-        Point startPos = monster.getPosition();
-        List<ILifeMovementFragment> res = null;
-        res = MovementParse.parseMovement(slea, monster.getTruePosition(), MovementKind.MOB_MOVEMENT);
-        if ((res != null) && (chr != null) && (res.size() > 0)) {
+        res = MovementParse.parseMovement(slea, startPos, MovementKind.MOB_MOVEMENT);
+        int unk5 = slea.readByte();
+
+        for (int i = 0; ; i += 2) {
+            if (i >= unk5) {
+                break;
+            }
+            slea.readByte();
+        }
+
+        slea.readShort();
+        slea.readShort();
+        slea.readShort();
+        slea.readShort();
+
+        // 119 added
+        slea.readByte();
+        slea.readInt();
+        slea.readInt();
+        slea.readInt();
+        slea.readInt();
+        slea.readInt();
+
+        if (res != null && res.size() > 0) {
             MapleMap map = chr.getMap();
             if (useSkill) {
-                c.sendPacket(MobPacket.moveMonsterResponse(monster.getObjectId(), moveid, monster.getMp(), monster.isControllerHasAggro(), realskill, level));
+                c.sendPacket(MobPacket.moveMonsterResponse(monster.getObjectId(), moveId, monster.getMp(), monster.isControllerHasAggro(), realSkill, level));
             } else {
-                c.sendPacket(MobPacket.moveMonsterResponse(monster.getObjectId(), moveid, monster.getMp(), monster.isControllerHasAggro()));
+                c.sendPacket(MobPacket.moveMonsterResponse(monster.getObjectId(), moveId, monster.getMp(), monster.isControllerHasAggro()));
             }
-            if (slea.available() != 36L) {
+            if (slea.available() != 0) {
                 FileoutputUtil.log("Log_Packet_Except.rtf", "slea.available != 35 (movement parsing error)\n" + slea.toString(true));
                 return;
             }

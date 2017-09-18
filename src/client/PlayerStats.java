@@ -107,25 +107,21 @@ public class PlayerStats implements Serializable {
     public void setStr(short str, MapleCharacter chra) {
         this.str = str;
         recalcLocalStats(chra);
-        chra.updateAP();
     }
 
     public void setDex(short dex, MapleCharacter chra) {
         this.dex = dex;
         recalcLocalStats(chra);
-        chra.updateAP();
     }
 
     public void setLuk(short luk, MapleCharacter chra) {
         this.luk = luk;
         recalcLocalStats(chra);
-        chra.updateAP();
     }
 
     public void setInt(short int_, MapleCharacter chra) {
         this.int_ = int_;
         recalcLocalStats(chra);
-        chra.updateAP();
     }
 
     public boolean setHp(int newhp, MapleCharacter chra) {

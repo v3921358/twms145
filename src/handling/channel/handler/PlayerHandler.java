@@ -53,18 +53,14 @@ import java.util.List;
 
 public class PlayerHandler {
 
-    public static byte player_direction;
-
-    public static int isFinisher(final int skillid) {
-        switch (skillid) {
+    public static int isFinisher(final int skillId) {
+        switch (skillId) {
             case 1111003:
-                return GameConstants.GMS ? 1 : 10;
-            case 1111005:
-                return GameConstants.GMS ? 2 : 10;
             case 11111002:
-                return GameConstants.GMS ? 1 : 10;
+                return 1;
+            case 1111005:
             case 11111003:
-                return GameConstants.GMS ? 2 : 10;
+                return 2;
         }
         return 0;
     }
@@ -89,9 +85,8 @@ public class PlayerHandler {
 
     public static void ChangeKeymap(final LittleEndianAccessor slea, final MapleCharacter chr) {
         if (slea.available() > 8 && chr != null) { // else = pet auto pot
-            slea.skip(4); //0
+            slea.readInt();
             final int numChanges = slea.readInt();
-
             for (int i = 0; i < numChanges; i++) {
                 final int key = slea.readInt();
                 final byte type = slea.readByte();
@@ -265,7 +260,6 @@ public class PlayerHandler {
         int pID = 0;
         int pDMG = 0;
         byte direction = 0;
-        player_direction = direction;
         byte pType = 0;
         Point pPos = new Point(0, 0);
         MapleMonster attacker = null;
@@ -287,7 +281,6 @@ public class PlayerHandler {
             oid = slea.readInt();
             attacker = chr.getMap().getMonsterByOid(oid);
             direction = slea.readByte(); // Knock direction
-            player_direction = direction;
 
             if (attacker == null || attacker.getId() != monsteridfrom || attacker.getLinkCID() > 0 || attacker.isFake() || attacker.getStats().isFriendly()) {
                 return;
@@ -760,21 +753,31 @@ public class PlayerHandler {
         if (chr == null || (energy && chr.getBuffedValue(MapleBuffStatus.ENERGY_CHARGE) == null && chr.getBuffedValue(MapleBuffStatus.BODY_PRESSURE) == null && chr.getBuffedValue(MapleBuffStatus.DARK_AURA) == null && chr.getBuffedValue(MapleBuffStatus.TORNADO) == null && chr.getBuffedValue(MapleBuffStatus.SUMMON) == null && chr.getBuffedValue(MapleBuffStatus.RAINING_MINES) == null && chr.getBuffedValue(MapleBuffStatus.TELEPORT_MASTERY) == null)) {
             return;
         }
-        if (chr.hasBlockedInventory() || chr.getMap() == null) {
+        if (chr.hasBlockedInventory() || chr.getMap() == null || !chr.isAlive()) {
             return;
         }
+
         AttackInfo attack = DamageParse.parseDmgM(slea, chr);
+
+        boolean hasShadowPartner = chr.getBuffedValue(MapleBuffStatus.SHADOWPARTNER) != null;
+        MapleStatEffect effect = null;
+        Skill skill = null;
+        int maxAttackCount = 1;
+        int skillLevel = 0;
+        double estimateMaxDamage = chr.getStat().getCurrentMaxBaseDamage();
+
         if (attack == null) {
             c.sendPacket(CWvsContext.enableActions());
             return;
         }
-        final boolean mirror = chr.getBuffedValue(MapleBuffStatus.SHADOWPARTNER) != null;
-        double maxdamage = chr.getStat().getCurrentMaxBaseDamage();
-        final Item shield = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((short) -10);
-        int attackCount = (shield != null && shield.getItemId() / 10000 == 134 ? 2 : 1);
-        int skillLevel = 0;
-        MapleStatEffect effect = null;
-        Skill skill = null;
+
+        if (GameConstants.isDemon(chr.getJob())) {
+            final Item demonShield = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((short) -10);
+            if (demonShield != null && (demonShield.getItemId() / 10000) == 134) {
+                maxAttackCount = 2;
+            }
+        }
+
 
         if (attack.skill != 0) {
             skill = SkillFactory.getSkill(GameConstants.getLinkedAranSkill(attack.skill));
@@ -793,15 +796,16 @@ public class PlayerHandler {
                     if (e.isRunning() && !chr.isGM()) {
                         for (int i : e.getType().mapids) {
                             if (chr.getMapId() == i) {
-                                chr.dropMessage(5, "You may not use that here.");
+                                chr.dropMessage(5, "活動地圖不能使用任何技能");
                                 return; //non-skill cannot use
                             }
                         }
                     }
                 }
             }
-            maxdamage *= (effect.getDamage() + chr.getStat().getDamageIncrease(attack.skill)) / 100.0;
-            attackCount = effect.getAttackCount();
+
+            estimateMaxDamage *= (effect.getDamage() + chr.getStat().getDamageIncrease(attack.skill)) / 100.0;
+            maxAttackCount = effect.getAttackCount() > effect.getBulletCount() ? effect.getAttackCount() : effect.getBulletCount();
 
             if (effect.getCooldown(chr) > 0 && !chr.isGM() && !energy) {
                 if (chr.skillisCooling(attack.skill)) {
@@ -813,7 +817,7 @@ public class PlayerHandler {
             }
         }
         attack = DamageParse.Modify_AttackCrit(attack, chr, 1, effect);
-        attackCount *= (mirror ? 2 : 1);
+        maxAttackCount *= (hasShadowPartner ? 2 : 1);
         if (!energy) {
             if ((chr.getMapId() == 109060000 || chr.getMapId() == 109060002 || chr.getMapId() == 109060004) && attack.skill == 0) {
                 MapleSnowballs.hitSnowball(chr);
@@ -824,24 +828,82 @@ public class PlayerHandler {
 
             if (isFinisher(attack.skill) > 0) { // finisher
                 if (comboBuff != null) {
-                    numFinisherOrbs = comboBuff.intValue() - 1;
+                    numFinisherOrbs = comboBuff - 1;
                 }
                 if (numFinisherOrbs <= 0) {
                     return;
                 }
                 chr.handleOrbconsume(isFinisher(attack.skill));
-                if (!GameConstants.GMS) {
-                    maxdamage *= numFinisherOrbs;
+            } else if (attack.targets > 0 && comboBuff != null) {
+                // handle combo orbgain
+                switch (chr.getJob()) {
+                    case 111:
+                    case 112:
+                    case 1110:
+                    case 1111:
+                    case 1112:
+                        if (attack.skill != 1111008) { // shout should not give orbs
+                            chr.handleOrbgain();
+                        }
+                        break;
                 }
+            }
+            switch (chr.getJob()) {
+                case 511:
+                case 512: {
+                    chr.handleEnergyCharge(5110001, attack.targets * attack.hits);
+                    break;
+                }
+                case 1510:
+                case 1511:
+                case 1512: {
+                    chr.handleEnergyCharge(15100004, attack.targets * attack.hits);
+                    break;
+                }
+            }
+            // handle sacrifice hp loss
+            //after BIG BANG, TEMP
+            if (attack.targets > 0 && attack.skill == 1211002) { // handle charged blow
+                final int advcharge_level = chr.getSkillLevel(SkillFactory.getSkill(1220010));
+                if (advcharge_level > 0) {
+                    if (!SkillFactory.getSkill(1220010).getEffect(advcharge_level).makeChanceResult()) {
+                        chr.cancelEffectFromBuffStat(MapleBuffStatus.WK_CHARGE);
+                        chr.cancelEffectFromBuffStat(MapleBuffStatus.LIGHTNING_CHARGE);
+                    }
+                } else {
+                    chr.cancelEffectFromBuffStat(MapleBuffStatus.WK_CHARGE);
+                    chr.cancelEffectFromBuffStat(MapleBuffStatus.LIGHTNING_CHARGE);
+                }
+            }
+
+            if (numFinisherOrbs > 0) {
+                estimateMaxDamage *= numFinisherOrbs;
+            } else if (comboBuff != null) {
+                Skill combo;
+                if (c.getPlayer().getJob() == 1110 || c.getPlayer().getJob() == 1111 || c.getPlayer().getJob() == 1112) {
+                    combo = SkillFactory.getSkill(11111001);
+                } else {
+                    combo = SkillFactory.getSkill(1111002);
+                }
+                if (c.getPlayer().getSkillLevel(combo) > 0) {
+                    estimateMaxDamage *= 1.0 + (combo.getEffect(c.getPlayer().getSkillLevel(combo)).getDamage() / 100.0 - 1.0) * (comboBuff - 1);
+                }
+            }
+
+            if (isFinisher(attack.skill) > 0) {
+                if (numFinisherOrbs == 0) {
+                    return;
+                }
+                estimateMaxDamage = 199999; // FIXME reenable damage calculation for finishers
             }
         }
         chr.checkFollow();
         if (!chr.isHidden()) {
-            chr.getMap().broadcastMessage(chr, CField.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, energy, chr.getLevel(), chr.getStat().passive_mastery(), attack.unk, attack.charge), chr.getTruePosition());
+            chr.getMap().broadcastMessage(chr, CField.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, energy, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction, attack.charge), chr.getTruePosition());
         } else {
-            chr.getMap().broadcastGMMessage(chr, CField.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, energy, chr.getLevel(), chr.getStat().passive_mastery(), attack.unk, attack.charge), false);
+            chr.getMap().broadcastGMMessage(chr, CField.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, energy, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction, attack.charge), false);
         }
-        DamageParse.applyAttack(attack, skill, c.getPlayer(), attackCount, maxdamage, effect, mirror ? AttackType.NON_RANGED_WITH_MIRROR : AttackType.NON_RANGED);
+        DamageParse.applyAttack(attack, skill, c.getPlayer(), maxAttackCount, estimateMaxDamage, effect, hasShadowPartner ? AttackType.NON_RANGED_WITH_MIRROR : AttackType.NON_RANGED);
 
     }
 
@@ -1045,15 +1107,15 @@ public class PlayerHandler {
         chr.checkFollow();
         if (!chr.isHidden()) {
             if (attack.skill == 3211006) {
-                chr.getMap().broadcastMessage(chr, CField.strafeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.unk, chr.getTotalSkillLevel(3220010)), chr.getTruePosition());
+                chr.getMap().broadcastMessage(chr, CField.strafeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction, chr.getTotalSkillLevel(3220010)), chr.getTruePosition());
             } else {
-                chr.getMap().broadcastMessage(chr, CField.rangedAttack2(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.unk), chr.getTruePosition());
+                chr.getMap().broadcastMessage(chr, CField.rangedAttack2(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction), chr.getTruePosition());
             }
         } else {
             if (attack.skill == 3211006) {
-                chr.getMap().broadcastGMMessage(chr, CField.strafeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.unk, chr.getTotalSkillLevel(3220010)), false);
+                chr.getMap().broadcastGMMessage(chr, CField.strafeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction, chr.getTotalSkillLevel(3220010)), false);
             } else {
-                chr.getMap().broadcastGMMessage(chr, CField.rangedAttack2(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.unk), false);
+                chr.getMap().broadcastGMMessage(chr, CField.rangedAttack2(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction), false);
             }
         }
         DamageParse.applyAttack(attack, skill, chr, bulletCount, basedamage, effect, ShadowPartner != null ? AttackType.RANGED_WITH_SHADOWPARTNER : AttackType.RANGED);
@@ -1109,9 +1171,9 @@ public class PlayerHandler {
         }
         chr.checkFollow();
         if (!chr.isHidden()) {
-            chr.getMap().broadcastMessage(chr, CField.magicAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, attack.charge, chr.getLevel(), attack.unk), chr.getTruePosition());
+            chr.getMap().broadcastMessage(chr, CField.magicAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, attack.charge, chr.getLevel(), attack.direction), chr.getTruePosition());
         } else {
-            chr.getMap().broadcastGMMessage(chr, CField.magicAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, attack.charge, chr.getLevel(), attack.unk), false);
+            chr.getMap().broadcastGMMessage(chr, CField.magicAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, attack.charge, chr.getLevel(), attack.direction), false);
         }
         DamageParse.applyAttackMagic(attack, skill, c.getPlayer(), effect, maxdamage);
     }

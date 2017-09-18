@@ -339,6 +339,7 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
         switch (opcode) {
             case NPC_ACTION:
             case MOVE_PLAYER:
+            case MOVE_LIFE:
                 return true;
             default:
                 return false;

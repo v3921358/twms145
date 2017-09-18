@@ -55,6 +55,7 @@ import server.movement.ILifeMovementFragment;
 import server.quest.MapleQuest;
 import server.shops.IMaplePlayerShop;
 import tools.FileoutputUtil;
+import tools.HexTool;
 import tools.StringUtil;
 import tools.packet.*;
 import tools.packet.CField.EffectPacket;
@@ -680,6 +681,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         ret.mount = new MapleMount(ret, ct.mount_itemid, PlayerStats.getSkillByJob(1004, ret.job), ct.mount_Fatigue, ct.mount_level, ct.mount_exp);
         ret.expirationTask(false, false);
         ret.stats.recalcLocalStats(true, ret);
+        ret.antiMacro = new MapleLieDetector(ret);
         client.setTempIP(ct.tempIP);
 
         return ret;
@@ -988,15 +990,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
 
                     }
                 }
-                /*if (!compensate_previousSP) {
-                 for (Entry<Skill, SkillEntry> skill : ret.skills.entrySet()) {
-                 if (!skill.getKey().isBeginnerSkill() && !skill.getKey().isSpecialSkill()) {
-                 ret.remainingSp[GameConstants.getSkillBookForSkill(skill.getKey().getWorldId())] += skill.getValue().skillevel;
-                 skill.getValue().skillevel = 0;
-                 }
-                 }
-                 ret.setQuestAdd(MapleQuest.getInstance(170000), (byte) 0, null); //set it so never again
-                 }*/
                 if (ret.BlessOfFairy_Origin == null) {
                     ret.BlessOfFairy_Origin = ret.name;
                 }
@@ -1937,7 +1930,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                 deleteWhereCharacterId(con, "DELETE FROM buddies WHERE characterid = ?");
                 ps = con.prepareStatement("INSERT INTO buddies (characterid, `buddyid`, `pending`) VALUES (?, ?, ?)");
                 ps.setInt(1, id);
-                for (BuddylistEntry entry : buddylist.getBuddies()) {
+                for (BuddyListEntry entry : buddylist.getBuddies()) {
                     ps.setInt(2, entry.getCharacterId());
                     ps.setInt(3, entry.isVisible() ? 0 : 1);
                     ps.execute();
@@ -2638,14 +2631,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         this.testingdps = !testingdps;
     }
 
-    public void updateAP() {
-        // idk how i fucked this up when removing Auto Assign, but meh.
-        updateSingleStat(MapleStat.STR, client.getPlayer().getStat().getStr());
-        updateSingleStat(MapleStat.DEX, client.getPlayer().getStat().getDex());
-        updateSingleStat(MapleStat.INT, client.getPlayer().getStat().getInt());
-        updateSingleStat(MapleStat.LUK, client.getPlayer().getStat().getLuk());
-    }
-
     public synchronized boolean Spam(int limit, int type) {
         if (type < 0 || lastTime.length < type) {
             type = 1; // default xD
@@ -2778,7 +2763,12 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         if (!silent) {
             stats.recalcLocalStats(this);
         }
-        //System.out.println("Effect registered. Effect: " + effect.getSourceId());
+        if (ServerConstants.DEBUG) {
+            this.dropMessage(6, "[系統提示] 使用了 BUFF 來源 :" + effect.getName() + "(" + effect.getSourceId() + ")");
+            for (Map.Entry<MapleBuffStatus, Integer> buf : statups.entrySet()) {
+                this.dropMessage(6, "[系統提示] " + buf.getKey().toString() + "(0x" + HexTool.toString(buf.getKey().getValue()) + ")");
+            }
+        }
     }
 
     public List<MapleBuffStatus> getBuffStats(final MapleStatEffect effect, final long startTime) {
@@ -3463,7 +3453,8 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     }
 
     public void setLevel(final short level) {
-        this.level = (short) (level - 1);
+        this.level = level;
+        this.updateSingleStat(MapleStat.LEVEL, level);
     }
 
     public final int getFame() {
@@ -3503,7 +3494,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     }
 
     public void setRemainingAp(int remainingAp) {
-        updateAP();
         this.remainingAp = remainingAp;
         updateSingleStat(MapleStat.AVAILABLE_AP, this.remainingAp);
     }
@@ -3850,13 +3840,11 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         controlledLock.writeLock().lock();
         visibleMapObjectsLock.writeLock().lock();
         try {
-            for (MapleMonster mons : controlled) {
-                if (mons != null) {
-                    mons.setController(null);
-                    mons.setControllerHasAggro(false);
-                    map.updateMonsterController(mons);
-                }
-            }
+            controlled.stream().filter(mons -> mons != null).forEach(mons -> {
+                mons.setController(null);
+                mons.setControllerHasAggro(false);
+                map.updateMonsterController(mons);
+            });
             controlled.clear();
             visibleMapObjects.clear();
         } finally {
@@ -4193,7 +4181,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     }
 
     public void gainAp(int ap) {
-        updateAP();
         this.remainingAp += ap;
         updateSingleStat(MapleStat.AVAILABLE_AP, this.remainingAp);
     }

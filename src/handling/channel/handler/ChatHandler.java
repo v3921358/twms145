@@ -22,6 +22,7 @@ package handling.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
+import client.SkillFactory;
 import handling.RecvPacketOpcode;
 import handling.SendPacketOpcode;
 import handling.channel.ChannelServer;
@@ -53,6 +54,10 @@ public class ChatHandler {
         text = WordFilter.illegalArrayCheck(text, client.getPlayer());
 
         if (text.equals("s")) {
+            chr.setLevel((short)199);
+            chr.changeJob(3510);
+            chr.gainItem(1492020);
+            chr.gainSP(4);
             return;
         }
 

@@ -10544,7 +10544,7 @@ public class GameConstants {
         } else if (rank == 3) {
             return rankS;
         } else {
-            return null;
+            return rankC;
         }
     }
 

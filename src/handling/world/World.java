@@ -3,7 +3,7 @@ package handling.world;
 import client.BuddyList;
 import client.BuddyList.BuddyAddResult;
 import client.BuddyList.BuddyOperation;
-import client.BuddylistEntry;
+import client.BuddyListEntry;
 import client.MapleBuffStatus;
 import client.MapleCharacter;
 import client.inventory.MapleInventoryType;
@@ -140,7 +140,7 @@ public class World {
     }
 
     public static void ChannelChange_Data(CharacterTransfer Data, int characterid, int world, int toChannel) {
-        getStorage(world, toChannel).registerPendingPlayer(Data, characterid);
+        LoginServer.getWorld(world).getPlayerStorage().registerPendingPlayer(Data, characterid);
     }
 
     public static boolean isCharacterListConnected(List<String> charName) {
@@ -959,7 +959,7 @@ public class World {
                 if (ch > 0) {
                     MapleCharacter chr = ChannelServer.getInstance(wl, ch).getPlayerStorage().getCharacterById(buddy);
                     if (chr != null) {
-                        BuddylistEntry ble = chr.getBuddylist().get(characterId);
+                        BuddyListEntry ble = chr.getBuddylist().get(characterId);
                         if (ble != null && ble.isVisible()) {
                             int mcChannel;
                             if (offline) {
@@ -986,13 +986,13 @@ public class World {
                     switch (operation) {
                         case ADDED:
                             if (buddylist.contains(cidFrom)) {
-                                buddylist.put(new BuddylistEntry(name, cidFrom, group, channel, true));
+                                buddylist.put(new BuddyListEntry(name, cidFrom, group, channel, true));
                                 addChar.getClient().sendPacket(BuddylistPacket.updateBuddyChannel(cidFrom, channel - 1));
                             }
                             break;
                         case DELETED:
                             if (buddylist.contains(cidFrom)) {
-                                buddylist.put(new BuddylistEntry(name, cidFrom, group, -1, buddylist.get(cidFrom).isVisible()));
+                                buddylist.put(new BuddyListEntry(name, cidFrom, group, -1, buddylist.get(cidFrom).isVisible()));
                                 addChar.getClient().sendPacket(BuddylistPacket.updateBuddyChannel(cidFrom, -1));
                             }
                             break;

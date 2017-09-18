@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
-public class BuddylistEntry {
+public class BuddyListEntry {
 
     private String name, group;
     private int cid, channel;
@@ -32,7 +32,7 @@ public class BuddylistEntry {
      * @param channel     should be -1 if the buddy is offline
      * @param visible
      */
-    public BuddylistEntry(String name, int characterId, String group, int channel, boolean visible) {
+    public BuddyListEntry(String name, int characterId, String group, int channel, boolean visible) {
         super();
         this.name = name;
         this.cid = characterId;
@@ -103,10 +103,7 @@ public class BuddylistEntry {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final BuddylistEntry other = (BuddylistEntry) obj;
-        if (cid != other.cid) {
-            return false;
-        }
-        return true;
+        final BuddyListEntry other = (BuddyListEntry) obj;
+        return cid == other.cid;
     }
 }

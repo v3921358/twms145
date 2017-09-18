@@ -120,29 +120,25 @@ public class SpawnPoint extends Spawns {
             mob.changeLevel(level);
         }
         spawnedMonsters.incrementAndGet();
-        mob.addListener(new MonsterListener() {
+        mob.addListener(() -> {
+            nextPossibleSpawn = System.currentTimeMillis();
 
-            @Override
-            public void monsterKilled() {
-                nextPossibleSpawn = System.currentTimeMillis();
-
-                if (mobTime > 0) {
-                    nextPossibleSpawn += mobTime;
-                }
-                spawnedMonsters.decrementAndGet();
+            if (mobTime > 0) {
+                nextPossibleSpawn += mobTime;
             }
+            spawnedMonsters.decrementAndGet();
         });
         map.spawnMonster(mob, -2);
         if (carnivalTeam > -1) {
-            for (MapleReactor r : map.getAllReactorsThreadsafe()) { //parsing through everytime a monster is spawned? not good idea
-                if (r.getName().startsWith(String.valueOf(carnivalTeam)) && r.getReactorId() == (9980000 + carnivalTeam) && r.getState() < 5) {
-                    final int num = Integer.parseInt(r.getName().substring(1, 2)); //00, 01, etc
-                    final MCSkill skil = MapleCarnivalFactory.getInstance().getGuardian(num);
-                    if (skil != null) {
-                        skil.getSkill().applyEffect(null, mob, false);
-                    }
+            //parsing through everytime a monster is spawned? not good idea
+            //00, 01, etc
+            map.getAllReactorsThreadsafe().stream().filter(r -> r.getName().startsWith(String.valueOf(carnivalTeam)) && r.getReactorId() == (9980000 + carnivalTeam) && r.getState() < 5).forEach(r -> {
+                final int num = Integer.parseInt(r.getName().substring(1, 2)); //00, 01, etc
+                final MCSkill skil = MapleCarnivalFactory.getInstance().getGuardian(num);
+                if (skil != null) {
+                    skil.getSkill().applyEffect(null, mob, false);
                 }
-            }
+            });
         }
         for (MapleSummon s : map.getAllSummonsThreadsafe()) {
             if (s.getSkill() == 35111005) {

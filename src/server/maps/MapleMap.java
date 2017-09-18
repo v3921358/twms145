@@ -38,7 +38,6 @@ import handling.world.MaplePartyCharacter;
 import handling.world.PartyOperation;
 import handling.world.World;
 import handling.world.exped.ExpeditionType;
-import pvp.WizerDual;
 import scripting.EventInstanceManager;
 import scripting.EventManager;
 import server.*;
@@ -1344,7 +1343,7 @@ public final class MapleMap {
             return;
         }
         if (monster.getController() != null) {
-            if (monster.getController().getMap() != this || monster.getController().getTruePosition().distanceSq(monster.getTruePosition()) > monster.getRange()) {
+            if (monster.getController().getMap() != this || monster.getController().getPosition().distanceSq(monster.getTruePosition()) > monster.getRange()) {
                 monster.getController().stopControllingMonster(monster);
             } else { // Everything is fine :)
                 return;
@@ -2236,15 +2235,13 @@ public final class MapleMap {
                 break;
         }
 
-        for (final MaplePet pet : chr.getPets()) {
-            if (pet.getSummoned()) {
-                if (chr.isGM()) {
-                    chr.getClient().sendPacket(PetPacket.showPet(chr, pet, false, false));
-                } else {
-                    broadcastMessage(chr, PetPacket.showPet(chr, pet, false, false), false);
-                }
+        chr.getPets().stream().filter(pet -> pet.getSummoned()).forEach(pet -> {
+            if (chr.isGM()) {
+                chr.getClient().sendPacket(PetPacket.showPet(chr, pet, false, false));
+            } else {
+                broadcastMessage(chr, PetPacket.showPet(chr, pet, false, false), false);
             }
-        }
+        });
         if (chr.getSummonedFamiliar() != null) {
             chr.spawnFamiliar(chr.getSummonedFamiliar());
         }
@@ -2719,7 +2716,6 @@ public final class MapleMap {
             chr.canTalk(true);
         }
         chr.leaveMap(this);
-
     }
 
     public final void broadcastMessage(final byte[] packet) {
@@ -2730,9 +2726,6 @@ public final class MapleMap {
         broadcastMessage(repeatToSource ? null : source, packet, Double.POSITIVE_INFINITY, source.getTruePosition());
     }
 
-    /*	public void broadcastMessage(MapleCharacter source, byte[] packet, boolean repeatToSource, boolean ranged) {
-    broadcastMessage(repeatToSource ? null : source, packet, ranged ? MapleCharacter.MAX_VIEW_RANGE_SQ : Double.POSITIVE_INFINITY, source.getPosition());
-    }*/
     public final void broadcastMessage(final byte[] packet, final Point rangedFrom) {
         broadcastMessage(null, packet, GameConstants.maxViewRangeSq(), rangedFrom);
     }
@@ -3308,7 +3301,8 @@ public final class MapleMap {
     }
 
     public MapleMonster spawnPvpTarget(MapleCharacter chr) {
-        MapleMonster target = new MapleMonster(WizerDual.pvp_TargetId, MapleLifeFactory.getMonster(5120504).getStats());
+        //TODO : fixit
+        MapleMonster target = null;//new MapleMonster(WizerDual.pvp_TargetId, MapleLifeFactory.getMonster(5120504).getStats());
         target.getStats().setHPDisplayType((byte) -1);
         target.setOverrideStats(new OverrideMonsterStats(Long.MAX_VALUE, target.getMobMaxMp(), target.getMobExp(), false));
         target.getChangedStats().level = 1;
@@ -3353,18 +3347,18 @@ public final class MapleMap {
                 Point nearestPort = Port.getPosition();
                 double safeDis = attackedPlayer.distance(nearestPort);
                 double distanceX = attacker.distance(attackedPlayer.getX(), attackedPlayer.getY());
-                if (WizerDual.isLeft) {
-                    if (attacker.x > attackedPlayer.x && distanceX < maxRange && distanceX > 2 &&
-                            attackedPlayer.y >= attacker.y - maxHeight && attackedPlayer.y <= attacker.y + maxHeight && safeDis > 2) {
-                        character.add(a);
-                    }
-                }
-                if (WizerDual.isRight) {
-                    if (attacker.x < attackedPlayer.x && distanceX < maxRange && distanceX > 2 &&
-                            attackedPlayer.y >= attacker.y - maxHeight && attackedPlayer.y <= attacker.y + maxHeight && safeDis > 2) {
-                        character.add(a);
-                    }
-                }
+//                if (WizerDual.isLeft) {
+//                    if (attacker.x > attackedPlayer.x && distanceX < maxRange && distanceX > 2 &&
+//                            attackedPlayer.y >= attacker.y - maxHeight && attackedPlayer.y <= attacker.y + maxHeight && safeDis > 2) {
+//                        character.add(a);
+//                    }
+//                }
+//                if (WizerDual.isRight) {
+//                    if (attacker.x < attackedPlayer.x && distanceX < maxRange && distanceX > 2 &&
+//                            attackedPlayer.y >= attacker.y - maxHeight && attackedPlayer.y <= attacker.y + maxHeight && safeDis > 2) {
+//                        character.add(a);
+//                    }
+//                }
             }
         }
         return character;

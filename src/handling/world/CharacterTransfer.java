@@ -206,7 +206,7 @@ public class CharacterTransfer implements Externalizable {
         for (MapleTraitType t : MapleTraitType.values()) {
             this.traits.put(t, chr.getTrait(t).getTotalExp());
         }
-        for (final BuddylistEntry qs : chr.getBuddylist().getBuddies()) {
+        for (final BuddyListEntry qs : chr.getBuddylist().getBuddies()) {
             this.buddies.put(new CharacterNameAndId(qs.getCharacterId(), qs.getName(), qs.getGroup()), qs.isVisible());
         }
         this.buddysize = chr.getBuddyCapacity();

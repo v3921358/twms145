@@ -33,7 +33,6 @@ import constants.Occupations;
 import constants.ServerConstants;
 import handling.world.MapleParty;
 import handling.world.MaplePartyCharacter;
-import pvp.WizerDual;
 import scripting.EventInstanceManager;
 import server.*;
 import server.Timer;
@@ -369,11 +368,11 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             if (map.getMobFromChr(from) != null) { // Makes sure the attacker is also part of the PvP game
                 MapleCharacter victim = map.getChrFromMob(this);
                 if (from != victim) {
-                    int balancedDmg = (int) Math.round(rDamage * (victim.getLevel() * 50) / WizerDual.pvp_Difficulty / GameConstants.getMonsterHP((int) from.getLevel()));
-                    victim.handlePvpDmg(balancedDmg);
-                    setHp(Long.MAX_VALUE);
-                    map.broadcastMessage(MobPacket.moveMonster(false, -1, 0, getObjectId(), getTruePosition(), victim.getLastRes()));
-                    setPosition(victim.getPosition());
+//                    int balancedDmg = (int) Math.round(rDamage * (victim.getLevel() * 50) / WizerDual.pvp_Difficulty / GameConstants.getMonsterHP((int) from.getLevel()));
+//                    victim.handlePvpDmg(balancedDmg);
+//                    setHp(Long.MAX_VALUE);
+//                    map.broadcastMessage(MobPacket.moveMonster(false, -1, 0, getObjectId(), getTruePosition(), victim.getLastRes()));
+//                    setPosition(victim.getPosition());
                 } else {
                     from.getClient().sendPacket(MobPacket.killMonster(getObjectId(), (byte) 1));
                 }
@@ -711,7 +710,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     public final void setController(final MapleCharacter controller) {
-        this.controller = new WeakReference<MapleCharacter>(controller);
+        this.controller = new WeakReference<>(controller);
     }
 
     public final void switchController(final MapleCharacter newController, final boolean immediateAggro) {

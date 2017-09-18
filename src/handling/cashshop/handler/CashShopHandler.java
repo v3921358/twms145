@@ -64,7 +64,6 @@ public class CashShopHandler {
         c.setPlayer(chr);
         c.setAccID(chr.getAccountID());
         if (!c.CheckIPAddress()) { // Remote hack
-            System.out.println("Something fk with ip hack");
             c.getSession().close();
             return;
         }

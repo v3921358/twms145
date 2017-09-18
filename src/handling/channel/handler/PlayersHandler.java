@@ -566,7 +566,7 @@ public class PlayersHandler {
         //0 = success 1 = unable to locate 2 = once a day 3 = you've been reported 4+ = unknown reason
         ReportType type = ReportType.getById(slea.readByte());
         MapleCharacter cheater = c.getChannelServer().getPlayerStorage().getCharacterByName(slea.readMapleAsciiString());
-        byte a = slea.readByte(); // 09 00? unk
+        byte a = slea.readByte(); // 09 00? direction
         String reason = slea.readMapleAsciiString();
         if (cheater == null || type == null || cheater.isGM()) {
             c.sendPacket(CWvsContext.report(4));

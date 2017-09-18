@@ -25,7 +25,6 @@ import client.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.SendPacketOpcode;
 import server.life.MapleMonster;
-import server.life.MobSkill;
 import server.maps.MapleMap;
 import server.maps.MapleNodes.MapleNodeInfo;
 import server.movement.ILifeMovementFragment;
@@ -246,25 +245,24 @@ public class MobPacket {
 
         mplew.writeShort(SendPacketOpcode.MOVE_MONSTER.getValue());
         mplew.writeInt(oid);
+
         mplew.write(useskill ? 1 : 0);
         mplew.write(skill);
+
         mplew.writeInt(unk);
         mplew.write(unk3 == null ? 0 : unk3.size()); // For each, 2 short
         if (unk3 != null) {
-            for (final Pair<Integer, Integer> i : unk3) {
+            for (Pair<Integer, Integer> i : unk3) {
                 mplew.writeShort(i.left);
                 mplew.writeShort(i.right);
             }
         }
         mplew.write(unk2 == null ? 0 : unk2.size()); // For each, 1 short
         if (unk2 != null) {
-            for (final Integer i : unk2) {
-                mplew.writeShort(i);
-            }
+            unk2.forEach(mplew::writeShort);
         }
+        mplew.writeInt(0);
         mplew.writePos(startPos);
-        mplew.writeShort(8);
-        mplew.writeShort(1);
         PacketHelper.serializeMovementList(mplew, moves);
 
         return mplew.getPacket();
@@ -307,24 +305,27 @@ public class MobPacket {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendPacketOpcode.SPAWN_MONSTER.getValue());
         mplew.writeInt(life.getObjectId());
-        mplew.write(1);
+        boolean isLocalMob = true;
+        mplew.writeBool(isLocalMob);
         mplew.writeInt(life.getId());
-        addMonsterStatus(mplew, life);
-        List<MonsterStatusEffect> buffs = new ArrayList<>(life.getStati().values());
-        EncodeTemporary(mplew, buffs);
-        mplew.writePos(life.getTruePosition());
-        mplew.write(life.getStance());
-        mplew.writeShort(0);
-        mplew.writeShort(life.getFh());
-        mplew.write(spawnType);
-        if ((spawnType == -3) || (spawnType >= 0)) {
-            mplew.writeInt(link);
-        }
-        mplew.write(life.getCarnivalTeam());
-        mplew.writeInt(63000);
-        mplew.write(0);
-        if (life.getId() / 10000 == 961) {
-            mplew.writeMapleAsciiString("");
+        if (isLocalMob) {
+            addMonsterStatus(mplew, life);
+            List<MonsterStatusEffect> buffs = new ArrayList<>(life.getStati().values());
+            EncodeTemporary(mplew, buffs);
+            mplew.writePos(life.getTruePosition());
+            mplew.write(life.getStance());
+            mplew.writeShort(0);
+            mplew.writeShort(life.getFh());
+            mplew.write(spawnType);
+            if ((spawnType == -3) || (spawnType >= 0)) {
+                mplew.writeInt(link);
+            }
+            mplew.write(life.getCarnivalTeam());
+            mplew.writeInt(63000);
+            mplew.write(0);
+            if (life.getId() / 10000 == 961) {
+                mplew.writeMapleAsciiString("");
+            }
         }
         return mplew.getPacket();
     }
@@ -334,22 +335,27 @@ public class MobPacket {
 
         mplew.writeShort(SendPacketOpcode.ASWAN_SPAWN_MONSTER.getValue());
         mplew.writeInt(life.getObjectId());
-        mplew.write(1);
-        mplew.writeInt(life.getId());
-        addMonsterStatus(mplew, life);
-        mplew.writePos(life.getTruePosition());
-        mplew.write(life.getStance());
-        mplew.writeShort(0);
-        mplew.writeShort(life.getFh());
-        mplew.write(spawnType);
-        if ((spawnType == -3) || (spawnType >= 0)) {
-            mplew.writeInt(link);
+        boolean isLocalMob = true;
+        mplew.writeBool(isLocalMob);
+        if (isLocalMob) {
+            mplew.writeInt(life.getId());
+            addMonsterStatus(mplew, life);
+            List<MonsterStatusEffect> buffs = new ArrayList<>(life.getStati().values());
+            EncodeTemporary(mplew, buffs);
+            mplew.writePos(life.getTruePosition());
+            mplew.write(life.getStance());
+            mplew.writeShort(0);
+            mplew.writeShort(life.getFh());
+            mplew.write(spawnType);
+            if ((spawnType == -3) || (spawnType >= 0)) {
+                mplew.writeInt(link);
+            }
+            mplew.write(life.getCarnivalTeam());
+            mplew.writeInt(63000);
+            mplew.writeInt(0);
+            mplew.writeInt(0);
+            mplew.write(-1);
         }
-        mplew.write(life.getCarnivalTeam());
-        mplew.writeInt(63000);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.write(-1);
 //        System.out.println("spawnAswanMonster: " + mplew.getPacket());
         return mplew.getPacket();
     }
@@ -380,19 +386,24 @@ public class MobPacket {
         mplew.writeShort(SendPacketOpcode.SPAWN_MONSTER_CONTROL.getValue());
         mplew.write(aggro ? 2 : 1);
         mplew.writeInt(life.getObjectId());
-        mplew.write(1);
-        mplew.writeInt(life.getId());
-        addMonsterStatus(mplew, life);
-        mplew.writePos(life.getTruePosition());
-        mplew.write(life.getStance());
-        mplew.writeShort(0);
-        mplew.writeShort(life.getFh());
-        mplew.write(newSpawn ? -2 : life.isFake() ? -4 : -1);
-        mplew.write(life.getCarnivalTeam());
-        mplew.writeInt(63000);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.write(-1);
+        boolean isLocalMob = true;
+        mplew.writeBool(isLocalMob);
+        if (isLocalMob) {
+            mplew.writeInt(life.getId());
+            addMonsterStatus(mplew, life);
+            List<MonsterStatusEffect> buffs = new ArrayList<>(life.getStati().values());
+            EncodeTemporary(mplew, buffs);
+            mplew.writePos(life.getTruePosition());
+            mplew.write(life.getStance());
+            mplew.writeShort(0);
+            mplew.writeShort(life.getFh());
+            mplew.write(newSpawn ? -2 : life.isFake() ? -4 : -1);
+            mplew.write(life.getCarnivalTeam());
+            mplew.writeInt(63000);
+            mplew.writeInt(0);
+            mplew.writeInt(0);
+            mplew.write(-1);
+        }
         return mplew.getPacket();
     }
 
@@ -405,7 +416,8 @@ public class MobPacket {
         mplew.write(1);
         mplew.writeInt(life.getId());
         addMonsterStatus(mplew, life);
-
+        List<MonsterStatusEffect> buffs = new ArrayList<>(life.getStati().values());
+        EncodeTemporary(mplew, buffs);
         mplew.writePos(life.getTruePosition());
         mplew.write(life.getStance());
         mplew.writeShort(0);
@@ -486,30 +498,6 @@ public class MobPacket {
         return mplew.getPacket();
     }
 
-    public static Object movePokemon(int objectid, short moveid, int currentMp, boolean useSkills, int skillId, int skillLevel, Point startPos, List<ILifeMovementFragment> moves) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        // mplew.writeShort(SendPacketOpcode.MOVE_MONSTER.getValue());
-        mplew.writeShort(SendPacketOpcode.MOVE_MONSTER_RESPONSE.getValue());
-
-        mplew.writeInt(objectid);
-        mplew.write(moveid);
-        mplew.write(useSkills ? 1 : 0);
-        mplew.writeInt(currentMp);
-
-        // mplew.write(skillId);
-        // mplew.write(skillLevel);
-        // mplew.writeInt(0);
-
-        mplew.write(0); // For each, 2 short
-        mplew.write(0); // For each, 1 short
-        mplew.writePos(startPos);
-        mplew.writeShort(8);
-        mplew.writeShort(1);
-        PacketHelper.serializeMovementList(mplew, moves);
-        return mplew.getPacket();
-    }
-
-
     public static byte[] applyMonsterStatus(MapleMonster mons, MonsterStatusEffect ms) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
@@ -562,26 +550,6 @@ public class MobPacket {
         // if (MobStat::IsMovementAffectingStat)
         mplew.write(1);
 //        System.out.println("cancelMonsterStatus");
-
-        return mplew.getPacket();
-    }
-    public static byte[] cancelPoison(int oid, MonsterStatusEffect m) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
-        mplew.writeShort(SendPacketOpcode.CANCEL_MONSTER_STATUS.getValue());
-        mplew.writeInt(oid);
-        PacketHelper.writeSingleMask(mplew, MonsterStatus.BLEED);
-        mplew.writeInt(0);
-        mplew.writeInt(1); //size probably
-        mplew.writeInt(m.getFromID()); //character ID
-        if (m.isMonsterSkill()) {
-            mplew.writeShort(m.getMobSkill().getSkillId());
-            mplew.writeShort(m.getMobSkill().getSkillLevel());
-        } else if (m.getSkill() > 0) {
-            mplew.writeInt(m.getSkill());
-        }
-        mplew.write(3); // ? v97
-
         return mplew.getPacket();
     }
 
@@ -596,7 +564,7 @@ public class MobPacket {
         if (msg != null && msg.length() > 0) {
             mplew.writeMapleAsciiString(msg);
         }
-        mplew.writeInt(1); // unk
+        mplew.writeInt(1); // direction
         return mplew.getPacket();
     }
 
@@ -715,11 +683,11 @@ public class MobPacket {
                 continue;
             }
             if (buff.getStati() == MonsterStatus.BLEED) {
-                List<MonsterStatusEffect> bleedBuffs = new ArrayList();
+                List<MonsterStatusEffect> bleedBuffs = new ArrayList<>();
                 //MonsterStatusEffect
-                buffs.stream().filter((b) -> (b.getStati().getBitNumber() == MonsterStatus.BLEED.getBitNumber() && b.getMobSkill() != null)).forEach((b) -> {
-                    bleedBuffs.add(b);
-                });
+                buffs.stream().filter((b)
+                        -> (b.getStati().getBitNumber() == MonsterStatus.BLEED.getBitNumber() && b.getMobSkill() != null))
+                        .forEach(bleedBuffs::add);
                 mplew.write(bleedBuffs.size());
                 if (bleedBuffs.size() > 0) {
                     bleedBuffs.stream().forEach((b) -> {

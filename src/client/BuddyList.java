@@ -35,19 +35,20 @@ import java.util.Map;
 public class BuddyList implements Serializable {
 
     private static final long serialVersionUID = 1413738569L;
-    private Map<Integer, BuddylistEntry> buddies = new LinkedHashMap<>();
+    private Map<Integer, BuddyListEntry> buddies = new LinkedHashMap<>();
     private int capacity;
     private boolean changed = false;
+
     public BuddyList(int capacity) {
         this.capacity = capacity;
     }
 
     public boolean contains(int characterId) {
-        return buddies.containsKey(Integer.valueOf(characterId));
+        return buddies.containsKey(characterId);
     }
 
     public boolean containsVisible(int characterId) {
-        BuddylistEntry ble = buddies.get(characterId);
+        BuddyListEntry ble = buddies.get(characterId);
         if (ble == null) {
             return false;
         }
@@ -62,13 +63,13 @@ public class BuddyList implements Serializable {
         this.capacity = capacity;
     }
 
-    public BuddylistEntry get(int characterId) {
-        return buddies.get(Integer.valueOf(characterId));
+    public BuddyListEntry get(int characterId) {
+        return buddies.get(characterId);
     }
 
-    public BuddylistEntry get(String characterName) {
+    public BuddyListEntry get(String characterName) {
         String lowerCaseName = characterName.toLowerCase();
-        for (BuddylistEntry ble : buddies.values()) {
+        for (BuddyListEntry ble : buddies.values()) {
             if (ble.getName().toLowerCase().equals(lowerCaseName)) {
                 return ble;
             }
@@ -76,17 +77,17 @@ public class BuddyList implements Serializable {
         return null;
     }
 
-    public void put(BuddylistEntry entry) {
-        buddies.put(Integer.valueOf(entry.getCharacterId()), entry);
+    public void put(BuddyListEntry entry) {
+        buddies.put(entry.getCharacterId(), entry);
         changed = true;
     }
 
     public void remove(int characterId) {
-        buddies.remove(Integer.valueOf(characterId));
+        buddies.remove(characterId);
         changed = true;
     }
 
-    public Collection<BuddylistEntry> getBuddies() {
+    public Collection<BuddyListEntry> getBuddies() {
         return buddies.values();
     }
 
@@ -97,7 +98,7 @@ public class BuddyList implements Serializable {
     public int[] getBuddyIds() {
         int buddyIds[] = new int[buddies.size()];
         int i = 0;
-        for (BuddylistEntry ble : buddies.values()) {
+        for (BuddyListEntry ble : buddies.values()) {
             if (ble.isVisible()) {
                 buddyIds[i++] = ble.getCharacterId();
             }
@@ -109,7 +110,7 @@ public class BuddyList implements Serializable {
         CharacterNameAndId buddyid;
         for (final Map.Entry<CharacterNameAndId, Boolean> qs : data.entrySet()) {
             buddyid = qs.getKey();
-            put(new BuddylistEntry(buddyid.getName(), buddyid.getId(), buddyid.getGroup(), -1, qs.getValue()));
+            put(new BuddyListEntry(buddyid.getName(), buddyid.getId(), buddyid.getGroup(), -1, qs.getValue()));
         }
     }
 
@@ -119,14 +120,14 @@ public class BuddyList implements Serializable {
             ps.setInt(1, characterId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                put(new BuddylistEntry(rs.getString("buddyname"), rs.getInt("buddyid"), rs.getString("groupname"), -1, rs.getInt("pending") != 1));
+                put(new BuddyListEntry(rs.getString("buddyname"), rs.getInt("buddyid"), rs.getString("groupname"), -1, rs.getInt("pending") != 1));
             }
             rs.close();
         }
     }
 
     public void addBuddyRequest(MapleClient c, int cidFrom, String nameFrom, int channelFrom, int levelFrom, int jobFrom) {
-        put(new BuddylistEntry(nameFrom, cidFrom, "ETC", channelFrom, false));
+        put(new BuddyListEntry(nameFrom, cidFrom, "ETC", channelFrom, false));
         c.sendPacket(BuddylistPacket.requestBuddylistAdd(cidFrom, nameFrom, levelFrom, jobFrom));
     }
 
@@ -138,12 +139,11 @@ public class BuddyList implements Serializable {
         return changed;
     }
 
-    public static enum BuddyOperation {
-
+    public enum BuddyOperation {
         ADDED, DELETED
     }
 
-    public static enum BuddyAddResult {
+    public enum BuddyAddResult {
 
         BUDDYLIST_FULL, ALREADY_ON_LIST, OK
     }

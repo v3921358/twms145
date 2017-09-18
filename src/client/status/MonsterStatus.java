@@ -98,13 +98,13 @@ public enum MonsterStatus implements Serializable, IBuffStat {
     IMPRINT(34, 33),
     MONSTER_BOMB(35, 34),
     MAGIC_CRASH(36, 36),
-    MOB_BUFF_37(37, true),
-    MOB_BUFF_38(38, 38, true),
-    MOB_BUFF_39(3, 39, true),
-    MOB_BUFF_40(40, 40, true),
-    MOB_BUFF_41(41, 41, true),
-    MOB_BUFF_42(42, 42, true),
-    MOB_BUFF_43(43, 43, true);
+    MOB_BUFF_37(37),
+    MOB_BUFF_38(38, 38),
+    MOB_BUFF_39(3, 39),
+    MOB_BUFF_40(40, 40),
+    MOB_BUFF_41(41, 41 ),
+    MOB_BUFF_42(42, 42 ),
+    MOB_BUFF_43(43, 43);
 
     /***
      * WATK(0x1, 1),

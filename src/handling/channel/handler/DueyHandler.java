@@ -56,7 +56,7 @@ public class DueyHandler {
         switch (operation) {
         case 1: { // Start Duey, 13 digit AS
         final String AS13Digit = slea.readMapleAsciiString();
-        //		int unk = slea.readInt(); // Theres an int here, value = 1
+        //		int direction = slea.readInt(); // Theres an int here, value = 1
         //  9 = error
         final int conv = c.getPlayer().getConversation();
 

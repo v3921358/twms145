@@ -834,17 +834,17 @@ public class CField {
         mplew.write(1); // 0 = remote user?
         mplew.writeInt(oid);
         byte newcheck = 0;
-        mplew.writeInt(newcheck); //unk
+        mplew.writeInt(newcheck); //direction
         if (newcheck > 0) {
-            mplew.writeInt(0); //unk
-            mplew.writeInt(0); //unk
+            mplew.writeInt(0); //direction
+            mplew.writeInt(0); //direction
         }
         mplew.write(0);
         mplew.writeInt(4); // size, for each below
         mplew.writeInt(count); //count
         mplew.writeInt(color); //color, 1-10 for demon, 1-2 for phantom
-        mplew.writeInt(0); //unk
-        mplew.writeInt(0); //unk
+        mplew.writeInt(0); //direction
+        mplew.writeInt(0); //direction
 
         return mplew.getPacket();
     }
@@ -1126,7 +1126,7 @@ public class CField {
         mplew.write(movementSkill ? 1 : 0);
         mplew.write(pushTarget ? 1 : 0);
         mplew.write(pullTarget ? 1 : 0); //afaik only chains of hell does chains
-        mplew.write(0); //unk
+        mplew.write(0); //direction
         mplew.writeShort(stance); //display
         mplew.write(speed);
         mplew.write(mastery);
@@ -1960,7 +1960,6 @@ public class CField {
     public static byte[] getGamePatches() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendPacketOpcode.GAME_PATCHES.getValue());
-        // sub_C28D10((int)"http://maplsub_C28D10((int)"http://maplestory.nexon.net/WZ.ASPX?PART=/Downloads/GamePatches", 0);", 0);
         return mplew.getPacket();
     }
 

@@ -36,16 +36,11 @@ public class Start {
         instance.run();
     }
 
-    private void setAccountsLoginStatus() {
-        try {
-            PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET loggedin = 0");
+    private static void resetAllLoginState() {
+        try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET loggedin = 0")) {
             ps.executeUpdate();
-            ps.close();
-            ps = DatabaseConnection.getConnection().prepareStatement("UPDATE guilds SET GP = 2147483647 WHERE guildid = 1");
-            ps.executeUpdate();
-            ps.close();
         } catch (SQLException ex) {
-            System.out.println(ex);
+            throw new RuntimeException("【錯誤】 請確認資料庫是否正確連接");
         }
     }
 
@@ -62,6 +57,8 @@ public class Start {
     public void run() throws InterruptedException {
 
         System.out.println("楓之谷v145模擬器 啟動中" + "." + ServerConstants.MAPLE_PATCH + "..");
+
+        resetAllLoginState();
         // Worlds
         WorldConstants.init();
         World.init();

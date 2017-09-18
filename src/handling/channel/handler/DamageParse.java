@@ -28,7 +28,6 @@ import client.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.login.LoginServer;
 import handling.world.World;
-import pvp.WizerDual;
 import server.MapleStatEffect;
 import server.Randomizer;
 import server.life.Element;
@@ -409,36 +408,6 @@ public class DamageParse {
                 }
             }
         }
-        if (attack.skill != 2301002 && attack.skill != 4201004 && attack.skill != 1111008 && (player.getMapId() == 910010200 || player.getMapId() == 20 || player.getMapId() == 48 || player.getMap().pvpEnabled())) {
-            switch (World.getPvpState()) {
-                // 0 - Regular PvP || 1 - Survival PvP | 2 - Guild PvP || 3 - Party PvP
-                // 4 - Racist PvP || 5 - Occupation PvP || 6 - Job PvP || 7 - Gender PvP
-                case 0:
-                    WizerDual.doPvP(player, map, attack);
-                    break;
-                case 1:
-                    WizerDual.doSurvivalPvP(player, map, attack);
-                    break;
-                case 2:
-                    WizerDual.doGuildPvP(player, map, attack);
-                    break;
-                case 3:
-                    WizerDual.doPartyPvP(player, map, attack);
-                    break;
-                case 4:
-                    WizerDual.doRacistPvP(player, map, attack);
-                    break;
-                case 5:
-                    WizerDual.doOccPvP(player, map, attack);
-                    break;
-                case 6:
-                    WizerDual.doJobPvP(player, map, attack);
-                    break;
-                case 7:
-                    WizerDual.doGenderPvP(player, map, attack);
-                    break;
-            }
-        }
         if (attack.skill == 4331003 && (hpMob <= 0 || totDamageToOneMonster < hpMob)) {
             return;
         }
@@ -616,36 +585,6 @@ public class DamageParse {
                         eaterSkill.getEffect(eaterLevel).applyPassive(player, monster);
                     }
                 }
-            }
-        }
-        if (attack.skill != 2301002 && attack.skill != 4201004 && attack.skill != 1111008 && (player.getMapId() == 910010200 || player.getMapId() == 20 || player.getMapId() == 48 || player.getMap().pvpEnabled())) {
-            switch (World.getPvpState()) {
-                // 0 - Regular PvP || 1 - Survival PvP | 2 - Guild PvP || 3 - Party PvP
-                // 4 - Racist PvP || 5 - Occupation PvP || 6 - Job PvP || 7 - Gender PvP
-                case 0:
-                    WizerDual.doPvP(player, map, attack);
-                    break;
-                case 1:
-                    WizerDual.doSurvivalPvP(player, map, attack);
-                    break;
-                case 2:
-                    WizerDual.doGuildPvP(player, map, attack);
-                    break;
-                case 3:
-                    WizerDual.doPartyPvP(player, map, attack);
-                    break;
-                case 4:
-                    WizerDual.doRacistPvP(player, map, attack);
-                    break;
-                case 5:
-                    WizerDual.doOccPvP(player, map, attack);
-                    break;
-                case 6:
-                    WizerDual.doJobPvP(player, map, attack);
-                    break;
-                case 7:
-                    WizerDual.doGenderPvP(player, map, attack);
-                    break;
             }
         }
         if (attack.skill != 2301002) {
@@ -1015,51 +954,52 @@ public class DamageParse {
     public static final AttackInfo parseDmgMa(LittleEndianAccessor lea, MapleCharacter chr) {
         try {
             AttackInfo ret = new AttackInfo();
-
+            ret.isMagicAttack = true;
             lea.skip(1);
             ret.tbyte = lea.readByte();
 
             ret.targets = (byte) (ret.tbyte >>> 4 & 0xF);
             ret.hits = (byte) (ret.tbyte & 0xF);
             ret.skill = lea.readInt();
-            if (ret.skill >= 91000000) {
-                return null;
-            }
-            lea.skip(GameConstants.GMS ? 9 : 17);
+            lea.skip(1);
+            lea.skip(4);
             if (GameConstants.isMagicChargeSkill(ret.skill)) {
                 ret.charge = lea.readInt();
             } else {
                 ret.charge = -1;
             }
-            ret.unk = lea.readByte();
+            switch (ret.skill) {
+                case 12120010:
+                case 12110028:
+                case 12100028:
+                case 12000026:
+                    lea.skip(2);
+                    break;
+                default:
+                    lea.skip(1);
+            }
+            ret.direction = lea.readByte();
             ret.display = lea.readUShort();
-
             lea.skip(4);
-            lea.skip(1);
             ret.speed = lea.readByte();
+
             ret.lastAttackTickCount = lea.readInt();
             lea.skip(4);
 
-            ret.allDamage = new ArrayList();
+            ret.allDamage = new ArrayList<>();
 
             for (int i = 0; i < ret.targets; i++) {
                 int oid = lea.readInt();
-
-                lea.skip(18);
-
+                lea.skip(14);
                 List allDamageNumbers = new ArrayList();
-
                 for (int j = 0; j < ret.hits; j++) {
                     int damage = lea.readInt();
-                    allDamageNumbers.add(new Pair(Integer.valueOf(damage), Boolean.valueOf(false)));
+                    allDamageNumbers.add(new Pair<>(damage, false));
                 }
-
-                lea.skip(4);
-                ret.allDamage.add(new AttackPair(Integer.valueOf(oid).intValue(), allDamageNumbers));
+                lea.skip(8);
+                ret.allDamage.add(new AttackPair(oid, allDamageNumbers));
             }
-            if (lea.available() >= 4L) {
-                ret.position = lea.readPos();
-            }
+            ret.position = lea.readPos();
             return ret;
         } catch (Exception e) {
             e.printStackTrace();
@@ -1071,14 +1011,13 @@ public class DamageParse {
         AttackInfo ret = new AttackInfo();
         lea.skip(1);
         ret.tbyte = lea.readByte();
-
         ret.targets = (byte) (ret.tbyte >>> 4 & 0xF);
         ret.hits = (byte) (ret.tbyte & 0xF);
         ret.skill = lea.readInt();
         if (ret.skill >= 91000000) {
             return null;
         }
-        lea.skip(9);
+        lea.skip(12);
         switch (ret.skill) {
             case 11101007: // Power Reflection
             case 11101006: // Dawn Warrior - Power Reflection
@@ -1130,10 +1069,11 @@ public class DamageParse {
                 break;
         }
 
-        ret.unk = lea.readByte();
+        ret.direction = lea.readByte();
         ret.display = lea.readUShort();
-        lea.skip(4);
-        lea.skip(1);
+        int animation = lea.readByte();
+        // TODO: add animation
+        lea.skip(1); // Weapon class
         if ((ret.skill == 5300007) || (ret.skill == 5101012) || (ret.skill == 5081001) || (ret.skill == 15101010)) {
             lea.readInt();
         }
@@ -1142,11 +1082,11 @@ public class DamageParse {
         }
         ret.speed = lea.readByte();
         ret.lastAttackTickCount = lea.readInt();
-        if (ret.skill == 32121003) {
-            lea.skip(4);
-        } else {
-            lea.skip(8);
-        }
+//        if (ret.skill == 32121003) {
+//            lea.skip(4);
+//        } else {
+//            lea.skip(8);
+//        }
 
         ret.allDamage = new ArrayList();
 
@@ -1159,18 +1099,14 @@ public class DamageParse {
         // }
         for (int i = 0; i < ret.targets; i++) {
             int oid = lea.readInt();
-
-            lea.skip(18);
-
-            List allDamageNumbers = new ArrayList();
+            lea.skip(14);
+            List<Pair<Integer, Boolean>> allDamageNumbers = new ArrayList<>();
 
             for (int j = 0; j < ret.hits; j++) {
-                int damage = lea.readInt();
-
-                allDamageNumbers.add(new Pair(Integer.valueOf(damage), Boolean.valueOf(false)));
+                allDamageNumbers.add(new Pair<>(lea.readInt(), false));
             }
             lea.skip(4);
-            ret.allDamage.add(new AttackPair(Integer.valueOf(oid).intValue(), allDamageNumbers));
+            ret.allDamage.add(new AttackPair(oid, allDamageNumbers));
         }
         ret.position = lea.readPos();
         return ret;
@@ -1206,7 +1142,7 @@ public class DamageParse {
         }
 
         ret.charge = -1;
-        ret.unk = lea.readByte();
+        ret.direction = lea.readByte();
         ret.display = lea.readUShort();
         lea.skip(4);
         lea.skip(1);
@@ -1223,7 +1159,7 @@ public class DamageParse {
         ret.csstar = (byte) lea.readShort();
         ret.AOE = lea.readByte();
 
-        ret.allDamage = new ArrayList();
+        ret.allDamage = new ArrayList<>();
 
         for (int i = 0; i < ret.targets; i++) {
             int oid = lea.readInt();

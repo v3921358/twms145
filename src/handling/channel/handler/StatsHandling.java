@@ -34,9 +34,7 @@ public class StatsHandling {
 
     public static void DistributeAP(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
         Map<MapleStat, Integer> statupdate = new EnumMap<>(MapleStat.class);
-        c.sendPacket(CWvsContext.updatePlayerStats(statupdate, true, chr));
         slea.readInt();
-
         final PlayerStats stat = chr.getStat();
         final int job = chr.getJob();
         if (chr.getRemainingAp() > 0) {

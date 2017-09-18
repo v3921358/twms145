@@ -28,15 +28,17 @@ import server.MapleStatEffect;
 import tools.AttackPair;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AttackInfo {
 
     public int skill, charge, lastAttackTickCount;
-    public List<AttackPair> allDamage;
+    public ArrayList<AttackPair> allDamage;
     public Point position;
     public int display;
-    public byte hits, targets, tbyte, speed, csstar, AOE, slot, unk;
+    public byte hits, targets, tbyte, speed, csstar, AOE, slot, direction;
+    public boolean isMagicAttack;
     public boolean real = true;
 
     public final MapleStatEffect getAttackEffect(final MapleCharacter chr, int skillLevel, final Skill skill_) {

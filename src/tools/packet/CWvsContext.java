@@ -441,8 +441,6 @@ public class CWvsContext {
         mplew.write(0); // SetBattleRecoveryInfo [int][int]
         return mplew.getPacket();
     }
-    //</editor-fold>
-    //<editor-fold defaultstate="collapsed" desc="BuddyListPacket">
 
     public static byte[] temporaryStats_Aran() { // used for mercedes tutorial also
         final Map<MapleStat.Temp, Integer> stats = new EnumMap<>(MapleStat.Temp.class);
@@ -2416,7 +2414,7 @@ public class CWvsContext {
 
         public static byte[] giveBuff(int buffid, int bufflength, Map<MapleBuffStatus, Integer> statups, MapleStatEffect effect) {
             if (ServerConstants.DEBUG) {
-                System.out.println("調用位置: " + new java.lang.Throwable().getStackTrace()[0]);
+                System.out.println("調用位置: " + new java.lang.Throwable().getStackTrace()[1]);
             }
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
             mplew.writeShort(SendPacketOpcode.GIVE_BUFF.getValue());
@@ -3758,17 +3756,17 @@ public class CWvsContext {
 
     public static class BuddylistPacket {
 
-        public static byte[] updateBuddylist(Collection<BuddylistEntry> buddylist) {
+        public static byte[] updateBuddylist(Collection<BuddyListEntry> buddylist) {
             return updateBuddylist(buddylist, 7);
         }
 
-        public static byte[] updateBuddylist(Collection<BuddylistEntry> buddylist, int deleted) {
+        public static byte[] updateBuddylist(Collection<BuddyListEntry> buddylist, int deleted) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
             mplew.writeShort(SendPacketOpcode.BUDDYLIST.getValue());
             mplew.write(deleted); // 7, 10, 18, // 8 = update, diff structure
             mplew.write(buddylist.size());
-            for (BuddylistEntry buddy : buddylist) {
+            for (BuddyListEntry buddy : buddylist) {
                 mplew.writeInt(buddy.getCharacterId());
                 mplew.writeAsciiString(buddy.getName(), 13);
                 mplew.write(buddy.isVisible() ? 0 : 1);

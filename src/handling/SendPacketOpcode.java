@@ -441,6 +441,7 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
     GAME_PATCHES,
     SEND_EULA,
     UNKNOWN;
+
     static {
         reloadValues();
     }
@@ -473,6 +474,10 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
         switch (opcode) {
             case NPC_ACTION:
             case YELLOW_CHAT:
+            case MOVE_MONSTER:
+            case MOVE_MONSTER_RESPONSE:
+            case SPAWN_MONSTER:
+            case REACTOR_SPAWN:
                 return true;
             default:
                 return false;
