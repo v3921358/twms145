@@ -2211,9 +2211,7 @@ public class MapleStatEffect implements Serializable {
             case 4321000: //tornado spin
             case 15001003: {
                 applyto.getClient().sendPacket(BuffPacket.givePirate(statups, localDuration / 1000, sourceid));
-                if (!applyto.isHidden()) {
-                    applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignPirate(statups, localDuration / 1000, applyto.getId(), sourceid), false);
-                }
+                applyto.getMap().broadcastMessage(applyto, BuffPacket.giveForeignPirate(statups, localDuration / 1000, applyto.getId(), sourceid), false);
                 normal = false;
                 break;
             }

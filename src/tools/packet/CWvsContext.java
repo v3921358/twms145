@@ -2339,7 +2339,24 @@ public class CWvsContext {
         }
 
         public static byte[] givePirate(Map<MapleBuffStatus, Integer> statups, int duration, int skillid) {
-            return giveForeignPirate(statups, duration, -1, skillid);
+            final boolean infusion = skillid == 5121009 || skillid == 15111005;
+            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+
+            mplew.writeShort(SendPacketOpcode.GIVE_BUFF.getValue());
+            PacketHelper.writeBuffMask(mplew, statups);
+            mplew.writeShort(0);
+            mplew.write(0);
+            for (Map.Entry<MapleBuffStatus, Integer> stat : statups.entrySet()) {
+                mplew.writeInt(stat.getValue());
+                mplew.writeLong(skillid);
+                mplew.writeZeroBytes(infusion ? 6 : 1);
+                mplew.writeShort(duration);
+            }
+            mplew.writeShort(0);
+            mplew.writeShort(0);
+            mplew.write(1);
+            mplew.write(1);
+            return mplew.getPacket();
         }
 
         public static byte[] giveForeignPirate(Map<MapleBuffStatus, Integer> statups, int duration, int cid, int skillid) {
