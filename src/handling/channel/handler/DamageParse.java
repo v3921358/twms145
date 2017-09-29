@@ -23,8 +23,11 @@ package handling.channel.handler;
 import client.*;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
-import client.status.MonsterStatus;
-import client.status.MonsterStatusEffect;
+import client.skill.Skill;
+import client.skill.SkillFactory;
+import server.status.MapleBuffStatus;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.login.LoginServer;
 import handling.world.World;
@@ -246,7 +249,7 @@ public class DamageParse {
                 player.checkMonsterAggro(monster);
 
                 if (GameConstants.getAttackDelay(attack.skill, theSkill) >= 100 && !GameConstants.isNoDelaySkill(attack.skill) && attack.skill != 3101005 && !monster.getStats().isBoss() && player.getTruePosition().distanceSq(monster.getTruePosition()) > GameConstants.getAttackRange(effect, player.getStat().defRange)) {
-                    //player.getCheatTracker().registerOffense(CheatingOffense.ATTACK_FARAWAY_MONSTER, "[Distance: " + player.getTruePosition().distanceSq(monster.getTruePosition()) + ", Expected Distance: " + GameConstants.getAttackRange(effect, player.getStat().defRange) + " Job: " + player.getJob() + "]"); // , Double.toString(Math.sqrt(distance))
+                    //player.getCheatTracker().registerOffense(CheatingOffense.ATTACK_FARAWAY_MONSTER, "[Distance: " + player.getTruePosition().distanceSq(monster.getTruePosition()) + ", Expected Distance: " + GameConstants.getAttackRange(statEffect, player.getStat().defRange) + " Job: " + player.getJob() + "]"); // , Double.toString(Math.sqrt(distance))
                 }
                 // pickpocket
                 if (player.getBuffedValue(MapleBuffStatus.PICKPOCKET) != null) {
@@ -425,9 +428,9 @@ public class DamageParse {
         }
 
 //	if (attack.skill != 2301002) { // heal is both an attack and a special move (healing) so we'll let the whole applying magic live in the special move part
-//	    effect.applyTo(player);
+//	    statEffect.applyTo(player);
 //	}
-        // if (attack.hits > effect.getAttackCount() || attack.targets > effect.getMobCount()) {
+        // if (attack.hits > statEffect.getAttackCount() || attack.targets > statEffect.getMobCount()) {
         //   return;
         // }
         if (attack.hits > 0 && attack.targets > 0) {
@@ -760,7 +763,7 @@ public class DamageParse {
                     defined = true;
                     break;
                 case 3211006: //Sniper Strafe
-                    if (monster.getStatusSourceID(MonsterStatus.FREEZE) == 3211003) { //blizzard in effect
+                    if (monster.getStatusSourceID(MonsterStatus.FREEZE) == 3211003) { //blizzard in statEffect
                         defined = true;
                         // maximumDamageToMonster = 999999;
                     }

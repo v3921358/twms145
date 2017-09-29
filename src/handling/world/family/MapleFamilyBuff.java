@@ -22,7 +22,7 @@
 
 package handling.world.family;
 
-import client.MapleBuffStatus;
+import server.status.MapleBuffStatus;
 import client.MapleCharacter;
 import server.MapleItemInformationProvider;
 import server.MapleStatEffect;

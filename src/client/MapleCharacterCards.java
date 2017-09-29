@@ -23,6 +23,7 @@ import tools.data.MaplePacketLittleEndianWriter;
 import tools.types.Pair;
 import tools.types.Triple;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -114,9 +115,9 @@ public class MapleCharacterCards {
         calculateEffects(); // recalculate, just incase 
     }
 
-    public final void loadCards(final MapleClient c, final boolean channelserver) throws SQLException {
-        cards = CharacterCardFactory.getInstance().loadCharacterCards(c.getAccID(), c.getWorld());
-        if (channelserver) {
+    public final void loadCards(final Connection con, final MapleClient c, final boolean inChannel) throws SQLException {
+        cards = CharacterCardFactory.getInstance().loadCharacterCards(con, c.getAccID(), c.getWorld());
+        if (inChannel) {
             calculateEffects();
         }
     }

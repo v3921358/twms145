@@ -19,8 +19,12 @@ package tools.packet;
 
 import client.*;
 import client.MapleTrait.MapleTraitType;
+import client.buddy.BuddyListEntry;
 import client.inventory.*;
 import client.inventory.MapleImp.ImpFlag;
+import client.skill.Skill;
+import client.skill.SkillEntry;
+import server.status.MapleBuffStatus;
 import constants.GameConstants;
 import constants.ServerConstants;
 import handling.SendPacketOpcode;
@@ -779,16 +783,14 @@ public class CWvsContext {
         mplew.writeShort(SendPacketOpcode.CHAR_INFO.getValue());
         mplew.writeInt(chr.getId());
         mplew.write(chr.getLevel());
-        mplew.writeShort(chr.getJob());
         mplew.writeShort(chr.getSubcategory());
         mplew.write(chr.getStat().pvpRank);
         mplew.writeInt(chr.getFame());
         mplew.write(chr.getMarriageId() > 0 ? 1 : 0);
-        List<Integer> prof = chr.getProfessions();
-        mplew.write(prof.size()); // checks for > 0
-        for (int i : prof) { // if > 0 we write short
-            mplew.writeShort(i);
-        }
+        List<Integer> professions = chr.getProfessions();
+        mplew.write(professions.size()); // checks for > 0
+        // if > 0 we write short
+        professions.forEach(mplew::writeShort);
         if (chr.getGuildId() <= 0) {
             mplew.writeMapleAsciiString("-");
             mplew.writeMapleAsciiString("");
@@ -811,24 +813,36 @@ public class CWvsContext {
                 mplew.writeMapleAsciiString("");
             }
         }
-        mplew.write(isSelf ? 1 : 0);
+        mplew.write(isSelf ? -1 : 0);
         mplew.write(0);
 
-        byte index = 1;
-        for (final MaplePet pet : chr.getPets()) {
-            if (pet.getSummoned()) {
-                mplew.write(index);
-                mplew.writeInt(pet.getPetItemId()); // petid
-                mplew.writeMapleAsciiString(pet.getName());
-                mplew.write(pet.getLevel()); // pet level
-                mplew.writeShort(pet.getCloseness()); // pet closeness
-                mplew.write(pet.getFullness()); // pet fullness
-                mplew.writeShort(0); // pet flags
-                final Item inv = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) (index == 1 ? -114 : (index == 2 ? -130 : -138)));
-                mplew.writeInt(inv == null ? 0 : inv.getItemId());
-                index++;
-            }
-        }
+        // TODO: 血型那些
+        mplew.writeMapleAsciiString("測試");
+        mplew.write(0);
+        mplew.write(0);
+        mplew.write(0);
+        mplew.write(0);
+        mplew.write(0);
+        mplew.write(chr.getSummonedPets().isEmpty() ? 0 : 1);
+//        mplew.writeMapleAsciiString(chr.getCharMessage()); // 角色訊息
+//        mplew.write(chr.getExpression());// 表情
+//        mplew.write(chr.getConstellation());// 星座
+//        mplew.write(chr.getBlood());// 血型
+//        mplew.write(chr.getMonth());// 月
+//        mplew.write(chr.getDay());// 日
+
+        chr.getPets().stream().filter(pet -> pet.getSummoned()).forEach(pet -> {
+            mplew.write(pet.getSummonedValue());
+            mplew.writeInt(chr.getPetIndex(pet));
+            mplew.writeInt(pet.getPetItemId()); // petid
+            mplew.writeMapleAsciiString(pet.getName());
+            mplew.write(pet.getLevel()); // pet level
+            mplew.writeShort(pet.getCloseness()); // pet closeness
+            mplew.write(pet.getFullness()); // pet fullness
+            mplew.writeShort(0); // pet flags
+            Item inv = chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) (pet.getSummonedValue() == 2 ? -130 : pet.getSummonedValue() == 1 ? -114 : -138));
+            mplew.writeInt(inv == null ? 0 : inv.getItemId());
+        });
         mplew.write(0);
 
         if (chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -18) != null && chr.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -19) != null) {
@@ -841,12 +855,12 @@ public class CWvsContext {
             mplew.write(0);
         }
 
-        final int wishlistSize = chr.getWishlistSize();
-        mplew.write(wishlistSize);
-        if (wishlistSize > 0) {
-            final int[] wishlist = chr.getWishlist();
-            for (int x = 0; x < wishlistSize; x++) {
-                mplew.writeInt(wishlist[x]);
+        final int wishListSize = chr.getWishlistSize();
+        mplew.write(wishListSize);
+        if (wishListSize > 0) {
+            final int[] wishList = chr.getWishlist();
+            for (int x = 0; x < wishListSize; x++) {
+                mplew.writeInt(wishList[x]);
             }
         }
 
@@ -862,19 +876,6 @@ public class CWvsContext {
         for (MapleTraitType t : MapleTraitType.values()) {
             mplew.write(chr.getTrait(t).getLevel());
         }
-
-        List<Integer> chairs = new ArrayList<>();
-        for (Item i : chr.getInventory(MapleInventoryType.SETUP).newList()) {
-            if (i.getItemId() / 10000 == 301 && !chairs.contains(i.getItemId())) {
-                chairs.add(i.getItemId());
-            }
-        }
-        mplew.writeInt(chairs.size());
-        for (int i : chairs) {
-            mplew.writeInt(i);
-        }
-        mplew.writeZeroBytes(100);
-
         return mplew.getPacket();
     }
 
@@ -1766,7 +1767,7 @@ public class CWvsContext {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.ITEM_POT.getValue());
-        mplew.write(login ? 0 : 1); //0 = unchanged, 1 = changed
+        mplew.write(login ? 0 : 1); //0 = unchanged, 1 = isChanged
         mplew.writeInt(index + 1);
         mplew.writeInt(mask);
         if ((mask & ImpFlag.SUMMONED.getValue()) != 0) {
@@ -3407,8 +3408,8 @@ public class CWvsContext {
             // 37: Unable to hand over the leadership post; No party member is currently within the vicinity of the party leader.
             // 38: You may only change with the party member that's on the same channel.
             // 40: As a GM, you're forbidden from creating a party.
-            // 45: The party leader has changed the party join request acceptance setting.
-            // 46: Party settings could not be changed. Please try again later.
+            // 45: The party leader has isChanged the party join request acceptance setting.
+            // 46: Party settings could not be isChanged. Please try again later.
             // 51: Cannot be done in the current map.
             // 52: You've requested to join %s's party.
             // default: Your request for a party didn't work due to an unexpected error.
@@ -3862,7 +3863,7 @@ public class CWvsContext {
 
             mplew.writeShort(SendPacketOpcode.FAMILY.getValue());
             MapleFamilyBuff[] entries = MapleFamilyBuff.values();
-            mplew.writeInt(entries.length); // Number of events
+            mplew.writeInt(entries.length); // Number of worldevents
 
             for (MapleFamilyBuff entry : entries) {
                 mplew.write(entry.type);

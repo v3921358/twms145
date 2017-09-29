@@ -22,6 +22,10 @@ package client;
 
 import client.MapleTrait.MapleTraitType;
 import client.inventory.*;
+import client.skill.Skill;
+import client.skill.SkillEntry;
+import client.skill.SkillFactory;
+import server.status.MapleBuffStatus;
 import constants.GameConstants;
 import handling.world.World;
 import handling.world.guild.MapleGuild;
@@ -870,7 +874,7 @@ public class PlayerStats implements Serializable {
                 // Blanc Carte - 24100003
                 // Cane Mastery - 24100004
                 // Luck of Phantom Thief - 24111002
-                // 24111003- uses monlight effect, but is Misfortune Protection
+                // 24111003- uses monlight statEffect, but is Misfortune Protection
                 // 24110004 - Flash and Flee -> active
                 // 24111005 - Moonlight
                 // 24111006 - Phantom Charge

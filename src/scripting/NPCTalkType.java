@@ -18,7 +18,7 @@ public enum NPCTalkType {
     ACCEPT_DECLINE(0xE),
     MULTI_TEXT(0xF),
     UNK_10(0x10),
-    UNK_14(0x14),
+    DIRECTION_SCRIPT_ACTION(0x14),
     UNK_15(0x15);
 
     private final byte type;

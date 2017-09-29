@@ -22,8 +22,8 @@ package handling.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
-import client.Skill;
-import client.SkillFactory;
+import client.skill.Skill;
+import client.skill.SkillFactory;
 import handling.world.World;
 import handling.world.guild.MapleGuild;
 import handling.world.guild.MapleGuildResponse;

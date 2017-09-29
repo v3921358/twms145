@@ -21,8 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.channel.handler;
 
 import client.*;
-import client.BuddyList.BuddyAddResult;
-import client.BuddyList.BuddyOperation;
+import client.buddy.BuddyList;
+import client.buddy.BuddyList.BuddyAddResult;
+import client.buddy.BuddyList.BuddyOperation;
+import client.buddy.BuddyListEntry;
+import client.buddy.CharacterNameAndId;
 import database.DatabaseConnection;
 import handling.channel.ChannelServer;
 import handling.world.World;
@@ -34,8 +37,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static client.BuddyList.BuddyOperation.ADDED;
-import static client.BuddyList.BuddyOperation.DELETED;
+import static client.buddy.BuddyList.BuddyOperation.ADDED;
+import static client.buddy.BuddyList.BuddyOperation.DELETED;
 
 public class BuddyListHandler {
 

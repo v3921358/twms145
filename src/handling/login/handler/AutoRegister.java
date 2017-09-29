@@ -1,6 +1,6 @@
 package handling.login.handler;
 
-import client.LoginCrypto;
+import client.utils.LoginCrypto;
 import database.DatabaseConnection;
 
 import java.sql.Connection;

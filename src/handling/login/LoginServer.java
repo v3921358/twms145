@@ -73,7 +73,7 @@ public class LoginServer {
         loginIPAuth.add(ip);
     }
 
-    public static void run_startup_configurations() {
+    public static void initiate() {
 
         adminOnly = ServerConstants.ADMIN_ONLY;
         acceptor = new ServerConnection(PORT, -1, MapleServerHandler.LOGIN_SERVER);
@@ -81,7 +81,12 @@ public class LoginServer {
         WorldConfig[] worldConfigs = WorldConfig.values();
         for (WorldConfig worldConfig : worldConfigs) {
             if (worldConfig.isOn()) {
-                System.out.printf("[World: %s ] Init...\n", worldConfig.name());
+                System.out.printf("[世界: %s ] 初始化中... ( 頻道: %d個 經驗: %d 掉落: %d 金錢: %d )\n",
+                        worldConfig.name(),
+                        worldConfig.getChnnaelCount(),
+                        worldConfig.getExpRate(),
+                        worldConfig.getDropRate(),
+                        worldConfig.getMesoRate());
                 World world = new World(worldConfig);
                 worlds.add(world);
                 world.initWorld();

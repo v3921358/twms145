@@ -863,7 +863,7 @@ public class MapleItemInformationProvider {
 
     public Item getEquipById(int equipId, int ringId) {
         ItemInformation i = getItemInformation(equipId);
-        if (i == null) {
+        if (i == null || i.eq == null) {
             return new Equip(equipId, (short) 0, ringId, (byte) 0);
         }
         Item eq = i.eq.copy();
@@ -1296,7 +1296,7 @@ public class MapleItemInformationProvider {
         int itemID = sqlRewardData.getInt("itemid");
         if (tmpInfo == null || tmpInfo.itemId != itemID) {
             if (!dataCache.containsKey(itemID)) {
-                System.out.println("[initItemRewardData] Tried to load an item while this is not in the cache: " + itemID);
+                System.out.println("[initItemRewardData] Tried to Load an item while this is not in the cache: " + itemID);
                 return;
             }
             tmpInfo = dataCache.get(itemID);
@@ -1312,7 +1312,7 @@ public class MapleItemInformationProvider {
         add.prob = sqlRewardData.getInt("prob");
         add.quantity = sqlRewardData.getShort("quantity");
         add.worldmsg = sqlRewardData.getString("worldMsg").length() <= 0 ? null : sqlRewardData.getString("worldMsg");
-        add.effect = sqlRewardData.getString("effect");
+        add.effect = sqlRewardData.getString("statEffect");
 
         tmpInfo.rewardItems.add(add);
     }
@@ -1321,7 +1321,7 @@ public class MapleItemInformationProvider {
         int itemID = sqlAddData.getInt("itemid");
         if (tmpInfo == null || tmpInfo.itemId != itemID) {
             if (!dataCache.containsKey(itemID)) {
-                System.out.println("[initItemAddData] Tried to load an item while this is not in the cache: " + itemID);
+                System.out.println("[initItemAddData] Tried to Load an item while this is not in the cache: " + itemID);
                 return;
             }
             tmpInfo = dataCache.get(itemID);
@@ -1341,7 +1341,7 @@ public class MapleItemInformationProvider {
         int itemID = sqlEquipData.getInt("itemid");
         if (tmpInfo == null || tmpInfo.itemId != itemID) {
             if (!dataCache.containsKey(itemID)) {
-                System.out.println("[initItemEquipData] Tried to load an item while this is not in the cache: " + itemID);
+                System.out.println("[initItemEquipData] Tried to Load an item while this is not in the cache: " + itemID);
                 return;
             }
             tmpInfo = dataCache.get(itemID);

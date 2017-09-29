@@ -120,8 +120,8 @@ public class HiredMerchantHandler {
                     c.getPlayer().getClient().sendPacket(CWvsContext.enableActions());
                     return;
                 }
-                if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageid(), c.getPlayer().getWorldId())) {
-                    c.getPlayer().gainMeso(pack.getMesos(), false);
+                if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageId(), c.getPlayer().getWorldId())) {
+                    c.getPlayer().gainMeso(pack.getMeso(), false);
                     c.sendPacket(PlayerShopPacket.merchItem_Message((byte) 32));
                 } else {
                     c.getPlayer().dropMessage(1, "An unknown error occured.");
@@ -155,11 +155,11 @@ public class HiredMerchantHandler {
                     c.getPlayer().getClient().sendPacket(CWvsContext.enableActions());
                     return;
                 }
-                if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageid(), c.getPlayer().getId())) {
+                if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageId(), c.getPlayer().getId())) {
                     if (ServerConstants.MerchantsUseCurrency) {
-                        c.getPlayer().gainCurrency(pack.getMesos(), false);
+                        c.getPlayer().gainCurrency(pack.getMeso(), false);
                     } else {
-                        c.getPlayer().gainMeso(pack.getMesos(), false);
+                        c.getPlayer().gainMeso(pack.getMeso(), false);
                     }
                     c.sendPacket(PlayerShopPacket.merchItem_Message((byte) 32));
                     c.getPlayer().dropMessage(1, "You have retrieved your " + (ServerConstants.MerchantsUseCurrency ? "Munny" : "mesos") + ".");
@@ -177,7 +177,7 @@ public class HiredMerchantHandler {
                         break;
                     }
                     MapleInventoryManipulator.addFromDrop(c, item, true);
-                    deletePackage(c.getPlayer().getAccountID(), pack.getPackageid(), c.getPlayer().getId());
+                    deletePackage(c.getPlayer().getAccountID(), pack.getPackageId(), c.getPlayer().getId());
                     c.getPlayer().setConversation(0);
                 }
                 c.getPlayer().dropNPC(9030000, "Here are your items! Have fun!");
@@ -220,8 +220,8 @@ public class HiredMerchantHandler {
         }
         final int days = StringUtil.getDaysAmount(pack.getSavedTime(), System.currentTimeMillis()); // max 100%
         final double percentage = days / 100.0;
-        final int fee = (int) Math.ceil(percentage * pack.getMesos()); // if no mesos = no tax
-        if (request && days > 0 && percentage > 0 && pack.getMesos() > 0 && fee > 0) {
+        final int fee = (int) Math.ceil(percentage * pack.getMeso()); // if no mesos = no tax
+        if (request && days > 0 && percentage > 0 && pack.getMeso() > 0 && fee > 0) {
             c.sendPacket(PlayerShopPacket.merchItemStore((byte) 38, days, fee));
             return;
         }
@@ -237,11 +237,11 @@ public class HiredMerchantHandler {
             c.sendPacket(PlayerShopPacket.merchItem_Message(36));
             return;
         }
-        if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageid(), c.getPlayer().getId())) {
+        if (deletePackage(c.getPlayer().getAccountID(), pack.getPackageId(), c.getPlayer().getId())) {
             if (fee > 0) {
                 c.getPlayer().gainMeso(-fee, true);
             }
-            c.getPlayer().gainMeso(pack.getMesos(), false);
+            c.getPlayer().gainMeso(pack.getMeso(), false);
             for (Item item : pack.getItems()) {
                 MapleInventoryManipulator.addFromDrop(c, item, false);
             }
@@ -252,7 +252,7 @@ public class HiredMerchantHandler {
     }
 
     private static boolean check(final MapleCharacter chr, final MerchItemPackage pack) {
-        if (chr.getMeso() + pack.getMesos() < 0) {
+        if (chr.getMeso() + pack.getMeso() < 0) {
             return false;
         }
         byte eq = 0, use = 0, setup = 0, etc = 0, cash = 0;
@@ -313,8 +313,8 @@ public class HiredMerchantHandler {
                 }
                 packageid = rs.getInt("PackageId");
                 pack = new MerchItemPackage();
-                pack.setPackageid(packageid);
-                pack.setMesos(rs.getInt("Mesos"));
+                pack.setPackageId(packageid);
+                pack.setMeso(rs.getInt("Mesos"));
                 pack.setSavedTime(rs.getLong("time"));
             }
             rs.close();

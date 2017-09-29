@@ -22,10 +22,14 @@ package scripting;
 
 import client.*;
 import client.inventory.*;
+import client.skill.Skill;
+import client.skill.SkillEntry;
+import client.skill.SkillFactory;
 import constants.GameConstants;
 import constants.Occupations;
 import constants.ServerConstants;
 import database.DatabaseConnection;
+import extensions.temporary.DirectionType;
 import handling.channel.ChannelServer;
 import handling.channel.MapleGuildRanking;
 import handling.channel.handler.HiredMerchantHandler;
@@ -79,8 +83,8 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     private NPCTalkType lastMsg = null;
     private Invocable iv;
 
-    public NPCConversationManager(MapleClient c, int npc, int questid, ScriptType type, Invocable iv) {
-        super(c, npc, questid);
+    public NPCConversationManager(MapleClient c, int npc, int questid, String npcscript, ScriptType type, Invocable iv) {
+        super(c, npc, questid, npcscript);
         this.type = type;
         this.iv = iv;
 
@@ -1235,18 +1239,6 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
         c.getPlayer().expandInventory(type, amt);
     }
 
-    public void unequipEverything() {
-        MapleInventory equipped = getPlayer().getInventory(MapleInventoryType.EQUIPPED);
-        MapleInventory equip = getPlayer().getInventory(MapleInventoryType.EQUIP);
-        List<Short> ids = new LinkedList<>();
-        for (Item item : equipped.newList()) {
-            ids.add(item.getPosition());
-        }
-        for (short idvs : ids) {
-            MapleInventoryManipulator.unequip(getC(), idvs, equip.getNextFreeSlot());
-        }
-    }
-
     public final void clearSkills() {
         final Map<Skill, SkillEntry> skills = new HashMap<>(getPlayer().getSkills());
         final Map<Skill, SkillEntry> newList = new HashMap<>();
@@ -1271,6 +1263,48 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
             c.getPlayer().getMap().broadcastMessage(CField.showEffect(effect));
         } else {
             c.sendPacket(CField.showEffect(effect));
+        }
+    }
+
+    public void exceTime(int time) {
+        getDirectionEffect(DirectionType.EXEC_TIME.getValue(), null, new int[]{time});
+    }
+
+    public void playerWaite() {
+        getDirectionEffect(DirectionType.ACTION.getValue(), null, new int[]{0});
+    }
+
+    public void playerMoveLeft() {
+        getDirectionEffect(DirectionType.ACTION.getValue(), null, new int[]{1});
+    }
+
+    public void playerMoveRight() {
+        getDirectionEffect(DirectionType.ACTION.getValue(), null, new int[]{2});
+    }
+
+    public void playerJump() {
+        getDirectionEffect(DirectionType.ACTION.getValue(), null, new int[]{3});
+    }
+
+    public void playerMoveDown() {
+        getDirectionEffect(DirectionType.ACTION.getValue(), null, new int[]{4});
+    }
+
+
+    public void getDirectionEffect(int mod, String data, int[] values) {
+        DirectionType type = DirectionType.getType(mod);
+        c.getSession().writeAndFlush(UIPacket.getDirectionEffect(type, data, values));
+        if (lastMsg != null) {
+            return;
+        }
+        DirectionType dt = DirectionType.getType(mod);
+        switch (dt) {
+            case EXEC_TIME:
+            case ACTION:
+            case UNK4:
+            case UNK5:
+                lastMsg = NPCTalkType.DIRECTION_SCRIPT_ACTION;
+                break;
         }
     }
 
@@ -2368,5 +2402,9 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
                 c.sendPacket(NPCTalkPacket.removeNPC(npc.getObjectId()));
             }
         }
+    }
+
+    public String getScript() {
+        return this.script;
     }
 }

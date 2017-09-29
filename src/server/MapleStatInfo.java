@@ -93,7 +93,7 @@ public enum MapleStatInfo {
     intX(0), //Increase INT
     itemCon(0), //Consumes item upon using <itemid>
     itemConNo(0), //amount for above
-    itemConsume(0), //Uses certain item to cast that attack, the itemid doesn't need to be in inventory, just the effect.
+    itemConsume(0), //Uses certain item to cast that attack, the itemid doesn't need to be in inventory, just the statEffect.
     jump(0), //Jump Increase
     kp(0), //Body count attack stuffs
     luk2dex(0), //Convert LUK to DEX
@@ -125,10 +125,10 @@ public enum MapleStatInfo {
     morph(0), //MORPH ID
     mp(0), //Restore MP/Heal
     mpCon(0), //MP Cost
-    mpConEff(0), //MP Potion effect increase %
+    mpConEff(0), //MP Potion statEffect increase %
     mpConReduce(0), //MP Consumed reduce
     nbdR(0), //Increases damage by a set percentage when attacking a normal monster.
-    nocoolProp(0), //When using a skill, Cooldown is not applied at #nocoolProp% chance. Has no effect on skills without Cooldown.
+    nocoolProp(0), //When using a skill, Cooldown is not applied at #nocoolProp% chance. Has no statEffect on skills without Cooldown.
     onHitHpRecoveryR(0), //Chance to recover HP when attacking.
     onHitMpRecoveryR(0), //Chance to recover MP when attacking.
     pad(0), //Attack +

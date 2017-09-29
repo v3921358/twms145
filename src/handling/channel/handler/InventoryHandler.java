@@ -25,6 +25,10 @@ import client.MapleTrait.MapleTraitType;
 import client.inventory.*;
 import client.inventory.Equip.ScrollResult;
 import client.inventory.MaplePet.PetFlag;
+import client.skill.Skill;
+import client.skill.SkillEntry;
+import client.skill.SkillFactory;
+import server.status.MapleBuffStatus;
 import constants.GameConstants;
 import constants.ServerConstants;
 import database.DatabaseConnection;
@@ -34,8 +38,8 @@ import handling.world.World;
 import scripting.EventInstanceManager;
 import scripting.NPCScriptManager;
 import server.*;
-import server.events.MapleEvent;
-import server.events.MapleEventType;
+import server.worldevents.MapleEvent;
+import server.worldevents.MapleEventType;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.maps.*;
@@ -422,7 +426,7 @@ public class InventoryHandler {
 //        }
         final long time = System.currentTimeMillis();
         if (chr.getNextConsume() > time) {
-            chr.dropMessage(5, "The potion is still taking effect, please wait " + ((chr.getNextConsume() - time) / 1000) + " seconds.");
+            chr.dropMessage(5, "The potion is still taking statEffect, please wait " + ((chr.getNextConsume() - time) / 1000) + " seconds.");
             c.sendPacket(CWvsContext.enableActions());
             return;
         }
@@ -915,7 +919,7 @@ public class InventoryHandler {
         chr.getMap().broadcastMessage(chr, CField.getScrollEffect(c.getPlayer().getId(), scrollSuccess, legendarySpirit, whiteScroll, scroll.getItemId(), toScroll.getItemId()), vegas == 0);
 
         //addToScrollLog(chr.getAccountID(), chr.getWorldId(), scroll.getItemId(), itemID, oldSlots, (byte)(scrolled == null ? -1 : scrolled.getUpgradeSlots()), oldVH, scrollSuccess.name(), whiteScroll, legendarySpirit, vegas);
-        // equipped item was scrolled and changed
+        // equipped item was scrolled and isChanged
 
         if (dst < 0 && (scrollSuccess == Equip.ScrollResult.SUCCESS || scrollSuccess == Equip.ScrollResult.CURSE) && vegas == 0) {
             chr.equipChanged();

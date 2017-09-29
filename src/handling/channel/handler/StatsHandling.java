@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.channel.handler;
 
 import client.*;
+import client.skill.Skill;
+import client.skill.SkillFactory;
 import constants.GameConstants;
 import server.Randomizer;
 import tools.data.LittleEndianAccessor;

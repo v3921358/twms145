@@ -278,7 +278,8 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
     ENTER_AZWAN,
     ENTER_AZWAN_EVENT,
     LEAVE_AZWAN,
-    MTS_TAB, MCAUGHTEFF,
+    MTS_TAB,
+    MCAUGHTEFF,
     UNKNOWN;
 
     static {
@@ -340,6 +341,8 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
             case NPC_ACTION:
             case MOVE_PLAYER:
             case MOVE_LIFE:
+            case HEAL_OVER_TIME:
+
                 return true;
             default:
                 return false;

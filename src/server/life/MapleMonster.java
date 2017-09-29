@@ -25,9 +25,11 @@ import client.MapleTrait.MapleTraitType;
 import client.inventory.Equip;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
-import client.status.MonsterStatus;
-import client.status.MonsterStatusEffect;
-import com.sun.corba.se.spi.activation.Server;
+import client.skill.Skill;
+import client.skill.SkillFactory;
+import server.status.MapleBuffStatus;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import constants.GameConstants;
 import constants.Occupations;
 import constants.ServerConstants;
@@ -931,7 +933,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         if (duration >= 2000000000) {
             duration = 5000; //teleport master
         }
-        final MonsterStatus stat = status.getStati();
+        final MonsterStatus stat = status.getStatus();
         if (stats.isNoDoom() && stat == MonsterStatus.DOOM) {
             return;
         }
@@ -981,7 +983,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
         }
         status.setCancelTask(aniTime);
         if (poison && getHp() > 1) {
-            status.setValue(status.getStati(), Integer.valueOf((int) ((eff.getDOT() + from.getStat().dot + from.getStat().getDamageIncrease(eff.getSourceId())) * from.getStat().getCurrentMaxBaseDamage() / 100.0)));
+            status.setValue(status.getStatus(), Integer.valueOf((int) ((eff.getDOT() + from.getStat().dot + from.getStat().getDamageIncrease(eff.getSourceId())) * from.getStat().getCurrentMaxBaseDamage() / 100.0)));
             int dam = Integer.valueOf((int) (aniTime / 1000 * status.getX() / 2));
             status.setPoisonSchedule(dam, from);
             if (dam > 0) {
@@ -991,13 +993,13 @@ public class MapleMonster extends AbstractLoadedMapleLife {
                 damage(from, dam, false);
             }
         } else if (statusSkill == 4111003 || statusSkill == 14111001) { // shadow web
-            status.setValue(status.getStati(), (int) (getMobMaxHp() / 50.0 + 0.999));
+            status.setValue(status.getStatus(), (int) (getMobMaxHp() / 50.0 + 0.999));
             status.setPoisonSchedule(Integer.valueOf(status.getX()), from);
         } else if (statusSkill == 4341003) { // monsterbomb
             status.setPoisonSchedule(Integer.valueOf((int) (eff.getDamage() * from.getStat().getCurrentMaxBaseDamage() / 100.0)), from);
 
         } else if (statusSkill == 4121004 || statusSkill == 4221004) {
-            status.setValue(status.getStati(), Math.min(Short.MAX_VALUE, Integer.valueOf((int) (eff.getDamage() * from.getStat().getCurrentMaxBaseDamage() / 100.0))));
+            status.setValue(status.getStatus(), Math.min(Short.MAX_VALUE, Integer.valueOf((int) (eff.getDamage() * from.getStat().getCurrentMaxBaseDamage() / 100.0))));
             int dam = Integer.valueOf((int) (aniTime / 1000 * status.getX() / 2));
             status.setPoisonSchedule(dam, from);
             if (dam > 0) {
@@ -1033,10 +1035,10 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     public void applyStatus(MonsterStatusEffect status) {
-        if (stati.containsKey(status.getStati())) {
-            cancelStatus(status.getStati());
+        if (stati.containsKey(status.getStatus())) {
+            cancelStatus(status.getStatus());
         }
-        stati.put(status.getStati(), status);
+        stati.put(status.getStatus(), status);
         map.broadcastMessage(MobPacket.applyMonsterStatus(this, status), getTruePosition());
     }
 
@@ -1222,10 +1224,10 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     }
 
     public final void doPoison(final MonsterStatusEffect status, final WeakReference<MapleCharacter> weakChr) {
-        if ((status.getStati() == MonsterStatus.BURN || status.getStati() == MonsterStatus.POISON) && poisons.size() <= 0) {
+        if ((status.getStatus() == MonsterStatus.BURN || status.getStatus() == MonsterStatus.POISON) && poisons.size() <= 0) {
             return;
         }
-        if (status.getStati() != MonsterStatus.BURN && status.getStati() != MonsterStatus.POISON && !stati.containsKey(status.getStati())) {
+        if (status.getStatus() != MonsterStatus.BURN && status.getStatus() != MonsterStatus.POISON && !stati.containsKey(status.getStatus())) {
             return;
         }
         if (weakChr == null) {
@@ -1344,11 +1346,11 @@ public class MapleMonster extends AbstractLoadedMapleLife {
 
 
     public final void cancelSingleStatus(final MonsterStatusEffect stat) {
-        if (stat == null || stat.getStati() == MonsterStatus.BLEED || stat.getStati() == MonsterStatus.SUMMON || !isAlive()) {
+        if (stat == null || stat.getStatus() == MonsterStatus.BLEED || stat.getStatus() == MonsterStatus.SUMMON || !isAlive()) {
             return;
         }
-        if (stat.getStati() != MonsterStatus.POISON && stat.getStati() != MonsterStatus.VENOMOUS_WEAPON) {
-            cancelStatus(stat.getStati());
+        if (stat.getStatus() != MonsterStatus.POISON && stat.getStatus() != MonsterStatus.VENOMOUS_WEAPON) {
+            cancelStatus(stat.getStatus());
             return;
         }
         poisonsLock.writeLock().lock();

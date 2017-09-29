@@ -196,12 +196,12 @@ public enum MapleJob {
     未知(999999),;
     private final int jobid;
 
-    private MapleJob(int id) {
+    MapleJob(int id) {
         this.jobid = id;
     }
 
-    public static String getName(MapleJob mjob) {
-        return mjob.name();
+    public static String getName(MapleJob mapleJob) {
+        return mapleJob.name();
     }
 
     public static MapleJob getById(int id) {

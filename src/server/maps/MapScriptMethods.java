@@ -20,9 +20,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
-import client.*;
+import client.MapleCharacter;
 import client.MapleCharacter.DojoMode;
+import client.MapleClient;
+import client.MapleQuestStatus;
+import client.skill.Skill;
+import client.skill.SkillEntry;
+import client.skill.SkillFactory;
 import constants.GameConstants;
+import constants.ServerConstants;
+import extensions.temporary.DirectionType;
 import scripting.EventManager;
 import scripting.NPCScriptManager;
 import server.MapleItemInformationProvider;
@@ -58,7 +65,7 @@ public class MapScriptMethods {
     public static void startScript_FirstUser(MapleClient c, String scriptName) {
         if (c.getPlayer() == null) {
             return;
-        } //o_O
+        }
         switch (onFirstUserEnter.fromString(scriptName)) {
             case dojang_Eff: {
                 int temp = (c.getPlayer().getMapId() - 925000000) / 100;
@@ -586,10 +593,16 @@ public class MapScriptMethods {
                 break;
             }
             default: {
-                //System.out.println("Unhandled script : " + scriptName + ", type : onFirstUserEnter - MAPID " + c.getPlayer().getMapId());
-                FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Unhandled script : " + scriptName + ", type : onFirstUserEnter - MAPID " + c.getPlayer().getMapId());
-                break;
+                if (c.getPlayer().isShowErr()) {
+                    c.getPlayer().showInfo("onFirstUserEnter", true, "找不到地圖onFirstUserEnter：" + scriptName + c.getPlayer().getMap());
+                    c.getPlayer().showInfo("onFirstUserEnter", true, "開始打開對應JS腳本");
+                }
+                NPCScriptManager.getInstance().onFirstUserEnter(c, scriptName);
+                return;
             }
+        }
+        if (c.getPlayer().isShowInfo()) {
+            c.getPlayer().showInfo("onFirstUserEnter", false, "開始地圖onFirstUserEnter：" + scriptName + c.getPlayer().getMap());
         }
     }
 
@@ -601,27 +614,6 @@ public class MapScriptMethods {
         } //o_O
         String data = "";
         switch (onUserEnter.fromString(scriptName)) {
-            case cannon_tuto_direction: {
-                showIntro(c, "Effect/Direction4.img/cannonshooter/Scene00");
-                showIntro(c, "Effect/Direction4.img/cannonshooter/out00");
-                break;
-            }
-            case cannon_tuto_direction1: {
-                c.sendPacket(UIPacket.IntroDisableUI(true));
-                c.sendPacket(UIPacket.IntroLock(true));
-                c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction4.img/effect/cannonshooter/balloon/0", 5000, 0, 0, 1));
-                c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction4.img/effect/cannonshooter/balloon/1", 5000, 0, 0, 1));
-                c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction4.img/effect/cannonshooter/balloon/2", 5000, 0, 0, 1));
-                c.sendPacket(EffectPacket.ShowWZEffect("Effect/Direction4.img/cannonshooter/face04"));
-                c.sendPacket(EffectPacket.ShowWZEffect("Effect/Direction4.img/cannonshooter/out01"));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 5000));
-                break;
-            }
-            case cannon_tuto_direction2: {
-                showIntro(c, "Effect/Direction4.img/cannonshooter/Scene01");
-                showIntro(c, "Effect/Direction4.img/cannonshooter/out02");
-                break;
-            }
             case cygnusTest: {
                 showIntro(c, "Effect/Direction.img/cygnus/Scene" + (c.getPlayer().getMapId() == 913040006 ? 9 : (c.getPlayer().getMapId() - 913040000)));
                 break;
@@ -730,12 +722,12 @@ public class MapScriptMethods {
                 NPCScriptManager.getInstance().start(c, 2159012);
                 break;
             case Resi_tutor50:
-                c.sendPacket(UIPacket.IntroDisableUI(false));
-                c.sendPacket(UIPacket.IntroLock(false));
+                c.sendPacket(UIPacket.disableOthers(false));
+                c.sendPacket(UIPacket.lockKey(false));
                 c.sendPacket(CWvsContext.enableActions());
                 NPCScriptManager.getInstance().dispose(c);
                 c.removeClickedNPC();
-                NPCScriptManager.getInstance().start(c, 2159006);
+                NPCScriptManager.getInstance().start(c, 2159006, null);
                 break;
             case Resi_tutor70:
                 showIntro(c, "Effect/Direction4.img/Resistance/TalkJ");
@@ -811,17 +803,8 @@ public class MapScriptMethods {
             case enter_park100:
             case EnterWaterField:
             case merStandAlone:
-            case EntereurelTW:
-            case aranTutorAlone:
-            case evanAlone: { //no idea
+            case EntereurelTW:{ //no idea
                 c.sendPacket(CWvsContext.enableActions());
-                break;
-            }
-            case merOutStandAlone: {
-                if (c.getPlayer().getQuestStatus(24001) == 1) {
-                    MapleQuest.getInstance(24001).forceComplete(c.getPlayer(), 0);
-                    c.getPlayer().dropMessage(5, "Quest complete.");
-                }
                 break;
             }
             case merTutorSleep00: {
@@ -848,30 +831,6 @@ public class MapScriptMethods {
                 c.sendPacket(UIPacket.IntroEnableUI(0));
                 break;
             }
-            case merTutorDrecotion00: {
-                c.sendPacket(UIPacket.playMovie("Mercedes.avi", true));
-                final Map<Skill, SkillEntry> sa = new HashMap<>();
-                sa.put(SkillFactory.getSkill(20021181), new SkillEntry((byte) 1, (byte) 1, -1));
-                sa.put(SkillFactory.getSkill(20021166), new SkillEntry((byte) 1, (byte) 1, -1));
-                c.getPlayer().changeSkillsLevel(sa);
-                break;
-            }
-            case merTutorDrecotion10: {
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                c.sendPacket(UIPacket.IntroEnableUI(1));
-                c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/6", 2000, 0, -100, 1));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 2000));
-                c.getPlayer().setDirection(0);
-                break;
-            }
-            case merTutorDrecotion20: {
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                c.sendPacket(UIPacket.IntroEnableUI(1));
-                c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/9", 2000, 0, -100, 1));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 2000));
-                c.getPlayer().setDirection(0);
-                break;
-            }
             case ds_tuto_ani: {
                 c.sendPacket(UIPacket.playMovie("DemonSlayer1.avi", true));
                 break;
@@ -881,8 +840,8 @@ public class MapScriptMethods {
             case mirrorCave:
             case babyPigMap:
             case evanleaveD: {
-                c.sendPacket(UIPacket.IntroDisableUI(false));
-                c.sendPacket(UIPacket.IntroLock(false));
+                c.sendPacket(UIPacket.disableOthers(false));
+                c.sendPacket(UIPacket.lockKey(false));
                 c.sendPacket(CWvsContext.enableActions());
                 break;
             }
@@ -933,8 +892,8 @@ public class MapScriptMethods {
                         data = "Effect/Direction4.img/promotion/Scene3";
                         break;
                     case 900090004:
-                        c.sendPacket(UIPacket.IntroDisableUI(false));
-                        c.sendPacket(UIPacket.IntroLock(false));
+                        c.sendPacket(UIPacket.lockUI(false));
+                        c.sendPacket(UIPacket.lockKey(false));
                         c.sendPacket(CWvsContext.enableActions());
                         final MapleMap mapto = c.getChannelServer().getMapFactory().getMap(900010000);
                         c.getPlayer().changeMap(mapto, mapto.getPortal(0));
@@ -967,8 +926,8 @@ public class MapScriptMethods {
 
                 break;
             case TD_MC_title: {
-                c.sendPacket(UIPacket.IntroDisableUI(false));
-                c.sendPacket(UIPacket.IntroLock(false));
+                c.sendPacket(UIPacket.lockUI(false));
+                c.sendPacket(UIPacket.lockKey(false));
                 c.sendPacket(CWvsContext.enableActions());
                 c.sendPacket(CField.MapEff("temaD/enter/mushCatle"));
                 break;
@@ -991,8 +950,8 @@ public class MapScriptMethods {
             }
             case explorationPoint: {
                 if (c.getPlayer().getMapId() == 104000000) {
-                    c.sendPacket(UIPacket.IntroDisableUI(false));
-                    c.sendPacket(UIPacket.IntroLock(false));
+                    c.sendPacket(UIPacket.lockUI(false));
+                    c.sendPacket(UIPacket.lockKey(false));
                     c.sendPacket(CWvsContext.enableActions());
                     c.sendPacket(CField.MapNameDisplay(c.getPlayer().getMapId()));
                 }
@@ -1060,8 +1019,8 @@ public class MapScriptMethods {
             }
             case go10000:
             case go1020000:
-                c.sendPacket(UIPacket.IntroDisableUI(false));
-                c.sendPacket(UIPacket.IntroLock(false));
+                c.sendPacket(UIPacket.lockUI(false));
+                c.sendPacket(UIPacket.lockKey(false));
                 c.sendPacket(CWvsContext.enableActions());
             case go20000:
             case go30000:
@@ -1076,227 +1035,6 @@ public class MapScriptMethods {
             case standbyAswan:
             case go1010400: {
                 c.sendPacket(CField.MapNameDisplay(c.getPlayer().getMapId()));
-                break;
-            }
-            case ds_tuto_ill0: {
-                c.sendPacket(UIPacket.getDirectionInfo(1, 6300));
-                showIntro(c, "Effect/Direction6.img/DemonTutorial/SceneLogo");
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        c.sendPacket(UIPacket.IntroDisableUI(false));
-                        c.sendPacket(UIPacket.IntroLock(false));
-                        c.sendPacket(CWvsContext.enableActions());
-                        final MapleMap mapto = c.getChannelServer().getMapFactory().getMap(927000000);
-                        c.getPlayer().changeMap(mapto, mapto.getPortal(0));
-                    }
-                }, 6300); //wtf
-                break;
-            }
-            case ds_tuto_home_before: {
-                c.sendPacket(UIPacket.getDirectionInfo(3, 1));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 30));
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 90));
-
-                c.sendPacket(CField.showEffect("demonSlayer/text11"));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 4000));
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        showIntro(c, "Effect/Direction6.img/DemonTutorial/Scene2");
-                    }
-                }, 1000);
-                break;
-            }
-            case ds_tuto_1_0: {
-                c.sendPacket(UIPacket.getDirectionInfo(3, 1));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 30));
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                        c.sendPacket(UIPacket.getDirectionInfo(4, 2159310));
-                        NPCScriptManager.getInstance().start(c, 2159310);
-                    }
-                }, 1000);
-                break;
-            }
-            case ds_tuto_4_0: {
-                c.sendPacket(UIPacket.IntroDisableUI(true));
-                c.sendPacket(UIPacket.IntroEnableUI(1));
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                c.sendPacket(UIPacket.getDirectionInfo(4, 2159344));
-                NPCScriptManager.getInstance().start(c, 2159344);
-                break;
-            }
-            case cannon_tuto_01: {
-                c.sendPacket(UIPacket.IntroDisableUI(true));
-                c.sendPacket(UIPacket.IntroEnableUI(1));
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                c.getPlayer().changeSingleSkillLevel(SkillFactory.getSkill(110), (byte) 1, (byte) 1);
-                c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                c.sendPacket(UIPacket.getDirectionInfo(4, 1096000));
-                NPCScriptManager.getInstance().dispose(c);
-                NPCScriptManager.getInstance().start(c, 1096000);
-                break;
-            }
-            case ds_tuto_5_0: {
-                c.sendPacket(UIPacket.IntroDisableUI(true));
-                c.sendPacket(UIPacket.IntroEnableUI(1));
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                c.sendPacket(UIPacket.getDirectionInfo(4, 2159314));
-                NPCScriptManager.getInstance().dispose(c);
-                NPCScriptManager.getInstance().start(c, 2159314);
-                break;
-            }
-            case ds_tuto_3_0: {
-                c.sendPacket(UIPacket.getDirectionInfo(3, 1));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 30));
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                c.sendPacket(CField.showEffect("demonSlayer/text12"));
-
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                        c.sendPacket(UIPacket.getDirectionInfo(4, 2159311));
-                        NPCScriptManager.getInstance().dispose(c);
-                        NPCScriptManager.getInstance().start(c, 2159311);
-                    }
-                }, 1000);
-                break;
-            }
-            case ds_tuto_3_1: {
-                c.sendPacket(UIPacket.IntroDisableUI(true));
-                c.sendPacket(UIPacket.IntroEnableUI(1));
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                if (!c.getPlayer().getMap().containsNPC(2159340)) {
-                    c.getPlayer().getMap().spawnNpc(2159340, new Point(175, 0));
-                    c.getPlayer().getMap().spawnNpc(2159341, new Point(300, 0));
-                    c.getPlayer().getMap().spawnNpc(2159342, new Point(600, 0));
-                }
-                c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/tuto/balloonMsg2/0", 2000, 0, -100, 1));
-                c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/tuto/balloonMsg1/3", 2000, 0, -100, 1));
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                        c.sendPacket(UIPacket.getDirectionInfo(4, 2159340));
-                        NPCScriptManager.getInstance().dispose(c);
-                        NPCScriptManager.getInstance().start(c, 2159340);
-                    }
-                }, 1000);
-                break;
-            }
-            case ds_tuto_2_before: {
-                c.sendPacket(UIPacket.IntroEnableUI(1));
-                c.sendPacket(UIPacket.getDirectionInfo(3, 1));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 30));
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                        c.sendPacket(CField.showEffect("demonSlayer/text13"));
-                        c.sendPacket(UIPacket.getDirectionInfo(1, 500));
-                    }
-                }, 1000);
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        c.sendPacket(CField.showEffect("demonSlayer/text14"));
-                        c.sendPacket(UIPacket.getDirectionInfo(1, 4000));
-                    }
-                }, 1500);
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        final MapleMap mapto = c.getChannelServer().getMapFactory().getMap(927000020);
-                        c.getPlayer().changeMap(mapto, mapto.getPortal(0));
-                        c.sendPacket(UIPacket.IntroEnableUI(0));
-                        MapleQuest.getInstance(23204).forceStart(c.getPlayer(), 0, null);
-                        MapleQuest.getInstance(23205).forceComplete(c.getPlayer(), 0);
-                        final Map<Skill, SkillEntry> sa = new HashMap<>();
-                        sa.put(SkillFactory.getSkill(30011170), new SkillEntry((byte) 1, (byte) 1, -1));
-                        sa.put(SkillFactory.getSkill(30011169), new SkillEntry((byte) 1, (byte) 1, -1));
-                        sa.put(SkillFactory.getSkill(30011168), new SkillEntry((byte) 1, (byte) 1, -1));
-                        sa.put(SkillFactory.getSkill(30011167), new SkillEntry((byte) 1, (byte) 1, -1));
-                        sa.put(SkillFactory.getSkill(30010166), new SkillEntry((byte) 1, (byte) 1, -1));
-                        c.getPlayer().changeSkillsLevel(sa);
-                    }
-                }, 5500);
-                break;
-            }
-            case ds_tuto_1_before: {
-                c.sendPacket(UIPacket.getDirectionInfo(3, 1));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 30));
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                        c.sendPacket(CField.showEffect("demonSlayer/text8"));
-                        c.sendPacket(UIPacket.getDirectionInfo(1, 500));
-                    }
-                }, 1000);
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        c.sendPacket(CField.showEffect("demonSlayer/text9"));
-                        c.sendPacket(UIPacket.getDirectionInfo(1, 3000));
-                    }
-                }, 1500);
-                EventTimer.getInstance().schedule(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        final MapleMap mapto = c.getChannelServer().getMapFactory().getMap(927000010);
-                        c.getPlayer().changeMap(mapto, mapto.getPortal(0));
-                    }
-                }, 4500);
-                break;
-            }
-            case ds_tuto_0_0: {
-                c.sendPacket(UIPacket.getDirectionStatus(true));
-                c.sendPacket(UIPacket.IntroEnableUI(1));
-                c.sendPacket(UIPacket.IntroDisableUI(true));
-
-                final Map<Skill, SkillEntry> sa = new HashMap<>();
-                sa.put(SkillFactory.getSkill(30011109), new SkillEntry((byte) 1, (byte) 1, -1));
-                sa.put(SkillFactory.getSkill(30010110), new SkillEntry((byte) 1, (byte) 1, -1));
-                sa.put(SkillFactory.getSkill(30010111), new SkillEntry((byte) 1, (byte) 1, -1));
-                sa.put(SkillFactory.getSkill(30010185), new SkillEntry((byte) 1, (byte) 1, -1));
-                c.getPlayer().changeSkillsLevel(sa);
-                c.sendPacket(UIPacket.getDirectionInfo(3, 0));
-                c.sendPacket(CField.showEffect("demonSlayer/back"));
-                c.sendPacket(CField.showEffect("demonSlayer/text0"));
-                c.sendPacket(UIPacket.getDirectionInfo(1, 500));
-                c.getPlayer().setDirection(0);
-                if (!c.getPlayer().getMap().containsNPC(2159307)) {
-                    c.getPlayer().getMap().spawnNpc(2159307, new Point(1305, 50));
-                }
-                break;
-            }
-            case ds_tuto_2_prep: {
-                if (!c.getPlayer().getMap().containsNPC(2159309)) {
-                    c.getPlayer().getMap().spawnNpc(2159309, new Point(550, 50));
-                }
                 break;
             }
             case goArcher: {
@@ -1364,8 +1102,8 @@ public class MapScriptMethods {
                 sa.put(SkillFactory.getSkill(20000018), new SkillEntry((byte) -1, (byte) 0, -1));
                 c.getPlayer().changeSkillsLevel(sa);
                 c.sendPacket(EffectPacket.ShowWZEffect("Effect/Direction1.img/aranTutorial/ClickLirin"));
-                c.sendPacket(UIPacket.IntroDisableUI(false));
-                c.sendPacket(UIPacket.IntroLock(false));
+                c.sendPacket(UIPacket.lockUI(false));
+                c.sendPacket(UIPacket.lockKey(false));
                 c.sendPacket(CWvsContext.enableActions());
                 break;
             }
@@ -1380,8 +1118,8 @@ public class MapScriptMethods {
                 if (c.getPlayer().getQuestStatus(21101) == 2 && c.getPlayer().getInfoQuest(21019).equals("miss=o;arr=o;helper=clear")) {
                     c.getPlayer().updateInfoQuest(21019, "miss=o;arr=o;ck=1;helper=clear");
                 }
-                c.sendPacket(UIPacket.IntroDisableUI(false));
-                c.sendPacket(UIPacket.IntroLock(false));
+                c.sendPacket(UIPacket.lockUI(false));
+                c.sendPacket(UIPacket.lockKey(false));
                 break;
             }
             case check_count: {
@@ -1418,19 +1156,17 @@ public class MapScriptMethods {
                 break;
             }
             case Massacre_result: { //clear, give exp, etc.
-                //if (c.getPlayer().getPyramidSubway() == null) {
                 c.sendPacket(CField.showEffect("killing/fail"));
-                //} else {
-                //	c.sendPacket(CField.showEffect("killing/clear"));
-                //}
-                //left blank because pyramidsubway handles this.
                 break;
             }
             default: {
-                //System.out.println("Unhandled script : " + scriptName + ", type : onUserEnter - MAPID " + c.getPlayer().getMapId());
-                FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Unhandled script : " + scriptName + ", type : onUserEnter - MAPID " + c.getPlayer().getMapId());
-                break;
+                NPCScriptManager.getInstance().onUserEnter(c, scriptName);
+                return;
             }
+        }
+
+        if (ServerConstants.DEBUG) {
+            c.getPlayer().showInfo("onUserEnter", false, "開始地圖onUserEnter：" + scriptName + c.getPlayer().getMap());
         }
     }
 
@@ -1477,8 +1213,8 @@ public class MapScriptMethods {
     }
 
     private static void showIntro(final MapleClient c, final String data) {
-        c.sendPacket(UIPacket.IntroDisableUI(true));
-        c.sendPacket(UIPacket.IntroLock(true));
+        c.sendPacket(UIPacket.lockUI(true));
+        c.sendPacket(UIPacket.lockKey(true));
         c.sendPacket(EffectPacket.ShowWZEffect(data));
     }
 
@@ -1545,57 +1281,49 @@ public class MapScriptMethods {
         DirectionInfo di = chr.getMap().getDirectionInfo(start ? 0 : chr.getDirection());
         if (di != null && di.eventQ.size() > 0) {
             if (start) {
-                c.sendPacket(UIPacket.IntroDisableUI(true));
-                c.sendPacket(UIPacket.getDirectionInfo(3, 4));
+                c.sendPacket(UIPacket.disableOthers(true));
+                c.sendPacket(UIPacket.getDirectionInfo(DirectionType.ACTION, 4));
             } else {
                 for (String s : di.eventQ) {
                     switch (directionInfo.fromString(s)) {
                         case merTutorDrecotion01: //direction info: 1 is probably the time
-                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/0", 2000, 0, -100, 1));
+                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/0", 2000, 0, -100, 1, 0));
                             break;
                         case merTutorDrecotion02:
-                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/1", 2000, 0, -100, 1));
+                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/1", 2000, 0, -100, 1, 0));
                             break;
                         case merTutorDrecotion03:
-                            c.sendPacket(UIPacket.getDirectionInfo(3, 2));
+                            c.sendPacket(UIPacket.getDirectionInfo(DirectionType.ACTION, 2));
                             c.sendPacket(UIPacket.getDirectionStatus(true));
-                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/2", 2000, 0, -100, 1));
+                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/2", 2000, 0, -100, 1, 0));
                             break;
                         case merTutorDrecotion04:
-                            c.sendPacket(UIPacket.getDirectionInfo(3, 2));
+                            c.sendPacket(UIPacket.getDirectionInfo(DirectionType.ACTION, 2));
                             c.sendPacket(UIPacket.getDirectionStatus(true));
-                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/3", 2000, 0, -100, 1));
+                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/3", 2000, 0, -100, 1, 0));
                             break;
                         case merTutorDrecotion05:
-                            c.sendPacket(UIPacket.getDirectionInfo(3, 2));
+                            c.sendPacket(UIPacket.getDirectionInfo(DirectionType.ACTION, 2));
                             c.sendPacket(UIPacket.getDirectionStatus(true));
-                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/4", 2000, 0, -100, 1));
-                            EventTimer.getInstance().schedule(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    c.sendPacket(UIPacket.getDirectionInfo(3, 2));
-                                    c.sendPacket(UIPacket.getDirectionStatus(true));
-                                    c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/5", 2000, 0, -100, 1));
-                                }
+                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/4", 2000, 0, -100, 1, 0));
+                            EventTimer.getInstance().schedule(() -> {
+                                c.sendPacket(UIPacket.getDirectionInfo(DirectionType.ACTION, 2));
+                                c.sendPacket(UIPacket.getDirectionStatus(true));
+                                c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/5", 2000, 0, -100, 1, 0));
                             }, 2000);
-                            EventTimer.getInstance().schedule(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    c.sendPacket(UIPacket.IntroEnableUI(0));
-                                    c.sendPacket(CWvsContext.enableActions());
-                                }
+                            EventTimer.getInstance().schedule(() -> {
+                                c.sendPacket(UIPacket.lockUI(false));
+                                c.sendPacket(CWvsContext.enableActions());
                             }, 4000);
                             break;
                         case merTutorDrecotion12:
-                            c.sendPacket(UIPacket.getDirectionInfo(3, 2));
+                            c.sendPacket(UIPacket.getDirectionInfo(DirectionType.ACTION, 2));
                             c.sendPacket(UIPacket.getDirectionStatus(true));
-                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/8", 2000, 0, -100, 1));
-                            c.sendPacket(UIPacket.IntroEnableUI(0));
+                            c.sendPacket(UIPacket.getDirectionInfo("Effect/Direction5.img/effect/mercedesInIce/merBalloon/8", 2000, 0, -100, 1, 0));
+                            c.sendPacket(UIPacket.lockUI(false));
                             break;
                         case merTutorDrecotion21:
-                            c.sendPacket(UIPacket.getDirectionInfo(3, 1));
+                            c.sendPacket(UIPacket.getDirectionInfo(DirectionType.ACTION, 1));
                             c.sendPacket(UIPacket.getDirectionStatus(true));
                             MapleMap mapto = c.getChannelServer().getMapFactory().getMap(910150005);
                             c.getPlayer().changeMap(mapto, mapto.getPortal(0));
@@ -1604,64 +1332,48 @@ public class MapScriptMethods {
                             c.sendPacket(CField.showEffect("demonSlayer/text1"));
                             break;
                         case ds_tuto_0_1:
-                            c.sendPacket(UIPacket.getDirectionInfo(3, 2));
+                            c.sendPacket(UIPacket.getDirectionInfo(DirectionType.ACTION, 2));
                             break;
                         case ds_tuto_0_3:
                             c.sendPacket(CField.showEffect("demonSlayer/text2"));
-                            EventTimer.getInstance().schedule(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    c.sendPacket(UIPacket.getDirectionInfo(1, 4000));
-                                    c.sendPacket(CField.showEffect("demonSlayer/text3"));
-                                }
+                            EventTimer.getInstance().schedule(() -> {
+                                c.sendPacket(UIPacket.getDirectionInfo(DirectionType.EXEC_TIME, 4000));
+                                c.sendPacket(CField.showEffect("demonSlayer/text3"));
                             }, 2000);
-                            EventTimer.getInstance().schedule(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    c.sendPacket(UIPacket.getDirectionInfo(1, 500));
-                                    c.sendPacket(CField.showEffect("demonSlayer/text4"));
-                                }
+                            EventTimer.getInstance().schedule(() -> {
+                                c.sendPacket(UIPacket.getDirectionInfo(DirectionType.EXEC_TIME, 500));
+                                c.sendPacket(CField.showEffect("demonSlayer/text4"));
                             }, 6000);
-                            EventTimer.getInstance().schedule(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    c.sendPacket(UIPacket.getDirectionInfo(1, 4000));
-                                    c.sendPacket(CField.showEffect("demonSlayer/text5"));
-                                }
+                            EventTimer.getInstance().schedule(() -> {
+                                c.sendPacket(UIPacket.getDirectionInfo(DirectionType.EXEC_TIME, 4000));
+                                c.sendPacket(CField.showEffect("demonSlayer/text5"));
                             }, 6500);
-                            EventTimer.getInstance().schedule(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    c.sendPacket(UIPacket.getDirectionInfo(1, 500));
-                                    c.sendPacket(CField.showEffect("demonSlayer/text6"));
-                                }
+                            EventTimer.getInstance().schedule(() -> {
+                                c.sendPacket(UIPacket.getDirectionInfo(DirectionType.EXEC_TIME, 500));
+                                c.sendPacket(CField.showEffect("demonSlayer/text6"));
                             }, 10500);
-                            EventTimer.getInstance().schedule(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    c.sendPacket(UIPacket.getDirectionInfo(1, 4000));
-                                    c.sendPacket(CField.showEffect("demonSlayer/text7"));
-                                }
+                            EventTimer.getInstance().schedule(() -> {
+                                c.sendPacket(UIPacket.getDirectionInfo(DirectionType.EXEC_TIME, 4000));
+                                c.sendPacket(CField.showEffect("demonSlayer/text7"));
                             }, 11000);
-                            EventTimer.getInstance().schedule(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    c.sendPacket(UIPacket.getDirectionInfo(4, 2159307));
-                                    NPCScriptManager.getInstance().dispose(c);
-                                    NPCScriptManager.getInstance().start(c, 2159307);
-                                }
+                            EventTimer.getInstance().schedule(() -> {
+                                c.sendPacket(UIPacket.getDirectionInfo(DirectionType.UNK4, 2159307));
+                                NPCScriptManager.getInstance().dispose(c);
+                                NPCScriptManager.getInstance().start(c, 2159307);
                             }, 15000);
                             break;
+                        default: {
+                            if (ServerConstants.DEBUG) {
+                                c.getPlayer().showInfo("directionInfo", true, "找不到地圖directionInfo：" + s + c.getPlayer().getMap());
+                            }
+                        }
+                    }
+                    if (ServerConstants.DEBUG) {
+                        c.getPlayer().showInfo("directionInfo", false, "開始地圖directionInfo：" + s + c.getPlayer().getMap());
                     }
                 }
             }
-            c.sendPacket(UIPacket.getDirectionInfo(1, 2000));
+            c.sendPacket(UIPacket.getDirectionInfo(DirectionType.EXEC_TIME, 2000));
             chr.setDirection(chr.getDirection() + 1);
             if (chr.getMap().getDirectionInfo(chr.getDirection()) == null) {
                 chr.setDirection(-1);
@@ -1680,7 +1392,7 @@ public class MapScriptMethods {
         }
     }
 
-    private static enum onFirstUserEnter {
+    private  enum onFirstUserEnter {
 
         dojang_Eff,
         dojang_Msg,
@@ -1815,8 +1527,6 @@ public class MapScriptMethods {
         check_count,
         Massacre_first,
         Massacre_result,
-        aranTutorAlone,
-        evanAlone,
         dojang_QcheckSet,
         Sky_StageEnter,
         outCase,
@@ -1878,32 +1588,15 @@ public class MapScriptMethods {
         visitorPT_Enter,
         VisitorCubePhase00_Enter,
         visitor_ReviveMap,
-        cannon_tuto_01,
-        cannon_tuto_direction,
-        cannon_tuto_direction1,
-        cannon_tuto_direction2,
         userInBattleSquare,
-        merTutorDrecotion00,
-        merTutorDrecotion10,
-        merTutorDrecotion20,
         merStandAlone,
         merOutStandAlone,
         merTutorSleep00,
         merTutorSleep01,
         merTutorSleep02,
         EntereurelTW,
-        ds_tuto_ill0,
-        ds_tuto_0_0,
-        ds_tuto_1_0,
-        ds_tuto_3_0,
-        ds_tuto_3_1,
-        ds_tuto_4_0,
         enter_training,
         achieve_davy,
-        ds_tuto_5_0,
-        ds_tuto_2_prep,
-        ds_tuto_1_before,
-        ds_tuto_2_before,
         ds_tuto_home_before,
         ds_tuto_ani,
         enter_edelstein,

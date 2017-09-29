@@ -1,7 +1,8 @@
 package server;
 
-import client.SkillFactory;
 import client.inventory.MapleInventoryIdentifier;
+import client.messages.CommandProcessor;
+import client.skill.SkillFactory;
 import constants.ServerConstants;
 import constants.WorldConstants;
 import database.DatabaseConnection;
@@ -14,13 +15,14 @@ import handling.world.World;
 import handling.world.family.MapleFamily;
 import handling.world.guild.MapleGuild;
 import server.Timer.*;
-import server.events.MapleOxQuizFactory;
+import server.cashshop.CashItemFactory;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonsterInformationProvider;
 import server.life.MobSkillFactory;
 import server.life.PlayerNPC;
 import server.maps.MapleMapFactory;
 import server.quest.MapleQuest;
+import server.worldevents.MapleOxQuizFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -30,13 +32,12 @@ public class Start {
 
     public static final Start instance = new Start();
     public static long startTime = System.currentTimeMillis();
-    public static AtomicInteger CompletedLoadingThreads = new AtomicInteger(0);
 
     public static void main(final String args[]) throws InterruptedException {
         instance.run();
     }
 
-    private static void resetAllLoginState() {
+    private void resetAllLoginState() {
         try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("UPDATE accounts SET loggedin = 0")) {
             ps.executeUpdate();
         } catch (SQLException ex) {
@@ -58,7 +59,8 @@ public class Start {
 
         System.out.println("楓之谷v145模擬器 啟動中" + "." + ServerConstants.MAPLE_PATCH + "..");
 
-        resetAllLoginState();
+        CommandProcessor.Initiate();
+        this.resetAllLoginState();
         // Worlds
         WorldConstants.init();
         World.init();
@@ -67,8 +69,8 @@ public class Start {
         // WorldConfig Handler
         MapleServerHandler.initiate();
         // Servers
-        LoginServer.run_startup_configurations();
-        CashShopServer.run_startup_configurations();
+        LoginServer.initiate();
+        CashShopServer.initiate();
         // Information
         MapleItemInformationProvider.getInstance().runEtc();
         MapleMonsterInformationProvider.getInstance().load();
@@ -78,11 +80,11 @@ public class Start {
         SkillFactory.load();
         LoginInformationProvider.getInstance();
         MapleGuildRanking.getInstance().load();
-        MapleGuild.loadAll(); //(this);
-        MapleFamily.loadAll(); //(this);
+        MapleGuild.loadAll();
+        MapleFamily.loadAll();
         MapleLifeFactory.loadQuestCounts();
-        MapleQuest.initQuests();
-        RandomRewards.load();
+        MapleQuest.InitQuests();
+        RandomRewards.Load();
         MapleOxQuizFactory.getInstance();
         MapleCarnivalFactory.getInstance();
         //CharacterCardFactory.getInstance().initialize();
@@ -91,9 +93,9 @@ public class Start {
         MapleInventoryIdentifier.getInstance();
         MapleMapFactory.loadCustomLife();
         CashItemFactory.getInstance().initialize();
-        PlayerNPC.loadAll();// touch - so we see database problems early...
+        PlayerNPC.LoadAll();// touch - so we see database problems early...
         MapleMonsterInformationProvider.getInstance().addExtra();
         RankingWorker.run();
-        System.out.println("Server is Opened");
+        System.out.printf("Server is Opened - %ds ", (System.currentTimeMillis()-startTime)/1000);
     }
 }

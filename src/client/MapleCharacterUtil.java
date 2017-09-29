@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package client;
 
+import client.utils.LoginCrypto;
+import client.utils.LoginCryptoLegacy;
 import constants.GameConstants;
 import database.DatabaseConnection;
 import tools.types.Triple;

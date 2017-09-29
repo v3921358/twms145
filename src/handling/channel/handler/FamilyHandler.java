@@ -96,7 +96,7 @@ public class FamilyHandler {
             case EXP_12_30: // exp rate + 100% 15 min
             case Drop_15_15:
             case Drop_15_30:
-                //c.sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
+                //c.sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.statEffect, entry.duration*60000));
                 entry.applyTo(c.getPlayer());
                 break;
             case Bonding: // 6 family members in pedigree online Drop Rate & Exp Rate + 100% 30 minutes
@@ -113,7 +113,7 @@ public class FamilyHandler {
                         }
                         MapleCharacter chrr = World.getStorage(wl, chr).getCharacterById(chrz.getId());
                         entry.applyTo(chrr);
-                        //chrr.getClient().sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
+                        //chrr.getClient().sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.statEffect, entry.duration*60000));
                     }
                 }
                 break;
@@ -121,14 +121,14 @@ public class FamilyHandler {
             case Drop_Party_12: // drop rate + 100% party 30 min
             case Drop_Party_15: // exp rate + 100% party 30 min
                 entry.applyTo(c.getPlayer());
-                //c.sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
+                //c.sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.statEffect, entry.duration*60000));
                 if (c.getPlayer().getParty() != null) {
                     for (MaplePartyCharacter mpc : c.getPlayer().getParty().getMembers()) {
                         if (mpc.getId() != c.getPlayer().getId()) {
                             MapleCharacter chr = c.getPlayer().getMap().getCharacterById(mpc.getId());
                             if (chr != null) {
                                 entry.applyTo(chr);
-                                //chr.getClient().sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.effect, entry.duration*60000));
+                                //chr.getClient().sendPacket(FamilyPacket.familyBuff(entry.type, type, entry.statEffect, entry.duration*60000));
                             }
                         }
                     }

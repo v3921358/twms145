@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling.world;
 
-import client.MapleBuffStatus;
+import server.status.MapleBuffStatus;
 import server.MapleStatEffect;
 
 import java.io.Serializable;

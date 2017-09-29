@@ -20,9 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package scripting;
 
-import client.*;
+import client.MapleCharacter;
+import client.MapleClient;
+import client.MapleQuestStatus;
 import client.MapleTrait.MapleTraitType;
 import client.inventory.*;
+import client.skill.Skill;
+import client.skill.SkillFactory;
 import constants.GameConstants;
 import handling.channel.ChannelServer;
 import handling.world.MapleParty;
@@ -35,12 +39,12 @@ import server.Randomizer;
 import server.Timer.EtcTimer;
 import server.Timer.EventTimer;
 import server.Timer.MapTimer;
-import server.events.MapleEvent;
-import server.events.MapleEventType;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.maps.*;
 import server.quest.MapleQuest;
+import server.worldevents.MapleEvent;
+import server.worldevents.MapleEventType;
 import tools.FileoutputUtil;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
@@ -57,11 +61,21 @@ public abstract class AbstractPlayerInteraction {
 
     protected MapleClient c;
     protected int id, id2;
+    protected String script;
 
-    public AbstractPlayerInteraction(final MapleClient c, final int id, final int id2) {
+
+    public AbstractPlayerInteraction(MapleClient c) {
+        this.c = c;
+        id = 0;
+        id2 = 0;
+        script = null;
+    }
+
+    public AbstractPlayerInteraction(final MapleClient c, final int id, final int id2, final String script) {
         this.c = c;
         this.id = id;
         this.id2 = id2;
+        this.script = script;
     }
 
     public final MapleClient getClient() {
@@ -1127,12 +1141,12 @@ public abstract class AbstractPlayerInteraction {
     }
 
     public final void DisableUI(final boolean enabled) {
-        c.sendPacket(UIPacket.IntroDisableUI(enabled));
+        c.sendPacket(UIPacket.lockUI(enabled));
     }
 
     public final void MovieClipIntroUI(final boolean enabled) {
-        c.sendPacket(UIPacket.IntroDisableUI(enabled));
-        c.sendPacket(UIPacket.IntroLock(enabled));
+        c.sendPacket(UIPacket.lockUI(enabled));
+        c.sendPacket(UIPacket.lockKey(enabled));
     }
 
     public MapleInventoryType getInvType(int i) {
@@ -1280,14 +1294,28 @@ public abstract class AbstractPlayerInteraction {
         return Randomizer.nextInt(arg0);
     }
 
-    public void sendDirectionStatus(int key, int value) {
-        c.sendPacket(UIPacket.getDirectionInfo(key, value));
-        c.sendPacket(UIPacket.getDirectionStatus(true));
+    public final void lockKey(final boolean enabled) {
+        c.sendPacket(UIPacket.lockKey(enabled));
     }
 
-    public void sendDirectionInfo(String data) {
-        c.sendPacket(UIPacket.getDirectionInfo(data, 2000, 0, -100, 0));
-        c.sendPacket(UIPacket.getDirectionInfo(1, 2000));
+    public void lockUI(boolean enable) {
+        c.sendPacket(CField.UIPacket.lockUI(enable));
+    }
+
+    public void lockUI(boolean enable, int enable2) {
+        lockUI(enable ? 1 : 0, enable2);
+    }
+
+    public void lockUI(int enable, int enable2) {
+        c.sendPacket(CField.UIPacket.lockUI(enable, enable2));
+    }
+
+    public final void disableOthers(final boolean enabled) {
+        c.sendPacket(UIPacket.disableOthers(enabled));
+    }
+
+    public void getDirectionStatus(boolean enable) {
+        c.sendPacket(CField.UIPacket.getDirectionStatus(enable));
     }
 
     public final void prepareAswanMob(int mapid, EventManager eim) {

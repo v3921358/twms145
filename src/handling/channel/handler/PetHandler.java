@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling.channel.handler;
 
-import client.MapleBuffStatus;
+import server.status.MapleBuffStatus;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.inventory.Item;

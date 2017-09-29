@@ -23,7 +23,10 @@ package tools.packet;
 import client.*;
 import client.MapleTrait.MapleTraitType;
 import client.inventory.*;
-import client.status.IBuffStat;
+import client.skill.Skill;
+import client.skill.SkillEntry;
+import server.status.IBuffStat;
+import server.status.MapleBuffStatus;
 import constants.GameConstants;
 import handling.world.MapleCharacterLook;
 import handling.world.PlayerBuffValueHolder;
@@ -265,7 +268,7 @@ public class PacketHelper {
         mplew.writeInt(chr.getGachExp());
         mplew.writeLong(KoreanDateUtil.getFileTimestamp(System.currentTimeMillis(), false));
         mplew.writeInt(chr.getMapId());
-        mplew.write(chr.getInitialSpawnpoint());
+        mplew.write(chr.getInitialSpawnPoint());
         mplew.writeShort(chr.getSubcategory());
         if (GameConstants.isDemon(chr.getJob())) {
             mplew.writeInt(chr.getDemonMarking());
@@ -771,7 +774,7 @@ public class PacketHelper {
             for (MapleQuestStatus q : completed) {
                 mplew.writeShort(q.getQuest().getId());
                 mplew.writeLong(KoreanDateUtil.getQuestTimestamp(q.getCompletionTime()));
-                //v139 changed from long to int
+                //v139 isChanged from long to int
             }
         } else {
             final List<MapleQuestStatus> completed = chr.getCompletedQuests();
@@ -986,7 +989,7 @@ public class PacketHelper {
         mplew.writeShort(0);
         mplew.write(active ? (pet.getSummoned() ? pet.getSummonedValue() : 0) : 0); // 1C 5C 98 C6 01
         for (int i = 0; i < 4; i++) {
-            mplew.write(0); //0x40 before, changed to 0?
+            mplew.write(0); //0x40 before, isChanged to 0?
         }
     }
 

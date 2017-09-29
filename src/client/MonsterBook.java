@@ -64,9 +64,9 @@ public final class MonsterBook implements Serializable {
         applyBook(chr, true);
     }
 
-    public static MonsterBook loadCards(final int charid, final MapleCharacter chr) throws SQLException {
+    public static MonsterBook loadCards(final Connection con, final int charid, final MapleCharacter chr) throws SQLException {
         Map<Integer, Integer> cards;
-        try (PreparedStatement ps = DatabaseConnection.getConnection().prepareStatement("SELECT * FROM monsterbook WHERE charid = ? ORDER BY cardid ASC")) {
+        try (PreparedStatement ps = con.prepareStatement("SELECT * FROM monsterbook WHERE charid = ? ORDER BY cardid ASC")) {
             ps.setInt(1, charid);
             try (ResultSet rs = ps.executeQuery()) {
                 cards = new LinkedHashMap<>();
@@ -105,7 +105,7 @@ public final class MonsterBook implements Serializable {
         for (int i : cardItems) {
             //we need the card id but we store the mob id lol
             final Integer x = ii.getSetId(i);
-            if (x != null && x.intValue() > 0) {
+            if (x != null && x > 0) {
                 final Triple<Integer, List<Integer>, List<Integer>> set = ii.getMonsterBookInfo(x);
                 if (set != null) {
                     if (!sets.containsKey(x)) {
@@ -292,20 +292,18 @@ public final class MonsterBook implements Serializable {
         return cards.get(cardid) == null ? 0 : cards.get(cardid);
     }
 
-    public final void saveCards(final int charid) throws SQLException {
+    public final void saveCards(final Connection con, final int charId) throws SQLException {
         if (!changed) {
             return;
         }
-        final Connection con = DatabaseConnection.getConnection();
         PreparedStatement ps = con.prepareStatement("DELETE FROM monsterbook WHERE charid = ?");
-        ps.setInt(1, charid);
+        ps.setInt(1, charId);
         ps.execute();
         ps.close();
         changed = false;
         if (cards.isEmpty()) {
             return;
         }
-
         boolean first = true;
         final StringBuilder query = new StringBuilder();
 
@@ -316,7 +314,7 @@ public final class MonsterBook implements Serializable {
             } else {
                 query.append(",(DEFAULT,");
             }
-            query.append(charid);
+            query.append(charId);
             query.append(",");
             query.append(all.getKey()); // Card ID
             query.append(",");

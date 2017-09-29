@@ -20,13 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
-import client.MapleBuffStatus;
+import server.status.MapleBuffStatus;
 import client.MapleCharacter;
-import client.status.MonsterStatus;
 import constants.GameConstants;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
 import server.maps.MapleMist;
+import server.status.MonsterStatus;
 
 import java.awt.*;
 import java.util.*;

@@ -337,7 +337,7 @@ public class MapleMapFactory {
                     map.setMapName("");
                     map.setStreetName("");
                 }
-                map.setClock(mapData.getChildByPath("clock") != null); //clock was changed in wz to have x,y,width,height
+                map.setClock(mapData.getChildByPath("clock") != null); //clock was isChanged in wz to have x,y,width,height
                 map.setEverlast(MapleDataTool.getInt(mapData.getChildByPath("info/everlast"), 0) > 0);
                 map.setTown(MapleDataTool.getInt(mapData.getChildByPath("info/town"), 0) > 0);
                 map.setSoaring(MapleDataTool.getInt(mapData.getChildByPath("info/needSkillForFly"), 0) > 0);

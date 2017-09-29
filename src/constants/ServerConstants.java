@@ -31,8 +31,6 @@ public class ServerConstants {
     public static boolean dropUndroppables = true;
     public static boolean moreThanOne = true;
 
-    // 瞬移之石限制區域
-    public static int[] VIP_ROCK_BLOCK = {180000000, 180000001};
     // 歡迎訊息
     public static String SERVER_MESSAGE = "歡迎來到啾咪谷v145.1，此端正在開發中 OuO/";
     public static String WELCOME_MESSAGE = "【歡迎訊息】";

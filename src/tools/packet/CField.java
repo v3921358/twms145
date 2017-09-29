@@ -20,7 +20,9 @@ package tools.packet;
 import client.*;
 import client.inventory.Equip.ScrollResult;
 import client.inventory.*;
+import client.skill.SkillMacro;
 import constants.GameConstants;
+import extensions.temporary.DirectionType;
 import handling.SendPacketOpcode;
 import handling.world.World;
 import handling.world.guild.MapleGuild;
@@ -29,7 +31,7 @@ import server.MapleDueyActions;
 import server.MapleShop;
 import server.MapleTrade;
 import server.Randomizer;
-import server.events.MapleSnowball.MapleSnowballs;
+import server.worldevents.MapleSnowball.MapleSnowballs;
 import server.life.MapleNPC;
 import server.maps.*;
 import server.maps.MapleNodes.MaplePlatform;
@@ -949,10 +951,10 @@ public class CField {
 //        mplew.writeInt(0);
 //        final MapleQuestStatus stat = chr.getQuestNoAdd(MapleQuest.getInstance(GameConstants.ITEM_TITLE));
 //        mplew.writeInt(stat != null && stat.getCustomData() != null ? Integer.valueOf(stat.getCustomData()) : 0);
-//        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the effect from SetItemInfo in Effect.wz
-//        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the effect from SetItemInfo in Effect.wz
+//        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the statEffect from SetItemInfo in Effect.wz
+//        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the statEffect from SetItemInfo in Effect.wz
 //        mplew.writeInt(GameConstants.getInventoryType(chr.getChair()) == MapleInventoryType.SETUP ? chr.getChair() : 0);
-//        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the effect from SetItemInfo in Effect.wz
+//        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the statEffect from SetItemInfo in Effect.wz
 //        mplew.writePos(chr.getTruePosition());
 //        mplew.write(chr.getStance());
         mplew.writeShort(0); //FH
@@ -1085,7 +1087,7 @@ public class CField {
         mplew.writeShort(fireworks ? SendPacketOpcode.SHOW_FIREWORKS_EFFECT.getValue() : SendPacketOpcode.SHOW_POTENTIAL_RESET.getValue());
         mplew.writeInt(chr);
         mplew.write(success ? 1 : 0);
-        mplew.writeInt(itemid); // fireworks, Item/Cash/0506.img/%08d/effect/default
+        mplew.writeInt(itemid); // fireworks, Item/Cash/0506.img/%08d/statEffect/default
 
         return mplew.getPacket();
     }
@@ -2666,7 +2668,7 @@ public class CField {
         // 16: Monster Book
         // 18: Item Level UP
         // 20: EXP Card
-        // 29: You have revived on the current map through the effect of the Spirit Stone.
+        // 29: You have revived on the current map through the statEffect of the Spirit Stone.
         // 35: GRADE UP (PVP)
         // 36: Character Blinks
         // 42: Gained an Upgrade Potion for playing an hour
@@ -2795,7 +2797,7 @@ public class CField {
 
             mplew.writeShort(SendPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
             mplew.write(23);
-            mplew.writeInt(itemId); // Item/Cash/0528.img/%08d/effect
+            mplew.writeInt(itemId); // Item/Cash/0528.img/%08d/statEffect
 
             return mplew.getPacket();
         }
@@ -2875,7 +2877,7 @@ public class CField {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
             mplew.writeShort(SendPacketOpcode.SHOW_ITEM_GAIN_INCHAT.getValue());
-            mplew.write(21); // 25/26/28/15 also same structure
+            mplew.write(22); // 25/26/28/15 also same structure
             mplew.writeMapleAsciiString(data);
 
             return mplew.getPacket();
@@ -2952,68 +2954,18 @@ public class CField {
 
         public static byte[] getDirectionStatus(boolean enable) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
             mplew.writeShort(SendPacketOpcode.DIRECTION_STATUS.getValue());
             mplew.write(enable ? 1 : 0);
-
             return mplew.getPacket();
         }
 
         public static byte[] openUI(final int type) {
             final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(3);
-
-            // 0: Inventory
-            // 1: Equipment
-            // 2: Character Stat
-            // 3: Skill
-            // 5: Keyboard
-            // 6: Quest
-            // 9: Crusader Codex
-            // 10: Character Info
-            // 17: Monster Carnival
-            // 19: Energy Bar
-            // 21: Party Search
-            // 25: My Ranking
-            // 26: Family Info
-            // 27: Family Pedegree
-            // 28: GMStoryBoard
-            // 29: Admin Msg->GMStoryBoard
-            // 30: Medal
-            // 31: Maple Event
-            // 32: Evan Skill
-            // 35: Battle Record
-            // 39: Ultimate Explorer
-            // 40: World Map
-            // 41: Click to see the world map. (Send this everytime a player logs in)
-            // 42: Production Skill
-            // 50: PVP Selection
-            // 51: Item Pot
-            // 55: Event List
-            // 58: 1+1 Character Event
-            // 62: Pyramid PQ stuffs...eye
-            // 63: O.O 6 empty box
-            // 100: Guild BBS
-            // 103: Pinkbean Choco
-            // 101: My Information
-            // 102: Friend Recommendation
-            // 104: Crusader Codex Set
-            // 105: Monster Card Set Tooltip
-            // 106: Monster Card Set Tooltip
-            // 109: Magic Wheel
-            // 110: Legend's Awards
-            // 112: Reward (Blank)
             mplew.writeShort(SendPacketOpcode.OPEN_UI.getValue());
             mplew.write(type);
-
             return mplew.getPacket();
         }
 
-        /* public static byte[] startAzwan(int npc) {
-            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(10);
-            mplew.writeShort(SendPacketOpcode.ENTER_AZWAN.getValue());
-            mplew.write(HexTool.getByteArrayFromHexString("01 61 63 FF 01 01 7F 96 98 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 C0 27 00 00 00 00 00 88 00 00 00 00 00 00 00 00 47 80 00 00 00 00 00 00 00 00 47 80 00 00 00 00 00 00 00 00 47 80 00 00 00 00 00 00 00 00 47 80 00 00 00 00 00 4A 0A 84 00 04 08 00 08 00 FF FF 0F 00 00 00 00 00 00 00 00 00 00 00 FF"));
-            return mplew.getPacket();
-          }*/
         public static byte[] startAzwan(int npc) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(10);
 
@@ -3047,10 +2999,28 @@ public class CField {
             return mplew.getPacket();
         }
 
-        public static byte[] IntroLock(boolean enable) {
+        // 1 Enable 0: Disable
+        public static byte[] lockUI(boolean enable) {
+            return UIPacket.lockUI(enable ? 1 : 0, enable ? 1 : 0);
+        }
+
+        public static byte[] lockUI(int enable, int enable2) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-            mplew.writeShort(SendPacketOpcode.CYGNUS_INTRO_LOCK.getValue());
+            mplew.writeShort(SendPacketOpcode.LP_SetInGameDirectionMode.getValue());
+            mplew.write(enable > 0 ? 1 : 0);
+            if (enable > 0) {
+                mplew.writeShort(enable2);
+            }
+            mplew.write(enable < 0 ? 1 : 0);
+
+            return mplew.getPacket();
+        }
+
+        public static byte[] lockKey(boolean enable) {
+            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+
+            mplew.writeShort(SendPacketOpcode.LP_SetDirectionMode.getValue());
             mplew.write(enable ? 1 : 0);
             mplew.writeInt(0);
 
@@ -3060,7 +3030,7 @@ public class CField {
         public static byte[] IntroEnableUI(int wtf) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-            mplew.writeShort(SendPacketOpcode.CYGNUS_INTRO_ENABLE_UI.getValue());
+            mplew.writeShort(SendPacketOpcode.LP_SetInGameDirectionMode.getValue());
             mplew.write(wtf > 0 ? 1 : 0);
             if (wtf > 0) {
                 mplew.writeShort(wtf);
@@ -3069,12 +3039,10 @@ public class CField {
             return mplew.getPacket();
         }
 
-        public static byte[] IntroDisableUI(boolean enable) {
+        public static byte[] disableOthers(boolean enable) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
-            mplew.writeShort(SendPacketOpcode.CYGNUS_INTRO_DISABLE_UI.getValue());
+            mplew.writeShort(SendPacketOpcode.LP_SetStandAloneMode.getValue());
             mplew.write(enable ? 1 : 0);
-
             return mplew.getPacket();
         }
 
@@ -3111,30 +3079,113 @@ public class CField {
             return mplew.getPacket();
         }
 
-        public static byte[] getDirectionInfo(int type, int value) {
+        public static byte[] getDirectionInfo(DirectionType type, int value) {
+            return getDirectionInfo(type, value, 0);
+        }
+
+        public static byte[] getDirectionInfo(DirectionType type, int value, int value2) {
+            return getDirectionEffect(type, null, new int[]{value, value2, 0, 0, 0, 0, 0, 0});
+        }
+
+        public static byte[] getDirectionInfo(String data, int value, int x, int y, int a, int b) {
+            return getDirectionEffect(DirectionType.EFFECT, data, new int[]{value, x, y, a, b, 0, 0, 0});
+        }
+
+        public static byte[] getDirectionEffect(String data, int value, int x, int y) {
+            return getDirectionEffect(data, value, x, y, 0);
+        }
+
+        public static byte[] getDirectionEffect(String data, int value, int x, int y, int npc) {
+            //[02]  [02 00 31 31] [84 03 00 00] [00 00 00 00] [88 FF FF FF] [01] [00 00 00 00] [01] [29 C2 1D 00] [00] [00]
+            //[mod] [data       ] [value      ] [value2     ] [value3     ] [a1] [a3         ] [a2] [npc        ] [  ] [a4]
+            return getDirectionEffect(DirectionType.EFFECT, data, new int[]{value, x, y, 1, 1, 0, 0, npc});
+        }
+
+        public static byte[] getDirectionInfoNew(byte x, int value) {
+            return getDirectionInfoNew(x, value, 0, 0);
+        }
+
+        public static byte[] getDirectionInfoNew(byte x, int value, int a, int b) {
+            //[mod] [data] [value] [value2] [value3] [a1] ....
+            return getDirectionEffect(DirectionType.UNK5, null, new int[]{x, value, a, b, 0, 0, 0, 0});
+        }
+
+        //int value, int value2, int value3, int a1, int a2, int a3, int a4, int npc
+        public static byte[] getDirectionEffect(DirectionType type, String data, int[] value) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-            mplew.writeShort(SendPacketOpcode.DIRECTION_INFO.getValue());
-            mplew.write(type);
-            mplew.writeLong(value);
+            mplew.writeShort(SendPacketOpcode.LP_UserInGameDirectionEvent.getValue());
+            mplew.write(type.getValue());
+            switch (type) {
+                case UNK:
+                    mplew.writeInt(value[0]);
+                    if (value[0] <= 413) {
+                        mplew.writeInt(value[1]);
+                    }
+                    break;
+                case EXEC_TIME:
+                    mplew.writeInt(value[0]);
+                    break;
+                case EFFECT:
+                    mplew.writeMapleAsciiString(data);
+                    mplew.writeInt(value[0]);
+                    mplew.writeInt(value[1]);
+                    mplew.writeInt(value[2]);
+                    mplew.write(value[3]);
+                    if (value[3] > 0) {
+                        mplew.writeInt(value[5]);
+                    }
+                    mplew.write(value[4]);
+                    if (value[4] > 0) {
+                        mplew.writeInt(value[6]);
+                        mplew.write(value[6] > 0 ? 0 : 1); // 暫時解決
+                        mplew.write(value[7]);
+                    }
+                    break;
+                case ACTION:
+                    mplew.writeInt(value[0]);
+                    break;
+                case UNK4:
+                    mplew.writeInt(value[0]);
+                    break;
+                case UNK5:
+                    mplew.writeMapleAsciiString(data);
+                    mplew.writeInt(value[0]);
+                    mplew.writeInt(value[1]);
+                    mplew.writeInt(value[2]);
+                    break;
+                default:
+                    System.out.println("CField.getDirectionInfo() is Unknow mod :: [" + type + "]");
+                    break;
+            }
 
             return mplew.getPacket();
         }
 
-        public static byte[] getDirectionInfo(String data, int value, int x, int y, int pro) {
-            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
-            mplew.writeShort(SendPacketOpcode.DIRECTION_INFO.getValue());
-            mplew.write(2);
-            mplew.writeMapleAsciiString(data);
-            mplew.writeInt(value);
-            mplew.writeInt(x);
-            mplew.writeInt(y);
-            mplew.writeShort(pro);
-            mplew.writeInt(0); //only if pro is > 0
-
-            return mplew.getPacket();
-        }
+//        public static byte[] getDirectionInfo(int type, int value) {
+//            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+//
+//            mplew.writeShort(SendPacketOpcode.LP_UserInGameDirectionEvent.getValue());
+//            mplew.write(type);
+//            mplew.writeLong(value);
+//
+//            return mplew.getPacket();
+//        }
+//
+//        public static byte[] getDirectionInfo(String data, int value, int x, int y, int pro) {
+//            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+//
+//            mplew.writeShort(SendPacketOpcode.LP_UserInGameDirectionEvent.getValue());
+//            mplew.write(2);
+//            mplew.writeMapleAsciiString(data);
+//            mplew.writeInt(value);
+//            mplew.writeInt(x);
+//            mplew.writeInt(y);
+//            mplew.writeShort(pro);
+//            mplew.writeInt(0); //only if pro is > 0
+//
+//            return mplew.getPacket();
+//        }
 
         public static byte[] reissueMedal(int itemId, int type) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();

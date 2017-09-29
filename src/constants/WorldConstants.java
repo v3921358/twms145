@@ -42,7 +42,7 @@ public class WorldConstants {
         }
 
         // 經驗調整
-        WorldConfig.雪吉拉.setExpRate((GLOBAL_RATES ? GLOBAL_EXP_RATE : 1));
+        WorldConfig.雪吉拉.setExpRate((GLOBAL_RATES ? GLOBAL_EXP_RATE : 5));
         WorldConfig.菇菇寶貝.setExpRate((GLOBAL_RATES ? GLOBAL_EXP_RATE : 1));
         WorldConfig.星光精靈.setExpRate((GLOBAL_RATES ? GLOBAL_EXP_RATE : 1));
         WorldConfig.緞帶肥肥.setExpRate((GLOBAL_RATES ? GLOBAL_EXP_RATE : 1));
@@ -72,7 +72,7 @@ public class WorldConstants {
         // 掉落倍率
 
         // Exp rates
-        WorldConfig.雪吉拉.setDropRate((GLOBAL_RATES ? GLOBAL_DROP_RATE : 1));
+        WorldConfig.雪吉拉.setDropRate((GLOBAL_RATES ? GLOBAL_DROP_RATE : 2));
         WorldConfig.菇菇寶貝.setDropRate((GLOBAL_RATES ? GLOBAL_DROP_RATE : 1));
         WorldConfig.星光精靈.setDropRate((GLOBAL_RATES ? GLOBAL_DROP_RATE : 1));
         WorldConfig.緞帶肥肥.setDropRate((GLOBAL_RATES ? GLOBAL_DROP_RATE : 1));

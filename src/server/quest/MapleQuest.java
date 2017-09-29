@@ -102,7 +102,7 @@ public class MapleQuest implements Serializable {
         return ret;
     }
 
-    public static void initQuests() {
+    public static void InitQuests() {
         try {
             Connection con = DatabaseConnection.getConnection();
             PreparedStatement psr;

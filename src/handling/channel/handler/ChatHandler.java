@@ -22,15 +22,12 @@ package handling.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
-import client.SkillFactory;
-import handling.RecvPacketOpcode;
-import handling.SendPacketOpcode;
+import client.messages.CommandProcessor;
+import constants.ServerConstants.CommandType;
 import handling.channel.ChannelServer;
 import handling.world.MapleMessenger;
 import handling.world.MapleMessengerCharacter;
 import handling.world.World;
-import scripting.NPCConversationManager;
-import scripting.NPCScriptManager;
 import server.WordFilter;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
@@ -53,14 +50,6 @@ public class ChatHandler {
 
         text = WordFilter.illegalArrayCheck(text, client.getPlayer());
 
-        if (text.equals("s")) {
-            chr.setLevel((short)199);
-            chr.changeJob(3510);
-            chr.gainItem(1492020);
-            chr.gainSP(4);
-            return;
-        }
-
         if (!chr.isGM()) {
             if (chr.isMuted()) {
                 chr.dropMessage(5, "[系統訊息] " + "目前被GM禁止說話中。");
@@ -72,6 +61,7 @@ public class ChatHandler {
             }
         }
 
+        CommandProcessor.processCommand(client, text, CommandType.NORMAL);
 
         //TODO: 處理GM、玩家指令
 

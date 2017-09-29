@@ -353,7 +353,7 @@ public class PlayerShopPacket {
         mplew.writeInt(9030000); // Fredrick
         mplew.write(16); // max items?
         mplew.writeLong(126); // ?
-        mplew.writeInt(pack.getMesos());
+        mplew.writeInt(pack.getMeso());
         mplew.write(0);
         mplew.write(pack.getItems().size());
         for (final Item item : pack.getItems()) {

@@ -22,8 +22,8 @@ package server.maps;
 
 import client.MapleCharacter;
 import client.MapleClient;
-import client.Skill;
-import client.SkillFactory;
+import client.skill.Skill;
+import client.skill.SkillFactory;
 import server.MapleStatEffect;
 import server.life.MapleMonster;
 import server.life.MobSkill;

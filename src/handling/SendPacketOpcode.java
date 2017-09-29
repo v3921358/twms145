@@ -209,8 +209,8 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
     PLAYER_HINT,
     SUMMON_HINT,
     SUMMON_HINT_MSG,
-    CYGNUS_INTRO_DISABLE_UI,
-    CYGNUS_INTRO_LOCK,
+    LP_SetStandAloneMode,
+    LP_SetDirectionMode,
     USE_SKILL_BOOK,
     SHOW_EQUIP_EFFECT,
     SKILL_MACRO,
@@ -409,10 +409,10 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
     PUBLIC_NPC,
     PVP_BLOCKED,
     PLAY_MOVIE,
-    DIRECTION_INFO,
+    LP_UserInGameDirectionEvent,
     DIRECTION_STATUS,
     GAIN_FORCE,
-    CYGNUS_INTRO_ENABLE_UI,
+    LP_SetInGameDirectionMode,
     MONSTER_CARNIVAL_LEAVE,
     MONSTER_CARNIVAL_STATS,
     MONSTER_CARNIVAL_RESULT,
@@ -478,6 +478,14 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
             case MOVE_MONSTER_RESPONSE:
             case SPAWN_MONSTER:
             case REACTOR_SPAWN:
+            case KILL_MONSTER:
+            case UPDATE_STATS:
+            case SHOW_STATUS_INFO:
+            case MAGIC_ATTACK:
+            case SPAWN_PLAYER:
+            case SPAWN_NPC:
+            case SPAWN_NPC_REQUEST_CONTROLLER:
+
                 return true;
             default:
                 return false;

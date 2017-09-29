@@ -91,7 +91,7 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
         update(cid);
     }
 
-    public static void loadAll() {
+    public static void LoadAll() {
         List<PlayerNPC> toAdd = new ArrayList<PlayerNPC>();
         Connection con = DatabaseConnection.getConnection();
         try {
@@ -150,7 +150,7 @@ public class PlayerNPC extends MapleNPC implements MapleCharacterLook {
         setName(chr.getName());
         setHair(chr.getHair());
         setFace(chr.getFace());
-        setSkin((byte) (chr.getSkinColor()));
+        setSkin(chr.getSkinColor());
         setGender(chr.getGender());
         setPets(chr.getPets());
 

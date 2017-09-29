@@ -163,7 +163,7 @@ public class DueyHandler {
         if (dp.getItem() != null && !MapleInventoryManipulator.checkSpace(c, dp.getItem().getItemId(), dp.getItem().getQuantity(), dp.getItem().getOwner())) {
         c.sendPacket(CField.sendDuey((byte) 16, null)); // Not enough Space
         return;
-        } else if (dp.getMesos() < 0 || (dp.getMesos() + c.getPlayer().getMeso()) < 0) {
+        } else if (dp.getMeso() < 0 || (dp.getMeso() + c.getPlayer().getMeso()) < 0) {
         c.sendPacket(CField.sendDuey((byte) 17, null)); // Unsuccessfull
         return;
         }
@@ -172,8 +172,8 @@ public class DueyHandler {
         if (dp.getItem() != null) {
         MapleInventoryManipulator.addFromDrop(c, dp.getItem(), false);
         }
-        if (dp.getMesos() != 0) {
-        c.getPlayer().gainMeso(dp.getMesos(), false);
+        if (dp.getMeso() != 0) {
+        c.getPlayer().gainMeso(dp.getMeso(), false);
         }
         c.sendPacket(CField.removeItemFromDuey(false, packageid));
         break;

@@ -20,14 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.life;
 
-import client.SkillFactory;
-import client.status.MonsterStatus;
-import client.status.MonsterStatusEffect;
+import client.skill.SkillFactory;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import server.MapleCarnivalFactory;
 import server.MapleCarnivalFactory.MCSkill;
 import server.MapleStatEffect;
 import server.maps.MapleMap;
-import server.maps.MapleReactor;
 import server.maps.MapleSummon;
 import tools.packet.CWvsContext;
 

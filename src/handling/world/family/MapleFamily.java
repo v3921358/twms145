@@ -374,7 +374,7 @@ public final class MapleFamily implements java.io.Serializable {
             mgc.setOnline(online);
             mgc.setChannel((byte) channel);
         }
-        bDirty = true; // member formation has changed, update notifications
+        bDirty = true; // member formation has isChanged, update notifications
     }
 
     public final int setRep(final int cid, int addrep, final int oldLevel, final String oldName) {

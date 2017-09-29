@@ -1,10 +1,10 @@
 package handling.world;
 
-import client.BuddyList;
-import client.BuddyList.BuddyAddResult;
-import client.BuddyList.BuddyOperation;
-import client.BuddyListEntry;
-import client.MapleBuffStatus;
+import client.buddy.BuddyList;
+import client.buddy.BuddyList.BuddyAddResult;
+import client.buddy.BuddyList.BuddyOperation;
+import client.buddy.BuddyListEntry;
+import server.status.MapleBuffStatus;
 import client.MapleCharacter;
 import client.inventory.MapleInventoryType;
 import constants.WorldConfig;
@@ -125,18 +125,12 @@ public class World {
         return ret;
     }
 
-    public static void saveAllChars() {
-        MapleCharacter.saveAllChars();
-    }
-
     public static boolean isConnected(String charName) {
         return Find.findChannel(charName) > 0;
     }
 
     public static void toggleMegaphoneMuteState(int world) {
-        for (ChannelServer cs : LoginServer.getInstance().getWorld(world).getChannels()) {
-            cs.toggleMegaphoneMuteState();
-        }
+        LoginServer.getWorld(world).getChannels().forEach(ChannelServer::toggleMegaphoneMuteState);
     }
 
     public static void ChannelChange_Data(CharacterTransfer Data, int characterid, int world, int toChannel) {

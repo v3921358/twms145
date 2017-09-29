@@ -23,7 +23,7 @@ package scripting;
 import client.MapleCharacter;
 import client.MapleQuestStatus;
 import client.MapleTrait.MapleTraitType;
-import client.SkillFactory;
+import client.skill.SkillFactory;
 import handling.channel.ChannelServer;
 import handling.login.LoginServer;
 import handling.world.MapleParty;
@@ -812,7 +812,7 @@ public class EventInstanceManager {
             System.out.println("Event name" + em.getName() + ", Instance name : " + name + ", method Name : onMapLoad:\n" + ex);
             FileoutputUtil.log(FileoutputUtil.ScriptEx_Log, "Event name" + em.getName() + ", Instance name : " + name + ", method Name : onMapLoad:\n" + ex);
         } catch (NoSuchMethodException ex) {
-            // Ignore, we don't want to update this for all events.
+            // Ignore, we don't want to update this for all worldevents.
         }
     }
 

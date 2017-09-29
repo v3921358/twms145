@@ -159,7 +159,7 @@ public class RandomRewards {
         return tenPercent;
     }
 
-    static void load() {
+    static void Load() {
         //Empty method to initialize class.
     }
 }

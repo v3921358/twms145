@@ -22,8 +22,8 @@ package handling.channel.handler;
 
 import client.MapleCharacter;
 import client.MapleClient;
-import client.MapleDiseaseValueHolder;
-import client.SkillFactory;
+import server.status.MapleDiseaseValueHolder;
+import client.skill.SkillFactory;
 import constants.GameConstants;
 import constants.MapConstants;
 import constants.ServerConstants;

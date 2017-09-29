@@ -3,11 +3,11 @@ package handling.channel.handler;
 import client.MapleCharacter;
 import client.MapleClient;
 import client.MonsterFamiliar;
-import client.SkillFactory;
+import client.skill.SkillFactory;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
-import client.status.MonsterStatus;
-import client.status.MonsterStatusEffect;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import constants.GameConstants;
 import server.MapleInventoryManipulator;
 import server.MapleItemInformationProvider;
@@ -450,7 +450,7 @@ public class MobHandler {
             }
             if ((f.makeChanceResult()) && (mons.isAlive())) {
                 for (MonsterStatus s : f.status) {
-                    mons.applyStatus(chr, new MonsterStatusEffect(s, Integer.valueOf(f.speed), MonsterStatusEffect.genericSkill(s), null, false), false, f.time * 1000, false, null);
+                    mons.applyStatus(chr, new MonsterStatusEffect(s, Integer.valueOf(f.speed), MonsterStatusEffect.GetGenericSkill(s), null, false), false, f.time * 1000, false, null);
                 }
                 if (f.knockback) {
                     mons.switchController(chr, true);

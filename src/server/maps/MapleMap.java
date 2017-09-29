@@ -25,9 +25,9 @@ import client.MapleCharacter.DojoMode;
 import client.inventory.Equip;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
-import client.inventory.MaplePet;
-import client.status.MonsterStatus;
-import client.status.MonsterStatusEffect;
+import server.status.MapleBuffStatus;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import constants.GameConstants;
 import constants.MapConstants;
 import constants.ServerConstants;
@@ -45,7 +45,7 @@ import server.MapleCarnivalFactory.MCSkill;
 import server.MapleSquad.MapleSquadType;
 import server.Timer.EtcTimer;
 import server.Timer.MapTimer;
-import server.events.MapleEvent;
+import server.worldevents.MapleEvent;
 import server.life.*;
 import server.maps.MapleNodes.DirectionInfo;
 import server.maps.MapleNodes.MapleNodeInfo;
@@ -1662,9 +1662,9 @@ public final class MapleMap {
             @Override
             public final void sendPackets(MapleClient c) {
                 if (GameConstants.isAswanMap(c.getPlayer().getMapId())) {
-                    c.sendPacket(MobPacket.spawnAswanMonster(monster, monster.getStats().getSummonType() <= 1 ? -3 : monster.getStats().getSummonType(), oid)); // TODO effect
+                    c.sendPacket(MobPacket.spawnAswanMonster(monster, monster.getStats().getSummonType() <= 1 ? -3 : monster.getStats().getSummonType(), oid)); // TODO statEffect
                 } else {
-                    c.sendPacket(MobPacket.spawnMonster(monster, monster.getStats().getSummonType() <= 1 ? -3 : monster.getStats().getSummonType(), oid)); // TODO effect
+                    c.sendPacket(MobPacket.spawnMonster(monster, monster.getStats().getSummonType() <= 1 ? -3 : monster.getStats().getSummonType(), oid)); // TODO statEffect
                 }
             }
         });
@@ -2207,19 +2207,20 @@ public final class MapleMap {
         } else {
             broadcastGMMessage(chr, packet, false);
         }
+
         if (!onFirstUserEnter.equals("")) {
             if (getCharactersSize() == 1) {
                 MapScriptMethods.startScript_FirstUser(chr.getClient(), onFirstUserEnter);
             }
         }
-        sendObjectPlacement(chr);
-
-        chr.getClient().sendPacket(packet);
 
         if (!onUserEnter.equals("")) {
             MapScriptMethods.startScript_User(chr.getClient(), onUserEnter);
         }
+
+        sendObjectPlacement(chr);
         GameConstants.achievementRatio(chr.getClient());
+        chr.getClient().sendPacket(packet);
         chr.getClient().sendPacket(CField.spawnFlags(nodes.getFlags()));
         if (GameConstants.isTeamMap(mapid) && !chr.inPVP()) {
             chr.getClient().sendPacket(CField.showEquipEffect(chr.getTeam()));
@@ -4122,4 +4123,10 @@ public final class MapleMap {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "'" + getStreetName() + " : " + getMapName() + "'(" + getId() + ")";
+    }
+
 }

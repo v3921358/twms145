@@ -20,6 +20,7 @@
  */
 package client;
 
+import client.buddy.BuddyList;
 import constants.GameConstants;
 import constants.ServerConstants;
 import database.DatabaseConnection;
@@ -65,18 +66,17 @@ public class MapleClient implements Serializable {
     private final static Lock login_mutex = new ReentrantLock(true);
     private final transient Lock mutex = new ReentrantLock(true);
     private final transient Lock npc_mutex = new ReentrantLock();
-    public long lastsmega;
-    public long lastsmegacompare;
+    private transient MapleAESOFB send, receive;
+    private transient Channel session;
+    private MapleCharacter player;
+
     public long lastsmegaa;
     public long lastsmegacomparee;
     public long lastsack;
     public long lastsackcompare;
-    public long lastchat;
-    public long lastchatcompare;
+
     public transient short loginAttempt = 0;
-    private transient MapleAESOFB send, receive;
-    private transient Channel session;
-    private MapleCharacter player;
+
     private int channel = 1, accountId = -1, world = -1, birthday;
     private Map<Integer, Pair<Short, Short>> charInfo = new LinkedHashMap<>();
     private int charslots = DEFAULT_CHAR_SLOT;
@@ -86,7 +86,6 @@ public class MapleClient implements Serializable {
     private transient long lastPong = 0, lastPing = 0;
     private boolean monitored = false, receiving = true;
     private boolean gm;
-    private int gmLevel;
     private byte greason = 1, gender = -1;
     private transient List<Integer> allowedChar = new LinkedList<>();
     private Set<String> macs = new HashSet<>();
@@ -449,11 +448,11 @@ public class MapleClient implements Serializable {
 
     public final List<MapleCharacter> loadCharacters(final int serverId) { // TODO make this less costly zZz
         final List<MapleCharacter> chars = new LinkedList<>();
-        Map<Integer, CardData> cardss = CharacterCardFactory.getInstance().loadCharacterCards(this.accountId, serverId);
+
         for (final CharNameAndId cni : loadCharactersInternal(serverId)) {
-            MapleCharacter chr = MapleCharacter.loadCharFromDB(cni.id, this, false, cardss);
+            MapleCharacter chr = MapleCharacter.loadCharFromDB(cni.id, this, false);
             chars.add(chr);
-            this.charInfo.put(Integer.valueOf(chr.getId()), new Pair<>(Short.valueOf(chr.getLevel()), Short.valueOf(chr.getJob())));
+            this.charInfo.put(chr.getId(), new Pair<>(chr.getLevel(), chr.getJob()));
             if (!login_Auth(chr.getId())) {
                 allowedChar.add(chr.getId());
             }
@@ -764,18 +763,6 @@ public class MapleClient implements Serializable {
         return 0;
     }
 
-    public void clearInformation() {
-        accountName = null;
-        accountId = -1;
-        secondPassword = null;
-        salt2 = null;
-        gm = false;
-        loggedIn = false;
-        greason = (byte) 1;
-        tempban = null;
-        gender = (byte) -1;
-        this.charInfo.clear();
-    }
 
     public LoginResponse login(String account, String password) {
         Connection con = DatabaseConnection.getConnection();
@@ -903,10 +890,6 @@ public class MapleClient implements Serializable {
 
     public final boolean isGm() {
         return gm;
-    }
-
-    public int gmLevel() {
-        return this.gmLevel;
     }
 
     public boolean CheckSecondPassword(String in) {

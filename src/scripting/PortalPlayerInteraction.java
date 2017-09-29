@@ -31,9 +31,10 @@ public class PortalPlayerInteraction extends AbstractPlayerInteraction {
     private final MaplePortal portal;
 
     public PortalPlayerInteraction(final MapleClient c, final MaplePortal portal) {
-        super(c, portal.getId(), c.getPlayer().getMapId());
+        super(c, portal.getId(), c.getPlayer().getMapId(), null);
         this.portal = portal;
     }
+
 
     public final MaplePortal getPortal() {
         return portal;

@@ -33,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * @author AlphaEta
@@ -69,7 +70,6 @@ public class CharacterCardFactory {
                 }
             }
         }
-        //System.out.println("Loaded " + (cardEffects.size() + uniqueEffects.size()) + " card effects");
     }
 
     public final Triple<Integer, Integer, Integer> getCardSkill(final int job, final int level) { // cardid, skillid, skilllevel
@@ -81,12 +81,7 @@ public class CharacterCardFactory {
     }
 
     public final List<Integer> getUniqueSkills(final List<Integer> special) {
-        final List<Integer> uis = new LinkedList<>();
-        for (Entry<Integer, List<Integer>> m : uniqueEffects.entrySet()) {
-            if (m.getValue().contains(special.get(0)) && m.getValue().contains(special.get(1)) && m.getValue().contains(special.get(2))) {
-                uis.add(m.getKey());
-            }
-        }
+        final List<Integer> uis = uniqueEffects.entrySet().stream().filter(m -> m.getValue().contains(special.get(0)) && m.getValue().contains(special.get(1)) && m.getValue().contains(special.get(2))).map(Entry::getKey).collect(Collectors.toCollection(LinkedList::new));
         return uis;
     }
 
@@ -104,11 +99,10 @@ public class CharacterCardFactory {
         return true;
     }
 
-    public final Map<Integer, CardData> loadCharacterCards(final int accId, final int serverId) {
+    public final Map<Integer, CardData> loadCharacterCards(final Connection con, final int accId, final int serverId) {
         Map<Integer, CardData> cards = new LinkedHashMap<>(); // order
-        Map<Integer, Pair<Short, Short>> inf = loadCharactersInfo(accId, serverId);
+        Map<Integer, Pair<Short, Short>> inf = loadCharactersInfo(con, accId, serverId);
         try {
-            Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT * FROM `character_cards` WHERE `accountid` = ?");
             ps.setInt(1, accId);
             ResultSet rs = ps.executeQuery();
@@ -132,23 +126,20 @@ public class CharacterCardFactory {
             ps.close();
 
         } catch (SQLException sqlE) {
-            System.out.println("Failed to load character cards. Reason: " + sqlE.toString());
+            System.out.println("Failed to Load character cards. Reason: " + sqlE.toString());
         }
         for (int i = 1; i <= 6; i++) {
-            if (cards.get(i) == null) {
-                cards.put(i, new CardData(0, (short) 0, (short) 0)); // fill it in
-            }
+            cards.putIfAbsent(i, new CardData(0, (short) 0, (short) 0)); // fill it in
         }
         return cards;
     }
 
-    public Map<Integer, Pair<Short, Short>> loadCharactersInfo(int accId, int serverId) {
+    public Map<Integer, Pair<Short, Short>> loadCharactersInfo(Connection con, int accId, int world) {
         Map<Integer, Pair<Short, Short>> chars = new HashMap<>();
         try {
-            Connection con = DatabaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement("SELECT id, level, job FROM characters WHERE accountid = ? AND world = ?");
             ps.setInt(1, accId);
-            ps.setInt(2, serverId);
+            ps.setInt(2, world);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 chars.put(rs.getInt("id"), new Pair<>(rs.getShort("level"), rs.getShort("job")));

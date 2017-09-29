@@ -1,7 +1,7 @@
 package server;
 
 import client.MapleClient;
-import client.SkillFactory;
+import client.skill.SkillFactory;
 import client.inventory.Item;
 import client.inventory.MapleInventoryIdentifier;
 import client.inventory.MapleInventoryType;
@@ -124,7 +124,7 @@ public class MapleShop {
             rs.close();
             ps.close();
         } catch (SQLException e) {
-            System.err.println("Could not load shop");
+            System.err.println("Could not Load shop");
         }
         return ret;
     }

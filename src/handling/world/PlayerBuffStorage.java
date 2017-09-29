@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.world;
 
 import client.MapleCoolDownValueHolder;
-import client.MapleDiseaseValueHolder;
+import server.status.MapleDiseaseValueHolder;
 
 import java.io.Serializable;
 import java.util.List;

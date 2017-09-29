@@ -23,7 +23,7 @@ package handling.world.guild;
 import client.MapleCharacter;
 import client.MapleCharacterUtil;
 import client.MapleClient;
-import client.SkillFactory;
+import client.skill.SkillFactory;
 import constants.GameConstants;
 import database.DatabaseConnection;
 import handling.world.World;
@@ -635,7 +635,7 @@ public class MapleGuild implements java.io.Serializable {
                 World.Alliance.sendGuild(CWvsContext.AlliancePacket.allianceMemberOnline(allianceid, id, cid, online), id, allianceid);
             }
         }
-        bDirty = true; // member formation has changed, update notifications
+        bDirty = true; // member formation has isChanged, update notifications
         init = true;
     }
 

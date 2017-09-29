@@ -1,9 +1,9 @@
 package handling.channel.handler;
 
-import client.MapleBuffStatus;
+import server.status.MapleBuffStatus;
 import client.MapleCharacter;
 import client.MapleClient;
-import client.SkillFactory;
+import client.skill.SkillFactory;
 import handling.world.MaplePartyCharacter;
 import server.life.MapleLifeFactory;
 import server.life.MapleMonster;

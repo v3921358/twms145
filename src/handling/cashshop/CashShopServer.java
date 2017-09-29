@@ -24,7 +24,7 @@ import constants.ServerConstants;
 import handling.MapleServerHandler;
 import handling.channel.PlayerStorage;
 import handling.netty.ServerConnection;
-import server.MTSStorage;
+import server.maketshop.MTSStorage;
 
 public class CashShopServer {
 
@@ -34,7 +34,7 @@ public class CashShopServer {
     private static PlayerStorage players, playersMTS;
     private static boolean finishedShutdown = false;
 
-    public static void run_startup_configurations() {
+    public static void initiate() {
         ip = ServerConstants.SERVER_IP + ":" + PORT;
         acceptor = new ServerConnection(PORT, -1, MapleServerHandler.CASH_SHOP_SERVER);
         players = new PlayerStorage();

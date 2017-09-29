@@ -29,7 +29,7 @@ import handling.world.World;
 import scripting.EventScriptManager;
 import server.MapleSquad;
 import server.MapleSquad.MapleSquadType;
-import server.events.*;
+import server.worldevents.*;
 import server.life.PlayerNPC;
 import server.maps.AramiaFireWorks;
 import server.maps.MapleMapFactory;
@@ -46,15 +46,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ChannelServer {
 
-    public static long serverStartTime;
     private final MapleMapFactory mapFactory;
     private final Map<MapleSquadType, MapleSquad> mapleSquads = new ConcurrentEnumMap<>(MapleSquadType.class);
     private final Map<Integer, HiredMerchant> merchants = new HashMap<>();
     private final List<PlayerNPC> playerNPCs = new LinkedList<>();
     private final ReentrantReadWriteLock merchLock = new ReentrantReadWriteLock(); //merchant
     private final Map<MapleEventType, MapleEvent> events = new EnumMap<>(MapleEventType.class);
-    public int eventChannel, eventMap = 0;
-    public boolean eventOn = false, eventClosed = false;
+    public int eventMap = 0;
     private int port = 7575;
     private int world, channel, running_MerchantID = 0;
     private String serverMessage, ip;
@@ -153,7 +151,6 @@ public class ChannelServer {
         players.removePlayer(chr.getId());
     }
 
-    // TODO: Multi-World SERVER_MESSAGE
     public final String getServerMessage() {
         return serverMessage;
     }

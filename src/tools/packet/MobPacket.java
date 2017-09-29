@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools.packet;
 
-import client.status.MonsterStatus;
-import client.status.MonsterStatusEffect;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.SendPacketOpcode;
 import server.life.MapleMonster;
@@ -128,7 +128,7 @@ public class MobPacket {
 
         mplew.writeShort(SendPacketOpcode.MOB_TO_MOB_DAMAGE.getValue());
         mplew.writeInt(oid);
-        mplew.write(0); // looks like the effect, must be > -2
+        mplew.write(0); // looks like the statEffect, must be > -2
         mplew.writeInt(dmg);
         mplew.writeInt(mobid);
         mplew.write(1); // ?
@@ -533,7 +533,7 @@ public class MobPacket {
         mplew.writeInt(mons.getObjectId());
         writeMaskFromList(mplew, mse);
         for (MonsterStatusEffect buff : mse) {
-            if (buff.getStati() == MonsterStatus.BLEED) {
+            if (buff.getStatus() == MonsterStatus.BLEED) {
                 mplew.writeInt(0);
                 int v6 = 0;
                 mplew.writeInt(v6);
@@ -661,7 +661,7 @@ public class MobPacket {
     private static void writeMaskFromList(MaplePacketLittleEndianWriter mplew, Collection<MonsterStatusEffect> ss) {
         int[] mask = new int[GameConstants.MAX_BUFFSTAT];
         for (MonsterStatusEffect statup : ss) {
-            mask[(statup.getStati().getPosition())] |= statup.getStati().getValue();
+            mask[(statup.getStatus().getPosition())] |= statup.getStatus().getValue();
         }
         for (int i = 0; i < mask.length; i++) {
             mplew.writeInt(mask[(i)]);
@@ -672,21 +672,21 @@ public class MobPacket {
     public static void EncodeTemporary(MaplePacketLittleEndianWriter mplew, List<MonsterStatusEffect> buffs) {
         writeMaskFromList(mplew, buffs);
         Collections.sort(buffs, (o1, o2) -> {
-            int val1 = o1.getStati().getOrder();
-            int val2 = o2.getStati().getOrder();
+            int val1 = o1.getStatus().getOrder();
+            int val2 = o2.getStatus().getOrder();
             return (val1 < val2 ? -1 : (val1 == val2 ? 0 : 1));
         });
         Collection<MonsterStatus> buffstatus = new LinkedList<>();
         for (MonsterStatusEffect buff : buffs) {
-            buffstatus.add(buff.getStati());
-            if (buff.getStati() == MonsterStatus.DANAGED_ELEM_ATTR) {
+            buffstatus.add(buff.getStatus());
+            if (buff.getStatus() == MonsterStatus.DANAGED_ELEM_ATTR) {
                 continue;
             }
-            if (buff.getStati() == MonsterStatus.BLEED) {
+            if (buff.getStatus() == MonsterStatus.BLEED) {
                 List<MonsterStatusEffect> bleedBuffs = new ArrayList<>();
                 //MonsterStatusEffect
                 buffs.stream().filter((b)
-                        -> (b.getStati().getBitNumber() == MonsterStatus.BLEED.getBitNumber() && b.getMobSkill() != null))
+                        -> (b.getStatus().getBitNumber() == MonsterStatus.BLEED.getBitNumber() && b.getMobSkill() != null))
                         .forEach(bleedBuffs::add);
                 mplew.write(bleedBuffs.size());
                 if (bleedBuffs.size() > 0) {
@@ -706,22 +706,22 @@ public class MobPacket {
                         mplew.writeInt(0);
                     });
                 }
-                if (buff.getStati() == MonsterStatus.WEAPON_DAMAGE_REFLECT)
+                if (buff.getStatus() == MonsterStatus.WEAPON_DAMAGE_REFLECT)
                     mplew.writeInt(0);
-                if (buff.getStati() == MonsterStatus.MAGIC_DAMAGE_REFLECT)
+                if (buff.getStatus() == MonsterStatus.MAGIC_DAMAGE_REFLECT)
                     mplew.writeInt(0);
-                if (buff.getStati() == MonsterStatus.WEAPON_DAMAGE_REFLECT || buff.getStati() == MonsterStatus.MAGIC_DAMAGE_REFLECT) {
+                if (buff.getStatus() == MonsterStatus.WEAPON_DAMAGE_REFLECT || buff.getStatus() == MonsterStatus.MAGIC_DAMAGE_REFLECT) {
                     mplew.writeInt(0);
                     mplew.writeInt(0);
                 }
                 continue;
             }
-            if (buff.getStati() == MonsterStatus.SUMMON) {
+            if (buff.getStatus() == MonsterStatus.SUMMON) {
                 mplew.writeBool(buff.getX() > 0);
                 mplew.writeBool(buff.getX() > 0);
                 continue;
             }
-            if (buff.getStati() == MonsterStatus.MOB_BUFF_42) {
+            if (buff.getStatus() == MonsterStatus.MOB_BUFF_42) {
                 mplew.writeBool(buff.getX() > 0);
                 continue;
             }

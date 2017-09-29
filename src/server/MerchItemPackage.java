@@ -7,8 +7,9 @@ import java.util.List;
 
 public class MerchItemPackage {
 
-    private long lastsaved;
-    private int mesos = 0, packageid;
+    private long savedTime;
+    private int meso = 0;
+    private int packageId;
     private List<Item> items = new ArrayList<>();
 
     public List<Item> getItems() {
@@ -20,26 +21,26 @@ public class MerchItemPackage {
     }
 
     public long getSavedTime() {
-        return lastsaved;
+        return savedTime;
     }
 
-    public void setSavedTime(long lastsaved) {
-        this.lastsaved = lastsaved;
+    public void setSavedTime(long time) {
+        this.savedTime = time;
     }
 
-    public int getMesos() {
-        return mesos;
+    public int getMeso() {
+        return meso;
     }
 
-    public void setMesos(int set) {
-        mesos = set;
+    public void setMeso(int meso) {
+        this.meso = meso;
     }
 
-    public int getPackageid() {
-        return packageid;
+    public int getPackageId() {
+        return packageId;
     }
 
-    public void setPackageid(int packageid) {
-        this.packageid = packageid;
+    public void setPackageId(int packageId) {
+        this.packageId = packageId;
     }
 }

@@ -1,7 +1,7 @@
 package server;
 
 
-import client.MapleBuffStatus;
+import server.status.MapleBuffStatus;
 import provider.MapleData;
 import provider.MapleDataProvider;
 import provider.MapleDataProviderFactory;

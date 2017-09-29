@@ -22,10 +22,14 @@ package handling.world;
 
 import client.*;
 import client.MapleTrait.MapleTraitType;
+import client.buddy.BuddyListEntry;
+import client.buddy.CharacterNameAndId;
 import client.inventory.Item;
 import client.inventory.MapleImp;
 import client.inventory.MapleMount;
 import client.inventory.MaplePet;
+import client.skill.Skill;
+import client.skill.SkillEntry;
 import server.quest.MapleQuest;
 import tools.types.Pair;
 
@@ -77,7 +81,6 @@ public class CharacterTransfer implements Externalizable {
     public int honourexp;
     public LinkedList<InnerSkillValueHolder> innerSkills;
     public int honourlevel;
-    public int gml;
     public int noacc;
     public int location, birthday, found, todo, redeemhn;
     public int occupationId, occupationExp, occupationLevel;
@@ -134,7 +137,6 @@ public class CharacterTransfer implements Externalizable {
         this.unmuteTime = chr.getUnmuteTime();
         this.dgm = chr.getDGM();
         this.cardStack = chr.getCardStack();
-        this.gml = chr.getGML();
         //  this.occupation = chr.getOccupation();
         this.occupationId = chr.getOccId();
         this.occupationExp = chr.getOccEXP();
@@ -156,7 +158,7 @@ public class CharacterTransfer implements Externalizable {
         this.face = chr.getFace();
         this.demonMarking = chr.getDemonMarking();
         this.mapid = chr.getMapId();
-        this.initialSpawnPoint = chr.getInitialSpawnpoint();
+        this.initialSpawnPoint = chr.getInitialSpawnPoint();
         this.marriageId = chr.getMarriageId();
         this.world = chr.getWorld();
         this.guildid = chr.getGuildId();
@@ -367,7 +369,6 @@ public class CharacterTransfer implements Externalizable {
         this.unmuteTime = (Calendar) in.readObject();
         this.dgm = in.readInt();
         this.cardStack = in.readInt();
-        this.gml = in.readInt();
         //  this.occupation = chr.getOccupation();
         this.occupationId = in.readInt();
         this.occupationExp = in.readInt();
@@ -605,7 +606,6 @@ public class CharacterTransfer implements Externalizable {
         out.writeObject(this.unmuteTime);
         out.writeInt(this.dgm);
         out.writeInt(this.cardStack);
-        out.writeInt(this.gml);
         out.writeInt(this.occupationId);
         out.writeInt(this.occupationExp);
         out.writeInt(this.occupationLevel);

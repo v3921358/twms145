@@ -21,15 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package handling.channel.handler;
 
 import client.MapleCharacter;
-import client.Skill;
-import client.SkillFactory;
+import client.skill.Skill;
+import client.skill.SkillFactory;
 import constants.GameConstants;
 import server.MapleStatEffect;
 import tools.AttackPair;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class AttackInfo {
 

@@ -23,6 +23,8 @@ package handling.channel.handler;
 import client.*;
 import client.inventory.*;
 import client.inventory.MapleImp.ImpFlag;
+import client.skill.SkillEntry;
+import client.skill.SkillFactory;
 import constants.GameConstants;
 import server.*;
 import server.ItemMakerFactory.GemCreateEntry;

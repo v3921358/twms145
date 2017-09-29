@@ -8,6 +8,7 @@ package server;
  * @author FateJiki
  */
 public class PokemonEvolutionTable {
+
     public static boolean doesEvolve(int lv) {
         return Evolutions.getEvolutionById(lv) != null;
     }
@@ -18,15 +19,15 @@ public class PokemonEvolutionTable {
         THIRD(250),
         FOURTH(400),;
 
-        final int reqLv;
+        final int reqid;
 
-        private Evolutions(int reqid_) {
-            reqLv = reqid_;
+        Evolutions(int reqid) {
+            this.reqid = reqid;
         }
 
         public static Evolutions getEvolutionById(int lv) {
             for (Evolutions e : Evolutions.values()) {
-                if (e.reqLv == lv) {
+                if (e.reqid == lv) {
                     return e;
                 }
             }

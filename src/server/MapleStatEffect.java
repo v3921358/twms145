@@ -5,8 +5,12 @@ import client.MapleTrait.MapleTraitType;
 import client.inventory.Item;
 import client.inventory.MapleInventory;
 import client.inventory.MapleInventoryType;
-import client.status.MonsterStatus;
-import client.status.MonsterStatusEffect;
+import client.skill.Skill;
+import client.skill.SkillFactory;
+import constants.MapConstants;
+import server.status.MapleBuffStatus;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.channel.ChannelServer;
 import handling.world.MaplePartyCharacter;
@@ -1416,10 +1420,10 @@ public class MapleStatEffect implements Serializable {
     }
 
     public final boolean applyTo(final MapleCharacter applyfrom, final MapleCharacter applyto, final boolean primary, final Point pos, int newDuration) {
-        if (!applyfrom.isGM() && isSoaring() && applyfrom.getEventMap()) {
+        if (!applyfrom.isGM() && isSoaring() && MapConstants.isEventMap(applyfrom.getMapId())) {
             applyfrom.kickFromJQ();
             return false;
-        } else if (!applyfrom.isGM() && sourceid == 23111001 && applyfrom.getEventMap()) { // why would a gm use this idk
+        } else if (!applyfrom.isGM() && sourceid == 23111001 &&  MapConstants.isEventMap(applyfrom.getMapId())) { // why would a gm use this idk
             applyfrom.dropMessage(5, "You can't use this skill in this map.");
             applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
@@ -1838,10 +1842,10 @@ public class MapleStatEffect implements Serializable {
                 if (MapleInventoryManipulator.checkSpace(applyto.getClient(), reward.left, reward.mid, "") && reward.right > 0 && Randomizer.nextInt(totalprob) < reward.right) { // Total prob
                     if (GameConstants.getInventoryType(reward.left) == MapleInventoryType.EQUIP) {
                         final Item item = MapleItemInformationProvider.getInstance().getEquipById(reward.left);
-                        item.setGMLog("Reward item (effect): " + sourceid + " on " + FileoutputUtil.CurrentReadable_Date());
+                        item.setGMLog("Reward item (statEffect): " + sourceid + " on " + FileoutputUtil.CurrentReadable_Date());
                         MapleInventoryManipulator.addbyItem(applyto.getClient(), item);
                     } else {
-                        MapleInventoryManipulator.addById(applyto.getClient(), reward.left, reward.mid.shortValue(), "Reward item (effect): " + sourceid + " on " + FileoutputUtil.CurrentReadable_Date());
+                        MapleInventoryManipulator.addById(applyto.getClient(), reward.left, reward.mid.shortValue(), "Reward item (statEffect): " + sourceid + " on " + FileoutputUtil.CurrentReadable_Date());
                     }
                 }
             }
@@ -2667,7 +2671,7 @@ public class MapleStatEffect implements Serializable {
         if (!isMonsterRiding() && !isMechDoor()) {
             applyto.cancelEffect(this, true, -1, localstatups);
         }
-        // Broadcast effect to self
+        // Broadcast statEffect to self
         if (normal && localstatups.size() > 0) {
             applyto.getClient().sendPacket(BuffPacket.giveBuff((skill ? sourceid : -sourceid), localDuration, maskedStatups == null ? localstatups : maskedStatups, this));
         }
@@ -3396,7 +3400,7 @@ public class MapleStatEffect implements Serializable {
     }
 
     /**
-     * @return true if the effect should happen based on it's probablity, false otherwise
+     * @return true if the statEffect should happen based on it's probablity, false otherwise
      */
     public final boolean makeChanceResult() {
         return prop >= 100 || Randomizer.nextInt(100) < prop;

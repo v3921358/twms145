@@ -73,14 +73,12 @@ public class MapleKeyLayout implements Serializable {
         }
     }
 
-    public final void saveKeys(final int charid) throws SQLException {
+    public final void saveKeys(final Connection con, final int charId) throws SQLException {
         if (!changed) {
             return;
         }
-        Connection con = DatabaseConnection.getConnection();
-
         PreparedStatement ps = con.prepareStatement("DELETE FROM keymap WHERE characterid = ?");
-        ps.setInt(1, charid);
+        ps.setInt(1, charId);
         ps.execute();
         ps.close();
         if (keymap.isEmpty()) {
@@ -97,7 +95,7 @@ public class MapleKeyLayout implements Serializable {
                 query.append(",(");
             }
             query.append("DEFAULT,");
-            query.append(charid).append(",");
+            query.append(charId).append(",");
             query.append(keybinding.getKey().intValue()).append(",");
             query.append(keybinding.getValue().getLeft().byteValue()).append(",");
             query.append(keybinding.getValue().getRight().intValue()).append(")");
