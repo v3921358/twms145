@@ -279,7 +279,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     private int autoAP = 0; // 0 = Off, 1 = STR, 2 = DEX, 3 = INT, 4 = LUK, 5 = AP Storage
     private boolean hidden = false; // TODO: gm hide
     private boolean elf = false; // For Non-Mercedes Elf Ears. :P
-    private byte numAntiKSMonsters = 0;
+
     // Cheat Tracker
     private long[] lastTime = new long[6];
     private transient MapleLieDetector antiMacro;
@@ -1494,7 +1494,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
 
     }
 
-    public static  void openNpc(final MapleClient c, int npcId) {
+    public static void openNpc(final MapleClient c, int npcId) {
         NPCScriptManager.getInstance().start(c, npcId);
     }
 
@@ -2324,7 +2324,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         if (stats.getHp() - bloodEffect.getX() <= 1) {
             cancelBuffStats(MapleBuffStatus.DRAGONBLOOD);
         } else {
-           addHP(-bloodEffect.getX());
+            addHP(-bloodEffect.getX());
             client.sendPacket(EffectPacket.showOwnBuffEffect(bloodEffect.getSourceId(), 7, getLevel(), bloodEffect.getLevel()));
             map.broadcastMessage(MapleCharacter.this, EffectPacket.showBuffeffect(getId(), bloodEffect.getSourceId(), 7, getLevel(), bloodEffect.getLevel()), false);
         }
@@ -2499,20 +2499,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
 
     public void cancelFishingTask() {
         lastFishingTime = 0;
-    }
-
-    public byte getNumAntiKSMonsters() {
-        return numAntiKSMonsters;
-    }
-
-    public void incAntiKSNum() {
-        numAntiKSMonsters++;
-    }
-
-    public void decAntiKSNum() {
-        if (numAntiKSMonsters > 0) {
-            numAntiKSMonsters--;
-        }
     }
 
     public void toggleTestingDPS() {
@@ -3625,14 +3611,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         if (eventInstance != null) {
             eventInstance.changedMap(this, to.getId());
         }
-        List<MapleMonster> monsters = map.getAllMonster();
-        for (MapleMapObject mmo : monsters) {
-            MapleMonster m = (MapleMonster) mmo;
-            if (m.getBelongsTo() == getId()) {
-                decAntiKSNum();
-                m.expireAntiKS();
-            }
-        }
         final boolean pyramid = pyramidSubway != null;
         if (map.getId() == nowmapid) {
             client.sendPacket(warpPacket);
@@ -3651,9 +3629,6 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                     to.setCheckStates(true);
                 }
             }
-            client.removeClickedNPC();
-            NPCScriptManager.getInstance().dispose(client);
-            client.sendPacket(CWvsContext.enableActions());
         }
         if (pyramid && pyramidSubway != null) { //checks if they had pyramid before AND after changing
             pyramidSubway.onChangeMap(this, to.getId());
@@ -4738,7 +4713,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     }
 
     public boolean isShowErr() {
-        return isSuperGM()|| ServerConstants.DEBUG;/* && !ServerConfig.LOG_PACKETS*/
+        return isSuperGM() || ServerConstants.DEBUG;/* && !ServerConfig.LOG_PACKETS*/
     }
 
     public void dropMessage(String msg) {
@@ -5600,6 +5575,10 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                 remainingSp[GameConstants.getSkillBook(this.job)] += 3;
             }
             updateSingleStat(MapleStat.AVAILABLE_SP, 0); // we don't care the value here
+        } else if (level <= 10) {
+            stats.setStr((short) (stats.getStr() + remainingAp), this);
+            remainingAp = 0;
+            statup.put(MapleStat.STR, (int) stats.getStr());
         }
         // statup.put(MapleStat.AVAILABLE_AP, (int) remainingAp);
         stats.setInfo(maxhp, maxmp, stats.getCurrentMaxHp(), stats.getCurrentMaxMp(getJob()));
@@ -5609,7 +5588,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         silentPartyUpdate();
         guildUpdate();
         familyUpdate();
-        autoJob();
+        //autoJob();
     }
 
     /*      */

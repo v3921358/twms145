@@ -719,7 +719,7 @@ public class MapScriptMethods {
             case Resi_tutor40:
                 NPCScriptManager.getInstance().dispose(c);
                 c.removeClickedNPC();
-                NPCScriptManager.getInstance().start(c, 2159012);
+                NPCScriptManager.getInstance().start(c, 2159012, null);
                 break;
             case Resi_tutor50:
                 c.sendPacket(UIPacket.disableOthers(false));

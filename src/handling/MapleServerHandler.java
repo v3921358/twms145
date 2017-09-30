@@ -182,6 +182,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
         final short opcode = slea.readShort();
 
         if (opcode == RecvPacketOpcode.GENERAL_CHAT.getValue()) {
+            c.getPlayer().levelUp();
             RecvPacketOpcode.reloadValues();
             SendPacketOpcode.reloadValues();
             MapleBuffStatus.reloadValues();

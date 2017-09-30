@@ -115,7 +115,7 @@ public class MapleInventoryManipulator {
                     Iterator<Item> i = existing.iterator();
                     while (quantity > 0) {
                         if (i.hasNext()) {
-                            Item eItem = (Item) i.next();
+                            Item eItem = i.next();
                             short oldQ = eItem.getQuantity();
                             if (oldQ < slotMax && (eItem.getOwner().equals(owner) || owner == null) && eItem.getExpiration() == -1) {
                                 short newQ = (short) Math.min(oldQ + quantity, slotMax);

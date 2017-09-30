@@ -68,13 +68,16 @@ public class Start {
         this.initTimers();
         // WorldConfig Handler
         MapleServerHandler.initiate();
-        // Servers
-        LoginServer.initiate();
-        CashShopServer.initiate();
+
         // Information
         MapleItemInformationProvider.getInstance().runEtc();
         MapleMonsterInformationProvider.getInstance().load();
         MapleItemInformationProvider.getInstance().runItems();
+
+        // Servers
+        LoginServer.initiate();
+        CashShopServer.initiate();
+
         LoginServer.setOn();
         // Every other instance cache :)
         SkillFactory.load();

@@ -377,9 +377,8 @@ public class PlayerStats implements Serializable {
             chra.getTrait(t).clearLocalExp();
         }
         Map<Skill, SkillEntry> sData = new HashMap<>();
-        Iterator<Item> itera = chra.getInventory(MapleInventoryType.EQUIPPED).newList().iterator();
-        while (itera.hasNext()) {
-            Equip equip = (Equip) itera.next();
+        for (Item item1 : chra.getInventory(MapleInventoryType.EQUIPPED).newList()) {
+            Equip equip = (Equip) item1;
             //   if (GameConstants.getAngelicSkill(equip.getItemId()) > 0) {
             //     equippedSummon = PlayerStats.getSkillByJob(GameConstants.getAngelicSkill(equip.getItemId()), chra.getJob());
             //}
@@ -653,62 +652,32 @@ public class PlayerStats implements Serializable {
             }
         }
 
-        /*  426 */
         for (Pair ix : chra.getCharacterCard().getCardEffects()) {
-/*  427 */
             MapleStatEffect e = SkillFactory.getSkill(((Integer) ix.getLeft()).intValue()).getEffect(((Integer) ix.getRight()).intValue());
-/*  428 */
             this.percent_wdef += e.getWDEFRate();
-/*  429 */
             this.watk += chra.getLevel();
-/*  430 */
             this.percent_hp += e.getPercentHP();
-/*  431 */
             this.percent_mp += e.getPercentMP();
-/*  432 */
             this.magic += chra.getLevel();
-/*  433 */
             this.RecoveryUP += 132;
-/*  434 */
             this.percent_acc += 11;
-/*  435 */
             this.passive_sharpeye_rate = (short) (this.passive_sharpeye_rate + e.getCr());
-/*  436 */
             this.jump += e.getPassiveJump();
-/*  437 */
             this.speed += e.getPassiveSpeed();
-/*  438 */
             this.dodgeChance += 13;
-/*  440 */
             this.BuffUP_Summon += 10;
-/*  442 */
             this.ASR += e.getASRRate();
-/*      */
-/*  445 */
             this.BuffUP_Skill += 30;
-/*      */
-/*  449 */
             this.incMesoProp += 10;
-/*      */
-/*  453 */
             this.passive_sharpeye_percent = (short) (this.passive_sharpeye_percent + e.getCriticalMax());
-/*  454 */
             this.ignoreTargetDEF += e.getIgnoreMob();
-/*  455 */
             this.localstr += e.getStrX();
-/*  456 */
             this.localdex += e.getDexX();
-/*  457 */
             this.localint_ += e.getIntX();
-/*  458 */
             this.localluk += e.getLukX();
-/*  461 */
             this.watk += e.getAttackX();
-/*  462 */
             this.magic += e.getMagicX();
-/*  463 */
             this.bossdam_r += e.getBossDamage();
-/*      */
         }
         if (equippedSummon > 0) {
             equippedSummon = getSkillByJob(equippedSummon, chra.getJob());
@@ -760,31 +729,31 @@ public class PlayerStats implements Serializable {
 //        }
         buff = chra.getBuffedValue(MapleBuffStatus.ABNORMAL_STATUS_R);
         if (buff != null) {
-            ASR += buff.intValue();
+            ASR += buff;
         }
         buff = chra.getBuffedValue(MapleBuffStatus.ELEMENTAL_STATUS_R);
         if (buff != null) {
-            TER += buff.intValue();
+            TER += buff;
         }
         buff = chra.getBuffedValue(MapleBuffStatus.INFINITY);
         if (buff != null) {
-            percent_matk += buff.intValue() - 1;
+            percent_matk += buff - 1;
         }
         buff = chra.getBuffedValue(MapleBuffStatus.ONYX_SHROUD);
         if (buff != null) {
-            dodgeChance += buff.intValue();
+            dodgeChance += buff;
         }
         buff = chra.getBuffedValue(MapleBuffStatus.PVP_DAMAGE);
         if (buff != null) {
-            pvpDamage += buff.intValue();
+            pvpDamage += buff;
         }
         buff = chra.getBuffedValue(MapleBuffStatus.PVP_ATTACK);
         if (buff != null) {
-            pvpDamage += buff.intValue();
+            pvpDamage += buff;
         }
         buff = chra.getBuffedValue(MapleBuffStatus.FELINE_BERSERK);
         if (buff != null) {
-            percent_hp += buff.intValue();
+            percent_hp += buff;
         }
         eff = chra.getStatForBuff(MapleBuffStatus.BLUE_AURA);
         if (eff != null) {
@@ -794,29 +763,29 @@ public class PlayerStats implements Serializable {
         }
         buff = chra.getBuffedValue(MapleBuffStatus.CONVERSION);
         if (buff != null) {
-            percent_hp += buff.intValue();
+            percent_hp += buff;
         } else {
             buff = chra.getBuffedValue(MapleBuffStatus.MAXHP);
             if (buff != null) {
-                percent_hp += buff.intValue();
+                percent_hp += buff;
             }
         }
         buff = chra.getBuffedValue(MapleBuffStatus.MAXMP);
         if (buff != null) {
-            percent_mp += buff.intValue();
+            percent_mp += buff;
         }
         buff = chra.getBuffedValue(MapleBuffStatus.MP_BUFF);
         if (buff != null) {
-            percent_mp += buff.intValue();
+            percent_mp += buff;
         }
         buff = chra.getBuffedSkill_X(MapleBuffStatus.BUFF_MASTERY);
         if (buff != null) {
-            BuffUP_Skill += buff.intValue();
+            BuffUP_Skill += buff;
         }
         if (GameConstants.isKOC(chra.getJob())) {
             bx = SkillFactory.getSkill(2000006);
             bof = chra.getTotalSkillLevel(bx);
-            if (bof > 0) {
+            if (bof > 0 && bx != null) {
                 eff = bx.getEffect(bof);
                 percent_hp += eff.getX();
                 percent_mp += eff.getX();

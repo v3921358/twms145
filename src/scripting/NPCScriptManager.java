@@ -355,7 +355,11 @@ public class NPCScriptManager extends AbstractScriptManager {
 
     public final void dispose(final MapleClient c) {
         final NPCConversationManager npccm = cms.get(c);
+
         if (npccm != null) {
+            if (c.getPlayer().isShowInfo()) {
+                c.getPlayer().showInfo("NPC腳本", false, "結束對話，NPC：" + npccm.getNpc() + " 特殊腳本：" + npccm.getScript() + c.getPlayer().getMap());
+            }
             cms.remove(c);
             switch (npccm.getType()) {
                 case NPC:

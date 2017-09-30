@@ -285,12 +285,11 @@ public class MapleItemInformationProvider {
 
             // Finalize all Equipments
 
-            for (Entry<Integer, ItemInformation> entry : dataCache.entrySet()) {
-                if (GameConstants.getInventoryType(entry.getKey()) == MapleInventoryType.EQUIP) {
-                    finalizeEquipData(entry.getValue());
-                }
-            }
+            dataCache.entrySet().stream().filter(entry -> GameConstants.getInventoryType(entry.getKey()) == MapleInventoryType.EQUIP).forEach(entry -> {
+                finalizeEquipData(entry.getValue());
+            });
         } catch (SQLException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -863,7 +862,7 @@ public class MapleItemInformationProvider {
 
     public Item getEquipById(int equipId, int ringId) {
         ItemInformation i = getItemInformation(equipId);
-        if (i == null || i.eq == null) {
+        if (i == null ) {
             return new Equip(equipId, (short) 0, ringId, (byte) 0);
         }
         Item eq = i.eq.copy();
@@ -1312,7 +1311,7 @@ public class MapleItemInformationProvider {
         add.prob = sqlRewardData.getInt("prob");
         add.quantity = sqlRewardData.getShort("quantity");
         add.worldmsg = sqlRewardData.getString("worldMsg").length() <= 0 ? null : sqlRewardData.getString("worldMsg");
-        add.effect = sqlRewardData.getString("statEffect");
+        add.effect = sqlRewardData.getString("effect");
 
         tmpInfo.rewardItems.add(add);
     }

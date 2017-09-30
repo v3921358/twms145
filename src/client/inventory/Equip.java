@@ -96,7 +96,6 @@ public class Equip extends Item implements Serializable {
         ret.setGiftFrom(getGiftFrom());
         ret.setOwner(getOwner());
         ret.setQuantity(getQuantity());
-        // ret.setExpiration(2475606994921L);
         ret.setExpiration(getExpiration());
         return ret;
     }

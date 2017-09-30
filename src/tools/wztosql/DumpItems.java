@@ -78,6 +78,7 @@ public class DumpItems {
             dq.dumpItems();
             hadError |= dq.isHadError();
         } catch (Exception e) {
+            e.printStackTrace();
             hadError = true;
             System.out.println(currentQuest + " quest.");
         }
@@ -100,12 +101,13 @@ public class DumpItems {
     public void dumpItems() throws Exception {
         if (!hadError) {
             PreparedStatement psa = con.prepareStatement("INSERT INTO wz_itemadddata(itemid, `key`, value1, value2) VALUES (?, ?, ?, ?)");
-            PreparedStatement psr = con.prepareStatement("INSERT INTO wz_itemrewarddata(itemid, item, prob, quantity, period, worldMsg, statEffect) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement psr = con.prepareStatement("INSERT INTO wz_itemrewarddata(itemid, item, prob, quantity, period, worldMsg, effect) VALUES (?, ?, ?, ?, ?, ?, ?)");
             PreparedStatement ps = con.prepareStatement("INSERT INTO wz_itemdata(itemid, name, msg, `desc`, slotMax, price, wholePrice, stateChange, flags, karma, meso, monsterBook, itemMakeLevel, questId, scrollReqs, consumeItem, totalprob, incSkill, replaceId, replaceMsg, `create`, afterImage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             PreparedStatement pse = con.prepareStatement("INSERT INTO wz_itemequipdata(itemid, itemLevel, `key`, `value`) VALUES (?, ?, ?, ?)");
             try {
                 dumpItems(psa, psr, ps, pse);
             } catch (Exception e) {
+                e.printStackTrace();
                 System.out.println(id + " quest.");
                 hadError = true;
             } finally {
@@ -304,9 +306,7 @@ public class DumpItems {
                     continue;
                 }
                 final int lv = Integer.parseInt(info.getName());
-                if (equipStats.get(lv) == null) {
-                    equipStats.put(lv, new HashMap<String, Integer>());
-                }
+                equipStats.putIfAbsent(lv, new HashMap<>());
                 for (MapleData data : info) {
                     if (data.getName().length() > 3) {
                         equipStats.get(lv).put(data.getName().substring(3), MapleDataTool.getIntConvert(data, 0));

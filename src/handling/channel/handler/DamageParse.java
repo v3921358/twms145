@@ -194,12 +194,8 @@ public class DamageParse {
                 }
                 overallAttackCount = 0; // Tracking of Shadow Partner additional damage.
                 Integer eachd;
-                if (monster.getBelongsToSomeone() && monster.getBelongsTo() != player.getId() && (player.getParty() == null || player.getParty().getMemberById(monster.getBelongsTo()) == null) && !player.isGM()) {
-                    player.dropMessage("You cannot hit this monster because it belongs to someone else.");
-                    continue;
-                }
-                for (Pair<Integer, Boolean> eachde : oned.attack) {
-                    eachd = eachde.left;
+                for (Pair<Integer, Boolean> eachDanage : oned.attack) {
+                    eachd = eachDanage.left;
                     overallAttackCount++;
 
                     if (useAttackCount && overallAttackCount - 1 == attackCount) { // Is a Shadow partner hit so let's divide it once
@@ -424,46 +420,68 @@ public class DamageParse {
 
     public static void applyAttackMagic(final AttackInfo attack, final Skill theSkill, final MapleCharacter player, final MapleStatEffect effect, double maxDamagePerHit) {
         if (!player.isAlive()) {
+            //player.getCheatTracker().registerOffense(CheatingOffense.ATTACKING_WHILE_DEAD);
+            if (player.isShowErr()) {
+                player.showInfo("魔法攻擊", true, "角色已死亡");
+            }
             return;
         }
 
-//	if (attack.skill != 2301002) { // heal is both an attack and a special move (healing) so we'll let the whole applying magic live in the special move part
-//	    statEffect.applyTo(player);
-//	}
-        // if (attack.hits > statEffect.getAttackCount() || attack.targets > statEffect.getMobCount()) {
-        //   return;
-        // }
-        if (attack.hits > 0 && attack.targets > 0) {
-            if (!player.getStat().checkEquipDurabilitys(player, -1)) { //i guess this is how it works ?
-                player.dropMessage(5, "An item has run out of durability but has no inventory room to go to.");
-                return;
-            } //lol
+        if ((attack.real) && (GameConstants.getAttackDelay(attack.skill, theSkill) >= 100)) {
+            //player.getCheatTracker().checkAttack(attack.skill, attack.lastAttackTickCount);
         }
-        if (GameConstants.isMulungSkill(attack.skill)) {
-            if (player.getMapId() / 10000 != 92502) {
-                //AutobanManager.getInstance().autoban(player.getClient(), "Using Mu Lung dojo skill out of dojo maps.");
-                return;
-            } else {
-                if (player.getMulungEnergy() < 10000) {
-                    return;
-                }
-                player.mulung_EnergyModify(false);
+
+        if (effect == null) {
+            if (player.isShowErr()) {
+                player.showInfo("魔法攻擊", true, "effect == null - " + (effect == null));
             }
-        } else if (GameConstants.isPyramidSkill(attack.skill)) {
-            if (player.getMapId() / 1000000 != 926) {
-                //AutobanManager.getInstance().autoban(player.getClient(), "Using Pyramid skill outside of pyramid maps.");
-                return;
-            } else {
-                if (player.getPyramidSubway() == null || !player.getPyramidSubway().onSkillUse(player)) {
-                    return;
-                }
-            }
-        } else if (GameConstants.isInflationSkill(attack.skill) && (player.getBuffedValue(MapleBuffStatus.GIANT_POTION) == null)) {
             return;
         }
-        if (LoginServer.isAdminOnly()) {
-            player.dropMessage(-1, "Animation: " + Integer.toHexString(((attack.display & 0x8000) != 0 ? (attack.display - 0x8000) : attack.display)));
+
+
+        if ((attack.hits > 0) && (attack.targets > 0) && (!player.getStat().checkEquipDurabilitys(player, -1))) {
+            player.dropMessage(5, "An item has run out of durability but has no inventory room to go to.");
+            if (player.isShowErr()) {
+                player.showInfo("魔法攻擊", true, "attack.hits > 0 - " + (attack.hits > 0) + ", attack.targets > 0 - " + (attack.targets > 0));
+            }
+            return;
         }
+
+
+        if (GameConstants.isMulungSkill(attack.skill)) {
+            if (player.getMapId() / 10000 != 92502) {
+                if (player.isShowErr()) {
+                    player.showInfo("魔法攻擊", true, "是道場技能但是不在道場 - " + (player.getMapId() / 10000 != 92502));
+                }
+                return;
+            }
+            if (player.getMulungEnergy() < 10000) {
+                if (player.isShowErr()) {
+                    player.showInfo("魔法攻擊", true, "道場能力不足 - " + (player.getMulungEnergy() < 10000));
+                }
+                return;
+            }
+            player.mulung_EnergyModify(false);
+        } else if (GameConstants.isPyramidSkill(attack.skill)) {
+            if (player.getMapId() / 1000000 != 926) {
+                if (player.isShowErr()) {
+                    player.showInfo("魔法攻擊", true, "是金字塔技能但不在金字塔 - " + (player.getMapId() / 1000000 != 926));
+                }
+                return;
+            }
+            if ((player.getPyramidSubway() != null) && (player.getPyramidSubway().onSkillUse(player)));
+        } else if ((GameConstants.isInflationSkill(attack.skill)) && (player.getBuffedValue(MapleBuffStatus.GIANT_POTION) == null)) {
+            if (player.isShowErr()) {
+                player.showInfo("魔法攻擊", true, "isInflationSkill - " + (GameConstants.isInflationSkill(attack.skill)) + "GIANT_POTION = null - " + (player.getBuffedValue(MapleBuffStatus.GIANT_POTION) == null));
+            }
+            return;
+        }
+
+        if (player.isShowInfo()) {
+            int display = attack.display & 0x7FFF;
+            player.dropMessage(6, "[魔法攻擊]使用技能[" + attack.skill + "]進行攻擊，攻擊動作:0x" + Integer.toHexString(display).toUpperCase() + "(" + display + ")");
+        }
+
         final PlayerStats stats = player.getStat();
         final Element element = player.getBuffedValue(MapleBuffStatus.ELEMENT_RESET) != null ? Element.NEUTRAL : theSkill.getElement();
 
@@ -499,43 +517,36 @@ public class DamageParse {
                     }
                 }
                 overallAttackCount = 0;
-                if (monster.getBelongsToSomeone() && monster.getBelongsTo() != player.getId() && (player.getParty() == null || player.getParty().getMemberById(monster.getBelongsTo()) == null) && !player.isGM()) {
-                    player.dropMessage("You cannot hit this monster because it belongs to someone else.");
-                    continue;
-                }
-                Integer eachd;
+                Integer eachDamage;
                 for (Pair<Integer, Boolean> eachde : oned.attack) {
-                    eachd = eachde.left;
+                    eachDamage = eachde.left;
                     overallAttackCount++;
                     if (fixeddmg != -1) {
-                        eachd = monsterstats.getOnlyNoramlAttack() ? 0 : (int) fixeddmg; // Magic is always not a normal attack
+                        eachDamage = monsterstats.getOnlyNoramlAttack() ? 0 : (int) fixeddmg; // Magic is always not a normal attack
                     } else {
                         if (monsterstats.getOnlyNoramlAttack()) {
-                            eachd = 0; // Magic is always not a normal attack
+                            eachDamage = 0; // Magic is always not a normal attack
                         } else if (!player.isGM()) {
-//			    System.out.println("Client damage : " + eachd + " WorldConfig : " + MaxDamagePerHit);
-
                             if (Tempest) { // Buffed with Tempest
                                 // In special case such as Chain lightning, the damage will be reduced from the maxMP.
-                                if (eachd > monster.getMobMaxHp()) {
-                                    eachd = (int) Math.min(monster.getMobMaxHp(), Integer.MAX_VALUE);
+                                if (eachDamage > monster.getMobMaxHp()) {
+                                    eachDamage = (int) Math.min(monster.getMobMaxHp(), Integer.MAX_VALUE);
                                 }
                             } else if (!monster.isBuffed(MonsterStatus.MAGIC_IMMUNITY) && !monster.isBuffed(MonsterStatus.MAGIC_DAMAGE_REFLECT)) {
-                                if (eachd > MaxDamagePerHit) {
-                                    if (eachd > MaxDamagePerHit * 2) {
-//				    System.out.println("EXCEED!!! Client damage : " + eachd + " WorldConfig : " + MaxDamagePerHit);
-                                        eachd = (int) (MaxDamagePerHit * 2); // Convert to server calculated damage
+                                if (eachDamage > MaxDamagePerHit) {
+                                    if (eachDamage > MaxDamagePerHit * 2) {
+                                        eachDamage = (int) (MaxDamagePerHit * 2); // Convert to server calculated damage
 
                                     }
                                 }
                             } else {
-                                if (eachd > MaxDamagePerHit) {
-                                    eachd = (int) (MaxDamagePerHit);
+                                if (eachDamage > MaxDamagePerHit) {
+                                    eachDamage = (int) (MaxDamagePerHit);
                                 }
                             }
                         }
                     }
-                    totDamageToOneMonster += eachd;
+                    totDamageToOneMonster += eachDamage;
                 }
                 totDamage += totDamageToOneMonster;
                 player.checkMonsterAggro(monster);

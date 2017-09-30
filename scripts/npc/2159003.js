@@ -5,7 +5,7 @@ function action(mode, type, selection) {
 
     if (complete) {
         if (status == 0)
-            cm.sendNext("啊！被發現了...");
+            cm.sendNext("找到烏利卡和潘了嗎？由其是潘特別會躲，有仔細的找嗎？");
         else
             cm.dispose();
     } else {

@@ -75,10 +75,8 @@ public class MapleMonster extends AbstractLoadedMapleLife {
     private Map<Integer, Long> usedSkills;
     private int stolen = -1; //monster can only be stolen ONCE
     private boolean shouldDropItem = false, killed = false;
-    private int belongsTo = -1;
     private int randomNX = MapleCharacter.rand(10, 500); //player NX
     private int TrollNX = MapleCharacter.rand(1337, 9001); //Troll NX - UMad
-    private long endBelong;
 
     public MapleMonster(final int id, final MapleMonsterStats stats) {
         super(id);
@@ -145,51 +143,6 @@ public class MapleMonster extends AbstractLoadedMapleLife {
 
     public String getName() {
         return stats.getName();
-    }
-
-    public boolean getBelongsToSomeone() {
-        return belongsTo != -1 && endBelong > System.currentTimeMillis();
-    }
-
-    public int getBelongsTo() {
-        return belongsTo;
-    }
-
-    public void setBelongsTo(MapleCharacter chr) { //Only let it be controlled once.
-        if (belongsTo != -1) {
-            return;
-        }
-        if (isBoss()) {
-            belongsTo = -2;
-            return;
-        }
-        belongsTo = chr.getId();
-        endBelong = System.currentTimeMillis() + 30000; //30 seconds for the person to kill it.
-    }
-
-    public long getBelongTimeLeft() {
-        if (getBelongsToSomeone()) {
-            return endBelong - System.currentTimeMillis();
-        } else {
-            return 0;
-        }
-    }
-
-    public boolean getCanBelong() {
-        return belongsTo == -1;
-    }
-
-    public void expireAntiKS() {
-        belongsTo = -2;
-        //endBelong = System.currentTimeMillis();
-    }
-
-    public boolean belongsToSomeone() {
-        return belongsTo != -1;
-    }
-
-    public void setBelongTo(MapleCharacter chr) {
-        belongsTo = chr.getId();
     }
 
     public final ChangeableStats getChangedStats() {

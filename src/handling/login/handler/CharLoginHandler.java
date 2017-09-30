@@ -395,7 +395,7 @@ public class CharLoginHandler {
         //        return;
         //    }
 
-        if (MapleCharacterUtil.canCreateChar(name, c.isGm()) && (!LoginInformationProvider.getInstance().isForbiddenName(name) || c.isGm()) && (c.isGm() || c.canMakeCharacter(c.getWorld()))) {
+        if ((!LoginInformationProvider.getInstance().isForbiddenName(name) || c.isGm()) && (c.isGm() || c.canMakeCharacter(c.getWorld()))) {
             MapleCharacter.saveNewCharToDB(newChar, jobType, jobType.sub);
             c.sendPacket(LoginPacket.addNewCharEntry(newChar, true));
             c.createdChar(newChar.getId());
