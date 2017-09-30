@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling;
 
+import constants.WorldConfig;
+import handling.world.World;
 import server.status.MapleBuffStatus;
 import client.MapleClient;
 import client.inventory.MaplePet;
@@ -182,7 +184,8 @@ public class MapleServerHandler extends ChannelDuplexHandler {
         final short opcode = slea.readShort();
 
         if (opcode == RecvPacketOpcode.GENERAL_CHAT.getValue()) {
-            c.getPlayer().levelUp();
+            WorldConfig.雪吉拉.setDropRate(10);
+            WorldConfig.雪吉拉.setMesoRate(100);
             RecvPacketOpcode.reloadValues();
             SendPacketOpcode.reloadValues();
             MapleBuffStatus.reloadValues();
@@ -952,7 +955,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 InventoryHandler.PamSong(slea, client);
                 break;
             case INNER_CIRCULATOR:
-                InventoryHandler.useInnerCirculator(slea, client);
+                //InventoryHandler.useInnerCirculator(slea, client);
                 break;
             case REPORT:
                 PlayersHandler.Report(slea, client);

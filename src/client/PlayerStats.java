@@ -2765,52 +2765,52 @@ public class PlayerStats implements Serializable {
         MapleWeaponType weaponType = GameConstants.getWeaponType(player.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11).getItemId());
         boolean acc = true;
         switch (weaponType) {
-            case BOW:
+            case 弓:
                 skil = GameConstants.isKOC(player.getJob()) ? 13100000 : 3100000;
                 break;
-            case CLAW:
+            case 拳套:
                 skil = 4100000;
                 break;
-            case CANE:
+            case 手杖:
                 skil = player.getTotalSkillLevel(24120006) > 0 ? 24120006 : 24100004;
                 break;
-            case CANNON:
+            case 加農炮:
                 skil = 5300005;
                 break;
-            case KATARA:
-            case DAGGER:
+            case 雙刀:
+            case 短劍:
                 skil = player.getJob() >= 430 && player.getJob() <= 434 ? 4300000 : 4200000;
                 break;
-            case CROSSBOW:
+            case 弩:
                 skil = GameConstants.isResist(player.getJob()) ? 33100000 : 3200000;
                 break;
-            case AXE1H:
-            case BLUNT1H:
+            case 單手斧:
+            case 單手棍:
                 skil = GameConstants.isResist(player.getJob()) ? 31100004 : (GameConstants.isKOC(player.getJob()) ? 11100000 : (player.getJob() > 112 ? 1200000 : 1100000)); //hero/pally
                 break;
-            case AXE2H:
-            case SWORD1H:
-            case SWORD2H:
-            case BLUNT2H:
+            case 雙手斧:
+            case 單手劍:
+            case 雙手劍:
+            case 雙手棍:
                 skil = GameConstants.isKOC(player.getJob()) ? 11100000 : (player.getJob() > 112 ? 1200000 : 1100000); //hero/pally
                 break;
-            case POLE_ARM:
+            case 槍:
                 skil = GameConstants.isAran(player.getJob()) ? 21100000 : 1300000;
                 break;
-            case SPEAR:
+            case 矛:
                 skil = 1300000;
                 break;
-            case KNUCKLE:
+            case 指虎:
                 skil = GameConstants.isKOC(player.getJob()) ? 15100001 : 5100001;
                 break;
-            case GUN:
+            case 火槍:
                 skil = GameConstants.isResist(player.getJob()) ? 35100000 : 5200000;
                 break;
-            case DUAL_BOW:
+            case 雙弩槍:
                 skil = 23100005;
                 break;
-            case WAND:
-            case STAFF:
+            case 短杖:
+            case 長杖:
                 acc = false;
                 skil = GameConstants.isResist(player.getJob()) ? 32100006 : (player.getJob() <= 212 ? 2100006 : (player.getJob() <= 222 ? 2200006 : (player.getJob() <= 232 ? 2300006 : (player.getJob() <= 2000 ? 12100007 : 22120002))));
                 break;
@@ -3084,23 +3084,23 @@ public class PlayerStats implements Serializable {
             Item weapon_item = chra.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -11);
             Item weapon_item2 = chra.getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -10);
             int job = chra.getJob();
-            MapleWeaponType weapon = weapon_item == null ? MapleWeaponType.NOT_A_WEAPON : GameConstants.getWeaponType(weapon_item.getItemId());
-            MapleWeaponType weapon2 = weapon_item2 == null ? MapleWeaponType.NOT_A_WEAPON : GameConstants.getWeaponType(weapon_item2.getItemId());
+            MapleWeaponType weapon = weapon_item == null ? MapleWeaponType.沒有武器 : GameConstants.getWeaponType(weapon_item.getItemId());
+            MapleWeaponType weapon2 = weapon_item2 == null ? MapleWeaponType.沒有武器 : GameConstants.getWeaponType(weapon_item2.getItemId());
             int mainstat, secondarystat, mainstatpvp, secondarystatpvp;
             boolean mage = (job >= 200 && job <= 232) || (job >= 1200 && job <= 1212) || (job >= 2200 && job <= 2218) || (job >= 3200 && job <= 3212);
             switch (weapon) {
-                case BOW:
-                case CROSSBOW:
-                case GUN:
+                case 弓:
+                case 弩:
+                case 火槍:
                     mainstat = localdex;
                     secondarystat = localstr;
                     mainstatpvp = dex;
                     secondarystatpvp = str;
                     break;
-                case DAGGER:
-                case KATARA:
-                case CLAW:
-                case CANE:
+                case 短劍:
+                case 雙刀:
+                case 拳套:
+                case 手杖:
                     mainstat = localluk;
                     secondarystat = localdex + localstr;
                     mainstatpvp = luk;
@@ -3122,7 +3122,7 @@ public class PlayerStats implements Serializable {
             }
             localmaxbasepvpdamage = weapon.getMaxDamageMultiplier() * (4 * mainstatpvp + secondarystatpvp) * (100.0f + (pvpDamage / 100.0f));
             localmaxbasepvpdamageL = weapon.getMaxDamageMultiplier() * (4 * mainstat + secondarystat) * (100.0f + (pvpDamage / 100.0f));
-            if (weapon2 != MapleWeaponType.NOT_A_WEAPON && weapon_item != null && weapon_item2 != null) {
+            if (weapon2 != MapleWeaponType.沒有武器 && weapon_item != null && weapon_item2 != null) {
                 Equip we1 = (Equip) weapon_item;
                 Equip we2 = (Equip) weapon_item2;
                 localmaxbasedamage = weapon.getMaxDamageMultiplier() * (4 * mainstat + secondarystat) * ((watk - (mage ? we2.getMatk() : we2.getWatk())) / 100.0f);

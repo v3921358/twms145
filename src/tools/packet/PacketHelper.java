@@ -131,7 +131,7 @@ public class PacketHelper {
             mplew.writeShort(skills.size());
             for (final Entry<Skill, SkillEntry> skill : skills.entrySet()) {
                 mplew.writeInt(skill.getKey().getId());
-                mplew.writeInt(skill.getValue().skillevel);
+                mplew.writeInt(skill.getValue().skillLevel);
                 addExpirationTime(mplew, skill.getValue().expiration);
 
                 if (skill.getKey().isFourthJob()) {
@@ -141,11 +141,11 @@ public class PacketHelper {
         } else {
             final Map<Integer, Integer> skillsWithoutMax = new LinkedHashMap<>();
             final Map<Integer, Long> skillsWithExpiration = new LinkedHashMap<>();
-            final Map<Integer, Integer> skillsWithMax = new LinkedHashMap<>();
+            final Map<Integer, Byte> skillsWithMax = new LinkedHashMap<>();
 
             // Fill in these maps
             for (final Entry<Skill, SkillEntry> skill : skills.entrySet()) {
-                skillsWithoutMax.put(skill.getKey().getId(), skill.getValue().skillevel);
+                skillsWithoutMax.put(skill.getKey().getId(), skill.getValue().skillLevel);
                 if (skill.getValue().expiration > 0) {
                     skillsWithExpiration.put(skill.getKey().getId(), skill.getValue().expiration);
                 }
@@ -172,7 +172,7 @@ public class PacketHelper {
 
             amount = skillsWithMax.size();
             mplew.writeShort(amount);
-            for (final Entry<Integer, Integer> x : skillsWithMax.entrySet()) {
+            for (final Entry<Integer, Byte> x : skillsWithMax.entrySet()) {
                 mplew.writeInt(x.getKey());
                 mplew.writeInt(x.getValue());
             }
@@ -915,56 +915,6 @@ public class PacketHelper {
         } else {
             return (pos);
         }
-    }
-
-
-    public static final void addInnerStats(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        final List<InnerSkillValueHolder> skills = chr.getInnerSkills();
-        mplew.writeShort(skills.size());
-        for (int i = 0; i < skills.size(); ++i) {
-            mplew.write(i + 1); // key
-            mplew.writeInt(skills.get(i).getSkillId()); //d 7000000 id ++, 71 = char cards
-            mplew.write(skills.get(i).getSkillLevel()); // level
-            mplew.write(skills.get(i).getRank()); //rank, C, B, A, and S
-        }
-
-        mplew.writeInt(chr.getHonourLevel()); //honor lvl
-        mplew.writeInt(chr.getHonourExp()); //honor exp
-    }
-
-    public static final void addCoreAura(MaplePacketLittleEndianWriter mplew, MapleCharacter chr) {
-        mplew.writeInt(0);
-        mplew.writeLong(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeInt(0);
-        mplew.writeLong(getTime(System.currentTimeMillis() + 86400000));
-        mplew.writeInt(0);
-        mplew.write((GameConstants.isJett(chr.getJob())) ? 1 : 0);
-    }
-/*     */
-
-    public static void addMonsterBookInfo(final MaplePacketLittleEndianWriter mplew, final MapleCharacter chr) {
-        mplew.writeInt(0); // 0x20000
-        if (chr.getMonsterBook().getSetScore() > 0) { // 0x10000
-            chr.getMonsterBook().writeFinished(mplew);
-        } else {
-            chr.getMonsterBook().writeUnfinished(mplew);
-        }
-
-        mplew.writeInt(chr.getMonsterBook().getSet()); // 0x80000000
     }
 
     public static void addPetItemInfo(final MaplePacketLittleEndianWriter mplew, final Item item, final MaplePet pet, final boolean active) {

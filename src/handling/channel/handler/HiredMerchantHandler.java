@@ -180,7 +180,6 @@ public class HiredMerchantHandler {
                     deletePackage(c.getPlayer().getAccountID(), pack.getPackageId(), c.getPlayer().getId());
                     c.getPlayer().setConversation(0);
                 }
-                c.getPlayer().dropNPC(9030000, "Here are your items! Have fun!");
             }
         }
         c.sendPacket(CWvsContext.enableActions());

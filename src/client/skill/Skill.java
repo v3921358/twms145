@@ -33,9 +33,10 @@ import java.util.List;
 
 public class Skill {
 
-    private final List<MapleStatEffect> effects = new ArrayList<MapleStatEffect>();
-    private final List<Pair<Integer, Byte>> requiredSkill = new ArrayList<Pair<Integer, Byte>>();
-    private String name = "", psdDamR = "";
+    private String name = "";
+    private final List<MapleStatEffect> effects = new ArrayList<>();
+    private final List<Pair<Integer, Byte>> requiredSkill = new ArrayList<>();
+    private String psdDamR = "";
     private List<MapleStatEffect> pvpEffects = null;
     private List<Integer> animation = null;
     private Element element = Element.NEUTRAL;
@@ -433,6 +434,8 @@ public class Skill {
         return maxLevel;
     }
 
+
+
     public int getTrueMax() {
         return trueMax;
     }
@@ -520,6 +523,7 @@ public class Skill {
         }
         return false;
     }
+
 
     public boolean isThirdJobSkill(int skillid) {
         switch (skillid / 10000) {
@@ -665,6 +669,11 @@ public class Skill {
             default:
                 return false;
         }
+    }
+
+    public boolean isInnerSkill() {
+        int jobId = id / 10000;
+        return jobId == 7000;
     }
 
     public boolean isNormalSkill(Skill skillId, boolean isGM) {

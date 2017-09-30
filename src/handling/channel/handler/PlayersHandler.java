@@ -214,14 +214,14 @@ public class PlayersHandler {
                 if (!chr.isGM()) {
                     chr.hasGivenFame(target);
                 }
-                c.sendPacket(CWvsContext.OnFameResult(0, target.getName(), famechange == 1, target.getFame()));
-                target.getClient().sendPacket(CWvsContext.OnFameResult(5, chr.getName(), famechange == 1, 0));
+                c.getSession().writeAndFlush(CWvsContext.OnFameResult(0, target.getName(), famechange == 1, target.getFame()));
+                target.getClient().getSession().writeAndFlush(CWvsContext.OnFameResult(5, chr.getName(), famechange == 1, 0));
                 break;
             case NOT_TODAY:
-                c.sendPacket(CWvsContext.giveFameErrorResponse(3));
+                c.getSession().writeAndFlush(CWvsContext.giveFameErrorResponse(3));
                 break;
             case NOT_THIS_MONTH:
-                c.sendPacket(CWvsContext.giveFameErrorResponse(4));
+                c.getSession().writeAndFlush(CWvsContext.giveFameErrorResponse(4));
                 break;
         }
     }

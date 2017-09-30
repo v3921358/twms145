@@ -1369,7 +1369,7 @@ public class MapScriptMethods {
                         }
                     }
                     if (ServerConstants.DEBUG) {
-                        c.getPlayer().showInfo("directionInfo", false, "開始地圖directionInfo：" + s + c.getPlayer().getMap());
+                        c.getPlayer().showInfo("directionInfo", false, "directionInfo：" + s + c.getPlayer().getMap());
                     }
                 }
             }

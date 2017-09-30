@@ -514,7 +514,7 @@ public class CWvsContext {
         return mplew.getPacket();
     }
 
-    public static byte[] updateSkills(final Map<Skill, SkillEntry> update) {
+    public static byte[] updateSkills(final Map<Skill, SkillEntry> update, boolean hyper) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(7 + (update.size() * 20));
 
         mplew.writeShort(SendPacketOpcode.UPDATE_SKILLS.getValue());
@@ -523,12 +523,11 @@ public class CWvsContext {
         mplew.writeShort(update.size());
         for (final Entry<Skill, SkillEntry> z : update.entrySet()) {
             mplew.writeInt(z.getKey().getId());
-            mplew.writeInt(z.getValue().skillevel);
+            mplew.writeInt(z.getValue().skillLevel);
             mplew.writeInt(z.getValue().masterlevel);
             PacketHelper.addExpirationTime(mplew, z.getValue().expiration);
         }
-        mplew.write(4);
-
+        mplew.write(/*hyper ? 0x0C : */4);
         return mplew.getPacket();
     }
 
@@ -2223,7 +2222,7 @@ public class CWvsContext {
         public static byte[] getSlotUpdate(byte invType, byte newSlots) {
             MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
-            mplew.writeShort(SendPacketOpcode.MODIFY_INVENTORY_ITEM.getValue());
+            mplew.writeShort(SendPacketOpcode.INVENTORY_GROW.getValue());
             mplew.write(invType);
             mplew.write(newSlots);
 

@@ -8623,49 +8623,49 @@ public class GameConstants {
         cat = cat % 100;
         switch (cat) { // 39, 50, 51 ??
             case 30:
-                return MapleWeaponType.SWORD1H;
+                return MapleWeaponType.單手劍;
             case 31:
-                return MapleWeaponType.AXE1H;
+                return MapleWeaponType.單手斧;
             case 32:
-                return MapleWeaponType.BLUNT1H;
+                return MapleWeaponType.單手棍;
             case 33:
-                return MapleWeaponType.DAGGER;
+                return MapleWeaponType.短劍;
             case 34:
-                return MapleWeaponType.KATARA;
+                return MapleWeaponType.雙刀;
             case 35:
                 return MapleWeaponType.MAGIC_ARROW; // can be magic arrow or cards
             case 36:
-                return MapleWeaponType.CANE;
+                return MapleWeaponType.手杖;
             case 37:
-                return MapleWeaponType.WAND;
+                return MapleWeaponType.短杖;
             case 38:
-                return MapleWeaponType.STAFF;
+                return MapleWeaponType.長杖;
             case 40:
-                return MapleWeaponType.SWORD2H;
+                return MapleWeaponType.雙手劍;
             case 41:
-                return MapleWeaponType.AXE2H;
+                return MapleWeaponType.雙手斧;
             case 42:
-                return MapleWeaponType.BLUNT2H;
+                return MapleWeaponType.雙手棍;
             case 43:
-                return MapleWeaponType.SPEAR;
+                return MapleWeaponType.矛;
             case 44:
-                return MapleWeaponType.POLE_ARM;
+                return MapleWeaponType.槍;
             case 45:
-                return MapleWeaponType.BOW;
+                return MapleWeaponType.弓;
             case 46:
-                return MapleWeaponType.CROSSBOW;
+                return MapleWeaponType.弩;
             case 47:
-                return MapleWeaponType.CLAW;
+                return MapleWeaponType.拳套;
             case 48:
-                return MapleWeaponType.KNUCKLE;
+                return MapleWeaponType.指虎;
             case 49:
-                return MapleWeaponType.GUN;
+                return MapleWeaponType.火槍;
             case 52:
-                return MapleWeaponType.DUAL_BOW;
+                return MapleWeaponType.雙弩槍;
             case 53:
-                return MapleWeaponType.CANNON;
+                return MapleWeaponType.加農炮;
         }
-        return MapleWeaponType.NOT_A_WEAPON;
+        return MapleWeaponType.沒有武器;
     }
 
     public static boolean isShield(int itemId) {
@@ -8729,18 +8729,18 @@ public class GameConstants {
 
     public static boolean isTwoHanded(int itemId) {
         switch (getWeaponType(itemId)) {
-            case AXE2H:
-            case GUN:
-            case KNUCKLE:
-            case BLUNT2H:
-            case BOW:
-            case CLAW:
-            case CROSSBOW:
-            case POLE_ARM:
-            case SPEAR:
-            case SWORD2H:
-            case CANNON:
-                //case DUAL_BOW: //magic arrow
+            case 雙手斧:
+            case 火槍:
+            case 指虎:
+            case 雙手棍:
+            case 弓:
+            case 拳套:
+            case 弩:
+            case 槍:
+            case 矛:
+            case 雙手劍:
+            case 加農炮:
+                //case 雙弩槍: //magic arrow
                 return true;
             default:
                 return false;
@@ -9979,6 +9979,35 @@ public class GameConstants {
 
     public static int getExpRate(int job, int def) {
         return def;
+    }
+
+    public static int getSkillBookBySkill(final int skillId) {
+        return getSkillBookByJob(skillId / 10000, skillId);
+    }
+
+    public static int getSkillBookByJob(int job) {
+        return getSkillBookByJob(job, 0);
+    }
+
+    public static int getSkillBookByJob(final int job, final int skillId) {
+        if (MapleJob.isBeginner(job)) {
+            return 0;
+        }
+
+        if (MapleJob.is神之子(job)) {
+            if (skillId > 0) {
+                int type = (skillId % 1000) / 100; //1 beta 2 alpha
+                return type == 1 ? 1 : 0;
+            } else {
+                return 0;
+            }
+        }
+
+        if (isSeparatedSp(job)) {
+            return MapleJob.getJobGrade(job) - 1;
+        }
+
+        return 0;
     }
 
     public static int getModifier(int itemId, int up) {

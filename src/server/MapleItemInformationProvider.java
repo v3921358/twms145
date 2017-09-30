@@ -425,6 +425,14 @@ public class MapleItemInformationProvider {
         return i.wholePrice;
     }
 
+    public final boolean isOnlyTradeBlock(final int itemId) {
+        final MapleData data = getItemData(itemId);
+        boolean tradeblock = false;
+        if (MapleDataTool.getIntConvert("info/tradeBlock", data, 0) == 1) {
+            tradeblock = true;
+        }
+        return tradeblock;
+    }
     public double getPrice(int itemId) {
         ItemInformation i = getItemInformation(itemId);
         if (i == null) {
@@ -1036,14 +1044,14 @@ public class MapleItemInformationProvider {
     }
 
     public MapleStatEffect getItemEffect(int itemId) {
-        MapleStatEffect ret = itemEffects.get(Integer.valueOf(itemId));
+        MapleStatEffect ret = itemEffects.get(itemId);
         if (ret == null) {
             MapleData item = getItemData(itemId);
             if (item == null || item.getChildByPath("spec") == null) {
                 return null;
             }
             ret = MapleStatEffect.loadItemEffectFromData(item.getChildByPath("spec"), itemId);
-            itemEffects.put(Integer.valueOf(itemId), ret);
+            itemEffects.put(itemId, ret);
         }
         return ret;
     }

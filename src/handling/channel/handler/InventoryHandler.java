@@ -4351,38 +4351,38 @@ public class InventoryHandler {
         return used && itemId != 5041001 && itemId != 5040004;
     }
 
-    public static final void useInnerCirculator(LittleEndianAccessor slea, MapleClient c) {
-        int itemid = slea.readInt();
-        short slot = (short) slea.readInt();
-        Item item = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
-        if (item.getItemId() == itemid) {
-            List<InnerSkillValueHolder> newValues = new LinkedList<>();
-            int i = 0;
-            for (InnerSkillValueHolder isvh : c.getPlayer().getInnerSkills()) {
-                if (i == 0 && c.getPlayer().getInnerSkills().size() > 1 && itemid == 2701000) { //Ultimate Circulator
-                    newValues.add(InnerAbility.getInstance().renewSkill(isvh.getRank(), itemid, true));
-                } else {
-                    newValues.add(InnerAbility.getInstance().renewSkill(isvh.getRank(), itemid, false));
-                }
-                //c.getPlayer().changeSkillLevel(SkillFactory.getSkill(isvh.getSkillId()), (byte) 0, (byte) 0);
-                i++;
-            }
-            c.getPlayer().getInnerSkills().clear();
-            for (InnerSkillValueHolder isvh : newValues) {
-                c.getPlayer().getInnerSkills().add(isvh);
-                //c.getPlayer().changeSkillLevel(SkillFactory.getSkill(isvh.getSkillId()), isvh.getSkillLevel(), isvh.getSkillLevel());
-            }
-            c.getPlayer().getInventory(MapleInventoryType.USE).removeItem(slot, (short) 1, false);
-            
-            /* I don't have packet for inner abiliy update */
-            c.sendPacket(CField.getCharInfo(c.getPlayer()));
-            MapleMap currentMap = c.getPlayer().getMap();
-            currentMap.removePlayer(c.getPlayer());
-            currentMap.addPlayer(c.getPlayer());
-            // c.sendPacket(CField.updateInnerPotential());
-            //c.sendPacket(CField.innerResetMessage());
-
-            c.getPlayer().dropMessage(5, "Inner Potential has been reconfigured.");
-        }
-    }
+//    public static final void useInnerCirculator(LittleEndianAccessor slea, MapleClient c) {
+//        int itemid = slea.readInt();
+//        short slot = (short) slea.readInt();
+//        Item item = c.getPlayer().getInventory(MapleInventoryType.USE).getItem(slot);
+//        if (item.getItemId() == itemid) {
+//            List<InnerSkillValueHolder> newValues = new LinkedList<>();
+//            int i = 0;
+//            for (InnerSkillValueHolder isvh : c.getPlayer().getInnerSkills()) {
+//                if (i == 0 && c.getPlayer().getInnerSkills().length > 1 && itemid == 2701000) { //Ultimate Circulator
+//                    newValues.add(InnerAbility.getInstance().renewSkill(isvh.getRank(), itemid, true));
+//                } else {
+//                    newValues.add(InnerAbility.getInstance().renewSkill(isvh.getRank(), itemid, false));
+//                }
+//                //c.getPlayer().changeSkillLevel(SkillFactory.getSkill(isvh.getSkillId()), (byte) 0, (byte) 0);
+//                i++;
+//            }
+//            c.getPlayer().getInnerSkills().clear();
+//            for (InnerSkillValueHolder isvh : newValues) {
+//                c.getPlayer().getInnerSkills().add(isvh);
+//                //c.getPlayer().changeSkillLevel(SkillFactory.getSkill(isvh.getSkillId()), isvh.getSkillLevel(), isvh.getSkillLevel());
+//            }
+//            c.getPlayer().getInventory(MapleInventoryType.USE).removeItem(slot, (short) 1, false);
+//
+//            /* I don't have packet for inner abiliy update */
+//            c.sendPacket(CField.getCharInfo(c.getPlayer()));
+//            MapleMap currentMap = c.getPlayer().getMap();
+//            currentMap.removePlayer(c.getPlayer());
+//            currentMap.addPlayer(c.getPlayer());
+//            // c.sendPacket(CField.updateInnerPotential());
+//            //c.sendPacket(CField.innerResetMessage());
+//
+//            c.getPlayer().dropMessage(5, "Inner Potential has been reconfigured.");
+//        }
+//    }
 }

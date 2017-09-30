@@ -1343,7 +1343,7 @@ public final class MapleMap {
             return;
         }
         if (monster.getController() != null) {
-            if (monster.getController().getMap() != this || monster.getController().getPosition().distanceSq(monster.getTruePosition()) > monster.getRange()) {
+            if (monster.getController().getMap() != this || monster.getController().getTruePosition().distanceSq(monster.getTruePosition()) > monster.getRange()) {
                 monster.getController().stopControllingMonster(monster);
             } else { // Everything is fine :)
                 return;

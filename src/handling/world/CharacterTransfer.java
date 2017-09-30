@@ -79,7 +79,7 @@ public class CharacterTransfer implements Externalizable {
     public Calendar unmuteTime = null;
     public int dgm;
     public int honourexp;
-    public LinkedList<InnerSkillValueHolder> innerSkills;
+    public InnerSkillValueHolder[] innerSkills;
     public int honourlevel;
     public int noacc;
     public int location, birthday, found, todo, redeemhn;
@@ -94,6 +94,7 @@ public class CharacterTransfer implements Externalizable {
         keymap = new LinkedHashMap<>();
         familiars = new LinkedHashMap<>();
         mbook = new LinkedHashMap<>();
+        innerSkills = new InnerSkillValueHolder[3];
     }
 
     public CharacterTransfer(final MapleCharacter chr) {
@@ -256,7 +257,7 @@ public class CharacterTransfer implements Externalizable {
         this.extendedSlots = chr.getExtendedSlots();
         this.honourexp = chr.getHonourExp();
         this.honourlevel = chr.getHonourLevel();
-        this.innerSkills = (LinkedList<InnerSkillValueHolder>) chr.getInnerSkills();
+        this.innerSkills = chr.getInnerSkills();
         final MapleMount mount = chr.getMount();
         this.mount_itemid = mount.getItemId();
         this.mount_Fatigue = mount.getFatigue();
@@ -386,7 +387,7 @@ public class CharacterTransfer implements Externalizable {
         this.clanId = in.readInt();
         this.honourexp = in.readInt();
         this.honourlevel = in.readInt();
-        this.innerSkills = (LinkedList<InnerSkillValueHolder>) in.readObject();
+        this.innerSkills = (InnerSkillValueHolder[]) in.readObject();
         /*End of Custom Feature*/
 
         final int mbooksize = in.readShort();
@@ -396,16 +397,12 @@ public class CharacterTransfer implements Externalizable {
 
         final int skillsize = in.readShort();
         for (int i = 0; i < skillsize; i++) {
-            this.Skills.put(in.readInt(), new SkillEntry(in.readInt(), in.readByte(), in.readLong()));
+            this.Skills.put(in.readInt(), new SkillEntry(in.readInt(), in.readByte(), in.readLong(), in.readInt(), in.readByte()));
         }
 
-        /* 365 */
-        int cardsize = in.readByte();
-/* 366 */
-        for (int i = 0; i < cardsize; i++) {
-/* 367 */
-            this.cardsInfo.put(Integer.valueOf(in.readInt()), new CardData(in.readInt(), in.readShort(), in.readShort()));
-/*     */
+        int cardSize = in.readByte();
+        for (int i = 0; i < cardSize; i++) {
+            this.cardsInfo.put(in.readInt(), new CardData(in.readInt(), in.readShort(), in.readShort()));
         }
 
         this.buddysize = in.readInt();
@@ -636,29 +633,20 @@ public class CharacterTransfer implements Externalizable {
 
         out.writeShort(this.Skills.size());
         for (final Map.Entry<Integer, SkillEntry> qs : this.Skills.entrySet()) {
-            out.writeInt(qs.getKey()); // Questid instead of Skill, as it's huge :(
-            out.writeInt(qs.getValue().skillevel);
-            out.writeInt(qs.getValue().masterlevel);
+            out.writeInt(qs.getKey());
+            out.writeInt(qs.getValue().skillLevel);
+            out.writeByte(qs.getValue().masterlevel);
             out.writeLong(qs.getValue().expiration);
-            out.writeByte(qs.getValue().slot);
-/* 593 */
-            out.writeByte(qs.getValue().equipped);
-            // Bless of fairy is transported here too.
+            out.writeInt(qs.getValue().teachId);
+            out.writeByte(qs.getValue().position);
         }
         
-        /* 596 */
         out.writeByte(this.cardsInfo.size());
-/* 597 */
         for (Map.Entry qs : this.cardsInfo.entrySet()) {
-/* 598 */
-            out.writeInt(((Integer) qs.getKey()).intValue());
-/* 599 */
+            out.writeInt((Integer) qs.getKey());
             out.writeInt(((CardData) qs.getValue()).cid);
-/* 600 */
             out.writeShort(((CardData) qs.getValue()).level);
-/* 601 */
             out.writeShort(((CardData) qs.getValue()).job);
-/*     */
         }
 
         out.writeByte(this.buddysize);

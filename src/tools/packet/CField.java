@@ -22,6 +22,7 @@ import client.inventory.Equip.ScrollResult;
 import client.inventory.*;
 import client.skill.SkillMacro;
 import constants.GameConstants;
+import constants.ServerConstants;
 import extensions.temporary.DirectionType;
 import handling.SendPacketOpcode;
 import handling.world.World;
@@ -118,6 +119,8 @@ public class CField {
         mplew.write(HexTool.getByteArrayFromHexString(endBytes));
         return mplew.getPacket();
     }
+
+
 
     public static byte[] playPortalSound() {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
@@ -3461,6 +3464,23 @@ public class CField {
             mplew.writeMapleAsciiString(talk);
             mplew.write(HexTool.getByteArrayFromHexString(endBytes));
 
+            return mplew.getPacket();
+        }
+
+        public static byte[] getEvanTutorial(String data) {
+            if (ServerConstants.DEBUG) {
+                System.out.println("調用位置: " + new java.lang.Throwable().getStackTrace()[0]);
+            }
+            MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+            mplew.writeShort(SendPacketOpcode.NPC_TALK.getValue());
+            mplew.write(8);
+            mplew.writeInt(0);
+            mplew.write(0); // Boolean
+            mplew.write(NPCTalkType.IMAGE.getType());
+            mplew.write(1);
+            mplew.write(0);
+            mplew.write(1);
+            mplew.writeMapleAsciiString(data);
             return mplew.getPacket();
         }
 

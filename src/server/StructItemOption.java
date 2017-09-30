@@ -17,6 +17,7 @@
  */
 package server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,24 +26,91 @@ import java.util.Map;
  */
 public class StructItemOption {
 
-    public static String[] types = {"incSTR", "incDEX", "incINT", "incLUK", "incACC", "incEVA", "incSpeed", "incJump",
-            "incPAD", "incMAD", "incPDD", "incMDD", "prop", "time", "incSTRr", "incDEXr", "incINTr",
-            "incLUKr", "incMHPr", "incMMPr", "incACCr", "incEVAr", "incPADr", "incMADr", "incPDDr",
-            "incMDDr", "incCr", "incDAMr", "RecoveryHP", "RecoveryMP", "HP", "MP", "level",
-            "ignoreTargetDEF", "ignoreDAM", "incAllskill", "ignoreDAMr", "RecoveryUP",
-            "incCriticaldamageMin", "incCriticaldamageMax", "incTerR", "incAsrR", "DAMreflect",
-            "mpconReduce", "reduceCooltime", "incMesoProp", "incRewardProp", "boss", "incMHP", "incMMP", "attackType"};
+    public static String[] types = {
+            "incSTR",
+            "incDEX",
+            "incINT",
+            "incLUK",
+            "incACC",
+            "incEVA",
+            "incPAD",
+            "incMAD",
+            "incPDD",
+            "incMDD",
+            "incMHP",
+            "incMMP",
+            "incSTRr",
+            "incDEXr",
+            "incINTr",
+            "incLUKr",
+            "incACCr",
+            "incEVAr",
+            "incPADr",
+            "incMADr",
+            "incPDDr",
+            "incMDDr",
+            "incMHPr",
+            "incMMPr",
+            "incSTRlv",
+            "incDEXlv",
+            "incINTlv",
+            "incLUKlv",
+            "incPADlv",
+            "incMADlv",
+            "incSpeed",
+            "incJump",
+            "incCr",
+            "incDAMr",
+            "incTerR",
+            "incAsrR",
+            "incEXPr",
+            "incMaxDamage",
+            "HP",
+            "MP",
+            "RecoveryHP",
+            "RecoveryMP",
+            "level",
+            "prop",
+            "time",
+            "ignoreTargetDEF",
+            "ignoreDAM",
+            "incAllskill",
+            "ignoreDAMr",
+            "RecoveryUP",
+            "incCriticaldamageMin",
+            "incCriticaldamageMax",
+            "DAMreflect",
+            "mpconReduce",
+            "reduceCooltime",
+            "incMesoProp",
+            "incRewardProp",
+            "boss",
+            "attackType"
+    };
     public int optionType, reqLevel, opID; // opID = nebulite Id or potential ID
     public String face; // angry, cheers, love, blaze, glitter
-    public String opString; //potential string  
     public Map<String, Integer> data = new HashMap<>();
 
     public int get(final String type) {
         return data.get(type) != null ? data.get(type) : 0;
     }
 
+    public String[] getItemOption() {
+        ArrayList<String> ss = new ArrayList<>();
+        for (String s : StructItemOption.types) {
+            if (get(s) > 0) {
+                ss.add(s);
+            }
+        }
+        String[] s = new String[ss.size()];
+        for (int i = 0; i < ss.size() ; i++) {
+            s[i] = ss.get(i);
+        }
+        return s;
+    }
+
     @Override
     public final String toString() { // I should read from the "string" value instead.
-        return "Under Construction";
+        return data.toString();
     }
 }
