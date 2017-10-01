@@ -2481,7 +2481,7 @@ public class CWvsContext {
             mplew.write(0);
             mplew.write((effect != null) && (effect.isShadow()) ? 1 : 3);
             if (isAura) {
-                mplew.writeInt(0);
+                mplew.write(0);
             }
 
             return mplew.getPacket();

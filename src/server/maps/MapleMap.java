@@ -20,17 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package server.maps;
 
-import client.*;
+import client.MapleCharacter;
 import client.MapleCharacter.DojoMode;
+import client.MapleClient;
+import client.MapleStat;
+import client.MonsterFamiliar;
 import client.inventory.Equip;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
-import server.status.MapleBuffStatus;
-import server.status.MonsterStatus;
-import server.status.MonsterStatusEffect;
 import constants.GameConstants;
 import constants.MapConstants;
 import constants.ServerConstants;
+import constants.WorldConfig;
 import database.DatabaseConnection;
 import handling.channel.ChannelServer;
 import handling.login.LoginServer;
@@ -45,12 +46,15 @@ import server.MapleCarnivalFactory.MCSkill;
 import server.MapleSquad.MapleSquadType;
 import server.Timer.EtcTimer;
 import server.Timer.MapTimer;
-import server.worldevents.MapleEvent;
 import server.life.*;
 import server.maps.MapleNodes.DirectionInfo;
 import server.maps.MapleNodes.MapleNodeInfo;
 import server.maps.MapleNodes.MaplePlatform;
 import server.maps.MapleNodes.MonsterPoint;
+import server.status.MapleBuffStatus;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
+import server.worldevents.MapleEvent;
 import tools.FileoutputUtil;
 import tools.StringUtil;
 import tools.packet.CField;
@@ -467,7 +471,9 @@ public final class MapleMap {
 
         final MapleItemInformationProvider ii = MapleItemInformationProvider.getInstance();
         final byte droptype = (byte) (mob.getStats().isExplosiveReward() ? 3 : mob.getStats().isFfaLoot() ? 2 : chr.getParty() != null ? 1 : 0);
-        final int mobpos = mob.getTruePosition().x, cmServerrate = chr.getClient().getWorldServer().getMesoRate(), chServerrate = chr.getClient().getWorldServer().getDropRate(), caServerrate = chr.getClient().getWorldServer().getCashRate();
+        final int mobpos = mob.getTruePosition().x;
+        final int cmServerrate = WorldConfig.getById(world).getMesoRate();
+        final int chServerrate = WorldConfig.getById(world).getDropRate();
         Item idrop;
         byte d = 1;
         Point pos = new Point(0, mob.getTruePosition().y);
@@ -478,29 +484,11 @@ public final class MapleMap {
         }
 
         final MapleMonsterInformationProvider mi = MapleMonsterInformationProvider.getInstance();
-        final List<MonsterDropEntry> derp = mi.retrieveDrop(mob.getId());
-        if (chr.getMapId() == 100000000 || chr.getMapId() == 260000000 || chr.getMapId() == 680000000 || chr.getMapId() == 211000000 || chr.getMapId() == 600000000 || chr.getMapId() == 120000000 || chr.getMapId() == 220000000 || chr.getMapId() == 103000000 || chr.getMapId() == 240000000 || chr.getMapId() == 200000000) {
-            if (mob.getId() == 3110300 || mob.getId() == 9400505 || mob.getId() == 9400519) {
-                int min = 1;
-                int max = 25;
-                int amount = Math.abs(1 - 1);
-                idrop = new Item(ServerConstants.Currency, (byte) 0, (short) (max != 1 ? Randomizer.nextInt(amount <= 0 ? 1 : amount) + min : 1), (byte) 0);
-                spawnMobDrop(idrop, calcDropPos(pos, mob.getTruePosition()), mob, chr, droptype, 0); //up to 25 coins
-                return; // no dropEntry. :P
-            }
+        final List<MonsterDropEntry> drops = mi.retrieveDrop(mob.getId());
+        if (drops == null) {
+            return;
         }
-        if (Randomizer.nextInt(999999) < (int) (30000 * chServerrate * chr.getDropMod() * (chr.getStat().dropBuff / 100.0) * (showdown / 100.0))) {
-            // is 30000 = 30% or is it 300000 = 30%?
-            int min = 1;
-            int max = 1;
-            int amount = Math.abs(max - min);
-            idrop = new Item(ServerConstants.Currency, (byte) 0, (short) (max != 1 ? Randomizer.nextInt(amount <= 0 ? 1 : amount) + min : 1), (byte) 0); //30% chance to drop 1 give or take
-            spawnMobDrop(idrop, calcDropPos(pos, mob.getTruePosition()), mob, chr, droptype, 0);
-
-            if (derp == null) //if no drops, no global drops either <3
-                return;
-        }
-        final List<MonsterDropEntry> dropEntry = new ArrayList<>(derp);
+        final List<MonsterDropEntry> dropEntry = new ArrayList<>(drops);
         Collections.shuffle(dropEntry);
 
         boolean mesoDropped = false;

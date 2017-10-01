@@ -157,7 +157,7 @@ public class MapleMonsterInformationProvider {
                 return;
             }
         }
-        drops.put(Integer.valueOf(monsterId), ret);
+        drops.put(monsterId, ret);
     }
 
     public void addExtra() {

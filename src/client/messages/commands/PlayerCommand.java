@@ -15,11 +15,10 @@ public class PlayerCommand {
 
         @Override
         public boolean execute(MapleClient c, List<String> args) {
-            c.getPlayer().gainSP(1);
             c.getPlayer().setExp(0);
             c.getPlayer().updateSingleStat(MapleStat.EXP, c.getPlayer().getExp());
-            c.getPlayer().dropMessage(5, "經驗修復成功");
-            return false;
+            c.getPlayer().showInfo("指令", true, "經驗值歸零成功。");
+            return true;
         }
 
         @Override

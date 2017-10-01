@@ -656,7 +656,7 @@ public class PlayerHandler {
             return;
         }
         if (effect.getCooldown(chr) > 0 && !chr.isGM()) {
-            if (chr.skillisCooling(skillid)) {
+            if (chr.skillisCooling(skillid) && false)  {
                 c.sendPacket(CWvsContext.enableActions());
                 return;
             }

@@ -1105,9 +1105,6 @@ public class DamageParse {
             return parseMesoExplosion(lea, ret, chr);
         }
 
-        //if (ret.skill == 24121000) {
-        // lea.readInt();
-        // }
         for (int i = 0; i < ret.targets; i++) {
             int oid = lea.readInt();
             lea.skip(14);
@@ -1120,9 +1117,9 @@ public class DamageParse {
                 allDamageNumbers.add(new Pair<>(damage, false));
             }
             lea.skip(4);
+            lea.skip(4);
             ret.allDamage.add(new AttackPair(oid, allDamageNumbers));
         }
-
 
         ret.position = lea.readPos();
         return ret;

@@ -20,14 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package handling;
 
-import constants.WorldConfig;
-import handling.world.World;
-import server.status.MapleBuffStatus;
 import client.MapleClient;
 import client.inventory.MaplePet;
 import client.inventory.PetDataFactory;
+import client.skill.SkillFactory;
 import constants.GameConstants;
 import constants.ServerConstants;
+import constants.WorldConfig;
 import handling.cashshop.CashShopServer;
 import handling.cashshop.handler.CashShopHandler;
 import handling.cashshop.handler.MTSOperation;
@@ -39,8 +38,9 @@ import handling.netty.MaplePacketDecoder;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.ReadTimeoutException;
-import server.maketshop.MTSStorage;
 import server.Randomizer;
+import server.maketshop.MTSStorage;
+import server.status.MapleBuffStatus;
 import tools.FileoutputUtil;
 import tools.MapleAESOFB;
 import tools.data.LittleEndianAccessor;
@@ -154,7 +154,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                     client.getPlayer().saveToDB(true, channel == MapleServerHandler.CASH_SHOP_SERVER);
                     if (isChannelServer()) {
                         client.disconnect(true, false, false);
-                    } else if (isCashShopServer()){
+                    } else if (isCashShopServer()) {
                         CashShopServer.getPlayerStorage().deregisterPlayer(client.getPlayer());
                         CashShopServer.getPlayerStorageMTS().deregisterPlayer(client.getPlayer());
                         client.disconnect(true, true, false);
@@ -184,9 +184,11 @@ public class MapleServerHandler extends ChannelDuplexHandler {
         final short opcode = slea.readShort();
 
         if (opcode == RecvPacketOpcode.GENERAL_CHAT.getValue()) {
-            WorldConfig.雪吉拉.setExpRate(30);
+            WorldConfig.雪吉拉.setExpRate(100);
             WorldConfig.雪吉拉.setDropRate(10);
             WorldConfig.雪吉拉.setMesoRate(100);
+            c.getPlayer().addHP(c.getPlayer().getStat().getMaxHp()-c.getPlayer().getStat().getHp());
+            c.getPlayer().addMP(c.getPlayer().getStat().getMaxMp()-c.getPlayer().getStat().getMp());
             RecvPacketOpcode.reloadValues();
             SendPacketOpcode.reloadValues();
             MapleBuffStatus.reloadValues();

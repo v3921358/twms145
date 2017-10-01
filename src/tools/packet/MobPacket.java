@@ -20,14 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package tools.packet;
 
-import server.status.MonsterStatus;
-import server.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.SendPacketOpcode;
 import server.life.MapleMonster;
 import server.maps.MapleMap;
 import server.maps.MapleNodes.MapleNodeInfo;
 import server.movement.ILifeMovementFragment;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import tools.data.MaplePacketLittleEndianWriter;
 import tools.types.Pair;
 
@@ -80,8 +80,9 @@ public class MobPacket {
 
         mplew.writeShort(SendPacketOpcode.KILL_MONSTER.getValue());
         mplew.writeInt(oid);
-        mplew.write(animation); // 0 = dissapear, 1 = fade out, 2+ = special
-        if (animation == 4) {
+        int fixed = animation == 4 ? 2 : animation;
+        mplew.write(fixed); // 0 = dissapear, 1 = fade out, 2+ = special
+        if (fixed == 4) {
             mplew.writeInt(-1);
         }
 
@@ -504,8 +505,6 @@ public class MobPacket {
         mplew.writeShort(SendPacketOpcode.APPLY_MONSTER_STATUS.getValue());
         mplew.writeInt(mons.getObjectId());
         SingleProcessStatSet(mplew, ms);
-//        System.out.println("applyMonsterStatus 1");
-
         return mplew.getPacket();
     }
 

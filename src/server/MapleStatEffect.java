@@ -2305,25 +2305,25 @@ public class MapleStatEffect implements Serializable {
             }
             case 32111005: { //body boost
                 applyto.cancelEffectFromBuffStat(MapleBuffStatus.BODY_BOOST);
+
                 Pair<MapleBuffStatus, Integer> statt;
                 int sourcez;
                 if (applyfrom.getStatForBuff(MapleBuffStatus.DARK_AURA) != null) {
                     sourcez = 32001003;
-                    statt = new Pair<>(MapleBuffStatus.DARK_AURA, (int) (level + 10 + applyto.getTotalSkillLevel(32001003))); //i think
+                    statt = new Pair<>(MapleBuffStatus.DARK_AURA, level + 10 + applyto.getTotalSkillLevel(32001003)); //i think
                 } else if (applyfrom.getStatForBuff(MapleBuffStatus.YELLOW_AURA) != null) {
                     sourcez = 32101003;
-                    statt = new Pair<>(MapleBuffStatus.YELLOW_AURA, (int) applyto.getTotalSkillLevel(32101003));
+                    statt = new Pair<>(MapleBuffStatus.YELLOW_AURA, applyto.getTotalSkillLevel(32101003));
                 } else if (applyfrom.getStatForBuff(MapleBuffStatus.BLUE_AURA) != null) {
                     sourcez = 32111012;
                     localDuration = 10000;
-                    statt = new Pair<>(MapleBuffStatus.BLUE_AURA, (int) applyto.getTotalSkillLevel(32111012));
+                    statt = new Pair<>(MapleBuffStatus.BLUE_AURA, applyto.getTotalSkillLevel(32111012));
                 } else {
                     return;
                 }
                 localstatups = new EnumMap<>(MapleBuffStatus.class);
                 localstatups.put(MapleBuffStatus.BODY_BOOST, (int) level);
                 applyto.getClient().sendPacket(BuffPacket.giveBuff(sourceid, localDuration, localstatups, this));
-                localstatups.put(statt.left, statt.right);
                 final EnumMap<MapleBuffStatus, Integer> stat = new EnumMap<>(MapleBuffStatus.class);
                 stat.put(statt.left, statt.right);
                 applyto.cancelEffectFromBuffStat(MapleBuffStatus.BLUE_AURA, applyfrom.getId());

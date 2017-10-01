@@ -241,7 +241,7 @@ public enum MapleBuffStatus implements WritableLongValueHolder, IBuffStat {
     DAMAGE_TAKEN_BUFF(103),
     //咆哮_迴避機率
     DODGE_CHANGE_BUFF(104),
-    CONVERSION(105),
+    CONVERSION(106),
     //甦醒
     REAPER(106),
     INFILTRATE(107),

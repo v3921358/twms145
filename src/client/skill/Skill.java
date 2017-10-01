@@ -236,7 +236,8 @@ public class Skill {
                 case 35001002: //TEMP. mech
                 case 9001004: // hide
                 case 4341002:
-
+                case 32111014:
+                case 32111004:
                 case 32001003: //dark aura
                 case 32120000:
                 case 32111012: //blue aura
@@ -312,7 +313,6 @@ public class Skill {
             ret.trueMax = ret.maxLevel + (ret.combatOrders ? 2 : 0);
             for (int i = 1; i <= ret.trueMax; i++) {
                 ret.effects.add(MapleStatEffect.loadSkillEffectFromData(level, id, isBuff, i, "x"));
-                //ret.effects.add(MapleStatEffect.loadSkillEffectFromData(level, id, isBuff, i, "t"));
             }
 
         } else {

@@ -949,7 +949,7 @@ public class MapleMonster extends AbstractLoadedMapleLife {
             status.setValue(status.getStatus(), (int) (getMobMaxHp() / 50.0 + 0.999));
             status.setPoisonSchedule(Integer.valueOf(status.getX()), from);
         } else if (statusSkill == 4341003) { // monsterbomb
-            status.setPoisonSchedule(Integer.valueOf((int) (eff.getDamage() * from.getStat().getCurrentMaxBaseDamage() / 100.0)), from);
+            status.setPoisonSchedule((int) (eff.getDamage() * from.getStat().getCurrentMaxBaseDamage() / 100.0), from);
 
         } else if (statusSkill == 4121004 || statusSkill == 4221004) {
             status.setValue(status.getStatus(), Math.min(Short.MAX_VALUE, Integer.valueOf((int) (eff.getDamage() * from.getStat().getCurrentMaxBaseDamage() / 100.0))));

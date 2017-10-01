@@ -40,6 +40,12 @@ public class SkillFactory {
     private static final Map<Integer, SummonSkillEntry> SummonSkillInformation = new HashMap<Integer, SummonSkillEntry>();
 
     public static void load() {
+        skills.clear();
+        delays.clear();
+        crafts.clear();
+        familiars.clear();
+        skillsByJob.clear();
+        SummonSkillInformation.clear();
         final MapleData delayData = MapleDataProviderFactory.getDataProvider("Character.wz").getData("00002000.img");
         final MapleData stringData = MapleDataProviderFactory.getDataProvider("String.wz").getData("Skill.img");
         final MapleDataProvider datasource = MapleDataProviderFactory.getDataProvider("Skill.wz");

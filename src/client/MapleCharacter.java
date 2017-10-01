@@ -2608,7 +2608,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
             getMount().startSchedule();
         }
         for (Entry<MapleBuffStatus, Integer> statup : statups.entrySet()) {
-            int value = statup.getValue().intValue();
+            int value = statup.getValue();
             if (statup.getKey() == MapleBuffStatus.MONSTER_RIDING) {
                 if (effect.getSourceId() == 5221006 && battleshipHP <= 0) {
                     battleshipHP = maxBattleshipHP(effect.getSourceId()); //copy this as well
