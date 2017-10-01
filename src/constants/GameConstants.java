@@ -1,15 +1,18 @@
 package constants;
 
-import client.*;
+import client.MapleCharacter;
+import client.MapleClient;
+import client.MapleJob;
+import client.PlayerStats;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import client.inventory.MapleWeaponType;
 import client.skill.Skill;
 import client.skill.SkillFactory;
-import server.status.MonsterStatus;
 import server.MapleItemInformationProvider;
 import server.MapleStatEffect;
 import server.maps.MapleMapObjectType;
+import server.status.MonsterStatus;
 import tools.FileoutputUtil;
 import tools.packet.CField;
 
@@ -2428,9 +2431,9 @@ public class GameConstants {
             2028061,
             5
     };
- /*
-  * END DURABILITY & ITEM EXP SECTION
-  */
+    /*
+     * END DURABILITY & ITEM EXP SECTION
+     */
     public static int[] eventCommonReward = {
             0,
             10,
@@ -8347,29 +8350,17 @@ public class GameConstants {
     public static int getLinkedAranSkill(int id) {
 
         switch (id) {
-
             case 21110007:
-
             case 21110008:
-
                 return 21110002;
-
             case 21120009:
-
             case 21120010:
-
                 return 21120002;
-
             case 4321001:
-
                 return 4321000;
-
             case 33101006:
-
             case 33101007:
-
                 return 33101005;
-
             case 33101008:
 
                 return 33101004;
@@ -8395,15 +8386,9 @@ public class GameConstants {
                 return 35121009;
 
             case 32001007:
-
             case 32001008:
-
             case 32001009:
-
-            case 32001010:
-
             case 32001011:
-
                 return 32001001;
 
             case 5300007:

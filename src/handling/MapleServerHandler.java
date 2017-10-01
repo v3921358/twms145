@@ -184,6 +184,7 @@ public class MapleServerHandler extends ChannelDuplexHandler {
         final short opcode = slea.readShort();
 
         if (opcode == RecvPacketOpcode.GENERAL_CHAT.getValue()) {
+            WorldConfig.雪吉拉.setExpRate(30);
             WorldConfig.雪吉拉.setDropRate(10);
             WorldConfig.雪吉拉.setMesoRate(100);
             RecvPacketOpcode.reloadValues();

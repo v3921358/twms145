@@ -44,12 +44,15 @@ public class AttackInfo {
         if (GameConstants.isMulungSkill(skill) || GameConstants.isPyramidSkill(skill) || GameConstants.isInflationSkill(skill)) {
             skillLevel = 1;
         } else if (skillLevel <= 0) {
+            if (chr.isShowErr()) {
+                chr.showInfo("AttackEffect", true, "技能等級<=0");
+            }
             return null;
         }
-        int dd = ((display & 0x8000) != 0 ? (display - 0x8000) : display);
+
+        int dd = display >> 15;
         if (GameConstants.isLinkedAranSkill(skill)) {
             final Skill skillLink = SkillFactory.getSkill(skill);
-
             if (dd > SkillFactory.Delay.magic6.i && dd != SkillFactory.Delay.shot.i && dd != SkillFactory.Delay.fist.i) {
                 if (skillLink.getAnimation() == -1 || Math.abs(skillLink.getAnimation() - dd) > 0x10) {
                     if (skillLink.getAnimation() == -1) {

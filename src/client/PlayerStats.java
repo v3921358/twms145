@@ -2434,226 +2434,226 @@ public class PlayerStats implements Serializable {
         //[CUSTOM]: Inneral Abilities:
         //Apply formulas from InnerSkillValueHolder.java here;
         //PROOF OF CONCEPT. SEEMS TO WORK JUST FINE INGAME.
-        for (InnerSkillValueHolder ISVH : chra.getInnerSkills()) {
-            int x = ISVH.getSkillLevel();
-            switch (ISVH.getSkillId()) {
-                case 70000000:
-                    localstr += MapleStatEffect.parseEval("x", x);
-                    break; //strFX = x
-                case 70000001:
-                    localdex += MapleStatEffect.parseEval("x", x);
-                    break;
-                case 70000002:
-                    localint_ += MapleStatEffect.parseEval("x", x);
-                    break;
-                case 70000003:
-                    localluk += MapleStatEffect.parseEval("x", x);
-                    break;
-                case 70000004:
-                    accuracy += MapleStatEffect.parseEval("(10 * x)", x);
-                    break; //accX = 10 * x
-                case 70000005:
-                    evaR += MapleStatEffect.parseEval("(10 * x)", x);
-                    break;
-                case 70000006:
-                    wdef += MapleStatEffect.parseEval("(10 * x)", x);
-                    break;
-                case 70000007:
-                    mdef += MapleStatEffect.parseEval("(10 * x)", x);
-                    break;
-                case 70000008:
-                    localmaxhp += MapleStatEffect.parseEval("(15 * x)", x);
-                    break;//mhpX = x * 15
-                case 70000009:
-                    localmaxmp += MapleStatEffect.parseEval("(15 * x)", x);
-                    ;
-                    break;
-                case 70000010:
-                    jump += MapleStatEffect.parseEval("2*u(x/3)", x);
-                    break; //psdJump = 2 * u(x / 3)
-                case 70000011:
-                    speed += MapleStatEffect.parseEval("2*u(x/3)", x);
-                    break;
-                case 70000012:
-                    watk += MapleStatEffect.parseEval("3*u(x/3)", x);
-                    break; //padX = 3 * u(x / 3)
-                case 70000013:
-                    magic += MapleStatEffect.parseEval("3*u(x/3)", x);
-                    break;
-                case 70000014:
-                    passive_sharpeye_rate += MapleStatEffect.parseEval("x", x);
-                    break;
-                case 70000015: { //lukFX = x	strFX = x	dexFX = x	intFX = x
-                    localstr += MapleStatEffect.parseEval("x", x);
-                    localdex += MapleStatEffect.parseEval("x", x);
-                    localint_ += MapleStatEffect.parseEval("x", x);
-                    localluk += MapleStatEffect.parseEval("x", x);
-                }
-                break;
-                case 70000016:
-                    break; //actionSpeed ??= -1 //this is attack speed, isn't it?  client-sided
-                case 70000017:
-                    mdef += (wdef * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
-                    break;// pdd2mdd = u (x / 4)
-                case 70000018:
-                    wdef += (mdef * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
-                    break;
-                case 70000019:
-                    localmaxmp += (accuracy * MapleStatEffect.parseEval("(5 * u(x / 4))", x) / 100);
-                    break;//acc2mp = 5 * u (x / 4)
-                case 70000020:
-                    localmaxhp += (evaR * MapleStatEffect.parseEval("(5 * u(x / 4))", x) / 100);
-                    break;
-                case 70000021:
-                    localdex += (str * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
-                    break; //str2dex = u (x / 4) (str is base, localstr is bonus included)
-                case 70000022:
-                    localstr += (dex * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
-                    break;
-                case 70000023:
-                    localluk += (int_ * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
-                    break;
-                case 70000024:
-                    localdex += (luk * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
-                    break;
-                case 70000025: {
-                    int perLevelGain = MapleStatEffect.parseEval("(20 - (2 * d(x / 2)))", x);
-                    watk += d(chra.getLevel() / perLevelGain);
-                }
-                break; //lv2pad = 20-2 * d (x / 2)
-                case 70000026: {
-                    int perLevelGain = MapleStatEffect.parseEval("(20 - (2 * d(x / 2)))", x);
-                    magic += d(chra.getLevel() / perLevelGain);
-                }
-                break;
-                case 70000027:
-                    accuracy += (accuracy * (MapleStatEffect.parseEval("x", x) / 100));
-                    break;//accR = x
-                case 70000028:
-                    evaR += (evaR * (MapleStatEffect.parseEval("x", x) / 100));
-                    break;
-                case 70000029:
-                    wdef += (wdef * (MapleStatEffect.parseEval("x", x) / 100));
-                    break;
-                case 70000030:
-                    mdef += (mdef * (MapleStatEffect.parseEval("x", x) / 100));
-                    break;
-                case 70000031:
-                    localmaxhp += (localmaxhp * (MapleStatEffect.parseEval("x", x) / 100));
-                    break;
-                case 70000032:
-                    localmaxmp += (localmaxmp * (MapleStatEffect.parseEval("x", x) / 100));
-                    break;
-                case 70000033:
-                    accuracy += (accuracy * (MapleStatEffect.parseEval("u(x / 2)", x) / 100));
-                    break; //ar = u (x/2)
-                case 70000034:
-                    evaR += (evaR * (MapleStatEffect.parseEval("u(x / 2)", x) / 100));
-                    break;
-                case 70000035:
-                    break;//bossdam_r += MapleStatEffect.parseEval("x", x); break;//bdR = x //Clientsided?
-                case 70000036:
-                    break;//+% Damage to Norm Mobs//Clientsided?
-                case 70000037:
-                    break;//+% Damage to Towers//Clientsided?
-                case 70000038:
-                    break;//+% Chance to insta-kill in Azwan Supply//Clientsided?
-                case 70000039:
-                    break;//+% Damage when attacking abnormal ailment targets.//Clientsided?
-                case 70000040: { //Definitely needs to be looked into. "% of Wep Acc or Magic ACC (>) added to additional damage.
-                    watk += (accuracy * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));//acc2dam = x * 2 + u (x / 2)
-                    magic += (accuracy * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));
-                    //Assuming only one type of attack (magic or weapon) can be active at a time, just apply them to both;
-                }
-                break;
-                case 70000041: {
-                    watk += (wdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));//pdd2dam = x * 2 + u (x / 2)
-                    magic += (wdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));
-                }
-                break;
-                case 70000042: {
-                    watk += (wdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));//pdd2dam = x * 2 + u (x / 2)
-                    magic += (mdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));
-                }
-                break;
-                case 70000043:
-                    break; //When hit with magic attack, damage equal to % of WDEF is ignored. //Clientsided?
-                case 70000044:
-                    break; //When hit with physical attack, damage equal to % of MDEF is ignored. //Clientsided?
-                case 70000045: //Cooldown not applied at % Chance should be hooked elsewhere. //Clientsided? TEST.
-                case 70000046: //Increase Skill level of passive skills by # //Pretty sure Clientsided
-                case 70000047: //Number of enemies hit by multi target skills +1 //Clientsided.
-                case 70000048: //Buff skill duration +% Should be hooked elsewhere. //Clientsided? TEST.
-                case 70000049:
-                    dropBuff += (MapleStatEffect.parseEval("u(x / 2)", x));
-                    break; //dropR = u (x / 2)
-                case 70000050:
-                    mesoBuff = +(MapleStatEffect.parseEval("u(x / 2)", x));
-                    break;
-                case 70000051: {
-                    localstr += MapleStatEffect.parseEval("x", x);
-                    localdex += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000052: {
-                    localstr += MapleStatEffect.parseEval("x", x);
-                    localint_ += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000053: {
-                    localstr += MapleStatEffect.parseEval("x", x);
-                    localluk += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000054: {
-                    localdex += MapleStatEffect.parseEval("x", x);
-                    localint_ += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000055: {
-                    localdex += MapleStatEffect.parseEval("x", x);
-                    localluk += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000056: {
-                    localint_ += MapleStatEffect.parseEval("x", x);
-                    localluk += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000057: {
-                    localdex += MapleStatEffect.parseEval("x", x);
-                    localstr += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000058: {
-                    localint_ += MapleStatEffect.parseEval("x", x);
-                    localstr += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000059: {
-                    localluk += MapleStatEffect.parseEval("x", x);
-                    localstr += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000060: {
-                    localint_ += MapleStatEffect.parseEval("x", x);
-                    localdex += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000061: {
-                    localluk += MapleStatEffect.parseEval("x", x);
-                    localdex += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                case 70000062: {
-                    localluk += MapleStatEffect.parseEval("x", x);
-                    localint_ += MapleStatEffect.parseEval("u(x / 2)", x);
-                }
-                break;
-                default:
-                    break;
-            }
-        }
+//        for (InnerSkillValueHolder ISVH : chra.getInnerSkills()) {
+//            int x = ISVH.getSkillLevel();
+//            switch (ISVH.getSkillId()) {
+//                case 70000000:
+//                    localstr += MapleStatEffect.parseEval("x", x);
+//                    break; //strFX = x
+//                case 70000001:
+//                    localdex += MapleStatEffect.parseEval("x", x);
+//                    break;
+//                case 70000002:
+//                    localint_ += MapleStatEffect.parseEval("x", x);
+//                    break;
+//                case 70000003:
+//                    localluk += MapleStatEffect.parseEval("x", x);
+//                    break;
+//                case 70000004:
+//                    accuracy += MapleStatEffect.parseEval("(10 * x)", x);
+//                    break; //accX = 10 * x
+//                case 70000005:
+//                    evaR += MapleStatEffect.parseEval("(10 * x)", x);
+//                    break;
+//                case 70000006:
+//                    wdef += MapleStatEffect.parseEval("(10 * x)", x);
+//                    break;
+//                case 70000007:
+//                    mdef += MapleStatEffect.parseEval("(10 * x)", x);
+//                    break;
+//                case 70000008:
+//                    localmaxhp += MapleStatEffect.parseEval("(15 * x)", x);
+//                    break;//mhpX = x * 15
+//                case 70000009:
+//                    localmaxmp += MapleStatEffect.parseEval("(15 * x)", x);
+//                    ;
+//                    break;
+//                case 70000010:
+//                    jump += MapleStatEffect.parseEval("2*u(x/3)", x);
+//                    break; //psdJump = 2 * u(x / 3)
+//                case 70000011:
+//                    speed += MapleStatEffect.parseEval("2*u(x/3)", x);
+//                    break;
+//                case 70000012:
+//                    watk += MapleStatEffect.parseEval("3*u(x/3)", x);
+//                    break; //padX = 3 * u(x / 3)
+//                case 70000013:
+//                    magic += MapleStatEffect.parseEval("3*u(x/3)", x);
+//                    break;
+//                case 70000014:
+//                    passive_sharpeye_rate += MapleStatEffect.parseEval("x", x);
+//                    break;
+//                case 70000015: { //lukFX = x	strFX = x	dexFX = x	intFX = x
+//                    localstr += MapleStatEffect.parseEval("x", x);
+//                    localdex += MapleStatEffect.parseEval("x", x);
+//                    localint_ += MapleStatEffect.parseEval("x", x);
+//                    localluk += MapleStatEffect.parseEval("x", x);
+//                }
+//                break;
+//                case 70000016:
+//                    break; //actionSpeed ??= -1 //this is attack speed, isn't it?  client-sided
+//                case 70000017:
+//                    mdef += (wdef * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+//                    break;// pdd2mdd = u (x / 4)
+//                case 70000018:
+//                    wdef += (mdef * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+//                    break;
+//                case 70000019:
+//                    localmaxmp += (accuracy * MapleStatEffect.parseEval("(5 * u(x / 4))", x) / 100);
+//                    break;//acc2mp = 5 * u (x / 4)
+//                case 70000020:
+//                    localmaxhp += (evaR * MapleStatEffect.parseEval("(5 * u(x / 4))", x) / 100);
+//                    break;
+//                case 70000021:
+//                    localdex += (str * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+//                    break; //str2dex = u (x / 4) (str is base, localstr is bonus included)
+//                case 70000022:
+//                    localstr += (dex * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+//                    break;
+//                case 70000023:
+//                    localluk += (int_ * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+//                    break;
+//                case 70000024:
+//                    localdex += (luk * MapleStatEffect.parseEval("u(x / 4)", x) / 100);
+//                    break;
+//                case 70000025: {
+//                    int perLevelGain = MapleStatEffect.parseEval("(20 - (2 * d(x / 2)))", x);
+//                    watk += d(chra.getLevel() / perLevelGain);
+//                }
+//                break; //lv2pad = 20-2 * d (x / 2)
+//                case 70000026: {
+//                    int perLevelGain = MapleStatEffect.parseEval("(20 - (2 * d(x / 2)))", x);
+//                    magic += d(chra.getLevel() / perLevelGain);
+//                }
+//                break;
+//                case 70000027:
+//                    accuracy += (accuracy * (MapleStatEffect.parseEval("x", x) / 100));
+//                    break;//accR = x
+//                case 70000028:
+//                    evaR += (evaR * (MapleStatEffect.parseEval("x", x) / 100));
+//                    break;
+//                case 70000029:
+//                    wdef += (wdef * (MapleStatEffect.parseEval("x", x) / 100));
+//                    break;
+//                case 70000030:
+//                    mdef += (mdef * (MapleStatEffect.parseEval("x", x) / 100));
+//                    break;
+//                case 70000031:
+//                    localmaxhp += (localmaxhp * (MapleStatEffect.parseEval("x", x) / 100));
+//                    break;
+//                case 70000032:
+//                    localmaxmp += (localmaxmp * (MapleStatEffect.parseEval("x", x) / 100));
+//                    break;
+//                case 70000033:
+//                    accuracy += (accuracy * (MapleStatEffect.parseEval("u(x / 2)", x) / 100));
+//                    break; //ar = u (x/2)
+//                case 70000034:
+//                    evaR += (evaR * (MapleStatEffect.parseEval("u(x / 2)", x) / 100));
+//                    break;
+//                case 70000035:
+//                    break;//bossdam_r += MapleStatEffect.parseEval("x", x); break;//bdR = x //Clientsided?
+//                case 70000036:
+//                    break;//+% Damage to Norm Mobs//Clientsided?
+//                case 70000037:
+//                    break;//+% Damage to Towers//Clientsided?
+//                case 70000038:
+//                    break;//+% Chance to insta-kill in Azwan Supply//Clientsided?
+//                case 70000039:
+//                    break;//+% Damage when attacking abnormal ailment targets.//Clientsided?
+//                case 70000040: { //Definitely needs to be looked into. "% of Wep Acc or Magic ACC (>) added to additional damage.
+//                    watk += (accuracy * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));//acc2dam = x * 2 + u (x / 2)
+//                    magic += (accuracy * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));
+//                    //Assuming only one type of attack (magic or weapon) can be active at a time, just apply them to both;
+//                }
+//                break;
+//                case 70000041: {
+//                    watk += (wdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));//pdd2dam = x * 2 + u (x / 2)
+//                    magic += (wdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));
+//                }
+//                break;
+//                case 70000042: {
+//                    watk += (wdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));//pdd2dam = x * 2 + u (x / 2)
+//                    magic += (mdef * (MapleStatEffect.parseEval("x * 2 + u (x / 2)", x) / 100));
+//                }
+//                break;
+//                case 70000043:
+//                    break; //When hit with magic attack, damage equal to % of WDEF is ignored. //Clientsided?
+//                case 70000044:
+//                    break; //When hit with physical attack, damage equal to % of MDEF is ignored. //Clientsided?
+//                case 70000045: //Cooldown not applied at % Chance should be hooked elsewhere. //Clientsided? TEST.
+//                case 70000046: //Increase Skill level of passive skills by # //Pretty sure Clientsided
+//                case 70000047: //Number of enemies hit by multi target skills +1 //Clientsided.
+//                case 70000048: //Buff skill duration +% Should be hooked elsewhere. //Clientsided? TEST.
+//                case 70000049:
+//                    dropBuff += (MapleStatEffect.parseEval("u(x / 2)", x));
+//                    break; //dropR = u (x / 2)
+//                case 70000050:
+//                    mesoBuff = +(MapleStatEffect.parseEval("u(x / 2)", x));
+//                    break;
+//                case 70000051: {
+//                    localstr += MapleStatEffect.parseEval("x", x);
+//                    localdex += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000052: {
+//                    localstr += MapleStatEffect.parseEval("x", x);
+//                    localint_ += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000053: {
+//                    localstr += MapleStatEffect.parseEval("x", x);
+//                    localluk += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000054: {
+//                    localdex += MapleStatEffect.parseEval("x", x);
+//                    localint_ += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000055: {
+//                    localdex += MapleStatEffect.parseEval("x", x);
+//                    localluk += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000056: {
+//                    localint_ += MapleStatEffect.parseEval("x", x);
+//                    localluk += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000057: {
+//                    localdex += MapleStatEffect.parseEval("x", x);
+//                    localstr += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000058: {
+//                    localint_ += MapleStatEffect.parseEval("x", x);
+//                    localstr += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000059: {
+//                    localluk += MapleStatEffect.parseEval("x", x);
+//                    localstr += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000060: {
+//                    localint_ += MapleStatEffect.parseEval("x", x);
+//                    localdex += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000061: {
+//                    localluk += MapleStatEffect.parseEval("x", x);
+//                    localdex += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                case 70000062: {
+//                    localluk += MapleStatEffect.parseEval("x", x);
+//                    localint_ += MapleStatEffect.parseEval("u(x / 2)", x);
+//                }
+//                break;
+//                default:
+//                    break;
+//            }
+//        }
     }
 
     public List<Triple<Integer, String, Integer>> getPsdSkills() {

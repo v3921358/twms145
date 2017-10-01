@@ -29,7 +29,7 @@ public class CommandProcessor {
 
 
     public static boolean processCommand(MapleClient client, String text, CommandType type) {
-        if (checkPrefix(text))
+        if (!checkPrefix(text))
             return false;
 
         final MapleCharacter player = client.getPlayer();
@@ -63,7 +63,7 @@ public class CommandProcessor {
 
     private static boolean checkPrefix(String text) {
         for (PlayerGMRank prefix : PlayerGMRank.values()) {
-            if (text.startsWith(String.valueOf(prefix.getCommandPrefix() + prefix.getCommandPrefix()))) {
+            if (text.startsWith(String.valueOf(prefix.getCommandPrefix()) + String.valueOf(prefix.getCommandPrefix()))) {
                 return false;
             }
         }

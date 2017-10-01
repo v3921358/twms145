@@ -89,7 +89,6 @@ public class MapleMapFactory {
             }
             rs.close();
             ps.close();
-            // System.out.println("Successfully loaded " + customLife.size() + " maps with custom life.");
             return customLife.size();
         } catch (SQLException e) {
             System.out.println("Error loading custom life..." + e);

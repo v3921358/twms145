@@ -20,14 +20,12 @@
  */
 package handling.channel.handler;
 
-import client.*;
+import client.MapleCharacter;
+import client.PlayerStats;
 import client.inventory.Item;
 import client.inventory.MapleInventoryType;
 import client.skill.Skill;
 import client.skill.SkillFactory;
-import server.status.MapleBuffStatus;
-import server.status.MonsterStatus;
-import server.status.MonsterStatusEffect;
 import constants.GameConstants;
 import handling.login.LoginServer;
 import handling.world.World;
@@ -41,6 +39,9 @@ import server.maps.MapleMap;
 import server.maps.MapleMapItem;
 import server.maps.MapleMapObject;
 import server.maps.MapleMapObjectType;
+import server.status.MapleBuffStatus;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import tools.AttackPair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
@@ -469,7 +470,7 @@ public class DamageParse {
                 }
                 return;
             }
-            if ((player.getPyramidSubway() != null) && (player.getPyramidSubway().onSkillUse(player)));
+            if ((player.getPyramidSubway() != null) && (player.getPyramidSubway().onSkillUse(player))) ;
         } else if ((GameConstants.isInflationSkill(attack.skill)) && (player.getBuffedValue(MapleBuffStatus.GIANT_POTION) == null)) {
             if (player.isShowErr()) {
                 player.showInfo("魔法攻擊", true, "isInflationSkill - " + (GameConstants.isInflationSkill(attack.skill)) + "GIANT_POTION = null - " + (player.getBuffedValue(MapleBuffStatus.GIANT_POTION) == null));
@@ -1028,10 +1029,14 @@ public class DamageParse {
         ret.targets = (byte) (ret.tbyte >>> 4 & 0xF);
         ret.hits = (byte) (ret.tbyte & 0xF);
         ret.skill = lea.readInt();
-        if (ret.skill >= 91000000) {
-            return null;
+        switch (ret.skill) {
+            case 2221012:
+            case 36101001:
+            case 42120003:
+                lea.skip(1);
+                break;
         }
-        lea.skip(12);
+
         switch (ret.skill) {
             case 11101007: // Power Reflection
             case 11101006: // Dawn Warrior - Power Reflection
@@ -1043,30 +1048,12 @@ public class DamageParse {
             case 32111010:
             case 2311007: // bishop tele mastery
                 lea.skip(1); // charge = 0
-                ret.charge = 0;
-                ret.display = lea.readUShort();
-                lea.skip(4);// dunno
-                ret.speed = (byte) lea.readShort();
-                ret.lastAttackTickCount = lea.readInt();
-                lea.skip(4);// looks like zeroes
-                ret.allDamage = new ArrayList();
-                for (int i = 0; i < ret.targets; i++) {
-                    int oid = lea.readInt();
-                    lea.skip(18);
-                    List allDamageNumbers = new ArrayList();
-                    for (int j = 0; j < ret.hits; j++) {
-                        int damage = lea.readInt();
-                        allDamageNumbers.add(new Pair(Integer.valueOf(damage), Boolean.valueOf(false)));
-                    }
-                    lea.skip(4);
-                    ret.allDamage.add(new AttackPair(Integer.valueOf(oid).intValue(), allDamageNumbers));
-                }
-                ret.position = lea.readPos();
-                return ret;
-            case 24121000:// mille
-                // case 24121005://tempest
-                //case 5101004: // Corkscrew
-                //case 15101003: // Cygnus corkscrew
+            default:
+                lea.skip(2);
+        }
+        int crc = lea.readInt(); // nSkillCRC
+        switch (ret.skill) {
+            case 24121000:
             case 5201002: // Gernard
             case 14111006: // Poison bomb
             case 4341002:
@@ -1082,12 +1069,21 @@ public class DamageParse {
                 ret.charge = 0;
                 break;
         }
-
+        switch (ret.skill) {
+            case 14111022:
+            case 14111023:
+                lea.readInt();
+        }
+        lea.skip(1);
         ret.direction = lea.readByte();
         ret.display = lea.readUShort();
-        int animation = lea.readByte();
-        // TODO: add animation
-        lea.skip(1); // Weapon class
+        int key = ret.display & 0x7FFF;
+        int dd = ret.display >> 15;
+        lea.skip(1);
+        byte action = lea.readByte();
+        lea.skip(1);
+
+
         if ((ret.skill == 5300007) || (ret.skill == 5101012) || (ret.skill == 5081001) || (ret.skill == 15101010)) {
             lea.readInt();
         }
@@ -1096,13 +1092,14 @@ public class DamageParse {
         }
         ret.speed = lea.readByte();
         ret.lastAttackTickCount = lea.readInt();
-//        if (ret.skill == 32121003) {
-//            lea.skip(4);
-//        } else {
-//            lea.skip(8);
-//        }
+        lea.readInt();
 
-        ret.allDamage = new ArrayList();
+
+        if (chr.isShowInfo()) {
+            chr.showInfo("AttackDebug", false, "Dir:" + ret.direction + " DIS:" + ret.display + " DD:" + Integer.toHexString(key) + " CRC:" + crc + " ACT: " + action);
+        }
+
+        ret.allDamage = new ArrayList<>();
 
         if (ret.skill == 4211006) {
             return parseMesoExplosion(lea, ret, chr);
@@ -1115,13 +1112,18 @@ public class DamageParse {
             int oid = lea.readInt();
             lea.skip(14);
             List<Pair<Integer, Boolean>> allDamageNumbers = new ArrayList<>();
-
             for (int j = 0; j < ret.hits; j++) {
-                allDamageNumbers.add(new Pair<>(lea.readInt(), false));
+                int damage = lea.readInt();
+                if (chr.isShowInfo()) {
+                    chr.dropMessage(-5, "近距離攻擊[" + ret.skill + "] - 攻擊數量: " + ret.targets + " 攻擊段數: " + ret.hits + " 怪物OID " + oid + " 傷害: " + damage);
+                }
+                allDamageNumbers.add(new Pair<>(damage, false));
             }
             lea.skip(4);
             ret.allDamage.add(new AttackPair(oid, allDamageNumbers));
         }
+
+
         ret.position = lea.readPos();
         return ret;
     }

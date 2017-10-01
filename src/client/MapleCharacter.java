@@ -997,25 +997,26 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                     }
                     ret.skills.put(SkillFactory.getSkill(GameConstants.getEmpress_ForJob(ret.job)), new SkillEntry(maxlevel_2, (byte) 0, -1));
                 }
-                ps = con.prepareStatement("SELECT skill_id, skill_level, position, rank FROM inner_ability_skills WHERE player_id = ?");
-                ps.setInt(1, charId);
-                rs = ps.executeQuery();
-                while (rs.next()) {
-                    int skid = rs.getInt("skill_id");
-                    Skill mskill = SkillFactory.getSkill(skid);
-                    int skl = rs.getInt("skill_level");
-                    byte position = rs.getByte("position");
-                    byte rank = rs.getByte("rank");
-                    if ((mskill != null) && mskill.isInnerSkill() && position >= 1 && position <= 3) {
-                        if (skl > mskill.getMaxLevel()) {
-                            skl = (byte) mskill.getMaxLevel();
-                        }
-                        InnerSkillValueHolder InnerSkill = new InnerSkillValueHolder(skid, skl, position, rank);
-                        ret.innerSkills[position - 1] = InnerSkill;
-                    }
-                }
-                rs.close();
-                ps.close();
+// 名譽等級
+//                ps = con.prepareStatement("SELECT skill_id, skill_level, position, rank FROM inner_ability_skills WHERE player_id = ?");
+//                ps.setInt(1, charId);
+//                rs = ps.executeQuery();
+//                while (rs.next()) {
+//                    int skid = rs.getInt("skill_id");
+//                    Skill mskill = SkillFactory.getSkill(skid);
+//                    int skl = rs.getInt("skill_level");
+//                    byte position = rs.getByte("position");
+//                    byte rank = rs.getByte("rank");
+//                    if ((mskill != null) && mskill.isInnerSkill() && position >= 1 && position <= 3) {
+//                        if (skl > mskill.getMaxLevel()) {
+//                            skl = (byte) mskill.getMaxLevel();
+//                        }
+//                        InnerSkillValueHolder InnerSkill = new InnerSkillValueHolder(skid, skl, position, rank);
+//                        ret.innerSkills[position - 1] = InnerSkill;
+//                    }
+//                }
+//                rs.close();
+//                ps.close();
 
 
                 ps = con.prepareStatement("SELECT * FROM skillmacros WHERE characterid = ?");
@@ -3582,10 +3583,10 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         if (to == null) {
             return;
         }
-        if (getAntiMacro().inProgress()) {
-            dropMessage(5, "You cannot use it in the middle of the Lie Detector Test.");
-            return;
-        }
+//        if (getAntiMacro().inProgress()) {
+//            dropMessage(5, "You cannot use it in the middle of the Lie Detector Test.");
+//            return;
+//        }
         if (getTrade() != null) {
             MapleTrade.cancelTrade(getTrade(), client, this);
         }
@@ -3677,7 +3678,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
             removeMechDoor();
         }
         cancelMapTimeLimitTask();
-        antiMacro.reset(); // reset lie detector
+        //antiMacro.reset(); // reset lie detector
         if (getTrade() != null) {
             MapleTrade.cancelTrade(getTrade(), client, this);
         }
@@ -4653,7 +4654,7 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
     }
 
     public void addMP(int delta, boolean ignore) {
-        if ((delta < 0 && GameConstants.isDemon(getJob())) || !GameConstants.isDemon(getJob()) || ignore) {
+        if ((delta <= 0 && GameConstants.isDemon(getJob())) || !GameConstants.isDemon(getJob()) || ignore) {
             if (stats.setMp(stats.getMp() + delta, this)) {
                 updateSingleStat(MapleStat.MP, stats.getMp());
             }
