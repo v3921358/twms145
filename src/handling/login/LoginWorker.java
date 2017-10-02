@@ -31,12 +31,12 @@ public class LoginWorker {
     private static long lastUpdate = 0;
 
     public static void registerClient(final MapleClient client) {
-        if (LoginServer.isAdminOnly() && !client.isGm() && !client.isLocalhost()) {
+        if (LoginServer.isAdminOnly() && !client.isGM() && !client.isLocalhost()) {
             client.sendPacket(CWvsContext.getPopupMsg("當前伺服器只能管理員登入.\\r\\n我們目前正在測試一些問題\\r\\n請稍後在嘗試。"));
             client.sendPacket(LoginPacket.getLoginFailed(7));
             return;
         }
-        if (!client.isGm() && (client.hasBannedMac() || client.hasBannedIP())) {
+        if (!client.isGM() && (client.hasBannedMac() || client.hasBannedIP())) {
             client.sendPacket(LoginPacket.getLoginFailed(3)); //
             return;
         }

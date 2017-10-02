@@ -106,8 +106,8 @@ public abstract class MapleEvent {
                 if (e.isRunning) {
                     for (int i : e.type.mapids) {
                         if (cserv.getEvent() == i) {
-                            World.Broadcast.broadcastMessage(worldSt, CWvsContext.serverNotice(0, "Entries for the event are now closed!"));
-                            e.broadcast(CWvsContext.serverNotice(0, "The event will start in 30 seconds!"));
+                            World.Broadcast.broadcastMessage(worldSt, CWvsContext.broadcastMsg(0, "Entries for the event are now closed!"));
+                            e.broadcast(CWvsContext.broadcastMsg(0, "The event will start in 30 seconds!"));
                             e.broadcast(CField.getClock(30));
                             EventTimer.getInstance().schedule(new Runnable() {
 
@@ -173,7 +173,7 @@ public abstract class MapleEvent {
         }
         cserv.setEvent(cserv.getEvent(event).type.mapids[0]);
         cserv.getEvent(event).reset();
-        World.Broadcast.broadcastMessage(worldSt, CWvsContext.serverNotice(0, "Hey guys! Let's play a " + StringUtil.makeEnumHumanReadable(event.name()) + " event in channel " + cserv.getChannel() + "! Change to channel " + cserv.getChannel() + " and use @event command!"));
+        World.Broadcast.broadcastMessage(worldSt, CWvsContext.broadcastMsg(0, "Hey guys! Let's play a " + StringUtil.makeEnumHumanReadable(event.name()) + " event in channel " + cserv.getChannel() + "! Change to channel " + cserv.getChannel() + " and use @event command!"));
         return "";
     }
 

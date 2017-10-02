@@ -1,17 +1,17 @@
 package server;
 
-import client.*;
+import client.MapleCharacter;
+import client.MapleCoolDownValueHolder;
+import client.MapleStat;
 import client.MapleTrait.MapleTraitType;
+import client.PlayerStats;
 import client.inventory.Item;
 import client.inventory.MapleInventory;
 import client.inventory.MapleInventoryType;
 import client.skill.Skill;
 import client.skill.SkillFactory;
-import constants.MapConstants;
-import server.status.MapleBuffStatus;
-import server.status.MonsterStatus;
-import server.status.MonsterStatusEffect;
 import constants.GameConstants;
+import constants.MapConstants;
 import handling.channel.ChannelServer;
 import handling.world.MaplePartyCharacter;
 import handling.world.World;
@@ -24,6 +24,9 @@ import server.life.MapleLifeFactory;
 import server.life.MapleMonster;
 import server.life.MobSkill;
 import server.maps.*;
+import server.status.MapleBuffStatus;
+import server.status.MonsterStatus;
+import server.status.MonsterStatusEffect;
 import tools.CaltechEval;
 import tools.FileoutputUtil;
 import tools.packet.CField;
@@ -1423,7 +1426,7 @@ public class MapleStatEffect implements Serializable {
         if (!applyfrom.isGM() && isSoaring() && MapConstants.isEventMap(applyfrom.getMapId())) {
             applyfrom.kickFromJQ();
             return false;
-        } else if (!applyfrom.isGM() && sourceid == 23111001 &&  MapConstants.isEventMap(applyfrom.getMapId())) { // why would a gm use this idk
+        } else if (!applyfrom.isGM() && sourceid == 23111001 && MapConstants.isEventMap(applyfrom.getMapId())) { // why would a gm use this idk
             applyfrom.dropMessage(5, "You can't use this skill in this map.");
             applyfrom.getClient().sendPacket(CWvsContext.enableActions());
             return false;
@@ -1453,7 +1456,7 @@ public class MapleStatEffect implements Serializable {
         }
         if (!applyfrom.isGM()) {
             if (skill && (sourceid == 9001000 || sourceid == 9001001 || sourceid == 9001002 || sourceid == 9101000 || sourceid == 9101001 || sourceid == 9101002 || sourceid == 9101003 || sourceid == 9101004 || sourceid == 9101005 || sourceid == 9101006 || sourceid == 9101007 || sourceid == 9101008)) {
-                World.Broadcast.broadcastMessage(applyfrom.getWorld(), CWvsContext.serverNotice(6, "[AutoBan]: " + applyfrom.getName() + "has Packet edited GM skills."));
+                World.Broadcast.broadcastMessage(applyfrom.getWorld(), CWvsContext.broadcastMsg(6, "[AutoBan]: " + applyfrom.getName() + "has Packet edited GM skills."));
                 applyfrom.ban("Packet edited a GM Skill!", true);
                 return false;
             }
@@ -2664,6 +2667,20 @@ public class MapleStatEffect implements Serializable {
         }
         if (showEffect && !applyto.isHidden()) {
             applyto.getMap().broadcastMessage(applyto, EffectPacket.showBuffeffect(applyto.getId(), sourceid, 1, applyto.getLevel(), level), false);
+        }
+        WeakReference<MapleCharacter>[] clones = applyto.getClones();
+        final MapleMap map = applyto.getMap();
+        for (int i = 0; i < clones.length; i++) {
+            if (clones[i].get() != null) {
+                final MapleCharacter clone = clones[i].get();
+                if (clone.getMap() == map && clone.getDragon() != null) {
+                    if (clone.isHidden()) {
+                        map.broadcastGMMessage(clone, EffectPacket.showBuffeffect(clone.getId(), sourceid, 1, clone.getLevel(), level), false);
+                    } else {
+                        map.broadcastMessage(clone, EffectPacket.showBuffeffect(clone.getId(), sourceid, 1, clone.getLevel(), level), false);
+                    }
+                }
+            }
         }
         if (isMechPassive()) {
             applyto.getClient().sendPacket(EffectPacket.showOwnBuffEffect(sourceid - 1000, 1, applyto.getLevel(), level, (byte) 1));

@@ -560,7 +560,7 @@ public abstract class AbstractPlayerInteraction {
     }
 
     public final void worldMessage(final int type, final String message) {
-        World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(type, message));
+        World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.broadcastMsg(type, message));
     }
 
     // default playerMessage and mapMessage to use type 5
@@ -598,13 +598,13 @@ public abstract class AbstractPlayerInteraction {
         } else if (type == -8) {
             c.getPlayer().getMap().broadcastMessage(CWvsContext.getMidMsg(message, true, 0));
         } else {
-            c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(type, message));
+            c.getPlayer().getMap().broadcastMessage(CWvsContext.broadcastMsg(type, message));
         }
     }
 
     public final void guildMessage(final int type, final String message) {
         if (getPlayer().getGuildId() > 0) {
-            World.Guild.guildPacket(getPlayer().getGuildId(), CWvsContext.serverNotice(type, message));
+            World.Guild.guildPacket(getPlayer().getGuildId(), CWvsContext.broadcastMsg(type, message));
         }
     }
 

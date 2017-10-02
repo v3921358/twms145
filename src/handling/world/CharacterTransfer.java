@@ -63,7 +63,7 @@ public class CharacterTransfer implements Externalizable {
     public Object inventorys, skillmacro, storage, cs, anticheat;
     public int[] savedlocation, wishlist, rocks, remainingSp, regrocks, hyperrocks;
     public byte[] petStore;
-    public AtomicInteger exp = new AtomicInteger();
+    public int exp;
     public MapleImp[] imps;
     public Map<Integer, Integer> mbook;
     public Map<Byte, Integer> reports = new LinkedHashMap<>();
@@ -120,7 +120,7 @@ public class CharacterTransfer implements Externalizable {
         this.mp = chr.getStat().getMp();
         this.maxhp = chr.getStat().getMaxHp();
         this.maxmp = chr.getStat().getMaxMp();
-        this.exp.set(chr.getExp());
+        this.exp = chr.getExp();
         this.hpApUsed = chr.getHpApUsed();
         this.remainingAp = chr.getRemainingAp();
         this.remainingSp = chr.getRemainingSps();
@@ -288,7 +288,7 @@ public class CharacterTransfer implements Externalizable {
         this.mp = in.readInt();
         this.maxhp = in.readInt();
         this.maxmp = in.readInt();
-        this.exp.set(in.readInt());
+        this.exp = in.readInt();
         this.hpApUsed = in.readShort();
         this.remainingAp = in.readShort();
         this.remainingSp = new int[in.readByte()];
@@ -527,7 +527,7 @@ public class CharacterTransfer implements Externalizable {
         out.writeInt(this.mp);
         out.writeInt(this.maxhp);
         out.writeInt(this.maxmp);
-        out.writeInt(this.exp.get());
+        out.writeInt(this.exp);
         out.writeShort(this.hpApUsed);
         out.writeInt(this.remainingAp);
         out.writeByte(this.remainingSp.length);

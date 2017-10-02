@@ -133,7 +133,6 @@ public class PacketHelper {
                 mplew.writeInt(skill.getKey().getId());
                 mplew.writeInt(skill.getValue().skillLevel);
                 addExpirationTime(mplew, skill.getValue().expiration);
-
                 if (skill.getKey().isFourthJob()) {
                     mplew.writeInt(skill.getValue().masterlevel);
                 }
@@ -341,8 +340,8 @@ public class PacketHelper {
         // masked itens
 
         mplew.write(0xFF);
-        mplew.writeInt(0);
-        //TODO: 解包
+        final Integer cWeapon = equip.get((byte) -111);
+        mplew.writeInt(cWeapon != null ? cWeapon : 0);
 
         mplew.writeBool(chr.isElf(client.getPlayer()));
         mplew.writeZeroBytes(12); // pets
@@ -1543,6 +1542,7 @@ public class PacketHelper {
             mplew.write(1);
             mplew.writeInt(CHAR_MAGIC_SPAWN);//6
             mplew.writeInt(0); // 怪物OID
+            mplew.writeInt(0);
         }
 
         if (statups.containsKey(MapleBuffStatus.DEFAULTBUFF1)) {
@@ -1606,6 +1606,9 @@ public class PacketHelper {
     }
 
     public static <E extends MapleBuffStatus, F extends Object> void writeBuffMask(MaplePacketLittleEndianWriter mplew, Map<E, F> statups) {
+        for (MapleBuffStatus statup : statups.keySet()) {
+            System.out.println(statup.name() + "at " + statup.getPosition());
+        }
         int[] mask = new int[GameConstants.MAX_BUFFSTAT];
         for (MapleBuffStatus statup : statups.keySet()) {
             mask[(statup.getPosition())] |= statup.getValue();

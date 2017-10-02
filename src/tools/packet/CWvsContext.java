@@ -930,60 +930,35 @@ public class CWvsContext {
     }
 
     public static byte[] showQuestMsg(final String msg) {
-        return serverNotice(5, msg);
+        return broadcastMsg(5, msg);
     }
 
     public static byte[] Mulung_Pts(int recv, int total) {
         return showQuestMsg("You have received " + recv + " training points. Your total training score is now " + total + ".");
     }
 
-    public static byte[] serverMessage(String message) {
-        return serverMessage(4, 0, message, false);
+    public static byte[] broadcastMessage(String message) {
+        return broadcastMessage(4, 0, message, false);
     }
 
-    public static byte[] serverNotice(int type, String message) {
-        return serverMessage(type, 0, message, false);
+    public static byte[] broadcastMsg(int type, String message) {
+        return broadcastMessage(type, 0, message, false);
     }
 
-    public static byte[] serverNotice(int type, int channel, String message) {
-        return serverMessage(type, channel, message, false);
+    public static byte[] broadcastMsg(int type, int channel, String message) {
+        return broadcastMessage(type, channel, message, false);
     }
 
-    public static byte[] serverNotice(int type, int channel, String message, boolean smegaEar) {
-        return serverMessage(type, channel, message, smegaEar);
+    public static byte[] broadcastMsg(int type, int channel, String message, boolean smegaEar) {
+        return broadcastMessage(type, channel, message, smegaEar);
     }
 
     public static byte[] getPopupMsg(String message) {
-        return serverMessage(1, 0, message, false);
+        return broadcastMessage(1, 0, message, false);
     }
 
-    private static byte[] serverMessage(int type, int channel, String message, boolean megaEar) {
+    private static byte[] broadcastMessage(int type, int channel, String message, boolean megaEar) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-
-        // 0: [Notice] <Msg>
-        // 1: Popup <Msg>
-        // 2: Megaphone
-        // 3: Super Megaphone
-        // 4: WorldConfig Message
-        // 5: Pink Text
-        // 6: LightBlue Text ({} as Item)
-        // 7: [int] -> Keep Wz Error
-        // 8: Item Megaphone
-        // 9: Item Megaphone
-        // 10: Three Line Megaphone
-        // 11: Item Megaphone
-        // 12: Weather Effect
-        // 13: Green Gachapon Message
-        // 14: Orange Text
-        // 15: Twin Dragon's Egg (got)
-        // 16: Twin Dragon's Egg (duplicated)
-        // 17: Lightblue Text
-        // 18: Lightblue Text
-        // 20: LightBlue Text ({} as Item)
-        // 22: Skull Megaphone
-        // 23: Ani Message
-        // 25: Cake Pink Message
-        // 26: Pie Yellow Message
         mplew.writeShort(SendPacketOpcode.SERVERMESSAGE.getValue());
         mplew.write(type);
         if (type == 4) {

@@ -997,7 +997,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
     }
 
     public void serverNotice(String msg) {
-        World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[Notice] " + msg));
+        World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.broadcastMsg(6, "[Notice] " + msg));
     }
 
     public void gainCurrency(short amount) {
@@ -1439,7 +1439,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
                 final MapleMap map = c.getPlayer().getMap();
 
                 map.broadcastMessage(CField.getClock(minutes * 60));
-                map.broadcastMessage(CWvsContext.serverNotice(6, c.getPlayer().getName() + startText));
+                map.broadcastMessage(CWvsContext.broadcastMsg(6, c.getPlayer().getName() + startText));
             } else {
                 squad.clear();
             }
@@ -1556,7 +1556,7 @@ public class NPCConversationManager extends AbstractPlayerInteraction {
 
     public void increaseGuildCapacity(boolean trueMax) {
         if (c.getPlayer().getMeso() < 500000 && !trueMax) {
-            c.sendPacket(CWvsContext.serverNotice(1, "You do not have enough mesos."));
+            c.sendPacket(CWvsContext.broadcastMsg(1, "You do not have enough mesos."));
             return;
         }
         final int gid = c.getPlayer().getGuildId();

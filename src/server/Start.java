@@ -7,6 +7,8 @@ import constants.ServerConstants;
 import constants.WorldConstants;
 import database.DatabaseConnection;
 import handling.MapleServerHandler;
+import handling.RecvPacketOpcode;
+import handling.SendPacketOpcode;
 import handling.cashshop.CashShopServer;
 import handling.channel.MapleGuildRanking;
 import handling.login.LoginInformationProvider;
@@ -22,6 +24,7 @@ import server.life.MobSkillFactory;
 import server.life.PlayerNPC;
 import server.maps.MapleMapFactory;
 import server.quest.MapleQuest;
+import server.status.MapleBuffStatus;
 import server.worldevents.MapleOxQuizFactory;
 
 import java.sql.PreparedStatement;
@@ -53,12 +56,16 @@ public class Start {
         EventTimer.getInstance().start();
         BuffTimer.getInstance().start();
         PingTimer.getInstance().start();
+        CloneTimer.getInstance().start();
     }
 
     public void run() throws InterruptedException {
 
         System.out.println("楓之谷v145模擬器 啟動中" + "." + ServerConstants.MAPLE_PATCH + "..");
 
+        SendPacketOpcode.reloadValues();
+        RecvPacketOpcode.reloadValues();
+        MapleBuffStatus.reloadValues();
         CommandProcessor.Initiate();
         this.resetAllLoginState();
         // Worlds

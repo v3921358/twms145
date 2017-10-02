@@ -108,7 +108,7 @@ public class MapleOxQuiz extends MapleEvent {
                     }
                 }
                 if (toSend.getCharactersSize() - number <= 1 || timesAsked == 10) {
-                    toSend.broadcastMessage(CWvsContext.serverNotice(6, "The event has ended"));
+                    toSend.broadcastMessage(CWvsContext.broadcastMsg(6, "The event has ended"));
                     unreset();
                     for (MapleCharacter chr : toSend.getCharactersThreadsafe()) {
                         if (chr != null && !chr.isGM() && chr.isAlive()) {

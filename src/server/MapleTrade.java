@@ -5,9 +5,7 @@ import client.MapleClient;
 import client.inventory.Item;
 import client.inventory.ItemFlag;
 import client.inventory.MapleInventoryType;
-import client.messages.CommandProcessor;
 import constants.GameConstants;
-import constants.ServerConstants.CommandType;
 import tools.packet.CField.InteractionPacket;
 import tools.packet.CWvsContext;
 import tools.packet.PlayerShopPacket;
@@ -84,7 +82,7 @@ public class MapleTrade {
             c.setTrade(new MapleTrade((byte) 0, c));
             c.getClient().sendPacket(InteractionPacket.getTradeStart(c.getClient(), c.getTrade(), (byte) 0));
         } else {
-            c.getClient().sendPacket(CWvsContext.serverNotice(5, "You are already in a trade"));
+            c.getClient().sendPacket(CWvsContext.broadcastMsg(5, "You are already in a trade"));
         }
     }
 
@@ -98,7 +96,7 @@ public class MapleTrade {
             c1.getTrade().setPartner(c2.getTrade());
             c2.getClient().sendPacket(InteractionPacket.getTradeInvite(c1));
         } else {
-            c1.getClient().sendPacket(CWvsContext.serverNotice(5, "The other player is already trading with someone else."));
+            c1.getClient().sendPacket(CWvsContext.broadcastMsg(5, "The other player is already trading with someone else."));
             cancelTrade(c1.getTrade(), c1.getClient(), c1);
         }
     }
@@ -112,7 +110,7 @@ public class MapleTrade {
             c1.dropMessage(-2, "System : Use @tradehelp to see the list of trading commands");
             c2.dropMessage(-2, "System : Use @tradehelp to see the list of trading commands");
         } else {
-            c1.getClient().sendPacket(CWvsContext.serverNotice(5, "The other player has already closed the trade"));
+            c1.getClient().sendPacket(CWvsContext.broadcastMsg(5, "The other player has already closed the trade"));
         }
     }
 

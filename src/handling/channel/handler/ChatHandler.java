@@ -132,7 +132,7 @@ public class ChatHandler {
         }
         final String chattext = slea.readMapleAsciiString();
         if (chr == null || !chr.getCanTalk()) {
-            c.sendPacket(CWvsContext.serverNotice(6, "You have been muted and are therefore unable to talk."));
+            c.sendPacket(CWvsContext.broadcastMsg(6, "You have been muted and are therefore unable to talk."));
             return;
         }
         if (c.getPlayer().getMuteLevel() == 1) {

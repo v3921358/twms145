@@ -239,7 +239,7 @@ public class Event_DojoAgent {
                                                     c.getDojoMode() == DojoMode.RANKED ? "Ranked Mode" : "Unknown Mode")
                             + " cleared! You've earned " + exp + " Exp!");
                     if (c.dojoStartTime == 1337) {
-                        World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.serverNotice(6, "[Mu Lung Dojo] " + c.getName() + " has achieved the best record in Mu Lung Dojo Ranked Mode."));
+                        World.Broadcast.broadcastMessage(c.getWorld(), CWvsContext.broadcastMsg(6, "[Mu Lung Dojo] " + c.getName() + " has achieved the best record in Mu Lung Dojo Ranked Mode."));
                     }
                     final int point = (points * 3);
                     c.getTrait(MapleTraitType.will).addExp(points, c);

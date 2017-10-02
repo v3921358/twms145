@@ -135,10 +135,10 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
     FACIAL_EXPRESSION,
     MOVE_PLAYER,
     MOVE_MONSTER,
-    CLOSE_RANGE_ATTACK,
-    RANGED_ATTACK,
-    MAGIC_ATTACK,
-    ENERGY_ATTACK,
+    LP_UserMeleeAttack,
+    LP_UserShootAttack,
+    LP_UserMagicAttack,
+    LP_UserBodyAttack,
     OPEN_NPC_SHOP,
     CONFIRM_SHOP_TRANSACTION,
     OPEN_STORAGE,
@@ -482,11 +482,10 @@ public enum SendPacketOpcode implements WritableShortValueHolder {
             case "UPDATE_STATS":
             case "SHOW_STATUS_INFO":
             case "MAGIC_ATTACK":
-            case "SPAWN_PLAYER":
             case "SPAWN_NPC":
             case "SPAWN_NPC_REQUEST_CONTROLLER":
             case "GAME_MESSAGE":
-            case "CLOSE_RANGE_ATTACK":
+            case "LP_UserMeleeAttack":
             case "SERVERMESSAGE":
             case "SPAWN_MONSTER_CONTROL":
             case "MODIFY_INVENTORY_ITEM":

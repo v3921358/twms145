@@ -54,11 +54,11 @@ public class PartyHandler {
             // DENY_PARTY_REQUEST Data: [3A] [28 00 00] 00 - Declined
             switch (action) {
                 case 0x34:
-                    chr.announce(tools.packet.CWvsContext.serverNotice(5, "You have applied for a party.")); // gms-like notice pls
+                    chr.announce(tools.packet.CWvsContext.broadcastMsg(5, "You have applied for a party.")); // gms-like notice pls
                     chr.announce(tools.packet.CWvsContext.enableActions());
                     break;
                 case 0x38:
-                    chr.announce(tools.packet.CWvsContext.serverNotice(5, "You have already applied for this party.")); // gms-like notice pls
+                    chr.announce(tools.packet.CWvsContext.broadcastMsg(5, "You have already applied for this party.")); // gms-like notice pls
                     chr.announce(tools.packet.CWvsContext.enableActions());
                     break;
                 case 0x3B:
@@ -70,7 +70,7 @@ public class PartyHandler {
                     }
                     break;
                 case 0x3A:
-                    chr.announce(tools.packet.CWvsContext.serverNotice(5, c.getPlayer().getName() + " has denied your request.")); // gms-like notice pls
+                    chr.announce(tools.packet.CWvsContext.broadcastMsg(5, c.getPlayer().getName() + " has denied your request.")); // gms-like notice pls
                     chr.announce(tools.packet.CWvsContext.enableActions());
                     break;
             }

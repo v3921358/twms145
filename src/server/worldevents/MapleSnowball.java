@@ -146,7 +146,7 @@ public class MapleSnowball extends MapleEvent {
                                 sb.getSnowBall(i).setInvis(true);
                                 map.broadcastMessage(CField.rollSnowball(i + 2, sb.getSnowBall(0), sb.getSnowBall(1))); //inviseble
                             }
-                            chr.getMap().broadcastMessage(CWvsContext.serverNotice(6, "Congratulations! Team " + (team == 0 ? "Story" : "Maple") + " has won the Snowball Event!"));
+                            chr.getMap().broadcastMessage(CWvsContext.broadcastMsg(6, "Congratulations! Team " + (team == 0 ? "Story" : "Maple") + " has won the Snowball Event!"));
 
                             for (MapleCharacter chrz : chr.getMap().getCharactersThreadsafe()) {
                                 if ((team == 0 && chrz.getTruePosition().y > -80) || (team == 1 && chrz.getTruePosition().y <= -80)) { //winner

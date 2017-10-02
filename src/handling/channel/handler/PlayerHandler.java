@@ -29,12 +29,16 @@ import client.skill.Skill;
 import client.skill.SkillFactory;
 import client.skill.SkillMacro;
 import constants.GameConstants;
+import constants.ItemConstants;
 import constants.ServerConstants;
+import constants.SkillConstants;
+import handling.RecvPacketOpcode;
 import handling.channel.ChannelServer;
 import server.*;
 import server.life.*;
 import server.maps.FieldLimitType;
 import server.maps.MapleMap;
+import server.movement.AbstractLifeMovement;
 import server.movement.ILifeMovementFragment;
 import server.movement.MovementKind;
 import server.quest.MapleQuest;
@@ -54,8 +58,9 @@ import tools.packet.CWvsContext.InventoryPacket;
 import tools.packet.MTSCSPacket;
 import tools.packet.MobPacket;
 import tools.types.Pair;
-
+import server.Timer.CloneTimer;
 import java.awt.*;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class PlayerHandler {
@@ -656,7 +661,7 @@ public class PlayerHandler {
             return;
         }
         if (effect.getCooldown(chr) > 0 && !chr.isGM()) {
-            if (chr.skillisCooling(skillid) && false)  {
+            if (chr.skillisCooling(skillid) && false) {
                 c.sendPacket(CWvsContext.enableActions());
                 return;
             }
@@ -756,35 +761,127 @@ public class PlayerHandler {
         }
     }
 
-    public static void closeRangeAttack(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr, final boolean energy) {
-        if (chr == null || (energy && chr.getBuffedValue(MapleBuffStatus.ENERGY_CHARGE) == null && chr.getBuffedValue(MapleBuffStatus.BODY_PRESSURE) == null && chr.getBuffedValue(MapleBuffStatus.DARK_AURA) == null && chr.getBuffedValue(MapleBuffStatus.TORNADO) == null && chr.getBuffedValue(MapleBuffStatus.SUMMON) == null && chr.getBuffedValue(MapleBuffStatus.RAINING_MINES) == null && chr.getBuffedValue(MapleBuffStatus.TELEPORT_MASTERY) == null)) {
+
+    public static void attack2(LittleEndianAccessor slea, MapleClient c, RecvPacketOpcode header) {
+        MapleCharacter chr = c.getPlayer();
+        if (chr == null) {
             return;
         }
-        if (chr.hasBlockedInventory() || chr.getMap() == null || !chr.isAlive()) {
+        if (chr.hasBlockedInventory() || chr.getMap() == null) {
+            chr.dropMessage(5, "現在還不能進行攻擊。");
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            return;
+        }
+        if (chr.isIntern() && !chr.isAdmin() && chr.getMap().isBossMap()) {
+            chr.dropMessage(5, "管理員不能打BOSS。");
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            return;
+        }
+        if (!chr.isAdmin() && chr.getMap().isMarketMap()) {
+            chr.dropMessage(5, "在自由市場無法使用技能。");
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
             return;
         }
 
-        AttackInfo attack = DamageParse.parseDmgM(slea, chr);
+        int level = chr.getLevel();
+        switch (header) {
+            case CP_UserMeleeAttack: // 近距離攻擊
+            case CP_UserShootAttack: // 遠距離攻擊
+            case CP_UserMagicAttack: // 魔法攻擊
+            case CP_UserBodyAttack: // 被動攻擊, BUFF觸發的, 需要有BUFF才有效果
+                AttackInfo attack = DamageParse.parseDamage(slea, chr, header);
+                userAttack(attack, c, chr);
+                break;
+            case CP_SummonedAttack: // 召喚獸攻擊
+                SummonHandler.SummonAttack(slea, c, chr);
+                break;
+        }
+    }
 
-        boolean hasShadowPartner = chr.getBuffedValue(MapleBuffStatus.SHADOWPARTNER) != null;
+    public static void userAttack(AttackInfo attack, MapleClient c, MapleCharacter chr) {
+        if (attack == null) {
+            chr.dropMessage(5, "當前狀態限制了攻擊。");
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            return;
+        }
+    }
+
+
+    public static void attack(LittleEndianAccessor slea, MapleClient c, RecvPacketOpcode header) {
+        MapleCharacter chr = c.getPlayer();
+        if (chr == null) {
+            return;
+        }
+        if (chr.hasBlockedInventory() || chr.getMap() == null) {
+            chr.dropMessage(5, "現在還不能進行攻擊。");
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            return;
+        }
+        if (chr.isIntern() && !chr.isAdmin() && chr.getMap().isBossMap()) {
+            chr.dropMessage(5, "管理員不能打BOSS。");
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            return;
+        }
+        if (!chr.isAdmin() && chr.getMap().isMarketMap()) {
+            chr.dropMessage(5, "在自由市場無法使用技能。");
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            return;
+        }
+
+        int level = chr.getLevel();
+        switch (header) {
+            case CP_UserMeleeAttack: // 近距離攻擊
+                closeRangeAttack(slea, c, chr);
+                break;
+            case CP_UserShootAttack: // 遠距離攻擊
+                rangedAttack(slea, c, chr);
+                break;
+            case CP_UserMagicAttack: // 魔法攻擊
+                magicAttack(slea, c, chr);
+                break;
+            case CP_UserBodyAttack: // 被動攻擊, BUFF觸發的, 需要有BUFF才有效果
+                if (chr.getBuffedValue(MapleBuffStatus.ENERGY_CHARGE) == null && //能量获得
+                        chr.getBuffedValue(MapleBuffStatus.BODY_PRESSURE) == null && //战神抗压
+                        chr.getBuffedValue(MapleBuffStatus.DARK_AURA) == null && //黑暗灵气
+                        chr.getBuffedValue(MapleBuffStatus.TORNADO) == null && //幻灵飓风
+                        chr.getBuffedValue(MapleBuffStatus.SUMMON) == null && //召唤兽
+                        chr.getBuffedValue(MapleBuffStatus.RAINING_MINES) == null && //地雷
+                        chr.getBuffedValue(MapleBuffStatus.TELEPORT_MASTERY) == null) { //皮卡啾的品格
+                    chr.dropMessage(5, "當前狀態限制了攻擊。");
+                    c.getSession().writeAndFlush(CWvsContext.enableActions());
+                    return;
+                }
+                passiveRangeAttack(slea, c, chr);
+                break;
+            case CP_SummonedAttack: // 召喚獸攻擊
+                SummonHandler.SummonAttack(slea, c, chr);
+                break;
+        }
+    }
+
+
+    public static void closeRangeAttack(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr) {
+        PlayerHandler.closeRangeAttack(slea, c, chr, false);
+    }
+
+    public static void passiveRangeAttack(LittleEndianAccessor slea, MapleClient c, MapleCharacter chr) {
+        PlayerHandler.closeRangeAttack(slea, c, chr, true);
+    }
+
+    public static void closeRangeAttack(LittleEndianAccessor slea, MapleClient c, final MapleCharacter chr, boolean passive) {
+        AttackInfo attack = DamageParse.parseCloseRangeAttack(slea, chr);
+        if (attack == null) {
+            chr.dropMessage(5, "攻擊出現錯誤。");
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            return;
+        }
+        final boolean mirror = chr.getBuffedValue(MapleBuffStatus.SHADOWPARTNER) != null;
+        double maxBaseDamage = chr.getStat().getCurrentMaxBaseDamage();
+        Item shield = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((byte) -10);
+        int maxAttackCount = (shield != null) && (ItemConstants.類型.雙刀(shield.getItemId())) ? 2 : 1;
+        int skillLevel = 0;
         MapleStatEffect effect = null;
         Skill skill = null;
-        int maxAttackCount = 1;
-        int skillLevel = 0;
-        double estimateMaxDamage = chr.getStat().getCurrentMaxBaseDamage();
-
-        if (attack == null) {
-            c.sendPacket(CWvsContext.enableActions());
-            return;
-        }
-
-        if (GameConstants.isDemon(chr.getJob())) {
-            final Item demonShield = c.getPlayer().getInventory(MapleInventoryType.EQUIPPED).getItem((short) -10);
-            if (demonShield != null && (demonShield.getItemId() / 10000) == 134) {
-                maxAttackCount = 2;
-            }
-        }
-
 
         if (attack.skill != 0) {
             skill = SkillFactory.getSkill(GameConstants.getLinkedAranSkill(attack.skill));
@@ -795,45 +892,51 @@ public class PlayerHandler {
             skillLevel = chr.getTotalSkillLevel(skill);
             effect = attack.getAttackEffect(chr, skillLevel, skill);
             if (effect == null) {
+                if (chr.isShowErr()) {
+                    chr.dropMessage(5, "近距離攻擊效果為空。使用技能: " + skill.getId() + " - " + skill.getName() + " 技能等級: " + skillLevel);
+                }
                 return;
             }
             if (GameConstants.isEventMap(chr.getMapId())) {
                 for (MapleEventType t : MapleEventType.values()) {
-                    final MapleEvent e = ChannelServer.getInstance(chr.getClient().getWorld(), chr.getClient().getChannel()).getEvent(t);
-                    if (e.isRunning() && !chr.isGM()) {
+                    MapleEvent e = ChannelServer.getInstance(c.getWorld(), c.getChannel()).getEvent(t);
+                    if ((e.isRunning()) && (!chr.isGM())) {
                         for (int i : e.getType().mapids) {
                             if (chr.getMapId() == i) {
-                                chr.dropMessage(5, "活動地圖不能使用任何技能");
-                                return; //non-skill cannot use
+                                chr.dropMessage(5, "無法在這裡使用。");
+                                return;
                             }
                         }
                     }
                 }
             }
 
-            estimateMaxDamage *= (effect.getDamage() + chr.getStat().getDamageIncrease(attack.skill)) / 100.0;
+            maxBaseDamage *= (effect.getDamage() + chr.getStat().getDamageIncrease(attack.skill)) / 100.0;
             maxAttackCount = effect.getAttackCount() > effect.getBulletCount() ? effect.getAttackCount() : effect.getBulletCount();
 
-            if (effect.getCooldown(chr) > 0 && !chr.isGM() && !energy) {
+            if (effect.getCooldown(chr) > 0 && !passive) {
                 if (chr.skillisCooling(attack.skill)) {
-                    c.sendPacket(CWvsContext.enableActions());
+                    chr.dropMessage(5, "技能由於冷卻時間限制，暫時無法使用。");
+                    c.getSession().writeAndFlush(CWvsContext.enableActions());
                     return;
                 }
-                c.sendPacket(CField.skillCooldown(attack.skill, effect.getCooldown(chr)));
-                chr.addCooldown(attack.skill, System.currentTimeMillis(), effect.getCooldown(chr) * 1000);
+                if (!chr.skillisCooling(attack.skill)) {
+                    chr.addCooldown(attack.skill, System.currentTimeMillis(), effect.getCooldown(chr) * 1000);
+                }
             }
         }
+
         attack = DamageParse.Modify_AttackCrit(attack, chr, 1, effect);
-        maxAttackCount *= (hasShadowPartner ? 2 : 1);
-        if (!energy) {
+        maxAttackCount *= (mirror ? 2 : 1);
+
+        if (!passive) {
             if ((chr.getMapId() == 109060000 || chr.getMapId() == 109060002 || chr.getMapId() == 109060004) && attack.skill == 0) {
                 MapleSnowballs.hitSnowball(chr);
             }
-            // handle combo orbconsume
-            int numFinisherOrbs = 0;
-            final Integer comboBuff = chr.getBuffedValue(MapleBuffStatus.COMBO);
-
-            if (isFinisher(attack.skill) > 0) { // finisher
+            //消耗鬥氣的技能
+            if (isFinisher(attack.skill) > 0) {
+                int numFinisherOrbs = 0;
+                Integer comboBuff = chr.getBuffedValue(MapleBuffStatus.COMBO);
                 if (comboBuff != null) {
                     numFinisherOrbs = comboBuff - 1;
                 }
@@ -841,20 +944,11 @@ public class PlayerHandler {
                     return;
                 }
                 chr.handleOrbconsume(isFinisher(attack.skill));
-            } else if (attack.targets > 0 && comboBuff != null) {
-                // handle combo orbgain
-                switch (chr.getJob()) {
-                    case 111:
-                    case 112:
-                    case 1110:
-                    case 1111:
-                    case 1112:
-                        if (attack.skill != 1111008) { // shout should not give orbs
-                            chr.handleOrbgain();
-                        }
-                        break;
-                }
+                maxBaseDamage *= numFinisherOrbs;
             }
+
+            chr.checkFollow();
+
             switch (chr.getJob()) {
                 case 511:
                 case 512: {
@@ -868,8 +962,7 @@ public class PlayerHandler {
                     break;
                 }
             }
-            // handle sacrifice hp loss
-            //after BIG BANG, TEMP
+
             if (attack.targets > 0 && attack.skill == 1211002) { // handle charged blow
                 final int advcharge_level = chr.getSkillLevel(SkillFactory.getSkill(1220010));
                 if (advcharge_level > 0) {
@@ -882,46 +975,30 @@ public class PlayerHandler {
                     chr.cancelEffectFromBuffStat(MapleBuffStatus.LIGHTNING_CHARGE);
                 }
             }
-
-            if (numFinisherOrbs > 0) {
-                estimateMaxDamage *= numFinisherOrbs;
-            } else if (comboBuff != null) {
-                Skill combo;
-                if (c.getPlayer().getJob() == 1110 || c.getPlayer().getJob() == 1111 || c.getPlayer().getJob() == 1112) {
-                    combo = SkillFactory.getSkill(11111001);
-                } else {
-                    combo = SkillFactory.getSkill(1111002);
-                }
-                if (c.getPlayer().getSkillLevel(combo) > 0) {
-                    estimateMaxDamage *= 1.0 + (combo.getEffect(c.getPlayer().getSkillLevel(combo)).getDamage() / 100.0 - 1.0) * (comboBuff - 1);
-                }
-            }
-
-            if (isFinisher(attack.skill) > 0) {
-                if (numFinisherOrbs == 0) {
-                    return;
-                }
-                estimateMaxDamage = 199999; // FIXME reenable damage calculation for finishers
-            }
         }
         chr.checkFollow();
-        if (!chr.isHidden()) {
-            chr.getMap().broadcastMessage(chr, CField.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, energy, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction, attack.charge), chr.getTruePosition());
+
+
+        //給地圖上的玩家顯示當前玩家使用技能的效果
+        byte[] packet;
+        if (passive) {
+            packet = CField.passiveAttack(chr, skillLevel, 0, attack);
         } else {
-            chr.getMap().broadcastGMMessage(chr, CField.closeRangeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, energy, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction, attack.charge), false);
+            packet = CField.closeRangeAttack(chr, skillLevel, 0, attack);
         }
-        DamageParse.applyAttack(attack, skill, c.getPlayer(), maxAttackCount, estimateMaxDamage, effect, hasShadowPartner ? AttackType.NON_RANGED_WITH_MIRROR : AttackType.NON_RANGED);
+
+        if (!chr.isHidden()) {
+            chr.getMap().broadcastMessage(chr, packet, chr.getTruePosition());
+        } else {
+            chr.getMap().broadcastGMMessage(chr, packet, false);
+        }
+
+        DamageParse.applyAttack(attack, skill, c.getPlayer(), maxAttackCount, maxBaseDamage, effect, mirror ? AttackType.NON_RANGED_WITH_MIRROR : AttackType.NON_RANGED);
 
     }
 
     public static void rangedAttack(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        if (chr == null) {
-            return;
-        }
-        if (chr.hasBlockedInventory() || chr.getMap() == null) {
-            return;
-        }
-        AttackInfo attack = DamageParse.parseDmgR(slea, chr);
+        AttackInfo attack = DamageParse.parseRangedAttack(slea, chr);
         if (attack == null) {
             c.sendPacket(CWvsContext.enableActions());
             return;
@@ -1074,35 +1151,35 @@ public class PlayerHandler {
         } else if (GameConstants.isCannon(chr.getJob())) {
             visProjectile = 2333001;
         }
-        double basedamage;
+
         int projectileWatk = 0;
         if (projectile != 0) {
             projectileWatk = MapleItemInformationProvider.getInstance().getWatkForProjectile(projectile);
         }
-        final PlayerStats statst = chr.getStat();
+
+        PlayerStats statst = chr.getStat();
+        double basedamage;
         switch (attack.skill) {
-            case 4001344: // Lucky Seven
-            case 4121007: // Triple Throw
-            case 14001004: // Lucky seven
-            case 14111005: // Triple Throw
-                basedamage = Math.max(statst.getCurrentMaxBaseDamage(), (float) ((float) ((statst.getTotalLuk() * 5.0f) * (statst.getTotalWatk() + projectileWatk)) / 100));
+            case 4001344:
+            case 4121007:
+            case 14001004:
+            case 14111005:
+                basedamage = Math.max(statst.getCurrentMaxBaseDamage(), statst.getTotalLuk() * 5.0F * (statst.getTotalWatk() + projectileWatk) / 100.0F);
                 break;
-            case 4111004: // Shadow Meso
-//		basedamage = ((statEffect.getMoneyCon() * 10) / 100) * statEffect.getProb(); // Not sure
-                basedamage = 53000;
+            case 4111004:
+                basedamage = 53000.0D;
                 break;
             default:
                 basedamage = statst.getCurrentMaxBaseDamage();
                 switch (attack.skill) {
-                    case 3101005: // arrowbomb is hardcore like that
-                        basedamage *= effect.getX() / 100.0;
+                    case 3101005:
+                        basedamage *= effect.getX() / 100.0D;
                         break;
                 }
-                break;
         }
-        if (effect != null) {
-            basedamage *= (effect.getDamage() + statst.getDamageIncrease(attack.skill)) / 100.0;
 
+        if (effect != null) {
+            basedamage *= (effect.getDamage() + statst.getDamageIncrease(attack.skill)) / 100.0D;
             int money = effect.getMoneyCon();
             if (money != 0) {
                 if (money > chr.getMeso()) {
@@ -1113,76 +1190,111 @@ public class PlayerHandler {
         }
         chr.checkFollow();
         if (!chr.isHidden()) {
-            if (attack.skill == 3211006) {
-                chr.getMap().broadcastMessage(chr, CField.strafeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction, chr.getTotalSkillLevel(3220010)), chr.getTruePosition());
-            } else {
-                chr.getMap().broadcastMessage(chr, CField.rangedAttack2(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction), chr.getTruePosition());
-            }
+            chr.getMap().broadcastMessage(chr, CField.rangedAttack(chr, skillLevel, visProjectile, attack), chr.getTruePosition());
         } else {
-            if (attack.skill == 3211006) {
-                chr.getMap().broadcastGMMessage(chr, CField.strafeAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction, chr.getTotalSkillLevel(3220010)), false);
-            } else {
-                chr.getMap().broadcastGMMessage(chr, CField.rangedAttack2(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, visProjectile, attack.allDamage, attack.position, chr.getLevel(), chr.getStat().passive_mastery(), attack.direction), false);
+            chr.getMap().broadcastGMMessage(chr, CField.rangedAttack(chr, skillLevel, visProjectile, attack), false);
+        }
+
+        DamageParse.applyAttack(attack, skill, chr, bulletCount, basedamage, effect, ShadowPartner != null ? AttackType.RANGED_WITH_SHADOWPARTNER : AttackType.RANGED);
+        WeakReference<MapleCharacter>[] clones = chr.getClones();
+        for (int i = 0; i < clones.length; i++) {
+            if (clones[i].get() != null) {
+                final MapleCharacter clone = clones[i].get();
+                final Skill skil2 = skill;
+                final MapleStatEffect eff2 = effect;
+                final double basedamage2 = basedamage;
+                final int bulletCount2 = bulletCount;
+                final int visProjectile2 = visProjectile;
+                final int skillLevel2 = skillLevel;
+                final AttackInfo attack2 = DamageParse.DivideAttack(attack, chr.isGM() ? 1 : 4);
+                Timer.CloneTimer.getInstance().schedule(() -> {
+                    if (!clone.isHidden()) {
+                        clone.getMap().broadcastMessage(CField.rangedAttack(clone, skillLevel2, visProjectile2, attack2));
+                    } else {
+                        clone.getMap().broadcastGMMessage(clone, CField.rangedAttack(clone, skillLevel2, visProjectile2, attack2), false);
+                    }
+                    DamageParse.applyAttack(attack2, skil2, chr, bulletCount2, basedamage2, eff2, AttackType.RANGED);
+                }, 500 * i + 500);
             }
         }
-        DamageParse.applyAttack(attack, skill, chr, bulletCount, basedamage, effect, ShadowPartner != null ? AttackType.RANGED_WITH_SHADOWPARTNER : AttackType.RANGED);
-
     }
 
-    public static void MagicDamage(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
-        if (chr == null || chr.hasBlockedInventory() || chr.getMap() == null) {
-            return;
-        }
-        AttackInfo attack = DamageParse.parseDmgMa(slea, chr);
+    public static void magicAttack(final LittleEndianAccessor slea, final MapleClient c, final MapleCharacter chr) {
+        AttackInfo attack = DamageParse.parseMagicDamage(slea, chr);
         if (attack == null) {
-            c.sendPacket(CWvsContext.enableActions());
+            System.out.println("Return 2");
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
             return;
         }
+        double maxdamage = chr.getStat().getCurrentMaxBaseDamage();
+        int attackCount = 1;
         final Skill skill = SkillFactory.getSkill(GameConstants.getLinkedAranSkill(attack.skill));
-        if (skill == null || (GameConstants.isAngel(attack.skill) && (chr.getStat().equippedSummon % 10000) != (attack.skill % 10000))) {
-            c.sendPacket(CWvsContext.enableActions());
+        if (skill == null && (chr.getStat().equippedSummon % 10000) != (attack.skill % 10000)) {
+            c.getSession().writeAndFlush(CWvsContext.enableActions());
+            System.out.println("Return 3");
             return;
         }
         final int skillLevel = chr.getTotalSkillLevel(skill);
         final MapleStatEffect effect = attack.getAttackEffect(chr, skillLevel, skill);
         if (effect == null) {
+            System.out.println("Return 4");
             return;
         }
         attack = DamageParse.Modify_AttackCrit(attack, chr, 3, effect);
         if (GameConstants.isEventMap(chr.getMapId())) {
             for (MapleEventType t : MapleEventType.values()) {
-                final MapleEvent e = ChannelServer.getInstance(chr.getClient().getWorld(), chr.getClient().getChannel()).getEvent(t);
+                final MapleEvent e = ChannelServer.getInstance(c.getWorld(), c.getChannel()).getEvent(t);
                 if (e.isRunning() && !chr.isGM()) {
                     for (int i : e.getType().mapids) {
                         if (chr.getMapId() == i) {
                             chr.dropMessage(5, "You may not use that here.");
+                            System.out.println("Return 5");
                             return; //non-skill cannot use
                         }
                     }
                 }
             }
         }
-        double maxdamage = chr.getStat().getCurrentMaxBaseDamage() * (effect.getDamage() + chr.getStat().getDamageIncrease(attack.skill)) / 100.0;
-        if (GameConstants.isPyramidSkill(attack.skill)) {
-            maxdamage = 1;
-        } else if (GameConstants.isBeginnerJob(skill.getId() / 10000) && skill.getId() % 10000 == 1000) {
-            maxdamage = 40;
-        }
-        if (effect.getCooldown(chr) > 0 && !chr.isGM()) {
+        if (effect.getCooldown(chr) > 0) {
             if (chr.skillisCooling(attack.skill)) {
-                c.sendPacket(CWvsContext.enableActions());
+                c.getSession().writeAndFlush(CWvsContext.enableActions());
+                System.out.println("Return 6");
                 return;
             }
-            c.sendPacket(CField.skillCooldown(attack.skill, effect.getCooldown(chr)));
             chr.addCooldown(attack.skill, System.currentTimeMillis(), effect.getCooldown(chr) * 1000);
         }
         chr.checkFollow();
         if (!chr.isHidden()) {
-            chr.getMap().broadcastMessage(chr, CField.magicAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, attack.charge, chr.getLevel(), attack.direction), chr.getTruePosition());
+            chr.getMap().broadcastMessage(chr, CField.magicAttack(chr, skillLevel, 0, attack), chr.getTruePosition());
         } else {
-            chr.getMap().broadcastGMMessage(chr, CField.magicAttack(chr.getId(), attack.tbyte, attack.skill, skillLevel, attack.display, attack.speed, attack.allDamage, attack.charge, chr.getLevel(), attack.direction), false);
+            chr.getMap().broadcastGMMessage(chr, CField.magicAttack(chr, skillLevel, 0, attack), false);
         }
-        DamageParse.applyAttackMagic(attack, skill, c.getPlayer(), effect, maxdamage);
+//        DamageParse.applyAttackMagic(attack, skill, c.getPlayer(), effect, maxdamage);
+        DamageParse.applyAttack(attack, skill, c.getPlayer(), attackCount, maxdamage, effect, AttackType.MAGIC);
+        WeakReference<MapleCharacter>[] clones = chr.getClones();
+        for (int i = 0; i < clones.length; i++) {
+            if (clones[i].get() != null) {
+                final MapleCharacter clone = clones[i].get();
+                final Skill skil2 = skill;
+                final MapleStatEffect eff2 = effect;
+                final double maxd = maxdamage;
+                final int attackCount2 = attackCount;
+                final int skillLevel2 = skillLevel;
+                final AttackInfo attack2 = DamageParse.DivideAttack(attack, chr.isGM() ? 1 : 4);
+                CloneTimer.getInstance().schedule(new Runnable() {
+
+                    public void run() {
+                        if (!clone.isHidden()) {
+                            clone.getMap().broadcastMessage(CField.magicAttack(clone, skillLevel2, 0, attack2));
+                        } else {
+                            clone.getMap().broadcastGMMessage(clone, CField.magicAttack(clone, skillLevel2, 0, attack2), false);
+                        }
+//                        DamageParse.applyAttackMagic(attack2, skil2, chr, eff2, maxd);
+                        DamageParse.applyAttack(attack2, skil2, chr, attackCount2, maxd, eff2, AttackType.MAGIC);
+                    }
+                }, 500 * i + 500);
+            }
+        }
     }
 
 
@@ -1230,6 +1342,20 @@ public class PlayerHandler {
                 chr.getWatcher().dropMessage(5, "" + chr.getName() + " has used Emotion: F" + emote);
             }
             chr.getMap().broadcastMessage(chr, CField.facialExpression(chr, emote), false);
+
+            WeakReference<MapleCharacter>[] clones = chr.getClones();
+            for (int i = 0; i < clones.length; i++) {
+                if (clones[i].get() != null) {
+                    final MapleCharacter clone = clones[i].get();
+                    CloneTimer.getInstance().schedule(() -> {
+                        if (chr.isHidden()) {
+                            chr.getMap().broadcastGMMessage(null, CField.facialExpression(clone, emote), true);
+                        } else {
+                            clone.getMap().broadcastMessage(CField.facialExpression(clone, emote));
+                        }
+                    }, 500 * i + 500);
+                }
+            }
         }
     }
 
@@ -1331,6 +1457,31 @@ public class PlayerHandler {
                     }
                 } else {
                     chr.checkFollow();
+                }
+            }
+            WeakReference<MapleCharacter>[] clones = chr.getClones();
+            for (int i = 0; i < clones.length; i++) {
+                if (clones[i].get() != null) {
+                    final MapleCharacter clone = clones[i].get();
+                    final List<ILifeMovementFragment> res3 = res;
+                    Timer.CloneTimer.getInstance().schedule(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if (clone.getMap() == map) {
+                                    if (clone.isHidden()) {
+                                        map.broadcastGMMessage(clone, CField.movePlayer(clone.getId(), res3, Original_Pos), false);
+                                    } else {
+                                        map.broadcastMessage(clone, CField.movePlayer(clone.getId(), res3, Original_Pos), false);
+                                    }
+                                    MovementParse.updatePosition(res3, clone, 0);
+                                    map.movePlayer(clone, pos);
+                                }
+                            } catch (Exception e) {
+                                //very rarely swallowed
+                            }
+                        }
+                    }, 500 * i + 500);
                 }
             }
             if (c.getPlayer().getWatcher() != null) { // todo: update this lol

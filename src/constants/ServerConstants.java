@@ -62,6 +62,15 @@ public class ServerConstants {
         public int getLevel() {
             return level;
         }
+
+        public static PlayerGMRank getByLevel(int level) {
+            for (PlayerGMRank i : PlayerGMRank.values()) {
+                if (i.getLevel() == level) {
+                    return i;
+                }
+            }
+            return PlayerGMRank.NORMAL;
+        }
     }
 
     public enum CommandType {

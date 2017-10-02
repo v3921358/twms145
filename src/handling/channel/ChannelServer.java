@@ -115,7 +115,7 @@ public class ChannelServer {
         if (finishedShutdown) {
             return;
         }
-        broadcastPacket(CWvsContext.serverNotice(0, "This channel will now shut down."));
+        broadcastPacket(CWvsContext.broadcastMsg(0, "This channel will now shut down."));
         shutdown = true;
         System.out.println("Channel " + channel + ", Saving characters...");
         players.disconnectAll();
@@ -144,7 +144,7 @@ public class ChannelServer {
 
     public void addPlayer(MapleCharacter chr) {
         players.addPlayer(chr);
-        chr.announce(CWvsContext.serverMessage(serverMessage));
+        chr.announce(CWvsContext.broadcastMessage(serverMessage));
     }
 
     public final void removePlayer(final MapleCharacter chr) {
@@ -157,7 +157,7 @@ public class ChannelServer {
 
     public final void setServerMessage(final String newMessage) {
         serverMessage = newMessage;
-        broadcastPacket(CWvsContext.serverMessage(serverMessage));
+        broadcastPacket(CWvsContext.broadcastMessage(serverMessage));
     }
 
     public final void broadcastPacket(final byte[] data) {

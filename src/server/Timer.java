@@ -134,6 +134,18 @@ public abstract class Timer {
         }
     }
 
+    public static class CloneTimer extends Timer {
+        private static CheatTimer instance = new CheatTimer();
+
+        private CloneTimer() {
+            name = "CloneTimer";
+        }
+
+        public static CheatTimer getInstance() {
+            return instance;
+        }
+    }
+
     public static class CheatTimer extends Timer {
         private static CheatTimer instance = new CheatTimer();
 
@@ -145,6 +157,7 @@ public abstract class Timer {
             return instance;
         }
     }
+
 
     public static class PingTimer extends Timer {
         private static PingTimer instance = new PingTimer();
@@ -196,4 +209,6 @@ public abstract class Timer {
             return t;
         }
     }
+
+
 }

@@ -71,8 +71,8 @@ public class MapleSurvival extends MapleEvent {
             }
         }, this.time);
 
-        broadcast(CWvsContext.serverNotice(0, "The portal has now opened. Press the up arrow key at the portal to enter."));
-        broadcast(CWvsContext.serverNotice(0, "Fall down once, and never get back up again! Get to the top without falling down!"));
+        broadcast(CWvsContext.broadcastMsg(0, "The portal has now opened. Press the up arrow key at the portal to enter."));
+        broadcast(CWvsContext.broadcastMsg(0, "Fall down once, and never get back up again! Get to the top without falling down!"));
     }
 
     public boolean isTimerStarted() {

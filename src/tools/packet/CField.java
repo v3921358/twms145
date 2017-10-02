@@ -23,8 +23,10 @@ import client.inventory.*;
 import client.skill.SkillMacro;
 import constants.GameConstants;
 import constants.ServerConstants;
+import constants.SkillConstants;
 import extensions.temporary.DirectionType;
 import handling.SendPacketOpcode;
+import handling.channel.handler.AttackInfo;
 import handling.world.World;
 import handling.world.guild.MapleGuild;
 import scripting.NPCTalkType;
@@ -32,14 +34,15 @@ import server.MapleDueyActions;
 import server.MapleShop;
 import server.MapleTrade;
 import server.Randomizer;
-import server.worldevents.MapleSnowball.MapleSnowballs;
 import server.life.MapleNPC;
 import server.maps.*;
 import server.maps.MapleNodes.MaplePlatform;
 import server.movement.ILifeMovementFragment;
-import tools.AttackPair;
+import server.quest.MapleQuest;
+import server.worldevents.MapleSnowball.MapleSnowballs;
 import tools.HexTool;
 import tools.data.MaplePacketLittleEndianWriter;
+import tools.types.AttackPair;
 import tools.types.Pair;
 import tools.types.Triple;
 
@@ -119,7 +122,6 @@ public class CField {
         mplew.write(HexTool.getByteArrayFromHexString(endBytes));
         return mplew.getPacket();
     }
-
 
 
     public static byte[] playPortalSound() {
@@ -895,6 +897,14 @@ public class CField {
         mplew.writeInt(chr.getId());
         mplew.write(chr.getLevel());
         mplew.writeMapleAsciiString(chr.getName());
+
+        MapleQuestStatus ultExplorer = chr.getQuestNoAdd(MapleQuest.getInstance(111111));
+        if ((ultExplorer != null) && (ultExplorer.getCustomData() != null)) {
+            mplew.writeMapleAsciiString(ultExplorer.getCustomData());
+        } else {
+            mplew.writeMapleAsciiString("");
+        }
+
         final MapleGuild gs = World.Guild.getGuild(chr.getGuildId());
         if (gs != null) {
             mplew.writeMapleAsciiString(gs.getName());
@@ -911,11 +921,9 @@ public class CField {
         }
 
         PacketHelper.addSpawnPlayerBuffStatus(mplew, chr);
-        // SecondaryStat::DecodeForRemote
-        //TODO: Write Decode
-        //
-        mplew.writeShort(0);
-        mplew.writeShort(chr.getJob());
+
+        mplew.writeShort(chr.getJob()); // m_nJobCode
+        mplew.writeShort(0); // m_nSubJobCode
         PacketHelper.addCharLook(mplew, chr, true, chr.getClient());
 
         mplew.writeInt(0); // ????
@@ -942,12 +950,14 @@ public class CField {
         mplew.writeMapleAsciiString("");
         mplew.writeMapleAsciiString("");
 
-        mplew.writeShort(0xFF);
-        mplew.writeShort(0xFF);
-
+        mplew.writeShort(0xFFFF);
+        mplew.writeShort(0xFFFF);
+        mplew.write(0);
         mplew.writeInt(GameConstants.getInventoryType(chr.getChair()) == MapleInventoryType.SETUP ? chr.getChair() : 0);
+        mplew.writeInt(0); //new v143
         mplew.writePos(chr.getPosition());
         mplew.write(chr.getStance());
+        mplew.writeShort(chr.getFH());
 //
 //        mplew.writeInt(Math.min(250, chr.getInventory(MapleInventoryType.CASH).countById(5110000)));
 //        mplew.writeInt(chr.getItemEffect());
@@ -960,10 +970,9 @@ public class CField {
 //        mplew.writeInt(chr.hasEquipped(1202089) || chr.hasEquipped(1202090) || chr.hasEquipped(1202091) ? 1 : 0); // this is a possible value for our totems. this is the ID for the statEffect from SetItemInfo in Effect.wz
 //        mplew.writePos(chr.getTruePosition());
 //        mplew.write(chr.getStance());
-        mplew.writeShort(0); //FH
 
         // Pets
-        for (int i = 0; i <= 3; i++) { // 寵物
+        for (int i = 0; i < 3; i++) { // 寵物
             MaplePet pet = chr.getSummonedPet(i);
             mplew.writeBool(pet != null);
             if (pet == null) {
@@ -973,14 +982,13 @@ public class CField {
             PetPacket.addPetInfo(mplew, chr, pet, false);
         }
 
-        mplew.write(0); // pets can smd :)
-        if (!chr.isHidden() && chr.getActivePets() > 0) {
-            for (final MaplePet pet : chr.getPets()) {
-                if (pet.getSummoned()) {
-                    addPetInfo(mplew, pet, false);
-                }
-            }
-        }
+
+//        mplew.write(0); // pets can smd :)
+//        if (!chr.isHidden() && chr.getActivePets() > 0) {
+//            chr.getPets().stream().filter(MaplePet::getSummoned).forEach(pet -> {
+//                addPetInfo(mplew, pet, false);
+//            });
+//        }
 
         mplew.writeInt(chr.getMount().getLevel()); // mount lvl
         mplew.writeInt(chr.getMount().getExp()); // exp
@@ -1518,138 +1526,80 @@ public class CField {
         return mplew.getPacket();
     }
 
-    public static byte[] closeRangeAttack(int cid, int tbyte, int skill, int level, int display, byte speed, List<AttackPair> damage, final boolean energy, int lvl, byte mastery, byte unk, int charge) {
-        return addAttackInfo(energy ? 4 : 0, cid, tbyte, skill, level, display, speed, damage, lvl, mastery, unk, 0/*charge*/, null, 0);
+
+    public static byte[] closeRangeAttack(MapleCharacter chr, int skilllevel, int itemId, AttackInfo attackInfo) {
+        return addAttackInfo(SendPacketOpcode.LP_UserMeleeAttack, chr, skilllevel, itemId, attackInfo);
     }
 
-    public static byte[] rangedAttack2(int cid, byte tbyte, int skill, int level, int display, byte speed, int itemid, List<AttackPair> damage, final Point pos, int lvl, byte mastery, byte unk) {
-        return addAttackInfo(1, cid, tbyte, skill, level, display, speed, damage, lvl, mastery, unk, itemid, pos, 0);
+    public static byte[] rangedAttack(MapleCharacter chr, int skilllevel, int itemId, AttackInfo attackInfo) {
+        return addAttackInfo(SendPacketOpcode.LP_UserShootAttack, chr, skilllevel, itemId, attackInfo);
     }
 
-    public static byte[] strafeAttack(int cid, byte tbyte, int skill, int level, int display, byte speed, int itemid, List<AttackPair> damage, final Point pos, int lvl, byte mastery, byte unk, int ultLevel) {
-        return addAttackInfo(2, cid, tbyte, skill, level, display, speed, damage, lvl, mastery, unk, itemid, pos, ultLevel);
+    public static byte[] magicAttack(MapleCharacter chr, int skilllevel, int itemId, AttackInfo attackInfo) {
+        return addAttackInfo(SendPacketOpcode.LP_UserMagicAttack, chr, skilllevel, itemId, attackInfo);
+    }
+    public static byte[] passiveAttack(MapleCharacter chr, int skilllevel, int itemId, AttackInfo attackInfo) {
+        return addAttackInfo(SendPacketOpcode.LP_UserBodyAttack, chr, skilllevel, itemId, attackInfo);
     }
 
-    public static byte[] magicAttack(int cid, int tbyte, int skill, int level, int display, byte speed, List<AttackPair> damage, int charge, int lvl, byte unk) {
-        return addAttackInfo(3, cid, tbyte, skill, level, display, speed, damage, lvl, (byte) 0, unk, charge, null, 0);
-    }
-
-    public static byte[] rangedAttack(int cid, byte tbyte, int skill, int level, int display, byte speed, int itemid, List<AttackPair> damage, final Point pos, int lvl, byte mastery, byte unk) {
-        MaplePacketLittleEndianWriter packet = new MaplePacketLittleEndianWriter();
-// what is this? and why are we using v1.181 shit? wat
-        packet.writeShort(SendPacketOpcode.RANGED_ATTACK.getValue());
-        packet.writeInt(cid);
-        packet.write(tbyte);
-        packet.write(lvl);
-        if (skill > 0) {
-            packet.write(level);
-            packet.writeInt(skill);
-        } else {
-            packet.write(0);
-        }
-        packet.writeShort(0); // Added on v.82 , v.181
-
-        if (skill == 3221001 || skill == 3121004 || skill == 13121002 || skill == 5211008 || skill == 5321012 || skill == 51121008 || skill == 5321000 || skill == 35121012) {
-            packet.write(0);
-        }
-
-        packet.write(display);
-        packet.write(unk);
-        packet.write(speed);
-        packet.write(0);
-        packet.writeInt(itemid);
-        if (skill == 5121016 || skill == 5121017 || skill == 5221017 || skill == 4121013 || skill == 4111013 || skill == 4221052 || skill == 4300010 || skill == 21120006) {
-            packet.write(0); //Added on v.181
-            packet.writeInt(0);
-        }
-        if (skill == 13121052) { //Monsoon
-            //    packet.writePos(pos); //v192
-        }
-        for (AttackPair oned : damage) {
-            if (oned.attack != null) {
-                packet.writeInt(oned.objectId);
-                packet.write(0x07);
-                packet.write(0);
-                packet.write(0);
-                for (Pair<Integer, Boolean> eachd : oned.attack) {
-                    if (eachd.right) {
-                        packet.writeInt(eachd.left.intValue() + 0x80000000);
-                    } else {
-                        packet.writeInt(eachd.left.intValue());
-                    }
-                }
-            }
-        }
-        packet.writePos(pos); // Position
-        if (skill == 13121052) { //Monsoon
-            packet.writePos(pos); //v192
-        }
-        return packet.getPacket();
-    }
-
-    // 0 = melee, 1 = range, 2 = strafe, 3 = magic, 4 = energy
-    public static byte[] addAttackInfo(final int type, final int cid, final int tbyte, final int skill, final int level, final int display, final byte speed, final List<AttackPair> damage, final int lvl, final byte mastery, final byte unk, final int charge, final Point pos, final int ultLevel) {
+    public static byte[] addAttackInfo(SendPacketOpcode op, MapleCharacter chr, int skilllevel, int itemId, AttackInfo attackInfo) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+        mplew.writeShort(op.getValue());
+        mplew.writeInt(chr.getId());
+        addAttackBody(mplew, op, chr, skilllevel, itemId, attackInfo);
+        return mplew.getPacket();
+    }
 
-        if (type == 0) {
-            mplew.writeShort(SendPacketOpcode.CLOSE_RANGE_ATTACK.getValue());
-        } else if (type == 1 || type == 2) {
-            mplew.writeShort(SendPacketOpcode.RANGED_ATTACK.getValue());
-        } else if (type == 3) {
-            mplew.writeShort(SendPacketOpcode.MAGIC_ATTACK.getValue());
-        } else {
-            mplew.writeShort(SendPacketOpcode.ENERGY_ATTACK.getValue());
+    public static void addAttackBody(MaplePacketLittleEndianWriter mplew, SendPacketOpcode op, MapleCharacter chr, int skilllevel, int itemId, AttackInfo attackInfo) {
+        mplew.write(attackInfo.tbyte);
+        mplew.write(chr.getLevel());
+        skilllevel = attackInfo.skill > 0 ? skilllevel : 0;
+        mplew.write(skilllevel);
+        if (skilllevel > 0) {
+            mplew.writeInt(attackInfo.skill);
         }
 
-        mplew.writeInt(cid);
-        mplew.write(tbyte);
-        mplew.write(lvl); //?
-        if (skill > 0 || type == 3) { // magic
-            mplew.write(level);
-            mplew.writeInt(skill);
-        } else {
-            mplew.write(0);
-        }
+        if (attackInfo.skill == 3211006) {
+            boolean v6 = false;
+            if (v6) {
+                int v7 = 0;
+                mplew.writeInt(v7);
 
-        if (type == 2) { // Strafe
-            mplew.write(ultLevel);
-            if (ultLevel > 0) {
-                mplew.writeInt(3220010);
             }
         }
-        mplew.write(unk); // strafe shows 0 here
-        mplew.writeShort(display);
-        mplew.write(speed);
-        mplew.write(mastery); // Mastery level, magic shows 0
-        mplew.writeInt(charge); // only range shows item id,rest 0
-        for (AttackPair oned : damage) {
-            if (oned.attack != null) {
+
+        mplew.write(attackInfo.direction);
+        mplew.writeShort(attackInfo.display);
+        int nAction = attackInfo.display & 0x7FFF;
+        if ( nAction < 0x19D) {
+            mplew.write(attackInfo.speed);
+            mplew.write(chr.getStat().passive_mastery());
+            mplew.writeInt(itemId > 0 ? itemId : attackInfo.charge);
+            attackInfo.allDamage.stream().filter(oned -> oned.attack != null).forEach(oned -> {
                 mplew.writeInt(oned.objectId);
-                mplew.write(7);
-                if (skill == 4211006) {
-                    mplew.write(oned.attack.size());
-                    for (Pair eachd : oned.attack) {
-                        mplew.writeInt(((Integer) eachd.left).intValue());
-                    }
-                } else {
-                    for (Pair eachd : oned.attack) {
-                        int b = (Integer) eachd.left;
-                        if (b == 1)
-                            b = 1337;
-                        mplew.write(((Boolean) eachd.right).booleanValue() ? 1 : 0);
-                        //mplew.writeInt(((Integer) eachd.left).intValue());
-                        mplew.writeInt(b);
+                if (oned.objectId > 0) {
+                    mplew.write(7);
+                    if (attackInfo.skill == 4211006) {
+                        mplew.write(oned.attack.size());
+                        for (Pair eachd : oned.attack) mplew.writeInt((Integer) eachd.left);
+                    } else for (Pair<Integer, Boolean> eachd : oned.attack) {
+                        mplew.write(!eachd.right ? 0 : 1);
+                        mplew.writeInt(eachd.left);
                     }
                 }
-            }
-        }
-        if (type == 1 || type == 2) { // ranged
-            mplew.writePos(pos); // Position
-        } else if (type == 3 && charge > 0) { // magic
-            mplew.writeInt(charge);
-        }
+            });
 
-        return mplew.getPacket();
+            if(nAction == 0x11E)
+                mplew.writePos(attackInfo.position);
+
+            if (SkillConstants.isKeyDownSkillWithPos(attackInfo.skill)) {
+                mplew.writePos(attackInfo.position);
+            } else if (attackInfo.skill == 33101007) {
+                mplew.writeInt(0);
+            }
+
+
+        }
     }
 
     public static byte[] skillEffect(MapleCharacter from, int skillId, byte level, short display, byte unk) {
@@ -1675,7 +1625,8 @@ public class CField {
         return mplew.getPacket();
     }
 
-    public static byte[] damagePlayer(int cid, int type, int damage, int monsteridfrom, byte direction, int skillid, int pDMG, boolean pPhysical, int pID, byte pType, Point pPos, byte offset, int offset_d, int fake) {
+    public static byte[] damagePlayer(int cid, int type, int damage, int monsteridfrom, byte direction,
+                                      int skillid, int pDMG, boolean pPhysical, int pID, byte pType, Point pPos, byte offset, int offset_d, int fake) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.DAMAGE_PLAYER.getValue());
@@ -1759,7 +1710,6 @@ public class CField {
         mplew.writeInt(chr.getId());
         mplew.write(1);
         PacketHelper.addCharLook(mplew, chr, false, chr.getClient());
-        //mplew.write(1); //
         Triple<List<MapleRing>, List<MapleRing>, List<MapleRing>> rings = chr.getRings(false);
         addRingInfo(mplew, rings.getLeft());
         addRingInfo(mplew, rings.getMid());
@@ -1990,7 +1940,8 @@ public class CField {
         return mplew.getPacket();
     }
 
-    public static byte[] moveFollow(Point otherStart, Point myStart, Point otherEnd, List<ILifeMovementFragment> moves) {
+    public static byte[] moveFollow(Point otherStart, Point myStart, Point
+            otherEnd, List<ILifeMovementFragment> moves) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.writeShort(SendPacketOpcode.FOLLOW_MOVE.getValue());

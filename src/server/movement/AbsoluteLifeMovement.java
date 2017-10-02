@@ -59,6 +59,7 @@ public class AbsoluteLifeMovement extends AbstractLifeMovement {
         if (getValue() == 14) {
             lew.writeShort(fh);
         }
+        lew.writePos(offset);
         lew.write(getNewState());
         lew.writeShort(getDuration());
     }

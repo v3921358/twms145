@@ -98,9 +98,9 @@ public class LoginPacket {
 
         mplew.writeInt(client.getAccID());
         mplew.write(client.getGender());
-        mplew.writeBool(client.isGm());
+        mplew.writeBool(client.isGM());
         // GM flag , SuperGM(1<<4)  GM(1<<5)
-        mplew.write(client.isGm() ? 0x10 : 0x00);
+        mplew.write(client.isGM() ? 0x10 : 0x00);
         mplew.writeInt(0);
         mplew.writeMapleAsciiString(client.getAccountName());
         mplew.writeInt(1);

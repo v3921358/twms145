@@ -36,7 +36,7 @@ import server.life.MobSkill;
 import server.maps.*;
 import server.movement.ILifeMovementFragment;
 import server.movement.MovementKind;
-import tools.AttackPair;
+import tools.types.AttackPair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;

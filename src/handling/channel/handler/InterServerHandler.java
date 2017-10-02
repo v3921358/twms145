@@ -260,7 +260,7 @@ public class InterServerHandler {
         } catch (Exception e) {
             FileoutputUtil.outputFileError(FileoutputUtil.Login_Error, e);
         }
-        player.getClient().sendPacket(CWvsContext.serverMessage(channelServer.getServerMessage()));
+        player.getClient().sendPacket(CWvsContext.broadcastMessage(channelServer.getServerMessage()));
         player.sendMacros();
         player.showNote();
         player.sendImp();

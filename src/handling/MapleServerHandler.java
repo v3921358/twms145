@@ -382,26 +382,21 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 slea.readInt();
                 PlayerHandler.CharInfoRequest(slea.readInt(), client, client.getPlayer());
                 break;
-            case CLOSE_RANGE_ATTACK:
-                PlayerHandler.closeRangeAttack(slea, client, client.getPlayer(), false);
-                break;
             case PART_TIME_JOB:
                 //CharLoginHandler.PartTimeJob(slea, c);
                 break;
             case MAGIC_WHEEL:
                 InventoryHandler.UseMagicWheel(slea, client, client.getPlayer());
                 break;
-            case RANGED_ATTACK:
-                PlayerHandler.rangedAttack(slea, client, client.getPlayer());
-                break;
-            case MAGIC_ATTACK:
-                PlayerHandler.MagicDamage(slea, client, client.getPlayer());
+            case CP_UserMeleeAttack:
+            case CP_UserShootAttack:
+            case CP_UserMagicAttack:
+            case CP_UserBodyAttack:
+            case CP_SummonedAttack:
+                PlayerHandler.attack(slea, client, header);
                 break;
             case SPECIAL_MOVE:
                 PlayerHandler.SpecialMove(slea, client, client.getPlayer());
-                break;
-            case PASSIVE_ENERGY:
-                PlayerHandler.closeRangeAttack(slea, client, client.getPlayer(), true);
                 break;
             case GET_BOOK_INFO:
                 PlayersHandler.MonsterBookInfoRequest(slea, client, client.getPlayer());
@@ -797,10 +792,6 @@ public class MapleServerHandler extends ChannelDuplexHandler {
                 break;
             case MOVE_SUMMON:
                 SummonHandler.MoveSummon(slea, client.getPlayer());
-                break;
-            case SUMMON_ATTACK:
-                //         c.getPlayer().dropMessage(5, "durr");
-                SummonHandler.SummonAttack(slea, client, client.getPlayer());
                 break;
             case MOVE_DRAGON:
                 SummonHandler.MoveDragon(slea, client.getPlayer());

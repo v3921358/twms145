@@ -41,7 +41,6 @@ import server.life.OverrideMonsterStats;
 import server.maps.MapleNodes.DirectionInfo;
 import server.quest.MapleQuest;
 import server.quest.MapleQuest.MedalQuest;
-import tools.FileoutputUtil;
 import tools.packet.CField;
 import tools.packet.CField.EffectPacket;
 import tools.packet.CField.UIPacket;
@@ -325,7 +324,7 @@ public class MapScriptMethods {
             }
             case boss_Ravana_mirror:
             case boss_Ravana: { //event handles this so nothing for now until i find out something to do with it
-                c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(5, "Ravana has appeared!"));
+                c.getPlayer().getMap().broadcastMessage(CWvsContext.broadcastMsg(5, "Ravana has appeared!"));
                 break;
             }
             case killing_BonusSetting: { //spawns monsters according to mapid

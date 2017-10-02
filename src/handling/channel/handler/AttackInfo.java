@@ -25,7 +25,7 @@ import client.skill.Skill;
 import client.skill.SkillFactory;
 import constants.GameConstants;
 import server.MapleStatEffect;
-import tools.AttackPair;
+import tools.types.AttackPair;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -36,9 +36,12 @@ public class AttackInfo {
     public ArrayList<AttackPair> allDamage;
     public Point position;
     public int display;
-    public byte hits, targets, tbyte, speed, csstar, AOE, slot, direction;
-    public boolean isMagicAttack;
+    public byte level, hits, targets, tbyte, speed, csstar, AOE, slot, direction;
     public boolean real = true;
+    public boolean isMeleeAttack = false;
+    public boolean isShootAttack = false;
+    public boolean isMagicAttack = false;
+    public boolean isBodyAttack = false;
 
     public final MapleStatEffect getAttackEffect(final MapleCharacter chr, int skillLevel, final Skill skill_) {
         if (GameConstants.isMulungSkill(skill) || GameConstants.isPyramidSkill(skill) || GameConstants.isInflationSkill(skill)) {

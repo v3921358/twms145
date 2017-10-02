@@ -338,7 +338,7 @@ public class MapleGuildAlliance implements java.io.Serializable {
         guilds[g] = guilds[0];
         guilds[0] = oldGuild;
         if (leaderName != null) {
-            broadcast(CWvsContext.serverNotice(5, leaderName + " has become the leader of the alliance."));
+            broadcast(CWvsContext.broadcastMsg(5, leaderName + " has become the leader of the alliance."));
         }
         broadcast(AlliancePacket.changeAllianceLeader(allianceid, leaderid, c));
         broadcast(AlliancePacket.updateAllianceLeader(allianceid, leaderid, c));

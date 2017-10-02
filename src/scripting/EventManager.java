@@ -425,7 +425,7 @@ public class EventManager {
 
     public void broadcastServerMsg(final int type, final String msg, final boolean weather) {
         if (!weather) {
-            getChannelServer().broadcastPacket(CWvsContext.serverNotice(type, msg));
+            getChannelServer().broadcastPacket(CWvsContext.broadcastMsg(type, msg));
         } else {
             for (MapleMap load : getMapFactory().getAllMaps()) {
                 if (load.getCharactersSize() > 0) {

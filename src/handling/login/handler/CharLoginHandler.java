@@ -239,7 +239,7 @@ public class CharLoginHandler {
     }
 
     public static void CheckCharName(final String name, final MapleClient c) {
-        c.sendPacket(LoginPacket.charNameResponse(name, !(MapleCharacterUtil.canCreateChar(name, c.isGm()) && (!LoginInformationProvider.getInstance().isForbiddenName(name) || c.isGm()))));
+        c.sendPacket(LoginPacket.charNameResponse(name, !(MapleCharacterUtil.canCreateChar(name, c.isGM()) && (!LoginInformationProvider.getInstance().isForbiddenName(name) || c.isGM()))));
     }
 
     public static void CreateChar(final LittleEndianAccessor slea, final MapleClient c) {
@@ -329,7 +329,7 @@ public class CharLoginHandler {
         newChar.setDemonMarking(demonMark);
 
         if (newChar.getCustomFace() || newChar.getCustomHair()) {
-            World.Broadcast.broadcastMessage(newChar.getWorld(), CWvsContext.serverNotice(6, "[AutoBan] Hahaha some new player tried packet editing their eyes! Let's laugh at their ban!"));
+            World.Broadcast.broadcastMessage(newChar.getWorld(), CWvsContext.broadcastMsg(6, "[AutoBan] Hahaha some new player tried packet editing their eyes! Let's laugh at their ban!"));
             c.banMacs(); //Cheat custom faces/hairs..
             c.getSession().close();
             return;
@@ -389,13 +389,13 @@ public class CharLoginHandler {
         }
 
         //    if ((!newchar.hasEquipped(top)) && (!newchar.hasEquipped(weapon))) {
-        //        World.Broadcast.broadcastMessage(CWvsContext.serverNotice(6, "[AutoBan] Hahaha some new player tried packet editing their equips! Let's laugh at there ban!"));
+        //        World.Broadcast.broadcastMessage(CWvsContext.broadcastMsg(6, "[AutoBan] Hahaha some new player tried packet editing their equips! Let's laugh at there ban!"));
         //        c.banMacs();
         //        c.getSession().close();
         //        return;
         //    }
 
-        if ((!LoginInformationProvider.getInstance().isForbiddenName(name) || c.isGm()) && (c.isGm() || c.canMakeCharacter(c.getWorld()))) {
+        if ((!LoginInformationProvider.getInstance().isForbiddenName(name) || c.isGM()) && (c.isGM() || c.canMakeCharacter(c.getWorld()))) {
             MapleCharacter.saveNewCharToDB(newChar, jobType, jobType.sub);
             c.sendPacket(LoginPacket.addNewCharEntry(newChar, true));
             c.createdChar(newChar.getId());
@@ -530,7 +530,7 @@ public class CharLoginHandler {
         newchar.getInventory(MapleInventoryType.USE).addItem(new Item(2000004, (byte) 0, (short) 100, (byte) 0));
         newchar.getInventory(MapleInventoryType.USE).addItem(new Item(2000004, (byte) 0, (short) 100, (byte) 0));
         c.getPlayer().fakeRelog();
-        if (MapleCharacterUtil.canCreateChar(name, c.isGm()) && (!LoginInformationProvider.getInstance().isForbiddenName(name) || c.isGm()) && (c.isGm() || c.canMakeCharacter(c.getWorld()))) {
+        if ((!LoginInformationProvider.getInstance().isForbiddenName(name) || c.isGM()) && (c.isGM() || c.canMakeCharacter(c.getWorld()))) {
             MapleCharacter.saveNewCharToDB(newchar, jobType, (short) 0);
             c.createdChar(newchar.getId());
             MapleQuest.getInstance(20734).forceComplete(c.getPlayer(), 1101000);

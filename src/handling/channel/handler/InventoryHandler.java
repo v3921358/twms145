@@ -93,7 +93,7 @@ public class InventoryHandler {
         } else if (dst == 0) {
             if (checkq < 1 || c.getPlayer().getInventory(type).getItem(src) == null) {
                 c.getPlayer().getClient().sendPacket(CWvsContext.enableActions());
-                //     World.Broadcast.broadcastGMMessage(CWvsContext.serverNotice(6, c.getPlayer().getName() + " --- Possibly attempting drop dupe! Go investigate"));
+                //     World.Broadcast.broadcastGMMessage(CWvsContext.broadcastMsg(6, c.getPlayer().getName() + " --- Possibly attempting drop dupe! Go investigate"));
                 return;
             }
             MapleInventoryManipulator.drop(c, type, src, quantity);
@@ -420,7 +420,7 @@ public class InventoryHandler {
             return;
         }
 //        if (chr.getMapId() == WizerDual.getPvPMap() || chr.getMap().pvpEnabled()) {
-//            c.sendPacket(CWvsContext.serverNotice(5, "You may not use potions in PvP."));
+//            c.sendPacket(CWvsContext.broadcastMsg(5, "You may not use potions in PvP."));
 //            c.sendPacket(CWvsContext.enableActions());
 //            return;
 //        }
@@ -3077,7 +3077,7 @@ public class InventoryHandler {
                         sb.append(" : ");
                         sb.append(message);
 
-                        c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(2, sb.toString()));
+                        c.getPlayer().getMap().broadcastMessage(CWvsContext.broadcastMsg(2, sb.toString()));
                         used = true;
                     } else {
                         c.getPlayer().dropMessage(5, "The usage of Megaphone is currently disabled.");
@@ -3105,7 +3105,7 @@ public class InventoryHandler {
                         sb.append(" : ");
                         sb.append(message);
 
-                        c.getChannelServer().broadcastSmegaPacket(CWvsContext.serverNotice(2, sb.toString()));
+                        c.getChannelServer().broadcastSmegaPacket(CWvsContext.broadcastMsg(2, sb.toString()));
                         used = true;
                     } else {
                         c.getPlayer().dropMessage(5, "The usage of Megaphone is currently disabled.");
@@ -3169,7 +3169,7 @@ public class InventoryHandler {
 
                         final boolean ear = slea.readByte() != 0;
 
-                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.serverNotice(25, c.getChannel(), sb.toString(), ear));
+                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.broadcastMsg(25, c.getChannel(), sb.toString(), ear));
                         used = true;
                     } else {
                         c.getPlayer().dropMessage(5, "The usage of Megaphone is currently disabled.");
@@ -3199,7 +3199,7 @@ public class InventoryHandler {
 
                         final boolean ear = slea.readByte() != 0;
 
-                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.serverNotice(26, c.getChannel(), sb.toString(), ear));
+                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.broadcastMsg(26, c.getChannel(), sb.toString(), ear));
                         used = true;
                     } else {
                         c.getPlayer().dropMessage(5, "The usage of Megaphone is currently disabled.");
@@ -3250,7 +3250,7 @@ public class InventoryHandler {
                         sb.append(message);
 
                         boolean ear = slea.readByte() != 0;
-                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.serverNotice(9, c.getChannel(), sb.toString(), ear));
+                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.broadcastMsg(9, c.getChannel(), sb.toString(), ear));
                         used = true;
                     } else {
                         c.getPlayer().dropMessage(5, "The usage of Megaphone is currently disabled.");
@@ -3280,7 +3280,7 @@ public class InventoryHandler {
 
                         boolean ear = slea.readByte() != 0;
 
-                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.serverNotice(22, c.getChannel(), sb.toString(), ear));
+                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.broadcastMsg(22, c.getChannel(), sb.toString(), ear));
                         used = true;
                     } else {
                         c.getPlayer().dropMessage(5, "The usage of Megaphone is currently disabled.");
@@ -3310,7 +3310,7 @@ public class InventoryHandler {
 
                         boolean ear = slea.readByte() != 0;
 
-                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.serverNotice(3, c.getChannel(), sb.toString(), ear));
+                        World.Broadcast.broadcastSmega(c.getWorld(), CWvsContext.broadcastMsg(3, c.getChannel(), sb.toString(), ear));
                         used = true;
                     } else {
                         c.getPlayer().dropMessage(5, "The usage of Megaphone is currently disabled.");

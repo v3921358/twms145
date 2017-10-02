@@ -82,10 +82,10 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
     CANCEL_CHAIR,
     USE_TITLE,
     USE_CHAIR,
-    CLOSE_RANGE_ATTACK,
-    RANGED_ATTACK,
-    MAGIC_ATTACK,
-    PASSIVE_ENERGY,
+    CP_UserMeleeAttack,
+    CP_UserShootAttack,
+    CP_UserMagicAttack,
+    CP_UserBodyAttack,
     TAKE_DAMAGE,
     GENERAL_CHAT,
     CLOSE_CHALKBOARD,
@@ -170,7 +170,7 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
     PET_LOOT,
     PET_AUTO_POT,
     MOVE_SUMMON,
-    SUMMON_ATTACK,
+    CP_SummonedAttack,
     DAMAGE_SUMMON,
     MOVE_LIFE,
     AUTO_AGGRO,
@@ -341,7 +341,7 @@ public enum RecvPacketOpcode implements WritableShortValueHolder {
             case "MOVE_PLAYER":
             case "MOVE_LIFE":
             case "HEAL_OVER_TIME":
-            case "CLOSE_RANGE_ATTACK":
+            case "CP_UserMeleeAttack":
             case "TAKE_DAMAGE":
             case "SPECIAL_MOVE":
             case "USE_ITEM":

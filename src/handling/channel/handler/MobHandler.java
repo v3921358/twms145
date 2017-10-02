@@ -117,7 +117,6 @@ public class MobHandler {
         slea.readShort();
         slea.readShort();
 
-        // 119 added
         slea.readByte();
         slea.readInt();
         slea.readInt();
@@ -188,7 +187,7 @@ public class MobHandler {
                     break;
                 }
             }
-            map.broadcastMessage(CWvsContext.serverNotice(6, "Your party has failed to protect the monster."));
+            map.broadcastMessage(CWvsContext.broadcastMsg(6, "Your party has failed to protect the monster."));
             final MapleMap mapp = chr.getMap().getForcedReturnMap();
             for (MapleCharacter chrz : map.getCharactersThreadsafe()) {
                 chrz.changeMap(mapp, mapp.getPortal(0));
@@ -356,7 +355,7 @@ public class MobHandler {
                     case 9320002:
                     case 9320003:
                         chr.getMap().removeMonster(mob_from);
-                        chr.getMap().broadcastMessage(CWvsContext.serverNotice(5, "Proceed to the next stage."));
+                        chr.getMap().broadcastMessage(CWvsContext.broadcastMsg(5, "Proceed to the next stage."));
                         break;
 
                 }

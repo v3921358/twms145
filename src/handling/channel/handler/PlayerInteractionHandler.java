@@ -478,7 +478,7 @@ public class PlayerInteractionHandler {
             case CLOSE_MERCHANT: { // the one-and-only todo >.>
                 final IMaplePlayerShop merchant = chr.getPlayerShop();
                 if (merchant != null && merchant.getShopType() == 1 && merchant.isOwner(chr) && merchant.isAvailable()) {
-                    c.sendPacket(CWvsContext.serverNotice(1, "Please visit Fredrick for your items."));
+                    c.sendPacket(CWvsContext.broadcastMsg(1, "Please visit Fredrick for your items."));
                     if (merchant.isOwner(chr)) {
                         merchant.closeShop(true, true); //how to return the items?
                     } else {

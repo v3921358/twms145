@@ -1987,7 +1987,7 @@ public class World {
                         guild.setAllianceId(0);
                         guild.broadcast(AlliancePacket.disbandAlliance(allianceid));
                     } else if (g_ != null) {
-                        guild.broadcast(CWvsContext.serverNotice(5, "[" + g_.getName() + "] Guild has left the alliance."));
+                        guild.broadcast(CWvsContext.broadcastMsg(5, "[" + g_.getName() + "] Guild has left the alliance."));
                         guild.broadcast(AlliancePacket.changeGuildInAlliance(alliance, g_, false));
                         guild.broadcast(AlliancePacket.removeGuildFromAlliance(alliance, g_, expelled));
                     }

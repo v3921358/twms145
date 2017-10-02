@@ -65,7 +65,7 @@ public class MapleSquad {
                     final MapleSquad squad = new MapleSquad(wl, ch, type.name(), lead, expiration, toSay);
                     if (ChannelServer.getInstance(wl, ch).addMapleSquad(squad, type.name())) {
                         getBeginMap().broadcastMessage(CField.getClock(expiration / 1000));
-                        getBeginMap().broadcastMessage(CWvsContext.serverNotice(6, nextPlayerId + toSay));
+                        getBeginMap().broadcastMessage(CWvsContext.broadcastMsg(6, nextPlayerId + toSay));
                         type.queuedPlayers.get(ch).add(new Pair<>(nextPlayerId, "Success"));
                     } else {
                         squad.clear();
@@ -76,11 +76,11 @@ public class MapleSquad {
                     if (lead != null) {
                         lead.dropMessage(6, "Your squad has been skipped due to you not being in the right channel and map.");
                     }
-                    getBeginMap().broadcastMessage(CWvsContext.serverNotice(6, nextPlayerId + "'s squad has been skipped due to the player not being in the right channel and map."));
+                    getBeginMap().broadcastMessage(CWvsContext.broadcastMsg(6, nextPlayerId + "'s squad has been skipped due to the player not being in the right channel and map."));
                     type.queuedPlayers.get(ch).add(new Pair<>(nextPlayerId, "Not in map"));
                 }
             } else {
-                getBeginMap().broadcastMessage(CWvsContext.serverNotice(6, nextPlayerId + "'s squad has been skipped due to the player not being online."));
+                getBeginMap().broadcastMessage(CWvsContext.broadcastMsg(6, nextPlayerId + "'s squad has been skipped due to the player not being online."));
                 type.queuedPlayers.get(ch).add(new Pair<>(nextPlayerId, "Not online"));
             }
         }

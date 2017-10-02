@@ -92,6 +92,60 @@ public class GameConstants {
             2044019,
             2044703
     };
+
+    public static boolean isBossMap(int mapid) {
+        switch (mapid) {
+            case 0:
+            case 105100300:
+            case 105100400:
+            case 211070100:
+            case 211070101:
+            case 211070110:
+            case 220080001:
+            case 240040700:
+            case 240060200:
+            case 240060201:
+            case 270050100:
+            case 271040100:
+            case 271040200:
+            case 280030000:
+            case 280030001:
+            case 280030100:
+            case 300030310:
+            case 551030200:
+            case 802000111:
+            case 802000211:
+            case 802000311:
+            case 802000411:
+            case 802000611:
+            case 802000711:
+            case 802000801:
+            case 802000802:
+            case 802000803:
+            case 802000821:
+            case 802000823:
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isEnergyBuff(int skill) { //body pressure, tele mastery, twister spin. etc
+        switch (skill) {
+            case 2201009:
+            case 2111007:
+            case 2211007:
+            case 2311007:
+            case 4341052:
+            case 12111007:
+            case 21101003:
+            case 24120055:
+            case 22161005:
+            case 32111010:
+                return true;
+        }
+        return false;
+    }
+
     // Monster Rider - [80001000], Double Jump - [3201003, 3101003, 13101004]
     public static final int[] blockedSkills = {
             3201003,

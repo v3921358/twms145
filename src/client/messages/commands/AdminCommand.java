@@ -25,4 +25,5 @@ public class AdminCommand {
             return "@expRate <世界> <頻道> <倍率> - 設定經驗值倍率";
         }
     }
+
 }

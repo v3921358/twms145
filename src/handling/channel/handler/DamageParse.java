@@ -27,6 +27,7 @@ import client.inventory.MapleInventoryType;
 import client.skill.Skill;
 import client.skill.SkillFactory;
 import constants.GameConstants;
+import handling.RecvPacketOpcode;
 import handling.login.LoginServer;
 import handling.world.World;
 import server.MapleStatEffect;
@@ -42,7 +43,7 @@ import server.maps.MapleMapObjectType;
 import server.status.MapleBuffStatus;
 import server.status.MonsterStatus;
 import server.status.MonsterStatusEffect;
-import tools.AttackPair;
+import tools.types.AttackPair;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
 import tools.packet.CWvsContext;
@@ -53,6 +54,8 @@ import java.util.*;
 import java.util.List;
 
 public class DamageParse {
+
+
 
     public static void applyAttack(final AttackInfo attack, final Skill theSkill, final MapleCharacter player, int attackCount, final double maxDamagePerMonster, final MapleStatEffect effect, final AttackType attack_type) {
         if (!player.isAlive()) {
@@ -120,7 +123,7 @@ public class DamageParse {
 
         if (!player.isGM()) {
             if (attack.skill == 9001001 || attack.skill == 9101006) {
-                World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.serverNotice(6, "[AutoBan] " + player.getName() + " has been banned for packet editing GM Roar!"));
+                World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.broadcastMsg(6, "[AutoBan] " + player.getName() + " has been banned for packet editing GM Roar!"));
                 player.ban("Packet edited GM Roar!", true);
             }
         }
@@ -498,7 +501,7 @@ public class DamageParse {
         final MapleMap map = player.getMap();
         if (!player.isGM()) {
             if (attack.skill == 9001001 || attack.skill == 9101006) {
-                World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.serverNotice(6, "[AutoBan] " + player.getName() + " has been banned for packet editing GM Roar!"));
+                World.Broadcast.broadcastMessage(player.getWorld(), CWvsContext.broadcastMsg(6, "[AutoBan] " + player.getName() + " has been banned for packet editing GM Roar!"));
                 player.ban("Packet edited GM Roar!", true, true);
             }
         }
@@ -966,7 +969,51 @@ public class DamageParse {
         return attack;
     }
 
-    public static final AttackInfo parseDmgMa(LittleEndianAccessor lea, MapleCharacter chr) {
+    public static final AttackInfo parseDamage(final LittleEndianAccessor lea, final MapleCharacter chr, RecvPacketOpcode header) {
+        final AttackInfo ret = new AttackInfo();
+        switch (header) {
+            case CP_UserMeleeAttack:
+                ret.isMeleeAttack = true;
+                break;
+            case CP_UserShootAttack:
+                ret.isShootAttack = true;
+                break;
+            case CP_UserMagicAttack:
+                ret.isMagicAttack = true;
+                break;
+            case CP_UserBodyAttack:
+                ret.isBodyAttack = true;
+                break;
+            default:
+                if (chr.isShowErr()) {
+                    chr.showInfo("分析攻擊", true, "類型[" + header.name() + "]未處理或這個攻擊類型不適用這個分析函數");
+                }
+                return null;
+        }
+
+        if (ret.isBodyAttack &&
+                chr.getBuffedValue(MapleBuffStatus.ENERGY_CHARGE) == null && //能量获得
+                chr.getBuffedValue(MapleBuffStatus.BODY_PRESSURE) == null && //战神抗压
+                chr.getBuffedValue(MapleBuffStatus.DARK_AURA) == null && //黑暗灵气
+                chr.getBuffedValue(MapleBuffStatus.TORNADO) == null && //幻灵飓风
+                chr.getBuffedValue(MapleBuffStatus.SUMMON) == null && //召唤兽
+                chr.getBuffedValue(MapleBuffStatus.RAINING_MINES) == null && //地雷
+                chr.getBuffedValue(MapleBuffStatus.TELEPORT_MASTERY) == null) {
+            if (chr.isShowErr()) {
+                chr.showInfo("分析攻擊", true, "類型[" + header.name() + "]當前狀態限制了攻擊");
+            }
+            return null;
+        }
+
+        if (ret.isShootAttack) {
+            lea.skip(1);
+        }
+
+        return null;
+
+    }
+
+    public static final AttackInfo parseMagicDamage(LittleEndianAccessor lea, MapleCharacter chr) {
         try {
             AttackInfo ret = new AttackInfo();
             ret.isMagicAttack = true;
@@ -1022,7 +1069,7 @@ public class DamageParse {
         return null;
     }
 
-    public static final AttackInfo parseDmgM(LittleEndianAccessor lea, MapleCharacter chr) {
+    public static final AttackInfo parseCloseRangeAttack(LittleEndianAccessor lea, MapleCharacter chr) {
         AttackInfo ret = new AttackInfo();
         lea.skip(1);
         ret.tbyte = lea.readByte();
@@ -1036,21 +1083,7 @@ public class DamageParse {
                 lea.skip(1);
                 break;
         }
-
-        switch (ret.skill) {
-            case 11101007: // Power Reflection
-            case 11101006: // Dawn Warrior - Power Reflection
-            case 21101003: // body pressure
-            case 2111007:// tele mastery skills
-            case 2211007:
-            case 12111007:
-            case 22161005:
-            case 32111010:
-            case 2311007: // bishop tele mastery
-                lea.skip(1); // charge = 0
-            default:
-                lea.skip(2);
-        }
+        lea.skip(GameConstants.isEnergyBuff(ret.skill) ? 1 : 2);
         int crc = lea.readInt(); // nSkillCRC
         switch (ret.skill) {
             case 24121000:
@@ -1074,7 +1107,7 @@ public class DamageParse {
             case 14111023:
                 lea.readInt();
         }
-        lea.skip(1);
+        lea.readByte();
         ret.direction = lea.readByte();
         ret.display = lea.readUShort();
         int key = ret.display & 0x7FFF;
@@ -1082,8 +1115,6 @@ public class DamageParse {
         lea.skip(1);
         byte action = lea.readByte();
         lea.skip(1);
-
-
         if ((ret.skill == 5300007) || (ret.skill == 5101012) || (ret.skill == 5081001) || (ret.skill == 15101010)) {
             lea.readInt();
         }
@@ -1125,7 +1156,7 @@ public class DamageParse {
         return ret;
     }
 
-    public static final AttackInfo parseDmgR(LittleEndianAccessor lea, MapleCharacter chr) {
+    public static final AttackInfo parseRangedAttack(LittleEndianAccessor lea, MapleCharacter chr) {
         AttackInfo ret = new AttackInfo();
         lea.skip(1);
         ret.tbyte = lea.readByte();

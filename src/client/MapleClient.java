@@ -23,6 +23,7 @@ package client;
 import client.buddy.BuddyList;
 import constants.GameConstants;
 import constants.ServerConstants;
+import constants.ServerConstants.PlayerGMRank;
 import database.DatabaseConnection;
 import database.DatabaseException;
 import handling.cashshop.CashShopServer;
@@ -85,7 +86,7 @@ public class MapleClient implements Serializable {
     private String accountName;
     private transient long lastPong = 0, lastPing = 0;
     private boolean monitored = false, receiving = true;
-    private boolean gm;
+    private int gmLevel;
     private byte greason = 1, gender = -1;
     private transient List<Integer> allowedChar = new LinkedList<>();
     private Set<String> macs = new HashSet<>();
@@ -801,7 +802,7 @@ public class MapleClient implements Serializable {
                     db_macs = rs.getString("macs");
                     accountId = rs.getInt("id");
                     secondPassword = rs.getString("2ndpassword");
-                    gm = rs.getInt("gm") > 0;
+                    gmLevel = rs.getInt("gm");
                     //bannedReason = rs.getByte("greason");
                     tempban = getTempBanCalendar(rs);
                     gender = rs.getByte("gender");
@@ -831,7 +832,7 @@ public class MapleClient implements Serializable {
             }
         }
 
-        if (db_banned > 0 && !isGm()) {
+        if (db_banned > 0 && !isGM()) {
             return LoginResponse.ACCOUNT_BLOCKED;
         }
 
@@ -849,7 +850,7 @@ public class MapleClient implements Serializable {
             }
         }
 
-        if (isGm()) {
+        if (isGM()) {
             updateSaltedPasswordHash(password);
         } else if (updatePasswordHash) {
             updatePasswordHash(password);
@@ -886,10 +887,6 @@ public class MapleClient implements Serializable {
             System.out.println(ex);
         }
         return accid;
-    }
-
-    public final boolean isGm() {
-        return gm;
     }
 
     public boolean CheckSecondPassword(String in) {
@@ -1190,6 +1187,7 @@ public class MapleClient implements Serializable {
             }
             MapleMap map = player.getMap();
             final MapleParty party = player.getParty();
+            final boolean clone = player.isClone();
             final String namez = player.getName();
             final int idz = player.getId(), messengerid = player.getMessenger() == null ? 0 : player.getMessenger().getId(), gid = player.getGuildId(), fid = player.getFamilyId();
             final BuddyList bl = player.getBuddylist();
@@ -1215,7 +1213,7 @@ public class MapleClient implements Serializable {
                     return;
                 }
                 try {
-                    if (chz == -1 || ch == null || ch.isShutdown()) {
+                    if (chz == -1 || ch == null || clone || ch.isShutdown()) {
                         player = null;
                         return;//no idea
                     }
@@ -1480,19 +1478,16 @@ public class MapleClient implements Serializable {
         lastPing = System.currentTimeMillis();
         session.write(LoginPacket.getPing());
 
-        PingTimer.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (getLatency() < 0) {
-                        disconnect(true, false);
-                        if (getSession().isActive()) {
-                            getSession().close();
-                        }
+        PingTimer.getInstance().schedule(() -> {
+            try {
+                if (getLatency() < 0) {
+                    disconnect(true, false);
+                    if (getSession().isActive()) {
+                        getSession().close();
                     }
-                } catch (final NullPointerException e) {
-                    // client already gone
                 }
+            } catch (final NullPointerException e) {
+                // client already gone
             }
         }, 60000); // note: idletime gets added to this too
     }
@@ -1500,6 +1495,31 @@ public class MapleClient implements Serializable {
     public Set<String> getMacs() {
         return Collections.unmodifiableSet(macs);
     }
+
+    public boolean isIntern() {
+        return gmLevel >= PlayerGMRank.INTERN.getLevel();
+    }
+
+    public boolean isGM() {
+        return gmLevel >= PlayerGMRank.GM.getLevel();
+    }
+
+    public boolean isSuperGM() {
+        return gmLevel >= PlayerGMRank.SUPER_GM.getLevel();
+    }
+
+    public boolean isAdmin() {
+        return gmLevel >= PlayerGMRank.ADMIN.getLevel();
+    }
+
+    public int getGmLevel() {
+        return gmLevel;
+    }
+
+    public final void setGmLevel(PlayerGMRank rank) {
+        this.gmLevel = rank.getLevel();
+    }
+
 
     public final void setScriptEngine(final String name, final ScriptEngine e) {
         engines.put(name, e);
@@ -1530,7 +1550,7 @@ public class MapleClient implements Serializable {
     }
 
     public int getCharacterSlots() {
-        if (isGm()) {
+        if (isGM()) {
             return 15;
         }
         if (charslots != DEFAULT_CHAR_SLOT) {

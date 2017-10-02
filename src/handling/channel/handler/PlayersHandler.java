@@ -48,7 +48,7 @@ import server.life.MonsterDropEntry;
 import server.life.MonsterGlobalDropEntry;
 import server.maps.*;
 import server.quest.MapleQuest;
-import tools.AttackPair;
+import tools.types.AttackPair;
 import tools.FileoutputUtil;
 import tools.data.LittleEndianAccessor;
 import tools.packet.CField;
@@ -367,10 +367,10 @@ public class PlayersHandler {
                 map.fallCoconut();
                 if (c.getPlayer().getTeam() == 0) {
                     map.addMapleScore();
-                    //c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(5, c.getPlayer().getName() + " of Team Maple knocks down a " + co + "."));
+                    //c.getPlayer().getMap().broadcastMessage(CWvsContext.broadcastMsg(5, c.getPlayer().getName() + " of Team Maple knocks down a " + co + "."));
                 } else {
                     map.addStoryScore();
-                    //c.getPlayer().getMap().broadcastMessage(CWvsContext.serverNotice(5, c.getPlayer().getName() + " of Team Story knocks down a " + co + "."));
+                    //c.getPlayer().getMap().broadcastMessage(CWvsContext.broadcastMsg(5, c.getPlayer().getName() + " of Team Story knocks down a " + co + "."));
                 }
                 c.getPlayer().getMap().broadcastMessage(CField.coconutScore(map.getCoconutScore()));
             }
@@ -409,7 +409,7 @@ public class PlayersHandler {
             c.getPlayer().setFollowInitiator(false);
             tt.getClient().sendPacket(CWvsContext.followRequest(c.getPlayer().getId()));
         } else {
-            c.sendPacket(CWvsContext.serverNotice(1, "You are too far away."));
+            c.sendPacket(CWvsContext.broadcastMsg(1, "You are too far away."));
         }
     }
 
@@ -435,7 +435,7 @@ public class PlayersHandler {
                     tt.setFollowId(0);
                     c.getPlayer().setFollowId(0);
                 }
-                c.sendPacket(CWvsContext.serverNotice(1, "You are too far away."));
+                c.sendPacket(CWvsContext.broadcastMsg(1, "You are too far away."));
             }
         } else {
             c.getPlayer().setFollowId(0);
@@ -585,7 +585,7 @@ public class PlayersHandler {
             c.sendPacket(CWvsContext.enableActions());
             c.getPlayer().dropMessage(5, "You may only report every 2 hours.");
         } else {
-            World.Broadcast.broadcastGMMessage(cheater.getWorld(), CWvsContext.serverNotice(5, cheater.getName() + " was reported for: " + reason));
+            World.Broadcast.broadcastGMMessage(cheater.getWorld(), CWvsContext.broadcastMsg(5, cheater.getName() + " was reported for: " + reason));
             stat.setCustomData(String.valueOf(currentTime));
             cheater.addReport(type);
             c.sendPacket(CWvsContext.report(2));
